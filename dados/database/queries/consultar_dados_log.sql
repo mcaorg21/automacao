@@ -1,0 +1,1 @@
+SELECT * FROM robo_log WHERE fk_idRobo = 3 order by dataConsulta desc;

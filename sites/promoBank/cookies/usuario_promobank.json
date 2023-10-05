@@ -1,0 +1,82 @@
+[
+    {
+        "domain": ".promobank.com.br",
+        "expiry": 1668868183,
+        "httpOnly": false,
+        "name": "_ga",
+        "path": "/",
+        "secure": false,
+        "value": "GA1.3.1059098946.1605796179"
+    },
+    {
+        "domain": ".promobank.com.br",
+        "httpOnly": false,
+        "name": "incap_ses_1312_2057640",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "value": "4ZnPAONbYVMSbBZ3Eyk1EgY0tl8AAAAAp9fl+4gY39Ay0CViZHurVw=="
+    },
+    {
+        "domain": ".promobank.com.br",
+        "expiry": 1637323205,
+        "httpOnly": true,
+        "name": "visid_incap_2057640",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "value": "Wc4FKedOTu6QE9gZUMVp1gM0tl8AAAAAQUIPAAAAAAAHc2fmA+rB2iDTkSBY+XrR"
+    },
+    {
+        "domain": ".promobank.com.br",
+        "httpOnly": false,
+        "name": "incap_ses_532_2057640",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "value": "yJ0GU8D/sSmlEl1LbQtiBwM0tl8AAAAANwFxNr++fAR38y8yo5rTiQ=="
+    },
+    {
+        "domain": ".promobank.com.br",
+        "expiry": 1605882583,
+        "httpOnly": false,
+        "name": "_gid",
+        "path": "/",
+        "secure": false,
+        "value": "GA1.3.955507779.1605796179"
+    },
+    {
+        "domain": ".promobank.com.br",
+        "httpOnly": false,
+        "name": "incap_ses_148_2057640",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "value": "enaJXZAK1zdg9ZF4cc0NAtgMtF8AAAAAlzN38ng1LhyvqgYFx1yrsA=="
+    },
+    {
+        "domain": "promobank.com.br",
+        "httpOnly": false,
+        "name": "PHPSESSID",
+        "path": "/",
+        "secure": false,
+        "value": "208ep9srrv2b2138jtee3va62v1f1rnd"
+    },
+    {
+        "domain": ".promobank.com.br",
+        "httpOnly": false,
+        "name": "PHPSESSID",
+        "path": "/",
+        "secure": true,
+        "value": "208ep9srrv2b2138jtee3va62v1f1rnd"
+    },
+    {
+        "domain": "promobank.com.br",
+        "expiry": 1606401279,
+        "httpOnly": false,
+        "name": "ace_settings",
+        "path": "/sistema",
+        "secure": false,
+        "value": "%7B%22navbar-fixed%22%3A1%2C%22sidebar-fixed%22%3A1%2C%22sidebar-collapsed%22%3A1%7D"
+    }
+]

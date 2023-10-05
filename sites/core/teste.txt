@@ -1,0 +1,103 @@
+
+2020-04-03 08:36:06.360617 : 384656
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.820152%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 08:43:04.369526 : 384663
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.823808%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 08:45:51.913109 : 384671
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.808691%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 08:48:59.474837 : 382001
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.819972%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 08:52:02.692316 : 382337
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.819956%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 08:55:17.126437 : 382788
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.817437%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 09:00:14.555449 : 383753
+{'erro': 'O atributo Data Nascimento informado é inválido.\n', 'mensagem': 'Pular', 'atualizar': True, 'aceitar': True, 'pular': True}
+---------------
+
+2020-04-03 09:03:55.148066 : 383779
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.822548%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 09:07:42.932095 : 383784
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.822588%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 09:10:35.316955 : 383785
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.822662%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 09:13:17.329221 : 383790
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.822604%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 09:16:34.526500 : 383794
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.826513%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 09:19:22.310097 : 384656
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.820152%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 11:05:20.773270 : 382001
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.831447%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 11:08:26.520894 : 382337
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.831454%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 11:15:12.195098 : 383743
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.826495%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 11:18:06.355059 : 383753
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.822589%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 11:20:53.395613 : 383779
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.822609%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 11:23:49.020658 : 383784
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.822647%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 11:28:30.883780 : 383790
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.822604%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 11:31:28.036913 : 383794
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.826513%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 11:34:15.593496 : 384656
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.820152%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 11:38:48.550109 : 384662
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.822674%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 11:41:39.430882 : 384663
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.823808%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 11:47:40.672544 : 384671
+{'erro': 'Não é permitido gerar a proposta pois sua taxa (1.820165%) é superior à taxa máxima (1.80%) da entidade.', 'atualizar': True, 'aceitar': True, 'mensagem': 'Conferir dados do contrato', 'observacao': 'Valor do empréstimo precisa ser atualizado. Favor atualiza e colocar para inserir automático', 'pular': True, 'interacaoHumana': 1}
+---------------
+
+2020-04-03 11:50:33.247415 : 384710
+{'erro': 'Não é permitido gerar

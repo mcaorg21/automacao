@@ -1,0 +1,350 @@
+{
+    "identificador_orgao": {
+        "1": {
+            "sigla": "SP",
+            "idOrgaoUconecte": "67",
+            "tabela": [
+                {
+                    "nome": "006846 - VD_REFIN EST SAO PAULO 5% QUIT",
+                    "codigo": "006846"
+                },
+                {
+                    "nome": "007263 - VD_REFIN EST SAO PAULO 5% QUIT - ESPECIA",
+                    "codigo": "007263"
+                },
+                {
+                    "nome": "007264 - VD_REFIN EST SAO PAULO 5% QUIT - ESP 2",
+                    "codigo": "007264"
+                },
+                {
+                    "nome": "007265 - VD_REFIN EST SAO PAULO 5% QUIT - ESP 3",
+                    "codigo": "007265"
+                }
+            ],
+            "idOrgaoOle": "008521"
+        },
+        "2": {
+            "sigla": "SP",
+            "idOrgaoUconecte": "80",
+            "tabela": [
+                {
+                    "nome": "006851 - VD_REFIN SP PREV - 5% QUIT",
+                    "codigo": "006851"
+                },
+                {
+                    "nome": "006853 - VD_REFIN SP PREV ESPECIAL - 5% QUIT",
+                    "codigo": "006853"
+                },
+                {
+                    "nome": "007266 - VD_REFIN SP PREV ESPECIAL 2 - 5% QUIT",
+                    "codigo": "007266"
+                },
+                {
+                    "nome": "007267 - VD_REFIN SP PREV ESPECIAL 3 - 5% QUIT",
+                    "codigo": "007267"
+                },
+                {
+                    "nome": "007268 - VD_REFIN SP PREV ESPECIAL 4 - 5% QUIT",
+                    "codigo": "007268"
+                },
+                {
+                    "nome": "006855 - VD_REFIN SP PREV ESPECIAL 5 - 5% QUIT",
+                    "codigo": "006855"
+                },
+                {
+                    "nome": "009842 - VD_REFIN EST SAO PAULO 5% QUIT - ESP 6",
+                    "codigo": "009842"
+                }
+            ],
+            "idOrgaoOle": "008522"
+        },
+        "3": {
+            "sigla": "SP",
+            "idOrgaoUconecte": "63",
+            "tabela": [
+                {
+                    "nome": "008046 - VD_REFIN EST SAO PAULO 5% QUIT - SEFAZ",
+                    "codigo": "008046"
+                }
+            ],
+            "idOrgaoOle": "008525"
+        },
+        "4": {
+            "sigla": "SP",
+            "idOrgaoUconecte": "81",
+            "tabela": [
+                {
+                    "nome": "006851 - VD_REFIN SP PREV - 5% QUIT",
+                    "codigo": "006851"
+                },
+                {
+                    "nome": "006853 - VD_REFIN SP PREV ESPECIAL - 5% QUIT",
+                    "codigo": "006853"
+                },
+                {
+                    "nome": "007266 - VD_REFIN SP PREV ESPECIAL 2 - 5% QUIT",
+                    "codigo": "007266"
+                },
+                {
+                    "nome": "007267 - VD_REFIN SP PREV ESPECIAL 3 - 5% QUIT",
+                    "codigo": "007267"
+                },
+                {
+                    "nome": "007268 - VD_REFIN SP PREV ESPECIAL 4 - 5% QUIT",
+                    "codigo": "007268"
+                },
+                {
+                    "nome": "006855 - VD_REFIN SP PREV ESPECIAL 5 - 5% QUIT",
+                    "codigo": "006855"
+                }
+            ],
+            "idOrgaoOle": "008522"
+        },
+        "5": {
+            "sigla": "SP",
+            "idOrgaoUconecte": "2008",
+            "tabela": [
+                {
+                    "nome": "006846 - VD_REFIN EST SAO PAULO 5% QUIT",
+                    "codigo": "006846"
+                },
+                {
+                    "nome": "007263 - VD_REFIN EST SAO PAULO 5% QUIT - ESPECIA",
+                    "codigo": "007263"
+                },
+                {
+                    "nome": "007264 - VD_REFIN EST SAO PAULO 5% QUIT - ESP 2",
+                    "codigo": "007264"
+                },
+                {
+                    "nome": "007265 - VD_REFIN EST SAO PAULO 5% QUIT - ESP 3",
+                    "codigo": "007265"
+                }
+            ],
+            "idOrgaoOle": "009366"
+        },
+        "6": {
+            "sigla": "SP",
+            "idOrgaoUconecte": "2010",
+            "tabela": [
+                {
+                    "nome": "008046 - VD_REFIN EST SAO PAULO 5% QUIT - SEFAZ",
+                    "codigo": "008046"
+                }
+            ],
+            "idOrgaoOle": "008525"
+        },
+        "7": {
+            "sigla": "SP",
+            "idOrgaoUconecte": "69",
+            "tabela": [
+                {
+                    "nome": "008046 - VD_REFIN EST SAO PAULO 5% QUIT - SEFAZ",
+                    "codigo": "008046"
+                }
+            ],
+            "idOrgaoOle": "008525"
+        },
+        "8": {
+            "sigla": "SP",
+            "idOrgaoUconecte": "66",
+            "tabela": [
+                {
+                    "nome": "008046 - VD_REFIN EST SAO PAULO 5% QUIT - SEFAZ",
+                    "codigo": "008046"
+                }
+            ],
+            "idOrgaoOle": "008525"
+        },
+        "9": {
+            "sigla": "SP",
+            "idOrgaoUconecte": "86",
+            "tabela": [
+                {
+                    "nome": "008046 - VD_REFIN EST SAO PAULO 5% QUIT - SEFAZ",
+                    "codigo": "008046"
+                }
+            ],
+            "idOrgaoOle": "008525"
+        },
+        "10": {
+            "sigla": "SP",
+            "idOrgaoUconecte": "2009",
+            "tabela": [
+                {
+                    "nome": "008046 - VD_REFIN EST SAO PAULO 5% QUIT - SEFAZ",
+                    "codigo": "008046"
+                }
+            ],
+            "idOrgaoOle": "009077"
+        },
+        "11": {
+            "sigla": "BA",
+            "tabela": [
+                {
+                    "idOrgaoUconectePMilitar": "67",
+                    "idOrgaoOlePMilitar": "000454",
+                    "idOrgaoUconecteFazenda": "63",
+                    "idOrgaoOleFazenda": "000440",
+                    "idOrgaoUconecteSaude": "2008",
+                    "idOrgaoOleSaude": "000445",
+                    "idOrgaoUconecteEducacao": "2010",
+                    "idOrgaoOleEducacao": "000439",
+                    "idOrgaoUconecteAposentado": "80",
+                    "idOrgaoOleAposentado": "009263",
+                    "idOrgaoUconectePensionista": "81",
+                    "idOrgaoOlePensionista": "009263",
+                    "idOrgaoUconectePCivil": "69",
+                    "idOrgaoOlePCivil": "007284",
+                    "idOrgaoUconecteBombeiro": "66",
+                    "idOrgaoOleBombeiro": "000440",
+                    "idOrgaoUconecteIPSM": "64",
+                    "idOrgaoOleIPSM": "000440"
+                }
+            ]
+        },
+        "12": {
+            "sigla": "SC",
+            "tabela": [
+                {
+                    "idOrgaoUconecteFazenda": "63",
+                    "idOrgaoOleFazenda": "001663",
+                    "idOrgaoUconecteSaude": "2008",
+                    "idOrgaoOleSaude": "001671",
+                    "idOrgaoUconecteEducacao": "2010",
+                    "idOrgaoOleEducacao": "001677",
+                    "idOrgaoUconecteAposentado": "80",
+                    "idOrgaoOleAposentado": "003735",
+                    "idOrgaoUconectePensionista": "81",
+                    "idOrgaoOlePensionista": "003735",
+                    "idOrgaoUconectePCivil": "69",
+                    "idOrgaoOlePCivil": "001663"
+                }
+            ]
+        },
+        "13": {
+            "sigla": "AC",
+            "tabela": [
+                {
+                    "idOrgaoUconectePMilitar": "67",
+                    "idOrgaoOlePMilitar": "006539",
+                    "idOrgaoUconecteFazenda": "63",
+                    "idOrgaoOleFazenda": "006513",
+                    "idOrgaoUconecteSaude": "2008",
+                    "idOrgaoOleSaude": "006516",
+                    "idOrgaoUconecteEducacao": "2010",
+                    "idOrgaoOleEducacao": "006512",
+                    "idOrgaoUconecteAposentado": "80",
+                    "idOrgaoOleAposentado": "006555",
+                    "idOrgaoUconectePensionista": "81",
+                    "idOrgaoOlePensionista": "006555",
+                    "idOrgaoUconectePCivil": "69",
+                    "idOrgaoOlePCivil": "006569",
+                    "idOrgaoUconecteBombeiro": "66",
+                    "idOrgaoOleBombeiro": "006541"
+                }
+            ]
+        },
+        "14": {
+            "sigla": "MG",
+            "tabela": [
+                {
+                    "idOrgaoUconecteFazenda": "63",
+                    "idOrgaoOle1Fazenda": "000074",
+                    "idOrgaoUconecteSaude": "2008",
+                    "idOrgaoOleSaude": "000087",
+                    "idOrgaoUconecteEducacao": "2010",
+                    "idOrgaoOleEducacao": "000081",
+                    "idOrgaoUconecteAposentado": "80",
+                    "idOrgaoOleAposentado": "000107",
+                    "idOrgaoUconectePensionista": "81",
+                    "idOrgaoOlePensionista": "000107",
+                    "idOrgaoUconecte": "65",
+                    "idOrgaoOleIPSEMG": "000107",
+                    "idOrgaoUconectePCivil": "69",
+                    "idOrgaoOlePcivil": "000102"
+                }
+            ]
+        },
+        "15": {
+            "sigla": "PR",
+            "tabela": [
+                {
+                    "idOrgaoUconecteFazenda": "63",
+                    "idOrgaoOle1Fazenda": "000519",
+                    "idOrgaoUconecteSaude": "2008",
+                    "idOrgaoOleSaude": "000517",
+                    "idOrgaoUconecteEducacao": "2010",
+                    "idOrgaoOleEducacao": "003580",
+                    "idOrgaoUconecteAposentado": "80",
+                    "idOrgaoOleAposentado": "007609",
+                    "idOrgaoUconectePensionista": "81",
+                    "idOrgaoOlePensionista": "007609",
+                    "idOrgaoUconecte": "65",
+                    "idOrgaoOleIPSEMG": "007609",
+                    "idOrgaoUconectePCivil": "69",
+                    "idOrgaoOlePcivil": "000511"
+                }
+            ]
+        },
+        "16": {
+            "sigla": "ES",
+            "tabela": [
+                {
+                    "idOrgaoUconecteFazenda": "63",
+                    "idOrgaoOle1Fazenda": "000519",
+                    "idOrgaoUconecteSaude": "2008",
+                    "idOrgaoOleSaude": "000517",
+                    "idOrgaoUconecteEducacao": "2010",
+                    "idOrgaoOleEducacao": "003580",
+                    "idOrgaoUconecteAposentado": "80",
+                    "idOrgaoOleAposentado": "007609",
+                    "idOrgaoUconectePensionista": "81",
+                    "idOrgaoOlePensionista": "007609",
+                    "idOrgaoUconecte": "65",
+                    "idOrgaoOleIPSEMG": "007609",
+                    "idOrgaoUconectePCivil": "69",
+                    "idOrgaoOlePcivil": "000511"
+                }
+            ]
+        },
+        "17": {
+            "sigla": "GO",
+            "tabela": [
+                {
+                    "idOrgaoUconecteFazenda": "63",
+                    "idOrgaoOle1Fazenda": "007005",
+                    "idOrgaoUconecteSaude": "2008",
+                    "idOrgaoOleSaude": "007005",
+                    "idOrgaoUconecteEducacao": "2010",
+                    "idOrgaoOleEducacao": "007005",
+                    "idOrgaoUconecteAposentado": "80",
+                    "idOrgaoOleAposentado": "007005",
+                    "idOrgaoUconectePensionista": "81",
+                    "idOrgaoOlePensionista": "007005",
+                    "idOrgaoUconecte": "65",
+                    "idOrgaoOleIPSEMG": "007005",
+                    "idOrgaoUconectePCivil": "69",
+                    "idOrgaoOlePcivil": "007005"
+                }
+            ]
+        },
+	 "18": {
+            "sigla": "SP",
+            "idOrgaoUconecte": "85",
+            "tabela": [
+                {
+                    "nome": "006846 - VD_REFIN EST SAO PAULO 5% QUIT",
+                    "codigo": "006846"
+                }
+            ],
+            "idOrgaoOle": "009090"
+        }
+    },
+    "_default": {
+        "2": {
+            "idOrgaoOle": "000783",
+            "idPerfilUconecte": "2"
+        }
+    }
+}

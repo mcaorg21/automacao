@@ -1,0 +1,10 @@
+[
+    {
+        "domain": "www.portaldoconsignado.com.br",
+        "httpOnly": true,
+        "name": "JSESSIONID",
+        "path": "/",
+        "secure": true,
+        "value": "00001gSoOy2pvHdCTB_eXYnoOjf:18guqmp5m"
+    }
+]

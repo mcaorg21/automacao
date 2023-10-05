@@ -1,0 +1,51 @@
+
+h3 {
+    font-size: calc(0.75em + 1vmin);
+    font-weight: bold;
+}
+
+p {
+    font-size: calc(0.75em + 1vmin);
+}
+
+label[for="buscar"] {
+    font-size: calc(0.75em + 1vmin);
+}
+
+.card {
+    width: 20%;
+}
+
+td, th {
+    font-family: 'Noticia Text', serif;
+    text-align: center;
+    font-weight: normal;
+}
+td {
+    font-size: calc(0.5em + 0.94vmin);
+}
+
+th {
+    font-size: calc(0.55em + 0.95vmin);
+}
+
+.table-area {
+    width: 80vw;
+    padding: 0;
+    margin-top: 2%;
+    box-shadow: 10px 10px 25px -3px rgba(0,0,0,0.75);
+    border-radius: 1%;
+}
+table {
+    margin: 0;
+        border-radius: 1%;
+
+}
+
+.status-erro {
+    color: rgb(255, 0, 0);
+}
+
+.status-ok {
+    color: rgb(0, 255, 0);
+}

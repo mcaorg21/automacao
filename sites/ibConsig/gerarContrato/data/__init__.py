@@ -1,0 +1,1 @@
+ENDPOINT_GERAR_CONTRATO = "https://uconecte.me/api/v1/contratos/gerar"
