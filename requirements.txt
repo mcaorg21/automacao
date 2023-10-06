@@ -31,3 +31,5 @@ pymupdf
 qrtools
 pyzbar
 tkinter
+PyInquirer
+click
