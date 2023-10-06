@@ -90,7 +90,13 @@ class Consulta_Receita():
                     '//*[@id="txtDataNascimento"]', nascimento, metodo=By.XPATH)
                 
                 try:
-                    self.actAlter.hcaptcha('af4fc5a3-1ac5-4e6d-819d-324d412a5e9d', '')
+                    site_key = self.actAlter.obter_atributo('//*[@id="hcaptcha"]','data-sitekey',By.XPATH)
+                except:
+                    print('XXXXXXXXXXXXX ERRO AO OBTER SITE KEY XXXXXXXXXXXXXX')
+                    site_key = '53be2ee7-5efc-494e-a3ba-c9258649c070'                  
+                    pass
+                try:                    
+                    self.actAlter.hcaptcha(site_key, '')
                 except:
                     print("Captcha não precisou ser resolvido.")
 
