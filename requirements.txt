@@ -33,3 +33,7 @@ pyzbar
 tkinter
 PyInquirer
 click
+selenium
+requests
+Pillow
+fuzzywuzzy
