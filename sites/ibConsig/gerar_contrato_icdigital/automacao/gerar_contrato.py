@@ -343,7 +343,7 @@ class IbConsig_gerar():
 
         return False
 
-    def login(self, login='10282126660@1873', senha='Lu230381!@'):
+    def login(self, login='07488396669@1873', senha='Tim223754@'):
         self.act.trocar_frame_seletor('/html/body/cc-lib-dialog/div/div[1]/div[2]/div/app-auth-dialog/div/iframe', metodo=By.XPATH)
         self.act.enviar_texto('/html/body/div/div/div/div/div/div/form/div[1]/input', login, metodo=By.XPATH)
         self.act.enviar_texto("/html/body/div/div/div/div/div/div/form/div[2]/input", senha, metodo=By.XPATH)
