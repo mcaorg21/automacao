@@ -37,3 +37,4 @@ selenium
 requests
 Pillow
 fuzzywuzzy
+pymysql
