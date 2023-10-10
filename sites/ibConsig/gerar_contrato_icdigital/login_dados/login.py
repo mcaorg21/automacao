@@ -6,7 +6,7 @@ class Dados():
 		#self.username = '03507179660@1873'
 		#self.login = 'Marcelo21@'
 		self.username = '07488396669@1873'
-		self.login = 'Mari@2204'
+		self.login = 'Tim223754@'
 
 	def retornar_infos(self):
 		return self.username
