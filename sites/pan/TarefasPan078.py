@@ -66,6 +66,7 @@ class TarefasPan078:
         self.id_robo = '32'
         #self.usuario = '07823888688'
         self.usuario = '03507179660'
+        #pdb.set_trace()
         #self.driver.delete_all_cookies()
 
 
@@ -110,6 +111,7 @@ class TarefasPan078:
         #     pass
 
         dados_login = query_login_pass_robo(self.id_robo, self.usuario)
+        #pdb.set_trace()
 
         login(self.driver, cpf_login=self.usuario, senha=dados_login['senha'], parceiros="003442")
         # self.load_cookies(self.cookies_path)
