@@ -38,3 +38,5 @@ requests
 Pillow
 fuzzywuzzy
 pymysql
+tinydb
+pdfkit

@@ -142,9 +142,14 @@ class InserirContrato(Manager):
                 for i in range(1,30):
                     self.act.press_pagedown('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[2]/div[3]/div[1]/div[2]/div/div/div',By.XPATH)
 
+                    j = 0
                     while 'Carregando' in self.act.obter_texto('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[2]/div[3]/div[2]/div[1]/div[2]',By.XPATH):
                         print('Aguardando calculo...')
+                        j += 1 
                         self.aguardar_consulta(2)
+                        if j > 20:
+                            self.chrome_drive.quit()
+
 
                     taxa = self.act.obter_texto('/html/body/div/div[1]/div[2]/div/div/div/div[2]/form/div[2]/div[3]/div[1]/div[2]/div/div/div/div[1]', By.XPATH)
 
