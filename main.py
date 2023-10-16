@@ -23,8 +23,9 @@ def robo_novo_saque():
 def robo_pan_078():
     from sites.pan.TarefasPan078 import rodar_pan078
     system("title Robô Pan 078")
-    rodar = rodar_pan078()
-    rodar.run()
+    TarefasPan078().rodar_pan078()
+    #rodar = rodar_pan078()
+    #rodar.run()
 
 
 def ligar_flask():
@@ -246,7 +247,7 @@ def robo_pan_78():
     from sites.pan.TarefasPan078 import TarefasPan078
     system("title Robô - Pan Todas Tarefa 078")
     run = TarefasPan078()
-    run.main()
+    run.rodar_pan078()
 
 def robo_pan_todas_tarefas():
     from sites.pan.TarefasPan085 import Main

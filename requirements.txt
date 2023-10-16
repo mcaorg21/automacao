@@ -40,3 +40,4 @@ fuzzywuzzy
 pymysql
 tinydb
 pdfkit
+unidecode
