@@ -41,3 +41,6 @@ pymysql
 tinydb
 pdfkit
 unidecode
+pyperclip
+pygal
+setuptools
