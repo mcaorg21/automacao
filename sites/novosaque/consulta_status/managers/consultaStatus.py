@@ -150,7 +150,7 @@ class ConsultaStatus(Manager):
                         try:
                             self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr[{i}]/td[1]/div/div/button[3]', By.XPATH)
                         except:
-                            self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr/td[1]/div/div/button[2]', By.XPATH)
+                            self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr[{i}]/td[1]/div/div/button[2]', By.XPATH)
                             pass
 
                         while self.act.quantidade_elemento('/html/body/div[2]/div/div[1]/div/div/div[1]/button/span', By.XPATH) == 0:
