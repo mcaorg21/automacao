@@ -1038,13 +1038,13 @@ class InsercaoIbConsigPortabilidadeFila(Manager):
                 form.selecionarTabelaPelaTaxa()
                 form.anexarTabelaCarenciaNoContrato()
         else:
-            if(float(contrato._Contrato__dados['dados_portabilidade']['saldoDevedorFinal']) < 2000):
+            if(float(contrato._Contrato__dados['dados_portabilidade']['saldoDevedorFinal']) < 4000):
                 if(rec > 0):
                     print('Saldo devedor menor que 2 mil e nova tentativa em taxa menor')
-                    form.selecionarTabelaDiretaPortabilidade('1061','DIG Inss/Refin Port-Min2000-Tx 1,69-1,65')
+                    form.selecionarTabelaDiretaPortabilidade('1097','DIG Inss/Refin Port-Min4000-Tx 1,69-1,65')
                 else:
                     print('Saldo devedor menor que 2 mil')
-                    form.selecionarTabelaDiretaPortabilidade('2487','DIG Inss/Refin Port-Min2000-Tx 1,97-1,70')
+                    form.selecionarTabelaDiretaPortabilidade('1061','DIG Inss/Refin Port-Min4000-Tx 1,81-1,70')
             else:
                 #form.selecionarTabelaDiretaPortabilidade('2487','DIG Inss/Refin Port-Min2000-Tx 2,14-1,70')
                 if form.selecionarTabelaPelaTaxa() == False:
