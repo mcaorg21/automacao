@@ -777,7 +777,7 @@ class Bradesco:
 
         matricula_selecionada = self.selenium.verificar_valor_campo_driver(seletor_matricula)
         if(str(solicitacao['matricula']) in matricula_selecionada):
-            options_matricula = self.driver.find_elements_by_css_selector(seletor_matricula + " option")
+            options_matricula = self.driver.find_elements_self.driver.find_element(By.CSS_SELECTOR,seletor)_matricula + " option")
             if(len(options_matricula) >= 1):
                 for option in options_matricula:
                     if str(solicitacao['matricula']) in matricula_selecionada:
@@ -792,7 +792,7 @@ class Bradesco:
         if solicitacao['fk_idPerfil'] == '2' and self.selenium.verificar_propriedade_css(
                 "#cphBodyMain_cphBody_cphBody_ucMargemSIAPE_txtValorMargemSIAPE", 'disabled'):
             seletor_checkboxes = "#cphBodyMain_cphBody_cphBody_ucMargemSIAPE_gvMargens input"
-            checkboxes_refinanciamento = self.driver.find_elements_by_css_selector(seletor_checkboxes)
+            checkboxes_refinanciamento = self.driver.find_elements_self.driver.find_element(By.CSS_SELECTOR,seletor)_checkboxes)
             checkboxes = list(map(lambda refin: f"#{refin.get_attribute('id')}", checkboxes_refinanciamento))
 
             for checkbox in checkboxes:
@@ -808,7 +808,7 @@ class Bradesco:
 
                 seletor_checkboxes2 = "#cphBodyMain_cphBody_cphBody_ucDadosRefinanciamento_gvContratos input"
 
-                checkboxes_refinanciamento2 = self.driver.find_elements_by_css_selector(seletor_checkboxes2)
+                checkboxes_refinanciamento2 = self.driver.find_elements_self.driver.find_element(By.CSS_SELECTOR,seletor)_checkboxes2)
                 checkboxes2 = list(map(lambda refin: f"#{refin.get_attribute('id')}", checkboxes_refinanciamento2))
                 index_checkbox = 2
                 count = 0
@@ -860,7 +860,7 @@ class Bradesco:
 
                     seletor_linhas_taxas = "#cphBodyMain_cphBody_cphBody_ucDadosFinanciamento_ucSimulador_gvSimulacao" \
                                            " tr"
-                    linhas_taxa = self.driver.find_elements_by_css_selector(seletor_linhas_taxas)
+                    linhas_taxa = self.driver.find_elements_self.driver.find_element(By.CSS_SELECTOR,seletor)_linhas_taxas)
 
                     if linhas_taxa[1].get_attribute('style').find('red') != -1 or not self.validar_taxa(linhas_taxa[1], solicitacao):
                         print("Refinanciamento foi calculado, mas não está disponível.")
@@ -898,7 +898,7 @@ class Bradesco:
 
             seletor_checkboxes = "#cphBodyMain_cphBody_cphBody_ucDadosRefinanciamento_gvContratos input"
 
-            checkboxes_refinanciamento = self.driver.find_elements_by_css_selector(seletor_checkboxes)
+            checkboxes_refinanciamento = self.driver.find_elements_self.driver.find_element(By.CSS_SELECTOR,seletor)_checkboxes)
             checkboxes = list(map(lambda refin: f"#{refin.get_attribute('id')}", checkboxes_refinanciamento))
             index_checkbox = 2
             count = 0
@@ -947,7 +947,7 @@ class Bradesco:
                     continue
 
                 seletor_linhas_taxas = "#cphBodyMain_cphBody_cphBody_ucDadosFinanciamento_ucSimulador_gvSimulacao tr"
-                linhas_taxa = self.driver.find_elements_by_css_selector(seletor_linhas_taxas)
+                linhas_taxa = self.driver.find_elements_self.driver.find_element(By.CSS_SELECTOR,seletor)_linhas_taxas)
 
                 if linhas_taxa[1].get_attribute('style').find('red') != -1 or not self.validar_taxa(linhas_taxa[1],
                                                                                                     solicitacao):
@@ -1007,7 +1007,7 @@ class Bradesco:
     def calcular_refinanciamentos_inss(self, solicitacao):
         seletor_checkboxes = "#cphBodyMain_cphBody_cphBody_ucDadosRefinanciamento_gvContratos input"
 
-        checkboxes_refinanciamento = self.driver.find_elements_by_css_selector(seletor_checkboxes)
+        checkboxes_refinanciamento = self.driver.find_elements_self.driver.find_element(By.CSS_SELECTOR,seletor)_checkboxes)
         checkboxes = list(map(lambda refin: f"#{refin.get_attribute('id')}", checkboxes_refinanciamento))
 
         indice = -1;
@@ -1054,7 +1054,7 @@ class Bradesco:
                 continue
 
             seletor_linhas_taxas = "#cphBodyMain_cphBody_cphBody_ucDadosFinanciamento_ucSimulador_gvSimulacao tr"
-            linhas_taxa = self.driver.find_elements_by_css_selector(seletor_linhas_taxas)
+            linhas_taxa = self.driver.find_elements_self.driver.find_element(By.CSS_SELECTOR,seletor)_linhas_taxas)
 
             if linhas_taxa[1].get_attribute('style').find('red') != -1 or not self.validar_taxa(linhas_taxa[1],solicitacao):
                 print("Refinanciamento foi calculado, mas não está disponível.")
@@ -1096,7 +1096,7 @@ class Bradesco:
                 self.aguardar_loading()
 
     def selecionar_dados_validacao(self, seletor, opcao=1):
-        select = self.driver.find_element_by_css_selector(seletor)
+        select = self.driver.find_element_self.driver.find_element(By.CSS_SELECTOR,seletor))
         action = ActionChains(self.driver)
         action.click(select)
 
