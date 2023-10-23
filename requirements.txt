@@ -47,3 +47,4 @@ setuptools
 pillow
 selenium
 flask
+pikepdf
