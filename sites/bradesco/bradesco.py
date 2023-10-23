@@ -1096,7 +1096,7 @@ class Bradesco:
                 self.aguardar_loading()
 
     def selecionar_dados_validacao(self, seletor, opcao=1):
-        select = self.driver.find_element_self.driver.find_element(By.CSS_SELECTOR,seletor))
+        select = self.driver.find_element_self.driver.find_element(By.CSS_SELECTOR,seletor)
         action = ActionChains(self.driver)
         action.click(select)
 

@@ -54,26 +54,27 @@ class SeleniumHelper():
 	    self.driver.execute_script("""$('%s').trigger('blur')""" % (seletor))
 
     def verificar_valor_campo_driver(self, seletor):
-        return self.driver.find_element_by_css_selector(seletor).get_attribute('value')
+        return self.driver.find_element(By.CSS_SELECTOR,seletor).get_attribute('value')
 
     def verificar_texto_campo_driver(self, seletor):
-        return self.driver.find_element_by_css_selector(seletor).text
+        return self.driver.find_element(By.CSS_SELECTOR,seletor).text
 
     def select_valor(self, seletor, valor):
-        select = Select(self.driver.find_element_by_css_selector(seletor))
+        select = Select(self.driver.find_element(By.CSS_SELECTOR,seletor)
         select.select_by_value(valor)
 
     def atribuir_valor_campo_driver(self, seletor, valor):
-        field = self.driver.find_element_by_css_selector(seletor)
+        #field = self.driver.find_element(By.CSS_SELECTOR,seletor)
+        self.driver.find_element(By.CSS_SELECTOR,seletor)
         field.clear()
         field.send_keys(valor)
 
     def press_enter(self, seletor):
-        self.driver.find_element_by_css_selector(seletor).send_keys(Keys.RETURN)
+        self.driver.find_element(By.CSS_SELECTOR,seletor).send_keys(Keys.RETURN)
 
     def atribuir_valor_campo_tab(self, valor, seletor=False, field=False):
         if field is False:
-            field = self.driver.find_element_by_css_selector(seletor)
+            field = self.driver.find_element(By.CSS_SELECTOR,seletor)
 
         action_chains = ActionChains(self.driver)
         action_chains.click(field)
@@ -83,7 +84,7 @@ class SeleniumHelper():
 
     def clicar_elemento_driver(self, seletor, scroll=True):
         try:
-            elemento = self.driver.find_element_by_css_selector(seletor)
+            elemento = self.driver.find_element(By.CSS_SELECTOR,seletor)
 
             action_chains = ActionChains(self.driver)
             action_chains.click(elemento).perform()
@@ -99,7 +100,7 @@ class SeleniumHelper():
         try:
             self.driver.switch_to.default_content()
             self.driver.switch_to.frame(
-                self.driver.find_element_by_css_selector(seletor))
+                self.driver.find_element(By.CSS_SELECTOR,seletor)
         except Exception as e:
             print(e)
 
@@ -107,9 +108,9 @@ class SeleniumHelper():
         try:
             self.driver.switch_to.default_content()
             if(id):
-                self.driver.switch_to.frame(self.driver.find_element_by_id(frame_name))    
+                self.driver.switch_to.frame(self.driver.find_element(By.ID,frame_name))    
             else:
-                self.driver.switch_to.frame(self.driver.find_element_by_name(frame_name))
+                self.driver.switch_to.frame(self.driver.find_element(By.NAME,frame_name))
         except Exception as e:
             print(e)
 

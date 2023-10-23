@@ -136,7 +136,7 @@ class TwoCaptcha:
 		if self.manual == True:
 			catpcha_resposta = input("Qual é o captcha? ")
 			return 1, catpcha_resposta
-		imagem = self.driver.find_element_self.driver.find_element(By.CSS_SELECTOR,seletor))
+		imagem = self.driver.find_element_self.driver.find_element(By.CSS_SELECTOR,seletor)
 
 		localizacao = imagem.location
 		tamanho = imagem.size
