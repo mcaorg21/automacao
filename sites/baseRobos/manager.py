@@ -116,7 +116,7 @@ class Manager(object):
         if not import_driver:
 
             self._driver: webdriver.Chrome = webdriver.Chrome(
-                executable_path=self.CHROME_DRIVER,
+                #executable_path=self.CHROME_DRIVER,
                 options=self.options
             )
         else:

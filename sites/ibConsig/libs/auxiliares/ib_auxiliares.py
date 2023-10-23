@@ -49,7 +49,7 @@ def fechar_janelas_com_erro(driver: Chrome, default_frame=""):
     driver.switch_to.window(driver.window_handles[0])
     try:
         if default_frame:
-            driver.switch_to.frame(driver.find_element_by_name(default_frame))
+            driver.switch_to.frame(driver.find_element(By.NAME,default_frame))
     except NoSuchElementException:
         print(f"Frame ({default_frame}) não foi encontrado")
 

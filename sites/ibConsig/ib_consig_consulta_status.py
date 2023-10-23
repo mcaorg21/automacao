@@ -111,13 +111,13 @@ class IbConsigGetStatus:
             campo_login.clear()
             campo_login.send_keys(self.usuario)
 
-            password = self.driver.find_element_by_name("j_password")
+            password = self.driver.find_element(By.NAME,"j_password")
             password.clear()
             password.send_keys(self.senha)
 
             id_captcha, captcha_resposta = self.captcha.resolver_captcha(
                 "[name='iCaptcha']")
-            captcha_field = self.driver.find_element_by_name("captcha")
+            captcha_field = self.driver.find_element(By.NAME,"captcha")
             captcha_field.send_keys(captcha_resposta)
             captcha_field.send_keys(Keys.RETURN)
             time.sleep(10)

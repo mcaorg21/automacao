@@ -57,11 +57,10 @@ class Main:
         options.add_argument('--ignore-ssl-errors')
         options.add_argument(self.chrome_user)
         options.add_experimental_option("w3c", False)
-
-        self.driver: Chrome = webdriver.Chrome(
-            executable_path=self.driver_path,
-            chrome_options=options
-        )
+        self.driver: Chrome = webdriver.Chrome()
+        
+        # self.driver: Chrome = webdriver.Chrome(executable_path=self.driver_path,   chrome_options=options
+        # )
         self.timer: int = 60
         self.ultima_atualizacao: datetime = datetime.now()
 

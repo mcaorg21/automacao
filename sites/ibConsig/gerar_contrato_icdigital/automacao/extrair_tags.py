@@ -106,14 +106,13 @@ class Extrair_tags():
                 pass
             self.driver.switch_to_window(pagina)
             sleep(3)
-            pyautogui.moveTo(38, 569)
+            pyautogui.click(x=472, y=66)
             sleep(1)
-            pyautogui.mouseDown()
+            pyautogui.click(x=472, y=66)
             sleep(1)
-            pyautogui.moveTo(34, 624)
+            pyautogui.moveTo(300, 150)
             sleep(1)
-            pyautogui.moveTo(292, 442)
-            pyautogui.mouseUp()
+            pyautogui.dragTo(300, 400, 2, button='left')
             self.loading()
             
             try:

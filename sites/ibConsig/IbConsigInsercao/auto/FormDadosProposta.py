@@ -324,9 +324,9 @@ class DadosProposta(AutoGUI):
         for i in range(60):
             sleep(1)
             print(f"\rAguardando consultar tabela: {i}", end="")
-            if not thread_extrair_valores_pop_up.isAlive():
+            if not thread_extrair_valores_pop_up.is_alive():
                 break
-        if thread_extrair_valores_pop_up.isAlive():
+        if thread_extrair_valores_pop_up.is_alive():
             self.chrome_driver.quit()
             raise KeyboardInterrupt(
                 "Pop-up de simulaçao não pôde ser consultado "

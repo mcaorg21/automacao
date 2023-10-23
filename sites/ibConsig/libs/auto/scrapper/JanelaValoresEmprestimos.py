@@ -2,6 +2,7 @@ from typing import Dict, List
 
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver import Chrome
+from selenium.webdriver.common.by import By
 from sites.elementos.ContainerElements.Row import CelulaTabela
 from sites.ibConsig.libs.exceptions.Exceptions import NotFoundResultException
 
@@ -24,7 +25,7 @@ class JanelaValoresEmprestimos:
     def voltarJanelaPrincipal(self):
         self.driver.close()
         self.driver.switch_to.window(self.driver.window_handles[0])
-        self.driver.switch_to.frame(self.driver.find_element_by_name("rightFrame"))
+        self.driver.switch_to.frame(self.driver.find_element(By.NAME,"rightFrame"))
 
     def extrairTabela(self):
 

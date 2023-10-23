@@ -57,12 +57,15 @@ class Main:
         options.add_argument('--window-size=1150,600"')
         options.add_argument(self.chrome_user)
         options.add_experimental_option("w3c", False)
+        opts = ('--disable-blink-features=AutomationControlled','--ignore-ssl-errors', self.chrome_user, 'log-level=3',"--no-sandbox","--window-size=1150,800","--ignore-autocomplete-off-autofill","disable-infobars")
+
 
         try:
-            self.driver: Chrome = webdriver.Chrome(
-                executable_path=self.driver_path,
-                chrome_options=options
-            )
+            self.driver = Manager.driver_factory(*opts)
+            # self.driver: Chrome = webdriver.Chrome(
+            #     executable_path=self.driver_path,
+            #     options=options
+            # )
         except:
             pasta_user = self.chrome_user.replace("--user-data-dir=","")
             print("Erro de criacao de usuario, deletando a pasta...")

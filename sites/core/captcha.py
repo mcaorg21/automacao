@@ -2,6 +2,8 @@ import requests, time, os
 from PATHS import project_path
 from PIL import Image
 from io import BytesIO
+from selenium.webdriver.common.by import By
+
 
 import pdb
 
@@ -39,8 +41,7 @@ class Captcha:
 			catpcha_resposta = input("Qual é o captcha? ")
 			return 1, catpcha_resposta
 
-		screenshot = self.driver.find_element_by_css_selector(
-			seletor_captcha).screenshot_as_png
+		screenshot = self.driver.find_element(By.CSS_SELECTOR,seletor_captcha).screenshot_as_png
 		image = Image.open(BytesIO(screenshot))
 		image.save(self.captcha_path+filename, 'PNG', optimize=True, quality=95)
 		time.sleep(2)
@@ -91,7 +92,7 @@ class TwoCaptcha:
 			return 1, catpcha_resposta
 
 		try:
-			screenshot = self.driver.find_element_by_css_selector(seletor_captcha).screenshot_as_png
+			screenshot = self.driver.find_element(By.CSS_SELECTOR,seletor_captcha).screenshot_as_png
 		except Exception as e:
 			print("Não foi possível tirar o print do captcha")
 			print(e)

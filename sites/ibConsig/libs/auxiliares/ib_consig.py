@@ -77,7 +77,7 @@ class IbConsig:
             id_captcha, captcha_resposta = self.captcha.resolver_captcha(
                 "[name='iCaptcha']")
 
-            captcha_field = self.driver.find_element_by_name("captcha")
+            captcha_field = self.driver.find_element(By.NAME,"captcha")
             captcha_field.send_keys(captcha_resposta)
             captcha_field.send_keys(Keys.RETURN)
             time.sleep(10)
