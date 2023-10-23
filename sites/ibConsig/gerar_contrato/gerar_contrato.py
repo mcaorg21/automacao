@@ -107,7 +107,7 @@ class GerarContratoIbConsig(IbConsig):
         options.add_experimental_option('prefs', prefs)
 
         return webdriver.Chrome(
-            executable_path=self.driver_path,
+            #executable_path=self.driver_path,
             options=options)
 
     def main(self):

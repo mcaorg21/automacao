@@ -48,3 +48,4 @@ pillow
 selenium
 flask
 pikepdf
+PyPDF2
