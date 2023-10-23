@@ -100,8 +100,7 @@ class SeleniumHelper():
     def selecionar_frame(self, seletor):
         try:
             self.driver.switch_to.default_content()
-            self.driver.switch_to.frame(
-                self.driver.find_element(By.CSS_SELECTOR,seletor))
+            self.driver.switch_to.frame(self.driver.find_element(By.CSS_SELECTOR,seletor))
         except Exception as e:
             print(e)
 
