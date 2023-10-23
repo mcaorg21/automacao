@@ -63,7 +63,7 @@ class SeleniumHelper():
         return self.driver.find_element(By.CSS_SELECTOR,seletor).text
 
     def select_valor(self, seletor, valor):
-        select = Select(self.driver.find_element(By.CSS_SELECTOR,seletor)
+        select = Select(self.driver.find_element(By.CSS_SELECTOR,seletor))
         select.select_by_value(valor)
 
     def atribuir_valor_campo_driver(self, seletor, valor):

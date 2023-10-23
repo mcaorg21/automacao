@@ -66,7 +66,7 @@ class SeleniumHelper():
 
     def atribuir_valor_campo_driver(self, seletor, valor):
         #field = self.driver.find_element(By.CSS_SELECTOR,seletor)
-        field = self.driver.find_element(By.CSS_SELECTOR,seletor)
+        self.driver.find_element(By.CSS_SELECTOR,seletor)
         field.clear()
         field.send_keys(valor)
 
