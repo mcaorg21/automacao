@@ -44,3 +44,6 @@ unidecode
 pyperclip
 pygal
 setuptools
+pillow
+selenium
+flask
