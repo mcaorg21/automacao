@@ -1,5 +1,6 @@
 import sys
-sys.path.append('../../../')
+sys.path.append('../')
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from sites.core.selenium_actions import SeleniumActions

@@ -47,5 +47,5 @@ setuptools
 pillow
 selenium
 flask
-pikepdf
-PyPDF2<3.0
+pyautogui
+pypdf<3
