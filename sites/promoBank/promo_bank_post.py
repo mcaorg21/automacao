@@ -668,11 +668,11 @@ class PromoBank:
 		refinanciamentos = []
 		self.debito_total = 0
 
-		linhas_refinanciamento = self.driver.find_elements_by_css_selector('.gridContratos tbody tr')
+		linhas_refinanciamento = self.driver.find_element(By.CSS_SELECTOR,'.gridContratos tbody tr')
 
 		try:
 			for linha_refinanciamento in linhas_refinanciamento:
-				colunas = linha_refinanciamento.find_elements_by_css_selector('td')
+				colunas = linha_refinanciamento.find_element(By.CSS_SELECTOR,'td')
 
 				if len(colunas) == 0:
 					continue
