@@ -340,7 +340,7 @@ class IbConsig:
             time.sleep(1)
             self.tratar_alerts_refinanciamento()
 
-        self.driver.find_element_by_css_selector('#submitButton').click()
+        self.driver.find_element(By.CSS_SELECTOR,'#submitButton').click()
         time.sleep(3)
 
         try:
