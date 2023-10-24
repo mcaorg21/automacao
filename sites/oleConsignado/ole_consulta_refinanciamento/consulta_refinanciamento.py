@@ -378,10 +378,10 @@ class ConsultaRefinanciamento(OleConsignado):
             self.executar_consulta_refinanciamentos(fila="refinanciamento")
 
         time.sleep(2)
-        linhas = self.driver.find_elements_by_css_selector('#tbRefin tbody tr')
+        linhas = self.driver.find_element(By.CSS_SELECTOR,'#tbRefin tbody tr')
 
         if not linhas:
-            linhas = self.driver.find_elements_by_css_selector('#tbCompPortab tbody tr')
+            linhas = self.driver.find_element(By.CSS_SELECTOR,'#tbCompPortab tbody tr')
             if('COMPLEMENTO DE PORTABILIDADE' in mensagem_contrato_portabilidade):
                 raise NotFoundResultException(message='Pulando solicitação pois não existem refinanciamentos disponíveis!!\n')
         
@@ -590,7 +590,7 @@ class ConsultaRefinanciamento(OleConsignado):
     def tratar_linhas_refinanciamento(self):
         linhas_tratadas = []
 
-        linhas_refinanciamento = self.driver.find_elements_by_css_selector('#tblContratosAptoRefin tbody tr')
+        linhas_refinanciamento = self.driver.find_element(By.CSS_SELECTOR,'#tblContratosAptoRefin tbody tr')
         
         for linha in linhas_refinanciamento:
             if(self.contratos_portabilidade == True):
@@ -604,7 +604,7 @@ class ConsultaRefinanciamento(OleConsignado):
                 except NoSuchElementException:
                     continue
 
-            colunas = linha.find_elements_by_css_selector('td')
+            colunas = linha.find_element(By.CSS_SELECTOR,'td')
             
             linhas_tratadas.append({
                 'checkbox': checkbox,
