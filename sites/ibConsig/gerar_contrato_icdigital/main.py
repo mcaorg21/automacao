@@ -1,6 +1,9 @@
-from login_dados.login import Dados
-from automacao.gerar_contrato import IbConsig_gerar
-from automacao.extrair_tags import Extrair_tags
+import sys,pdb
+sys.path.append('../')
+
+from sites.ibConsig.gerar_contrato_icdigital.login_dados.login import Dados
+from sites.ibConsig.gerar_contrato_icdigital.automacao.gerar_contrato import IbConsig_gerar
+from sites.ibConsig.gerar_contrato_icdigital.automacao.extrair_tags import Extrair_tags
 import threading
 from sites.baseRobos.core.helpers import definir_nome_robo
 import sys

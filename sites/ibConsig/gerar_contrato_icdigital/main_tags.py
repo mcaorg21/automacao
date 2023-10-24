@@ -1,4 +1,7 @@
-from automacao.extrair_tags import Extrair_tags
+import sys,pdb
+sys.path.append('../')
+
+from sites.ibConsig.gerar_contrato_icdigital.automacao.extrair_tags import Extrair_tags
 from sites.baseRobos.core.helpers import definir_nome_robo
 
 class Extrair_Tags_ICcdigital():
