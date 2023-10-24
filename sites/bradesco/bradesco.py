@@ -874,8 +874,8 @@ class Bradesco:
                     seletor_prazo = '#cphBodyMain_cphBody_cphBody_ucDadosFinanciamento_ucSimulador_drpPrazo'
                     prazo = self.selenium.verificar_valor_campo_driver(seletor_prazo)
 
-                    saldo_devedor = linhas_taxa[1].find_elements_by_css_selector('td')[2].text
-                    valor_liberado = linhas_taxa[1].find_elements_by_css_selector('td')[3].text
+                    saldo_devedor = linhas_taxa[1].find_element(By.CSS_SELECTOR,'td')[2].text
+                    valor_liberado = linhas_taxa[1].find_element(By.CSS_SELECTOR,'td')[3].text
 
                     if int(self.formatar_valor(valor_liberado)) <= int(self.formatar_valor(valor_parcela)):
                         print('Refinanciamento não pôde ser calculado pois o valor liberado é inferior ao valor da '
@@ -962,8 +962,8 @@ class Bradesco:
                 seletor_prazo = '#cphBodyMain_cphBody_cphBody_ucDadosFinanciamento_ucSimulador_drpPrazo'
                 prazo = self.selenium.verificar_valor_campo_driver(seletor_prazo)
 
-                saldo_devedor = linhas_taxa[1].find_elements_by_css_selector('td')[2].text
-                valor_liberado = linhas_taxa[1].find_elements_by_css_selector('td')[3].text
+                saldo_devedor = linhas_taxa[1].find_element(By.CSS_SELECTOR,'td')[2].text
+                valor_liberado = linhas_taxa[1].find_element(By.CSS_SELECTOR,'td')[3].text
 
                 if int(self.formatar_valor(valor_liberado)) <= int(self.formatar_valor(valor_parcela)):
                     print('Refinanciamento não pôde ser calculado pois o valor liberado é '
@@ -988,7 +988,7 @@ class Bradesco:
 
     @staticmethod
     def validar_taxa(linha, solicitacao):
-        raw_taxa = linha.find_elements_by_css_selector('td')[1].text
+        raw_taxa = linha.find_element(By.CSS_SELECTOR,'td')[1].text
         
         if not raw_taxa:
             return False
@@ -1070,8 +1070,8 @@ class Bradesco:
             seletor_parcela = '#cphBodyMain_cphBody_cphBody_ucDadosFinanciamento_ucSimulador_txtValorParcela'
             valor_parcela = self.selenium.verificar_valor_campo_driver(seletor_parcela)
 
-            saldo_devedor = linhas_taxa[1].find_elements_by_css_selector('td')[2].text
-            valor_liberado = linhas_taxa[1].find_elements_by_css_selector('td')[3].text
+            saldo_devedor = linhas_taxa[1].find_element(By.CSS_SELECTOR,'td')[2].text
+            valor_liberado = linhas_taxa[1].find_element(By.CSS_SELECTOR,'td')[3].text
 
             if int(self.formatar_valor(valor_liberado)) <= int(self.formatar_valor(valor_parcela)):
                 print("Refinanciamento foi calculado, mas não está disponível.")
