@@ -1,5 +1,5 @@
 setproctitle
-PyPDF2
+PyPDF2<3
 unidecode
 pillow
 fuzzywuzzy

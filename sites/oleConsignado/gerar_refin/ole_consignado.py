@@ -1,6 +1,7 @@
 from pathlib import Path
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
 
 import time
 import requests
@@ -570,7 +571,7 @@ class OleConsignado:
             raise Exception("Não inserir esse contrato!")
 
     def select_agencia(self, valor):
-        selet_agencia = self.driver.find_element_by_css_selector(".select2")
+        selet_agencia = self.driver.find_element(By.CSS_SELECTOR".select2")
         actions_agencia = ActionChains(self.driver)
         actions_agencia.click(selet_agencia)
         actions_agencia.send_keys(valor)

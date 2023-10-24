@@ -386,16 +386,16 @@ class ConsultaRefinanciamento(OleConsignado):
                 raise NotFoundResultException(message='Pulando solicitação pois não existem refinanciamentos disponíveis!!\n')
         
         for linha in linhas:
-            colunas = linha.find_elements_by_css_selector('td')
+            colunas = linha.find_element(By.CSS_SELECTOR,'td')
 
                 # if colunas[0].text.find(self.solicitacao['matricula']) != -1:
-                #     colunas[1].find_element_by_css_selector('a').click()
+                #     colunas[1].find_element(By.CSS_SELECTOR,'a').click()
                 #     self.verificar_loading()
                 #     return
 
             if self.solicitacao['matricula'] in colunas[0].text or similaridade(self.solicitacao['matricula'],colunas[0].text) > 55:
                 print('Selecionando a matrícula...')
-                colunas[1].find_element_by_css_selector('a').click()
+                colunas[1].find_element(By.CSS_SELECTOR,'a').click()
                 self.verificar_loading(120,True)
                 return
 
@@ -502,7 +502,7 @@ class ConsultaRefinanciamento(OleConsignado):
                         self.selenium.atribuir_valor_campo_jquery('#SelectProdutoRefin', codigo[0:6], change=True)
                         self.verificar_loading(pular_erro_portabilidade = self.contratos_portabilidade)
                         try:
-                            valor_liberado = self.driver.find_element_by_css_selector('#idValorLiberado-1').text
+                            valor_liberado = self.driver.find_element(By.CSS_SELECTOR,'#idValorLiberado-1').text
                             self.validar_condicoes_refinanciamento(valor_liberado)
                         except:
                             raise PularCheckboxException(message="Não há refinanciamento disponível para essa proposta.")
@@ -515,7 +515,7 @@ class ConsultaRefinanciamento(OleConsignado):
                     self.dados.atualizar_impossibilidade_consulta(self.solicitacao, e.message)
                     continue
 
-                prazo = self.driver.find_element_by_css_selector('#idQteParcela-1').text
+                prazo = self.driver.find_element(By.CSS_SELECTOR,'#idQteParcela-1').text
                 
                 if(linha['saldoDevedor'] and valor_liberado and prazo and linha['valorParcela']):
                     self.refinanciamentos.append({
@@ -595,12 +595,12 @@ class ConsultaRefinanciamento(OleConsignado):
         for linha in linhas_refinanciamento:
             if(self.contratos_portabilidade == True):
                 try:
-                    checkbox = f"#{linha.find_element_by_css_selector('input[type=radio]').get_attribute('id')}"
+                    checkbox = f"#{linha.find_element(By.CSS_SELECTOR,'input[type=radio]').get_attribute('id')}"
                 except NoSuchElementException:
                     continue   
             else:
                 try:
-                    checkbox = f"#{linha.find_element_by_css_selector('input[type=checkbox]').get_attribute('id')}"
+                    checkbox = f"#{linha.find_element(By.CSS_SELECTOR,'input[type=checkbox]').get_attribute('id')}"
                 except NoSuchElementException:
                     continue
 
@@ -834,7 +834,7 @@ class ConsultaRefinanciamento(OleConsignado):
         raise ErrorOleException(erros)
 
     def validar_condicoes_refinanciamento(self, valor_liberado):
-        taxa = formatar_porcentagem(self.driver.find_element_by_css_selector('#idTaxa-1').text)
+        taxa = formatar_porcentagem(self.driver.find_element(By.CSS_SELECTOR,'#idTaxa-1').text)
 
         if formatar_moeda(valor_liberado) < 250.00:
             raise PularCheckboxException(message='Não atingiu o valor mínimo')
