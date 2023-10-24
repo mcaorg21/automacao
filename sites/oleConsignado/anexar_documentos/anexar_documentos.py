@@ -175,7 +175,7 @@ class AnexarDocumentos(OleConsignado):
                 im.save(file_path, dpi=(1400, 1400))
 
     def upload(self, selector_id, file_path):
-        self.driver.find_element_by_id(selector_id).send_keys(file_path)
+        self.driver.find_element(By.ID,selector_id).send_keys(file_path)
 
     def deleta_todos_arquivos(self):
         for file in os.listdir(str(self.caminho_anexos)):
