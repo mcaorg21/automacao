@@ -111,9 +111,9 @@ class Extrair_tags():
 
             #sleep(2)
             #pyautogui.click(x=472, y=66)
-            sleep(1)
+            sleep(10)
             pyautogui.click(x=472, y=66)
-            sleep(1)
+            sleep(3)
             pyautogui.click(x=465, y=120)
             sleep(1)
             pyautogui.moveTo(300, 150)
