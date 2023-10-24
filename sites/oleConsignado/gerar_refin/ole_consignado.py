@@ -172,7 +172,7 @@ class OleConsignado:
         
 
     def comparar_dados_contrato(self):
-        links_contratos = self.driver.find_elements_by_css_selector('#tabelaDePropostas tbody tr a')
+        links_contratos = self.driver.find_element(By.CSS_SELECTOR,'#tabelaDePropostas tbody tr a')
         links = list(map(lambda proposta: proposta.get_attribute('href'), links_contratos))
         
         rec = 0

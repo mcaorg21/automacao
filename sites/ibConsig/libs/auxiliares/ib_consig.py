@@ -330,7 +330,7 @@ class IbConsig:
     def escolher_refinanciamento(self, index, insercao=False):
         time.sleep(1)
         self.selenium_helper.trocar_frame('rightFrame')
-        checkbox = self.driver.find_elements_by_css_selector('[type=checkbox]')[index]
+        checkbox = self.driver.find_element(By.CSS_SELECTOR,'[type=checkbox]')[index]
 
         if checkbox.get_property('disabled'):
             raise PularCheckboxException("Checkbox disabled!")
@@ -459,7 +459,7 @@ class IbConsig:
             return
 
     def encontrar_matricula_refinanciamento(self, index, matricula):
-        linha_completa = self.driver.find_elements_by_css_selector(
+        linha_completa = self.driver.find_element(By.CSS_SELECTOR,
             ".contratoDoAmbienteAtual")[index].text
         regex = re.compile("{}".format(matricula))
         matricula_encontrada = regex.search(linha_completa)
@@ -468,7 +468,7 @@ class IbConsig:
             raise PularCheckboxException("Matricula não encontrada!")
 
     def encontrar_parcela_refinanciamento(self, index, parcela):
-        linha_completa = self.driver.find_elements_by_css_selector(
+        linha_completa = self.driver.find_element(By.CSS_SELECTOR,
             ".contratoDoAmbienteAtual")[index].text
         regex = re.compile("{}".format(parcela))
 
@@ -598,7 +598,7 @@ class IbConsig:
             )
 
             if quantidade > 0:
-                options = self.driver.find_elements_by_css_selector(
+                options = self.driver.find_element(By.CSS_SELECTOR,
                     seletor_carencia['driver'].format(" option")
                 )
 
@@ -608,7 +608,7 @@ class IbConsig:
         self.driver.switch_to.window(self.driver.window_handles[1])
         regex = re.compile('icones/ok.gif')
 
-        linhas = self.driver.find_elements_by_css_selector('#tableSimulacaoIdeal tr')
+        linhas = self.driver.find_element(By.CSS_SELECTOR,'#tableSimulacaoIdeal tr')
         linhas_encontradas = [linha for linha in linhas for match in [
             regex.search(linha.get_attribute('innerHTML'))] if match]
 
