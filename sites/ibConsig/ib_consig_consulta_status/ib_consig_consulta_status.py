@@ -1,3 +1,6 @@
+import sys
+sys.path.append('../')
+
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
@@ -71,8 +74,8 @@ class IbConsigGetStatus:
         options.add_argument(chrome_user('IbConsigStatus'))
 
         return webdriver.Chrome(
-            executable_path=driver_path(),
-            chrome_options=options)
+            #executable_path=driver_path(),
+            options=options)
 
     def main(self):
 

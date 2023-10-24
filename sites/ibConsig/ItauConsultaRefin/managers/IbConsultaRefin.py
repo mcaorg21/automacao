@@ -1,4 +1,6 @@
-import logging
+import logging,sys
+sys.path.append('../')
+
 
 from sites.ibConsig.IbConsigInsercao.auto.FormDadosProposta import DadosProposta
 from sites.ibConsig.IbConsigInsercao.auto.FormDadosIniciais import DadosIniciais

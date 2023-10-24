@@ -1,3 +1,7 @@
+import sys
+sys.path.append('../')
+
+
 from sites.core.selenium_helper import SeleniumHelper
 from sites.baseRobos.core.helpers import definir_nome_robo
 from dados.database.queries.query_dados_robos import query_login_pass_robo
