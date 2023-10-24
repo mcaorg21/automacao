@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.alert import Alert
+from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from sites.core.selenium_helper import SeleniumHelper
 
@@ -106,7 +107,7 @@ class IbConsigGetStatus:
 
     def login_sistema(self):
         try:
-            campo_login = self.driver.find_element_by_css_selector(
+            campo_login = self.driver.find_element(By.CSS_SELECTOR,
                 "input[name='usuario']")
             campo_login.clear()
             campo_login.send_keys(self.usuario)

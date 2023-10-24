@@ -165,12 +165,12 @@ class IbConsigGetStatus:
 
     def login_sistema(self):
         try:
-            campo_login = self.driver.find_element_by_css_selector(
+            campo_login = self.driver.find_element(By.CSS_SELECTOR,
                 "input[name='usuario']")
             campo_login.clear()
             campo_login.send_keys(self.usuario)
 
-            password = self.driver.find_element_by_name("j_password")
+            password = self.driver.find_element(By.NAME,"j_password")
             password.clear()
             password.send_keys(self.senha)
 
