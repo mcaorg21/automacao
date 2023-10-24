@@ -8,8 +8,8 @@
 | autor: Marcelo Amancio
 """
 import pdb,sys, os
+sys.path.append('../')
 
-#sys.path.append('../../')
 
 from datetime import datetime
 from time import sleep
