@@ -571,7 +571,7 @@ class OleConsignado:
             raise Exception("Não inserir esse contrato!")
 
     def select_agencia(self, valor):
-        selet_agencia = self.driver.find_element(By.CSS_SELECTOR".select2")
+        selet_agencia = self.driver.find_element(By.CSS_SELECTOR,".select2")
         actions_agencia = ActionChains(self.driver)
         actions_agencia.click(selet_agencia)
         actions_agencia.send_keys(valor)
