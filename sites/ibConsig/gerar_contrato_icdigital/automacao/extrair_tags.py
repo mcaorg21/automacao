@@ -1,5 +1,5 @@
-import sys
-sys.path.append('../')
+# import sys
+# sys.path.append('../')
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -69,7 +69,8 @@ class Extrair_tags():
         try:
             sleep(5)
             self.act.clicar_elemento('/html/body/app-root/app-content-layout/cc-drawer/div/div/main/app-kanban/div[2]/button', metodo=By.XPATH)
-        except ElementClickInterceptedException:
+        except:
+            pyautogui.click(x=458, y=520)
             pass
 
     def loading(self):
@@ -105,11 +106,15 @@ class Extrair_tags():
                 self.clicar_importar_proposta()
             except:
                 pass
-            self.driver.switch_to_window(pagina)
-            sleep(3)
-            pyautogui.click(x=472, y=66)
+                
+            self.driver.switch_to.window(pagina)
+
+            #sleep(2)
+            #pyautogui.click(x=472, y=66)
             sleep(1)
             pyautogui.click(x=472, y=66)
+            sleep(1)
+            pyautogui.click(x=465, y=120)
             sleep(1)
             pyautogui.moveTo(300, 150)
             sleep(1)

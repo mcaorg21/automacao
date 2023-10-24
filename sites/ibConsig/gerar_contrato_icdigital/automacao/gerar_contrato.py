@@ -1,5 +1,6 @@
-import sys
-sys.path.append('../../../')
+#import sys
+#sys.path.append('../')
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from sites.core.selenium_actions import SeleniumActions
@@ -97,14 +98,15 @@ class IbConsig_gerar():
         return contratos
 
     def clicar_importar_proposta(self):
-        try:
+        try:                        
             self.act.clicar_elemento('/html/body/cc-lib-dialog/div/div[1]/div[2]/div/app-proposal-import/div/div/div/div[1]/div/button', By.XPATH)
         except:
             pass
         try:
             sleep(3)
             self.act.clicar_elemento('/html/body/app-root/app-content-layout/cc-drawer/div/div/main/app-kanban/div[2]/button', metodo=By.XPATH)
-        except ElementClickInterceptedException:
+        except:
+            pyautogui.click(x=458, y=520)
             pass
 
     def loading(self):
@@ -136,11 +138,14 @@ class IbConsig_gerar():
         self.driver.set_window_position(0, 0)
         pagina = self.driver.current_window_handle 
         while True:
-            self.driver.switch_to_window(pagina)
-            sleep(3)
-            pyautogui.click(x=472, y=66)
+            self.driver.switch_to.window(pagina)
+
+            #sleep(2)
+            #pyautogui.click(x=472, y=66)
             sleep(1)
             pyautogui.click(x=472, y=66)
+            sleep(1)
+            pyautogui.click(x=465, y=120)
             sleep(1)
             pyautogui.moveTo(300, 150)
             sleep(1)
