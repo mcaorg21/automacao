@@ -2,12 +2,16 @@
 ## /sites/oleConsignado/robo_refin_anex_lib_sms.py ##
 #####################################################
 
+
+import sys,json,pickle,requests
+sys.path.append('../')
+
 from pathlib import Path
 from time import sleep
 from typing import List
-import sys,json,pickle,requests
-#sys.path.append('../../')
+
 from selenium.webdriver import Chrome
+from selenium import webdriver
 
 import PATHS
 
@@ -51,8 +55,10 @@ class Main:
 
         Manager().criar_pasta_usuario_chrome(self.chrome_user)
 
-        self.driver: Chrome = Manager.driver_factory(
-            self.chrome_user, '--ignore-ssl-errors', "--log-level=3", w3c=False, prefs=PREFS)
+        # self.driver: Chrome = Manager.driver_factory(
+        #     self.chrome_user, '--ignore-ssl-errors', "--log-level=3", w3c=False, prefs=PREFS)
+
+        self.driver = webdriver.Chrome()
         #novo login robo
         self.auth: LoginDBDataSource = LoginDBDataSource(20, 'mca187333')
         #self.auth: LoginDBDataSource = LoginDBDataSource(22, 'alexandre18733')

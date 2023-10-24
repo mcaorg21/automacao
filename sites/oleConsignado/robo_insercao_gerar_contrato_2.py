@@ -8,7 +8,8 @@
 | autor: Gustavo Belleza
 """
 import sys,pdb, shutil
-#sys.path.append('../../')
+sys.path.append('../')
+
 from datetime import datetime
 from time import sleep
 
@@ -57,7 +58,11 @@ class Main:
         options.add_argument('--ignore-ssl-errors')
         options.add_argument(self.chrome_user)
         options.add_experimental_option("w3c", False)
-        self.driver: Chrome = webdriver.Chrome()
+        #self.driver: Chrome = webdriver.Chrome()
+
+        #self.driver = webdriver.Chrome(options=options)
+
+        self.driver = webdriver.Chrome()
         
         # self.driver: Chrome = webdriver.Chrome(executable_path=self.driver_path,   chrome_options=options
         # )

@@ -15,6 +15,7 @@ import requests,pdb,shutil
 from typing import List
 
 from selenium.webdriver import Chrome
+from selenium import webdriver
 from tinydb import TinyDB, Query
 from selenium.common.exceptions import NoSuchElementException,JavascriptException
 from sites.core.helpers import formatar_porcentagem, formatar_moeda
@@ -50,6 +51,7 @@ class ConsultaRefinanciamento(OleConsignado):
         self.solicitacao = None
         self.refinanciamentos = None
         self.driver: Chrome = driver
+        #self.driver = webdriver.Chrome()
         self.selenium = SeleniumHelper(self.driver)
         self.act = SeleniumActions(self.driver)
         self.db_info = TinyDB(self.path_db).table("identificador_orgao")
@@ -904,8 +906,8 @@ options.add_argument(chrome_user)
 Manager.criar_pasta_usuario_chrome(chrome_user)
 
 driver = webdriver.Chrome(
-            executable_path=PATHS.driver_path(),
-            chrome_options=options)
+            #executable_path=PATHS.driver_path(),
+            options=options)
 driver.get('https://ola.oleconsignado.com.br/Home')
 
 for i in range(10):
