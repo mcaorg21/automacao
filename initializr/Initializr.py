@@ -17,6 +17,9 @@
 """
 from typing import List
 
+import os,sys
+sys.path.append('../')
+
 from initializr.processos_automacao.classes_processos.InstanciasProcessos import INSTANCIAS
 # Imports configuracoes
 from initializr.processos_automacao import (
@@ -27,7 +30,7 @@ from datetime import datetime as dt
 import logging as log
 from initializr.processos_automacao.config.ProcessWrapper import ProcessWrapper
 
-import os
+
 from sites.baseRobos.core.helpers import aguardar_n_segundos
 from time import sleep
 from sites.baseRobos.core.helpers import definir_nome_robo
@@ -51,7 +54,7 @@ sleep(0.4)
 class Initializr:
 
     activate: dict = {}
-    segundos_atualizacao = 20
+    segundos_atualizacao = 10
     init = True
 
     def __init__(self):

@@ -1,3 +1,6 @@
+import sys
+sys.path.append('../')
+
 from sites.baseRobos.manager import Manager
 from sites.portal_consig.data.portalConsig_dados import PortalConsigData
 from sites.portal_consig.auto.FormAcessoPortal import FormAcessoPortal

@@ -14,7 +14,7 @@ INSTANCIAS: Dict[str, ProcessWrapper] = {
     # FGTS SAFRA
     'Insercao-Safra2': Safra_Insercao_2(),
     'Insercao-Safra': Safra_Insercao(),
-    'Fgts_Safra': Fgts_Safra(),
+    #'Fgts_Safra': Fgts_Safra(),
     # Daycoval
     #'Proposta_Daycoval': Proposta_Daycoval(),
     #'Daycoval_Simulacao': Daycoval_Simulacao(),

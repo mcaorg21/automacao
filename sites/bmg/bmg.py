@@ -1,3 +1,6 @@
+import sys
+sys.path.append('../')
+
 import re,pdb
 import requests
 
@@ -29,7 +32,7 @@ class BMG:
         options.add_argument(chrome_user('bmg'))
 
         self.driver = webdriver.Chrome(
-            executable_path=driver_path(),
+            #executable_path=driver_path(),
             options=options
         )
 

@@ -1,4 +1,6 @@
 import json,sys
+sys.path.append('../')
+
 import PATHS
 
 from sites.baseRobos.manager import Manager
@@ -9,7 +11,7 @@ from selenium.webdriver.common.by import By
 from dados.APIDataSource import APIDataSource
 from selenium.common.exceptions import TimeoutException
 from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
+#from webdriver_manager.chrome import ChromeDriverManager
 from sites.core.selenium_actions import SeleniumActions
 from sites.baseRobos.core.helpers import definir_nome_robo
 import pdb,shutil
@@ -20,6 +22,12 @@ class Consulta_Cpf:
         self.key = "6Ld5n8EUAAAAAJJuJF7h6B7JLjhvFZzoYTQ6jCJ1"
         self.count = 0
         self.user_driver_path: str = PATHS.project_path()+"/chrome_user_dir/MTSE21"
+
+        self.options = Options()
+        #self.options.add_argument('--headless')
+        self.options.add_argument('--no-sandbox')
+        self.options.add_argument('--disable-dev-shm-usage')
+        self.key = "6Lc0k1MUAAAAAJgAqPTO0dutvMB_m4ZVuvcvUMhA"
 
 
     def consultar(self, resetar = False):
@@ -59,7 +67,8 @@ class Consulta_Cpf:
                 options.add_argument('--profile-directory=Default')
                 Manager.criar_pasta_usuario_chrome(chrome_user)
                 #self.driver = webdriver.Chrome("C:\\wamp64\\www\\automacao-python\\drivers\\chromedriver.exe",chrome_options=options)
-                self.driver = webdriver.Chrome(chrome_options=options)
+                #self.driver = webdriver.Chrome(options=options)
+                self.driver = webdriver.Chrome(options=self.options)
                 self.driver.delete_all_cookies()
                 self.act = SeleniumActions(self.driver)
                 self.driver.get("http://www.tse.jus.br/eleitor/titulo-e-local-de-votacao/copy_of_consulta-por-nome")

@@ -1,6 +1,7 @@
 
 from flask import Flask
-import os
+import os,sys
+#sys.path.append('../')
 from pathlib import Path
 
 templates = str(Path(os.path.dirname(os.path.abspath(__file__)) + "/static/template/"))
