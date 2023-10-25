@@ -378,24 +378,31 @@ class ConsultaRefinanciamento(OleConsignado):
             self.executar_consulta_refinanciamentos(fila="refinanciamento")
 
         time.sleep(2)
-        linhas = self.driver.find_element(By.CSS_SELECTOR,'#tbRefin tbody tr')
+
+        try:
+            table_id = self.driver.find_element(By.ID,'tbRefin')
+            linhas = table_id.find_elements(By.TAG_NAME, "tr")
+            #linhas = self.driver.find_element(By.CSS_SELECTOR,'#tbRefin tbody tr')
+        except:
+            raise RefinanciamentosInexistente(message='Pulando solicitação pois não existem refinanciamentos disponíveis!!\n')    
 
         if not linhas:
-            linhas = self.driver.find_element(By.CSS_SELECTOR,'#tbCompPortab tbody tr')
+            #linhas = self.driver.find_element(By.CSS_SELECTOR,'#tbCompPortab tbody tr')
+            table_id = self.driver.find_element(By.ID,'tbCompPortab')
+            linhas = table_id.find_elements(By.TAG_NAME, "tr")
             if('COMPLEMENTO DE PORTABILIDADE' in mensagem_contrato_portabilidade):
-                raise NotFoundResultException(message='Pulando solicitação pois não existem refinanciamentos disponíveis!!\n')
-        
-        for linha in linhas:
-            colunas = linha.find_element(By.CSS_SELECTOR,'td')
+                raise NotFoundResultException(message='Pulando solicitação pois não existem refinanciamentos disponíveis!!\n')        
 
+        for linha in linhas:
+            colunas = linha.text.split(' ')
                 # if colunas[0].text.find(self.solicitacao['matricula']) != -1:
                 #     colunas[1].find_element(By.CSS_SELECTOR,'a').click()
                 #     self.verificar_loading()
                 #     return
 
-            if self.solicitacao['matricula'] in colunas[0].text or similaridade(self.solicitacao['matricula'],colunas[0].text) > 55:
+            if self.solicitacao['matricula'] in colunas[0] or similaridade(self.solicitacao['matricula'],colunas[0]) > 55:
                 print('Selecionando a matrícula...')
-                colunas[1].find_element(By.CSS_SELECTOR,'a').click()
+                linha.find_element(By.CSS_SELECTOR,'a').click()
                 self.verificar_loading(120,True)
                 return
 
@@ -590,7 +597,9 @@ class ConsultaRefinanciamento(OleConsignado):
     def tratar_linhas_refinanciamento(self):
         linhas_tratadas = []
 
-        linhas_refinanciamento = self.driver.find_element(By.CSS_SELECTOR,'#tblContratosAptoRefin tbody tr')
+        #linhas_refinanciamento = self.driver.find_element(By.CSS_SELECTOR,'#tblContratosAptoRefin tbody tr')
+        table_id = self.driver.find_element(By.ID,'tblContratosAptoRefin')
+        linhas_refinanciamento = table_id.find_elements(By.TAG_NAME, "tr")  
         
         for linha in linhas_refinanciamento:
             if(self.contratos_portabilidade == True):
@@ -604,12 +613,13 @@ class ConsultaRefinanciamento(OleConsignado):
                 except NoSuchElementException:
                     continue
 
-            colunas = linha.find_element(By.CSS_SELECTOR,'td')
-            
+            #colunas = linha.find_element(By.CSS_SELECTOR,'td')
+            colunas = linha.text.split(' ')
+
             linhas_tratadas.append({
                 'checkbox': checkbox,
-                'valorParcela': colunas[5].text,
-                'saldoDevedor': colunas[6].text
+                'valorParcela': colunas[4],
+                'saldoDevedor': colunas[5]
             })
 
         return linhas_tratadas
