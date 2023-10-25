@@ -406,6 +406,7 @@ class ConsultaRefinanciamento(OleConsignado):
                 self.verificar_loading(120,True)
                 return
 
+        raise NotFoundResultException(message='Pulando solicitação pois não existem matriculas para a consulta!!\n')         
 
             #raise NotFoundResultException(message='Pulando solicitação pois não existem refinanciamentos disponíveis!!\n')
         #except:
