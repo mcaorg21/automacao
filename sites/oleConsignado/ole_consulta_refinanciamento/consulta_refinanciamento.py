@@ -474,6 +474,7 @@ class ConsultaRefinanciamento(OleConsignado):
 
                     self.selenium.clicar_elemento(linha['checkbox'])
                 else:
+                    #pdb.set_trace()
                     mycheckbox = self.driver.find_element(By.ID, linha['checkbox'].replace('#',''))
                     if not mycheckbox.is_selected():
                         self.selenium.clicar_elemento(linha['checkbox'])
