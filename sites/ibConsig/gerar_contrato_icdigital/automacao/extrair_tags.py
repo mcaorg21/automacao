@@ -355,13 +355,13 @@ class Extrair_tags():
 
             payload['status_assinatura'] = self.pegar_tag()
 
-            try:
-                button_send = self.driver.find_element(By.XPATH,'//*[@id="swiper-wrapper-57380db2a84a69ba"]/div[1]/div/div[2]/cdk-virtual-scroll-viewport/div[1]/div/app-card/div/div/div[2]/div[3]/div/app-send-link-button/button')
+            try:                                               
+                button_send = self.driver.find_element(By.XPATH,'/html/body/app-root/app-content-layout/cc-drawer/div/div/main/app-kanban/div[1]/div[3]/div/div/div[1]/div/div[2]/cdk-virtual-scroll-viewport/div[1]/div/app-card/div/div/div[2]/div[3]/div/app-send-link-button/button')
                 button_send_sms = button_send.is_enabled()
             except:
                 button_send_sms = True
                 pass
-            pdb.set_trace()
+            
             if(payload['status_assinatura'] == 'pular consulta' or (button_send_sms == False and payload['status_assinatura'] != 'FORMALIZADA')):
                 print('Pulando reenvio de SMS')
                 continue
