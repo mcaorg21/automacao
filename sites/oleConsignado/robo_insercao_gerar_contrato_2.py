@@ -87,7 +87,7 @@ class Main:
         while True:
             try:
                 definir_nome_robo(self.TITLE)
-                #OleConsignado.iniciar_horario_comercial(self.driver)
+                OleConsignado.iniciar_horario_comercial(self.driver)
             except:
                 pass
 

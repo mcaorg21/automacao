@@ -89,7 +89,7 @@ class Main:
         raise KeyboardInterrupt
 
     def main_loop(self):
-        tarefas: List[object] = [ConsultaRefinanciamento,ConsultaStatusOle, AnexarDocumentos, ExecutaLiberacaoOle, ReenvioSMS]
+        tarefas: List[object] = [ConsultaStatusOle, AnexarDocumentos, ExecutaLiberacaoOle, ReenvioSMS,ConsultaRefinanciamento]
         try:
             for tarefa in tarefas:
                 print(f"\nIniciando Tarefa {tarefa.__class__.__name__}")
