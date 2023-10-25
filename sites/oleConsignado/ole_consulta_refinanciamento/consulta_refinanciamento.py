@@ -467,15 +467,20 @@ class ConsultaRefinanciamento(OleConsignado):
                 #pdb.set_trace()
                 i += 1
 
-                if(i != 1):
+                if(i > 1):
                     if checkbox_selecionado is not None:
                         self.selenium.clicar_elemento(checkbox_selecionado)
                         time.sleep(2)
 
                     self.selenium.clicar_elemento(linha['checkbox'])
+                else:
+                    mycheckbox = self.driver.find_element(By.ID, linha['checkbox'].replace('#',''))
+                    if not mycheckbox.is_selected():
+                        self.selenium.clicar_elemento(linha['checkbox'])
 
                 checkbox_selecionado = linha['checkbox']
                 time.sleep(1)
+                
                 try:
                     if(self.contratos_portabilidade):
                         self.act.hover_e_clique('//*[@id="divRefin"]/div[2]/div[4]/div/div/button', By.XPATH)
