@@ -461,12 +461,19 @@ class ConsultaRefinanciamento(OleConsignado):
             linhas_refinanciamento = self.tratar_linhas_refinanciamento()
             self.verificar_loading(pular_erro_portabilidade = self.contratos_portabilidade)   
             checkbox_selecionado = None
-            for linha in linhas_refinanciamento:
-                if checkbox_selecionado is not None:
-                    self.selenium.clicar_elemento(checkbox_selecionado)
-                    time.sleep(2)
 
-                self.selenium.clicar_elemento(linha['checkbox'])
+            i = 0
+            for linha in linhas_refinanciamento:
+                #pdb.set_trace()
+                i += 1
+
+                if(i != 1):
+                    if checkbox_selecionado is not None:
+                        self.selenium.clicar_elemento(checkbox_selecionado)
+                        time.sleep(2)
+
+                    self.selenium.clicar_elemento(linha['checkbox'])
+
                 checkbox_selecionado = linha['checkbox']
                 time.sleep(1)
                 try:
