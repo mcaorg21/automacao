@@ -305,7 +305,6 @@ class Bradesco:
                     idRobo=self.id_fila_refin,
                     idSolicitacao=solicitacao['idSolicitacao']
                 )
-
             definir_nome_robo('Bradesco - Consulta Refinanciamento')
             self.refinanciamentos = []
 
@@ -336,14 +335,14 @@ class Bradesco:
                         if self.fk_idPerfil_anterior != '5' or self.erro_convenio or self.completou:
                             self.completou = False
                             self.erro_convenio = False
-                            self.menu_refinanciamento_inss()
+                    self.menu_refinanciamento_inss()
                     self.consultar_refinanciamento(solicitacao, True)
                 elif solicitacao['fk_idPerfil'] == '4':
                     if self.fk_idPerfil_anterior != '5' or self.erro_convenio or self.completou:
-                        if self.fk_idPerfil_anterior != '4' or self.erro_convenio or self.completou:
+                        if self.fk_idPerfil_anterior != '4' or self.erro_convenio  or self.completou:
                             self.completou = False
                             self.erro_convenio = False
-                            self.menu_refinanciamento_inss()
+                    self.menu_refinanciamento_inss()
                     self.consultar_refinanciamento(solicitacao, True)
                 else:
                     print(f'O robô não está configurado para calcular o refinanciamento do fk_idPerfil'
@@ -403,6 +402,8 @@ class Bradesco:
     def preencher_dados_formulario_validacao(self, solicitacao, selector=False):
 
         item = "{} > span.ui-combobox > a > span.ui-button-icon.ui-icon.ui-icon-triangle-1-s"
+        print('Verificando css.')
+
         if self.selenium.verificar_propriedade_css("#cphBodyMain_cphBody_cphBody_ucDadosValidacao_drpEmpresa > option",
                                                    "selected"):
             if selector:
@@ -809,9 +810,19 @@ class Bradesco:
                     self.fechar_modal_simulador()
                     continue
 
+
                 seletor_checkboxes2 = "#cphBodyMain_cphBody_cphBody_ucDadosRefinanciamento_gvContratos input"
 
-                checkboxes_refinanciamento2 = self.driver.find_element(By.CSS_SELECTOR,seletor_checkboxes2)
+                try:
+                    checkboxes_refinanciamento2 = self.driver.find_element(By.CSS_SELECTOR,seletor_checkboxes2)
+                except:
+                    checkboxes_refinanciamento2 = ""
+                    pass
+
+                if not checkboxes_refinanciamento2 :
+                    print('XXXXXXXXXXXNão há matriculas cinculadas ao CPFXXXXXXXXXXXXX')
+                    continue
+
                 checkboxes2 = list(map(lambda refin: f"#{refin.get_attribute('id')}", checkboxes_refinanciamento2))
                 index_checkbox = 2
                 count = 0
@@ -900,6 +911,16 @@ class Bradesco:
                                                           'SIAPE', '1')
 
             seletor_checkboxes = "#cphBodyMain_cphBody_cphBody_ucDadosRefinanciamento_gvContratos input"
+
+            try:
+                checkboxes_refinanciamento = self.driver.find_element(By.CSS_SELECTOR,seletor_checkboxes)
+            except:
+                checkboxes_refinanciamento = ""
+                pass
+
+            if not checkboxes_refinanciamento :
+                print('XXXXXXXXXXXNão há matriculas cinculadas ao CPFXXXXXXXXXXXXX')
+                return
 
             checkboxes_refinanciamento = self.driver.find_element(By.CSS_SELECTOR,seletor_checkboxes)
             checkboxes = list(map(lambda refin: f"#{refin.get_attribute('id')}", checkboxes_refinanciamento))
@@ -1009,8 +1030,17 @@ class Bradesco:
 
     def calcular_refinanciamentos_inss(self, solicitacao):
         seletor_checkboxes = "#cphBodyMain_cphBody_cphBody_ucDadosRefinanciamento_gvContratos input"
+        
+        try:
+            checkboxes_refinanciamento = self.driver.find_element(By.CSS_SELECTOR,seletor_checkboxes)
+        except:
+            checkboxes_refinanciamento = ""
+            pass
 
-        checkboxes_refinanciamento = self.driver.find_element(By.CSS_SELECTOR,seletor_checkboxes)
+        if not checkboxes_refinanciamento :
+            print('XXXXXXXXXXXNão há matriculas cinculadas ao CPFXXXXXXXXXXXXX')
+            return
+
         checkboxes = list(map(lambda refin: f"#{refin.get_attribute('id')}", checkboxes_refinanciamento))
 
         indice = -1;
