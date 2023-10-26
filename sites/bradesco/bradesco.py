@@ -335,14 +335,14 @@ class Bradesco:
                         if self.fk_idPerfil_anterior != '5' or self.erro_convenio or self.completou:
                             self.completou = False
                             self.erro_convenio = False
-                    self.menu_refinanciamento_inss()
+                            self.menu_refinanciamento_inss()
                     self.consultar_refinanciamento(solicitacao, True)
                 elif solicitacao['fk_idPerfil'] == '4':
                     if self.fk_idPerfil_anterior != '5' or self.erro_convenio or self.completou:
                         if self.fk_idPerfil_anterior != '4' or self.erro_convenio  or self.completou:
                             self.completou = False
                             self.erro_convenio = False
-                    self.menu_refinanciamento_inss()
+                            self.menu_refinanciamento_inss()
                     self.consultar_refinanciamento(solicitacao, True)
                 else:
                     print(f'O robô não está configurado para calcular o refinanciamento do fk_idPerfil'
@@ -778,12 +778,11 @@ class Bradesco:
         seletor_matricula = "#cphBodyMain_cphBody_cphBody_ucConsultaMargem_ucConsultaMargemRefin_drpBeneficio"
         if self.selenium.buscar_quantidade_elemento(seletor_matricula) == 0:
             return
-
         matricula_selecionada = self.selenium.verificar_valor_campo_driver(seletor_matricula)
         if(str(solicitacao['matricula']) in matricula_selecionada):
             options_matricula = self.driver.find_element(By.CSS_SELECTOR,seletor_matricula + " option")
-            if(len(options_matricula) >= 1):
-                for option in options_matricula:
+            if(self.selenium.buscar_quantidade_elemento(seletor_matricula) >= 1):
+                for option in [options_matricula]:
                     if str(solicitacao['matricula']) in matricula_selecionada:
                         self.selenium.atribuir_valor_campo_jquery(seletor_matricula, option.text, change=True)
                         self.aguardar_loading()
@@ -795,9 +794,17 @@ class Bradesco:
     def calcular_refinanciamentos_gov(self, solicitacao):
         if solicitacao['fk_idPerfil'] == '2' and self.selenium.verificar_propriedade_css(
                 "#cphBodyMain_cphBody_cphBody_ucMargemSIAPE_txtValorMargemSIAPE", 'disabled'):
-            seletor_checkboxes = "#cphBodyMain_cphBody_cphBody_ucMargemSIAPE_gvMargens input"
-            checkboxes_refinanciamento = self.driver.find_element(By.CSS_SELECTOR,seletor_checkboxes)
-            checkboxes = list(map(lambda refin: f"#{refin.get_attribute('id')}", checkboxes_refinanciamento))
+            #seletor_checkboxes = "#cphBodyMain_cphBody_cphBody_ucMargemSIAPE_gvMargens input"
+            #checkboxes_refinanciamento = self.driver.find_element(By.CSS_SELECTOR,seletor_checkboxes)
+            #checkboxes = list(map(lambda refin: f"#{refin.get_attribute('id')}", checkboxes_refinanciamento))
+
+            seletor_checkboxes = "cphBodyMain_cphBody_cphBody_ucMargemSIAPE_gvMargens"
+
+            try:
+                checkboxes_refinanciamento = checkboxes = self.driver.find_element(By.ID,seletor_checkboxes).find_elements(By.TAG_NAME, "tr")
+            except:
+                checkboxes_refinanciamento = checkboxes = ""
+                pass
 
             for checkbox in checkboxes:
                 self.selenium.clicar_elemento_driver(checkbox)
@@ -811,19 +818,20 @@ class Bradesco:
                     continue
 
 
-                seletor_checkboxes2 = "#cphBodyMain_cphBody_cphBody_ucDadosRefinanciamento_gvContratos input"
+                #seletor_checkboxes2 = "#cphBodyMain_cphBody_cphBody_ucDadosRefinanciamento_gvContratos input"
+                seletor_checkboxes2 = "cphBodyMain_cphBody_cphBody_ucDadosRefinanciamento_gvContratos"
 
                 try:
-                    checkboxes_refinanciamento2 = self.driver.find_element(By.CSS_SELECTOR,seletor_checkboxes2)
+                    checkboxes_refinanciamento2 = checkboxes2 = self.driver.find_element(By.ID,seletor_checkboxes2).find_elements(By.TAG_NAME, "tr")
                 except:
-                    checkboxes_refinanciamento2 = ""
+                    checkboxes_refinanciamento2 = checkboxes2 = ""
                     pass
 
                 if not checkboxes_refinanciamento2 :
-                    print('XXXXXXXXXXXNão há matriculas cinculadas ao CPFXXXXXXXXXXXXX')
+                    print('XXXXXXXXXXXNão há matriculas vinculadas ao CPFXXXXXXXXXXXXX')
                     continue
 
-                checkboxes2 = list(map(lambda refin: f"#{refin.get_attribute('id')}", checkboxes_refinanciamento2))
+                #checkboxes2 = list(map(lambda refin: f"#{refin.get_attribute('id')}", checkboxes_refinanciamento2))
                 index_checkbox = 2
                 count = 0
 
@@ -885,8 +893,10 @@ class Bradesco:
                     seletor_prazo = '#cphBodyMain_cphBody_cphBody_ucDadosFinanciamento_ucSimulador_drpPrazo'
                     prazo = self.selenium.verificar_valor_campo_driver(seletor_prazo)
 
-                    saldo_devedor = linhas_taxa[1].find_element(By.CSS_SELECTOR,'td')[2].text
-                    valor_liberado = linhas_taxa[1].find_element(By.CSS_SELECTOR,'td')[3].text
+                    valores = linhas_taxa[1].text.split(' ')
+
+                    saldo_devedor = valores[2].split('\n')[1]
+                    valor_liberado = valores[3]
 
                     if int(self.formatar_valor(valor_liberado)) <= int(self.formatar_valor(valor_parcela)):
                         print('Refinanciamento não pôde ser calculado pois o valor liberado é inferior ao valor da '
@@ -910,20 +920,22 @@ class Bradesco:
                 self.selenium.atribuir_valor_campo_driver('#cphBodyMain_cphBody_cphBody_ucMargemSIAPE_txtValorMargem'
                                                           'SIAPE', '1')
 
-            seletor_checkboxes = "#cphBodyMain_cphBody_cphBody_ucDadosRefinanciamento_gvContratos input"
-
+            #seletor_checkboxes = "#cphBodyMain_cphBody_cphBody_ucDadosRefinanciamento_gvContratos input"
+            
+            seletor_checkboxes = "cphBodyMain_cphBody_cphBody_ucDadosRefinanciamento_gvContratos"
+            
             try:
-                checkboxes_refinanciamento = self.driver.find_element(By.CSS_SELECTOR,seletor_checkboxes)
+                checkboxes_refinanciamento = checkboxes = self.driver.find_element(By.ID,seletor_checkboxes).find_elements(By.TAG_NAME, "tr")
             except:
-                checkboxes_refinanciamento = ""
+                checkboxes_refinanciamento = checkboxes = ""
                 pass
 
             if not checkboxes_refinanciamento :
                 print('XXXXXXXXXXXNão há matriculas cinculadas ao CPFXXXXXXXXXXXXX')
                 return
 
-            checkboxes_refinanciamento = self.driver.find_element(By.CSS_SELECTOR,seletor_checkboxes)
-            checkboxes = list(map(lambda refin: f"#{refin.get_attribute('id')}", checkboxes_refinanciamento))
+            # checkboxes_refinanciamento = self.driver.find_element(By.CSS_SELECTOR,seletor_checkboxes)
+            # checkboxes = list(map(lambda refin: f"#{refin.get_attribute('id')}", checkboxes_refinanciamento))
             index_checkbox = 2
             count = 0
 
@@ -973,8 +985,7 @@ class Bradesco:
                 seletor_linhas_taxas = "#cphBodyMain_cphBody_cphBody_ucDadosFinanciamento_ucSimulador_gvSimulacao tr"
                 linhas_taxa = self.driver.find_element(By.CSS_SELECTOR,seletor_linhas_taxas)
 
-                if linhas_taxa[1].get_attribute('style').find('red') != -1 or not self.validar_taxa(linhas_taxa[1],
-                                                                                                    solicitacao):
+                if linhas_taxa[1].get_attribute('style').find('red') != -1 or not self.validar_taxa(linhas_taxa[1],solicitacao):
                     print("Refinanciamento foi calculado, mas não está disponível.")
                     self.fechar_modal_simulador()
                     count += 1
@@ -983,8 +994,10 @@ class Bradesco:
                 seletor_prazo = '#cphBodyMain_cphBody_cphBody_ucDadosFinanciamento_ucSimulador_drpPrazo'
                 prazo = self.selenium.verificar_valor_campo_driver(seletor_prazo)
 
-                saldo_devedor = linhas_taxa[1].find_element(By.CSS_SELECTOR,'td')[2].text
-                valor_liberado = linhas_taxa[1].find_element(By.CSS_SELECTOR,'td')[3].text
+                valores = linhas_taxa[1].text.split(' ')
+
+                saldo_devedor = valores[2].split('\n')[1]
+                valor_liberado = valores[3]
 
                 if int(self.formatar_valor(valor_liberado)) <= int(self.formatar_valor(valor_parcela)):
                     print('Refinanciamento não pôde ser calculado pois o valor liberado é '
@@ -1009,44 +1022,46 @@ class Bradesco:
 
     @staticmethod
     def validar_taxa(linha, solicitacao):
-        raw_taxa = linha.find_element(By.CSS_SELECTOR,'td')[1].text
-        
+        #raw_taxa = linha.find_element(By.TAG_NAME,'td')[1].text
+        raw_taxa = linha.text.split('\n')[0]
         if not raw_taxa:
             return False
 
         tabela = raw_taxa[0:3]
-        taxa = raw_taxa[6:]
+        taxa = float(raw_taxa[6:].replace(',','.').replace('%',''))
 
-        if solicitacao['fk_idPerfil'] == '4' or solicitacao['fk_idPerfil'] == '5':
-            if tabela != 'IN1':
-                print("Tabela não disponível!")
-                return False
-        else:
-            if formatar_porcentagem(taxa) < 1.4:
-                print(f"Taxa encontrada: {taxa}")
-                return False
+        # if solicitacao['fk_idPerfil'] == '4' or solicitacao['fk_idPerfil'] == '5':
+        #     if tabela != 'IN1':
+        #         print("Tabela não disponível!")
+        #         return False
+        #else:
+        # if formatar_porcentagem(taxa) < 1.4:
+        #     print(f"Taxa encontrada: {taxa}")
+        #     return False
 
         return True
 
     def calcular_refinanciamentos_inss(self, solicitacao):
-        seletor_checkboxes = "#cphBodyMain_cphBody_cphBody_ucDadosRefinanciamento_gvContratos input"
-        
+        #seletor_checkboxes = "#cphBodyMain_cphBody_cphBody_ucDadosRefinanciamento_gvContratos"
+        seletor_checkboxes = "cphBodyMain_cphBody_cphBody_ucDadosRefinanciamento_gvContratos"
         try:
-            checkboxes_refinanciamento = self.driver.find_element(By.CSS_SELECTOR,seletor_checkboxes)
+            checkboxes_refinanciamento = checkboxes = self.driver.find_element(By.ID,seletor_checkboxes).find_elements(By.TAG_NAME, "tr")
         except:
-            checkboxes_refinanciamento = ""
+            checkboxes_refinanciamento = checkboxes = ""
             pass
 
         if not checkboxes_refinanciamento :
             print('XXXXXXXXXXXNão há matriculas cinculadas ao CPFXXXXXXXXXXXXX')
             return
 
-        checkboxes = list(map(lambda refin: f"#{refin.get_attribute('id')}", checkboxes_refinanciamento))
-
         indice = -1;
         for checkbox in checkboxes:
             indice += 1;
-            if self.selenium.verificar_propriedade_css(checkbox, 'disabled'):
+
+            try:
+                if checkbox.is_enabled() == False :
+                    continue
+            except:
                 continue
 
             if len(checkboxes) > 1:
@@ -1086,8 +1101,8 @@ class Bradesco:
                 self.fechar_modal_simulador()
                 continue
 
-            seletor_linhas_taxas = "#cphBodyMain_cphBody_cphBody_ucDadosFinanciamento_ucSimulador_gvSimulacao tr"
-            linhas_taxa = self.driver.find_element(By.CSS_SELECTOR,seletor_linhas_taxas)
+            #seletor_linhas_taxas = "#cphBodyMain_cphBody_cphBody_ucDadosFinanciamento_ucSimulador_gvSimulacao tr"
+            linhas_taxa = self.driver.find_element(By.ID,'cphBodyMain_cphBody_cphBody_ucDadosFinanciamento_ucSimulador_gvSimulacao').find_elements(By.TAG_NAME, "tr")
 
             if linhas_taxa[1].get_attribute('style').find('red') != -1 or not self.validar_taxa(linhas_taxa[1],solicitacao):
                 print("Refinanciamento foi calculado, mas não está disponível.")
@@ -1100,8 +1115,10 @@ class Bradesco:
             seletor_parcela = '#cphBodyMain_cphBody_cphBody_ucDadosFinanciamento_ucSimulador_txtValorParcela'
             valor_parcela = self.selenium.verificar_valor_campo_driver(seletor_parcela)
 
-            saldo_devedor = linhas_taxa[1].find_element(By.CSS_SELECTOR,'td')[2].text
-            valor_liberado = linhas_taxa[1].find_element(By.CSS_SELECTOR,'td')[3].text
+            valores = linhas_taxa[1].text.split(' ')
+
+            saldo_devedor = valores[2].split('\n')[1]
+            valor_liberado = valores[3]
 
             if int(self.formatar_valor(valor_liberado)) <= int(self.formatar_valor(valor_parcela)):
                 print("Refinanciamento foi calculado, mas não está disponível.")
