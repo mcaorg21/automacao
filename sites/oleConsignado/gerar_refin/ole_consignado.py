@@ -148,7 +148,6 @@ class OleConsignado:
         #         url = f"https://ola.oleconsignado.com.br/RefinPropostaDetalhe/Index/870931428/CONSULTA/"
         #     else:
         #         url = f"https://ola.oleconsignado.com.br/EmprestimoPropostaDetalhe/Index/{self.contrato['ade']}/CONSULTA/"  
-
         #     self.driver.get(url)
         # else:
         self.selenium.atribuir_valor_campo_jquery("#CPF", self.contrato['cpf_cli'])
@@ -172,15 +171,21 @@ class OleConsignado:
         
 
     def comparar_dados_contrato(self):
-        links_contratos = self.driver.find_element(By.CSS_SELECTOR,'#tabelaDePropostas tbody tr a')
-        links = list(map(lambda proposta: proposta.get_attribute('href'), links_contratos))
-        
+        #links_contratos = self.driver.find_element(By.CSS_SELECTOR,'#tabelaDePropostas tbody tr a')
+        table_id = self.driver.find_element(By.ID,'tabelaDePropostas')
+        links_contratos = table_id.find_elements(By.TAG_NAME, "a")
+
+        #links = list(map(lambda proposta: proposta.get_attribute('href'), links_contratos))
         rec = 0
         rec_port = 0
-        for link in links:
+        for link in links_contratos:
+            link_encontrato = link.get_attribute('href')
             rec_port += 1
+            if "https" not in link_encontrato:
+                continue
+
             try:
-                self.driver.get(link)
+                self.driver.get(link_encontrato)
             except:
                 continue
 
@@ -224,7 +229,7 @@ class OleConsignado:
                     if self.valor_proposta_ole == valor_proposta_wa:
                         return True
 
-                if(len(links) == rec_port):
+                if(len(links_contratos) == rec_port):
                     raise ErrorOleException('ADE não encontrada')
                 else:
                     continue
