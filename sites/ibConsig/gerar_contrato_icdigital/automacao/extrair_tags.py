@@ -107,18 +107,9 @@ class Extrair_tags():
             except:
                 pass
                 
-            self.driver.switch_to.window(pagina)
+            sleep(7)
+            self.driver.find_element(By.CSS_SELECTOR,'.dropzone__control').send_keys(self.caminho_servidor+"contrato_unificado.pdf")
 
-            #sleep(2)
-            #pyautogui.click(x=472, y=66)
-            sleep(10)
-            pyautogui.click(x=472, y=66)
-            sleep(3)
-            pyautogui.click(x=465, y=120)
-            sleep(1)
-            pyautogui.moveTo(300, 150)
-            sleep(1)
-            pyautogui.dragTo(300, 400, 2, button='left')
             self.loading()
             
             try:
