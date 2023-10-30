@@ -153,13 +153,30 @@ class ConsultaStatus(Manager):
                             self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr[{i}]/td[1]/div/div/button[2]', By.XPATH)
                             pass
 
-                        while self.act.quantidade_elemento('/html/body/div[2]/div/div[1]/div/div/div[1]/button/span', By.XPATH) == 0:
-                            print("Aguardando tela de detalhes abrir...")
-                            self.aguardar_consulta(2)
+                        #pdb.set_trace()  
+                        self.aguardar_consulta(5)
+                        # botao_fechar = self.act.quantidade_elemento('/html/body/div[3]/div/div[1]/div/div/div[1]/button/span', XPATH)
+                        # if botao_fechar == 0:
+                        #     xpath_fechar = '/html/body/div[3]/div/div[1]/div/div/div[1]/button/span'
+                        # else:
+                        #     xpath_fechar = '/html/body/div[2]/div/div[1]/div/div/div[1]/button/span' 
+                                                            
+                        # while self.act.quantidade_elemento(xpath_fechar, By.XPATH) == 0:
+                        #     print("Aguardando tela de detalhes abrir...")
+                        #     self.aguardar_consulta(2)
+                        try:
+                            dados_consulta['statusPropostaBanco'] = self.act.obter_texto('/html/body/div[3]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr/td[2]', By.XPATH)
+                            dados_consulta['observacaoDetalhadaBanco']  = self.act.obter_texto('/html/body/div[3]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr/td[4]', By.XPATH)
+                        except:
+                            dados_consulta['statusPropostaBanco'] = self.act.obter_texto('/html/body/div[2]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr[1]/td[2]', By.XPATH)
+                            dados_consulta['observacaoDetalhadaBanco']  = self.act.obter_texto('/html/body/div[2]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr[1]/td[4]', By.XPATH)
+                            pass
 
-                        dados_consulta['statusPropostaBanco'] = self.act.obter_texto('/html/body/div[2]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr[1]/td[2]', By.XPATH)
-                        dados_consulta['observacaoDetalhadaBanco']  = self.act.obter_texto('/html/body/div[2]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr[1]/td[4]', By.XPATH)
-                        self.act.clicar_elemento('/html/body/div[2]/div/div[1]/div/div/div[1]/button/span', By.XPATH)
+                        try:
+                            self.act.clicar_elemento('/html/body/div[3]/div/div[1]/div/div/div[3]/button', By.XPATH)
+                        except:
+                            self.act.clicar_elemento('/html/body/div[2]/div/div[1]/div/div/div[1]/button/span', By.XPATH)
+                            pass
 
                         #dados_consulta['observacaoDetalhadaBanco'] = ''
                         dados_consulta['linkAssinaturaDigital'] = linkAssinaturaDigital

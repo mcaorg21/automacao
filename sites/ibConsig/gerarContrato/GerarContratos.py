@@ -77,11 +77,11 @@ class ItauGerarContratos(Manager):
                     return
                     continue
                 pdfHandler.addPdfToQueue(pdf)
-                pdfHandler.addPdfToQueue(self.condicoesPdf)
+                #pdfHandler.addPdfToQueue(self.condicoesPdf)
                 ade_gerar = infosContrato.ade
             elif infosContrato.portabilidade:
-                if('INSS' not in infosContrato.orgao):                    
-                    pdfHandler.addPdfToQueue(self.orientacoesPdf)
+                #if('INSS' not in infosContrato.orgao):                    
+                #    pdfHandler.addPdfToQueue(self.orientacoesPdf)
                 #pdfHandler.addPdfToQueue(self.baixarContrato(infosContrato.ade))
                 ade_refin_portabilidade = str(int(infosContrato.ade_refin_portabilidade))
                 pdf = self.baixarContrato(ade_refin_portabilidade)

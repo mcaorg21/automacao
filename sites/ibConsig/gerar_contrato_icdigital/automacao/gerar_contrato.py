@@ -32,6 +32,7 @@ class IbConsig_gerar():
             "download.directory_upgrade": True,
             "plugins.always_open_pdf_externally": True 
         })
+        #self.options.add_argument('headless')
         self.google_aberto = True
         self.driver = webdriver.Chrome(options=self.options)   
         self.driver.get('https://portal.icconsig.com.br')

@@ -36,6 +36,7 @@ class Extrair_tags():
             "download.directory_upgrade": True,
             "plugins.always_open_pdf_externally": True 
         })
+        #self.options.add_argument('headless')
         self.driver = webdriver.Chrome(options=self.options)   
         self.driver.get('https://portal.icconsig.com.br')
         self.driver.delete_all_cookies()
@@ -108,7 +109,8 @@ class Extrair_tags():
                 pass
                 
             sleep(7)
-            self.driver.find_element(By.CSS_SELECTOR,'.dropzone__control').send_keys(self.caminho_servidor+"contrato_unificado.pdf")
+            #pdb.set_trace()
+            self.driver.find_element(By.CSS_SELECTOR,'.dropzone__control').send_keys(glob.glob(self.pasta_arquivos_tag+'*')[0])
 
             self.loading()
             

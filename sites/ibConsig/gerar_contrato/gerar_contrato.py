@@ -36,7 +36,7 @@ from sites.ibConsig.libs.exceptions.Exceptions import SessaoExpiradaError
 from sites.ibConsig.libs.auxiliares.ib_consig import IbConsig
 from sites.ibConsig.gerarContrato.GerarContratos import ItauGerarContratos
 dbg: DebugTools = DebugTools(debugging=False)
-
+import shutil
 
 def cookies_gerar_contrato():
     return GerarContratoIbConsig.cookies_path
@@ -57,8 +57,14 @@ class GerarContratoIbConsig(IbConsig):
         super().__init__("saulo.1873", "t#909182", cookies_path=self.cookies_path)
         #super().__init__("cristiano.1873","t#909182", cookies_path=self.cookies_path)
         #super().__init__("mca1873","t#909182", cookies_path=self.cookies_path)
+        
+        # try:
+        #     shutil.rmtree(self.caminho_base+'/chrome_user_dir/IbConsigGerarContrato')
+        # except:
+        #     pass
         self.chrome_user = PATHS.chrome_user('IbConsigGerarContrato')
         self.driver_path = PATHS.driver_path()
+
 
         self.contratos_pdf_path = str(Path(self.caminho_base+'/ibConsig/anexos/contratos'))
         self.pdfs_orientacoes_path = str(Path(self.caminho_base+'/ibConsig/anexos/unificados'))
@@ -93,6 +99,7 @@ class GerarContratoIbConsig(IbConsig):
 
     def iniciar_google_chrome(self):
         options = Options()
+        #options.add_argument('--profile-directory=Default')
         options.add_argument('--ignore-ssl-errors')
         Manager.criar_pasta_usuario_chrome(self.chrome_user)
         options.add_argument(self.chrome_user)
@@ -518,6 +525,7 @@ class GerarContratoIbConsig(IbConsig):
             self.selenium_helper.clicar_elemento_driver("#filter-form\\:tipoInconsistencias\\:10")
 
     def match_ade(self, ade):
+        
         try:
             qtd_rows = self.driver.execute_script(
                 """return document.querySelector("#j_idt206 > table > tbody").rows.length""")
