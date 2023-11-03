@@ -1,7 +1,7 @@
 import sys
 sys.path.append('../')
 
-import re,pdb
+import re,pdb, shutil
 import requests
 
 from time import sleep
@@ -27,10 +27,17 @@ HORARIO_COMERCIAL = 7, 20
 
 class BMG:
     def __init__(self):
+        try:
+            #pdb.set_trace()
+            pasta = chrome_user('bmg').split('=')[1]
+            shutil.rmtree(pasta)
+        except:
+            pass
+            
         options = Options()
         options.add_argument('--ignore-ssl-errors')
         options.add_argument(chrome_user('bmg'))
-
+        options.add_argument('headless')
         self.driver = webdriver.Chrome(
             #executable_path=driver_path(),
             options=options
