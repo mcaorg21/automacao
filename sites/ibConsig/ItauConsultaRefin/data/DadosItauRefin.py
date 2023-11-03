@@ -10,6 +10,7 @@ Esta classe tem o intuito de armazenar e processar dados vindos tanto de
 requests realizadas a APIs quanto de elementos da interface web, retornados
 pela classe "IbConsigAuto".
 """
+import pdb
 from sites.baseRobos.data_handler import DataHandler
 from sites.baseRobos.core.DebugTools import DebugTools
 from typing import List

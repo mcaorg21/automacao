@@ -37,6 +37,8 @@ from sites.baseRobos.core.decorators import ApenasHorarioComercial, AguardarHora
 from sites.baseRobos.core.Exceptions import ForaHorarioComercialError
 from dados.database.queries.query_dados_robos import query_login_pass_robo
 
+import shutil
+
 dbg: DebugTools = DebugTools(debugging=False)
 HORARIO_COMERCIAL = 7, 21
 
@@ -106,6 +108,14 @@ class Bradesco:
         options.add_argument('--ignore-ssl-errors')
         options.add_argument('log-level=3')
         options.add_argument(chrome_user)
+
+        try:
+            #pdb.set_trace()
+            pasta = chrome_user.split('=')[1]
+            shutil.rmtree(pasta)
+        except:
+            pass
+
         Manager.criar_pasta_usuario_chrome(chrome_user)
 
         self.driver = webdriver.Chrome(

@@ -101,6 +101,12 @@ class GerarContratoIbConsig(IbConsig):
         options = Options()
         #options.add_argument('--profile-directory=Default')
         options.add_argument('--ignore-ssl-errors')
+        try:
+            #pdb.set_trace()
+            pasta = self.chrome_user.split('=')[1]
+            shutil.rmtree(pasta)
+        except:
+            pass
         Manager.criar_pasta_usuario_chrome(self.chrome_user)
         options.add_argument(self.chrome_user)
 
