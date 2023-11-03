@@ -28,7 +28,7 @@ import PATHS
 from pathlib import Path
 from PATHS import project_path
 
-import time,pdb,os
+import time,pdb,os,shutil
 
 from typing import Callable
 from sites.baseRobos.core.helpers import definir_nome_robo
@@ -52,7 +52,14 @@ class IbConsultaRefin(Manager):
     def __init__(self, id_instancia: int = 0, **kwargs):
         super().__init__()
         self.id_instacia: int = id_instancia
+
         self.user_chrome: str = PATHS.chrome_user(kwargs.get("user_dir", "ItauRefin"))
+        try:
+            pasta = self.user_chrome.split('=')[1]
+            shutil.rmtree(pasta)
+        except:
+            pass
+
         Manager.criar_pasta_usuario_chrome(self.user_chrome)
         self.set_options('--ignore-ssl-errors', 'log-level=3', self.user_chrome,)
 
@@ -156,6 +163,7 @@ class IbConsultaRefin(Manager):
         return solicitacoes
 
     def executar_consulta_refinanciamentos(self, fila="refinanciamento"):
+
         solicitacoes: List[dict] = self.buscar_refinanciamentos(fila)
         # solicitacoes = [{"idSolicitacao": "1209305",
         #                 "idPessoa": "249782",
@@ -166,7 +174,7 @@ class IbConsultaRefin(Manager):
         #                 "sigla": "",
         #                 "cidade": "",
         #                 "inss": True}]
-        
+
         if not solicitacoes:
             return False
 

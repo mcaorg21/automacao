@@ -106,12 +106,13 @@ class GerarContratoIbConsig(IbConsig):
 
         if not os.path.exists(self.contratos_pdf_path):
             os.mkdir(self.contratos_pdf_path)
-
+        
         prefs = {
             "download.default_directory": self.contratos_pdf_path,
             'profile.default_content_setting_values.automatic_downloads': True,
             'download.prompt_for_download': False,
-            'plugins.plugins_disabled': 'Chrome PDF Viewer'
+            'plugins.plugins_disabled': 'Chrome PDF Viewer',
+            "plugins.always_open_pdf_externally": True
         }
 
         options.add_experimental_option('prefs', prefs)
@@ -491,7 +492,7 @@ class GerarContratoIbConsig(IbConsig):
                 )
 
     def desmarcar_checkboxes(self):
-
+        #pdb.set_trace()
         # checked_105 = self.driver.execute_script("""return document.querySelector("#filter-form\\\\:tipoInconsistencias\\\\:2").checked""")
         # if checked_105:
         #     self.selenium_helper.clicar_elemento_driver("#filter-form\\:tipoInconsistencias\\:2")
