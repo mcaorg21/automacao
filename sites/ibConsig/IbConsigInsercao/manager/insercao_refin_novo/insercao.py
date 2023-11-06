@@ -26,7 +26,7 @@ from sites.ibConsig.libs.auxiliares.ib_consig import IbConsig
 from sites.baseRobos.core.decorators import AguardarHorarioComercial
 from sites.baseRobos.core.Exceptions import ForaHorarioComercialError
 from sites import ID_ROBOS
-import time,pdb,json
+import time,pdb,json, shutil
 
 from sites.ibConsig.IbConsigInsercao.manager.portabilidade.insercao_portabilidade import *
 
@@ -53,6 +53,13 @@ class InsercaoIbConsig(Manager):
         self.cookies_path = COOKIES_INSERIR_CONTRATO
 
         self.user_chrome_path: str = kwargs.get('chrome_user', PATHS.chrome_user("IbConsigInsercao"))
+        try:
+            #pdb.set_trace()
+            pasta = self.user_chrome_path.split('=')[1]
+            shutil.rmtree(pasta)
+        except:
+            pass
+            
         Manager.criar_pasta_usuario_chrome(self.user_chrome_path)
         self.set_options('--ignore-ssl-errors', 'log-level=3', self.user_chrome_path)
         self.init_chrome_driver(import_driver=kwargs.get("extern_driver", False))

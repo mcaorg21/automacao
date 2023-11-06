@@ -338,3 +338,6 @@ class ConsultaStatus(Manager):
             print('Aguardando Loading...' + str(interacoes))
             time.sleep(2)
             interacoes -= 1
+            if(interacoes < 0):
+
+                raise Exception('Tempo excedido...')

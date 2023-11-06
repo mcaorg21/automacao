@@ -17,6 +17,9 @@ pip install -r requirements.txt
 # Com esse comando você vai instalar as dependências base do projeto.
 ```
 
+#adicione o comando abaixo no crontab -e pra sempre deletar a tmp
+*/1 * * * * find /tmp -type f \( ! -user root \) -atime +1 -delete
+
 Para iniciar o robô é só rodar o comando:
 
 ```
