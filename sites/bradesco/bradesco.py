@@ -728,6 +728,9 @@ class Bradesco:
             }, {
                 "erro": r"Não foi possível exibir o simulador",
                 'PularCheckBox': True
+            }, {
+                "erro": r"Não é possível efetuar a consulta ao PDC com os parâmetros informado",
+                'PularCheckBox': True
             }
 
         ]
@@ -1032,6 +1035,9 @@ class Bradesco:
 
     @staticmethod
     def validar_taxa(linha, solicitacao):
+
+        return True
+        
         #raw_taxa = linha.find_element(By.TAG_NAME,'td')[1].text
         raw_taxa = linha.text.split('\n')[0]
         if not raw_taxa:
@@ -1066,6 +1072,14 @@ class Bradesco:
 
         indice = -1;
         for checkbox in checkboxes:
+            
+
+            try:
+                if('CONTRATOS A REFINANCIAR DATA VALOR SOLICITADO' in checkbox.text):
+                    continue
+            except:
+                pass
+
             indice += 1;
 
             try:
@@ -1074,9 +1088,17 @@ class Bradesco:
             except:
                 continue
 
-            if len(checkboxes) > 1:
-                self.desmarcar_todos_checkbox(checkboxes)
-                self.selenium.clicar_elemento_driver(checkbox)
+            if len(checkboxes) -1 > 1:
+                #self.desmarcar_todos_checkbox(checkboxes, seletor_checkboxes+"_chkSelecionar_"+str(indice), indice) 
+                
+                #desmarca todos
+                for i in range(indice, len(checkboxes) -1):
+                    selector_futuro = seletor_checkboxes+"_chkSelecionar_"+str(i)  
+                    self.driver.find_element(By.ID, selector_futuro).click()
+
+                selector_atual = seletor_checkboxes+"_chkSelecionar_"+str(indice)   
+                self.driver.find_element(By.ID, selector_atual).click()
+                
                 sleep(2)
 
             seletor_salario = "#cphBodyMain_cphBody_cphBody_ucConsultaMargem_ucConsultaMargemRefin_txtValorBeneficio"
