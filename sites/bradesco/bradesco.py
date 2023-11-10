@@ -1087,14 +1087,15 @@ class Bradesco:
                     continue
             except:
                 continue
-
+            #pdb.set_trace()
             if len(checkboxes) -1 > 1:
                 #self.desmarcar_todos_checkbox(checkboxes, seletor_checkboxes+"_chkSelecionar_"+str(indice), indice) 
                 
                 #desmarca todos
                 for i in range(indice, len(checkboxes) -1):
                     selector_futuro = seletor_checkboxes+"_chkSelecionar_"+str(i)  
-                    self.driver.find_element(By.ID, selector_futuro).click()
+                    if(self.driver.find_element(By.ID, selector_futuro).is_selected()):
+                        self.driver.find_element(By.ID, selector_futuro).click()
 
                 selector_atual = seletor_checkboxes+"_chkSelecionar_"+str(indice)   
                 self.driver.find_element(By.ID, selector_atual).click()
@@ -1173,7 +1174,7 @@ class Bradesco:
 
     def desmarcar_todos_checkbox(self, checkboxes):
         for checkbox in checkboxes:
-            if self.selenium.verificar_propriedade_css(checkbox, 'checked'):
+            if checkbox.is_enabled():
                 self.selenium.clicar_elemento_driver(checkbox)
                 self.aguardar_loading()
 
