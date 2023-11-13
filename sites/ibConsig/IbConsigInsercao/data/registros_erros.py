@@ -22,6 +22,17 @@ def registro_erros_form_insercao(**kwargs) -> list:
         }
         ,
         {
+            'erro': r'Para fazer um refinanciamento digital via TED, você deve utilizar o IC360',
+            'atualizar': True,
+            'mensagem': "Reprovado a Conferir",
+            'observacao': alert_text,
+            'textoMensagem': alert_text,
+            'aceitar': True,
+            'pular': True,
+            'interacaoHumana': 1
+        }
+        ,
+        {
             'erro': r'diferente do cadastro da Receita Federal',
             'atualizar': True,
             'mensagem': "Reprovado a Conferir",
