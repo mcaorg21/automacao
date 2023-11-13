@@ -293,6 +293,13 @@ class DadosIdentificacao(AutoGUI):
         self.campo_data_nasc = self.sh.verificar_valor_campo_jquery(
             "#identificacao-form\\\\:dataDeNascimento")
 
+    def clicar_modal(self):
+        try:                    
+            loc_modal = '//*[@id="identificacao-form:modalOrdemPagamento"]/div[2]/div[2]/a'
+            self.act.clicar_elemento(loc_modal, self.by.XPATH)
+        except TimeoutException as e:
+            dbg.warning(e.msg)
+
     def preencher_cpf(self, rec=0):
         print("Preenchendo CPF", self.__cpf)
         loc = 'input[name="identificacao-form:cpf"]'

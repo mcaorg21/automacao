@@ -324,6 +324,11 @@ class IbConsultaRefin(Manager):
                     return False
                 form.aguardar_carregar_entidade()
 
+            try:
+                form.clicar_modal()
+            except:
+                pass
+
             form.preencher_cpf()
 
             if form.servidor_federal:
