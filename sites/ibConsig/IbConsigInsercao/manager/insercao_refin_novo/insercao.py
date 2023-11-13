@@ -667,6 +667,12 @@ class InsercaoIbConsig(Manager):
                 elif form.refinanciamento:
                     #while self.selenium_helper.verificar_texto_campo_jquery(r'#identificacao-form\\\:cpf') == '':
                     form.preencher_cpf()
+
+                    try:
+                        form.clicar_modal()
+                    except:
+                        pass
+
                     time.sleep(self.wait + 2)
                     if(self.selenium_helper.verificar_texto_campo_jquery(r'#identificacao-form\\\:cpf') == ''):
                         form.preencher_cpf()
