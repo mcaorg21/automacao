@@ -189,15 +189,15 @@ class DadosProposta(AutoGUI):
         else:
             if(tabela_digital):
                 if(self.__tipo_beneficio == "87" or self.__tipo_beneficio == "88"):
-                    opt_tabela: WebElement = self.__opcao_tabela_nova_proposta(loc, filt=lambda taxa: "DIG" in taxa and self.__tipo_beneficio in taxa and 'Car' not in taxa and '1,97' in taxa)
+                    opt_tabela: WebElement = self.__opcao_tabela_nova_proposta(loc, filt=lambda taxa: "DIG" in taxa and "Loas" in taxa and 'Car' not in taxa and '1,84' in taxa)
                 else:  
                     #pdb.set_trace()
                     if(self.__tipo_beneficio != ""):
-                        opt_tabela: WebElement = self.__opcao_tabela_nova_proposta(loc, filt=lambda taxa: "DIG" in taxa and 'Car' not in taxa and '1,97' in taxa)
+                        opt_tabela: WebElement = self.__opcao_tabela_nova_proposta(loc, filt=lambda taxa: "DIG" in taxa and 'Car' not in taxa and '1,84' in taxa)
                     else:
-                        opt_tabela: WebElement = self.__opcao_tabela_nova_proposta(loc, filt=lambda taxa: "DIG" in taxa and 'Car' not in taxa and '1,97' in taxa)
+                        opt_tabela: WebElement = self.__opcao_tabela_nova_proposta(loc, filt=lambda taxa: "DIG" in taxa and 'Car' not in taxa and '1,84' in taxa)
             else:
-                opt_tabela: WebElement = self.__opcao_tabela_nova_proposta_sem_digital(loc, filt=lambda taxa: "DIG" not in taxa and '1,97' in taxa)
+                opt_tabela: WebElement = self.__opcao_tabela_nova_proposta_sem_digital(loc, filt=lambda taxa: "DIG" not in taxa and '1,84' in taxa)
         
         self.act.select_drop_down(loc, opt_tabela.get_attribute("value"))
 
