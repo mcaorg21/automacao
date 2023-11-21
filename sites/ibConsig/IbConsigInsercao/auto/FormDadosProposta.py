@@ -566,8 +566,8 @@ class DadosProposta(AutoGUI):
                 if 'Car' in valor_opt.text:
                     continue
 
-                if '1,8' in valor_opt.text:
-                    continue
+                # if '1,8' in valor_opt.text:
+                #     continue
 
             if self._DadosProposta__tipo_beneficio != '87'and self._DadosProposta__tipo_beneficio != '88':
                 if '87' in valor_opt.text or '88' in valor_opt.text:

@@ -656,6 +656,12 @@ class InsercaoIbConsig(Manager):
                         except:
                             form.selecionar_servico('1')  
                         time.sleep(self.wait+1)
+                    
+                    try:
+                        form.clicar_modal()
+                    except:
+                        pass
+
                     form.preencher_data_nascimento()
                     time.sleep(self.wait)
                     form.preencher_cpf()
