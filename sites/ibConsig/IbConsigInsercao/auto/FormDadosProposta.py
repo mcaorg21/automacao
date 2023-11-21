@@ -559,7 +559,10 @@ class DadosProposta(AutoGUI):
         """
         print("Encontrando opção da tabela de carência segundo valor do contrato.")
         valores_opts: List[WebElement] = self.act.retornar_opcoes_select(loc_tabela)
-        #pdb.set_trace()
+
+        array_tabelas_menor_1400 = ['1194','2108']
+        array_tabelas_maior_1400 = ['1948','4533']
+
         for valor_opt in valores_opts:
  
             if(self.__carenciaTabela == 0):
@@ -583,7 +586,7 @@ class DadosProposta(AutoGUI):
                 if(valor_opt.get_attribute("value") == '2503' and self.nova_formalizazao_in100 == False):
                     continue
 
-                if(valor_opt.get_attribute("value") == '1322' and self.__val_contrato >= 1200):
+                if(valor_opt.get_attribute("value") in array_tabelas_menor_1400 and self.__val_contrato >= 2400):
                     continue
 
                 if(valor_opt.get_attribute("value") == '1323' and self.__val_contrato >= 3000):
