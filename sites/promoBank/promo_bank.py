@@ -32,9 +32,9 @@ class PromoBank:
 	id_fila_reprovado_conferir = 33
 
 	def __init__(self):
-		root = tk.Tk()
-		screen_width = root.winfo_screenwidth()
-		screen_height = root.winfo_screenheight()
+		#root = tk.Tk()
+		#screen_width = root.winfo_screenwidth()
+		#screen_height = root.winfo_screenheight()
 
 		self.caminho_base = PATHS.project_path()
 		self.chrome_user = PATHS.chrome_user(f"Promobank{random.randrange(2,12)}")
@@ -52,10 +52,10 @@ class PromoBank:
 		options.add_argument('--ignore-ssl-errors')
 		options.add_argument('log-level=3')
 		options.add_argument('--profile-directory=Default')
-		options.add_argument(f'--window-position={int(screen_width-screen_width/3)},0')
+		#options.add_argument(f'--window-position={int(screen_width-screen_width/3)},0')
 
 		options.add_argument(self.chrome_user)
-
+		
 		try:
 			self.driver = webdriver.Chrome(
 					executable_path=self.driver_path,
@@ -68,8 +68,8 @@ class PromoBank:
 			options.add_argument('log-level=3')
 			options.add_argument('--profile-directory=Default')
 			self.driver = webdriver.Chrome(
-					executable_path=self.driver_path,
-					chrome_options=options)
+					#executable_path=self.driver_path,
+					options=options)
 		
 		self.uconecte = Uconecte()
 		self.selenium_helper = SeleniumHelper(self.driver)
@@ -77,11 +77,11 @@ class PromoBank:
 		self.contar_inicio = 0
 
 	def main(self,retorno='N'):
-		self.driver.get('https://promobank.com.br/')
+		self.driver.get('https://www.promobank.online/sistema')
 		
 		self.driver.delete_all_cookies()
 
-		
+
 		# o promobank esta bloqueando login direto entao comecaremos a usar os cookies gerados pelo login manual
 		
 		#retorno = 'C'
@@ -91,7 +91,7 @@ class PromoBank:
 		if(retorno == 'C'):
 			print('Iniciando função de consulta...')	
 			#self.driver.get('https://promobank.com.br/')
-			self.driver.get("https://promobank.com.br/sistema/")
+			self.driver.get("https://promobank.online/")
 			time.sleep(2)
 			self.selecionar_aba_consulta()
 
@@ -127,6 +127,33 @@ class PromoBank:
 			try:
 				if self.act.quantidade_elemento('/html/body/div[1]/div/div/form[1]/button[1]', By.XPATH) == 1:
 					self.act.clicar_elemento('/html/body/div[1]/div/div/form[1]/button[1]', By.XPATH)
+
+				try:
+					# try:				
+					# 	self.act.clicar_elemento('/html/body/div[1]/div[4]/div/div/div/div/div[1]/div/div/div/div[2]/div/div/div[4]/a/span', By.XPATH)
+					# except:
+					# 	pass
+					# time.sleep(2)
+					
+					# try:				
+					# 	self.act.clicar_elemento('/html/body/div[1]/div[4]/div/div/div/div/div[1]/div/div/div/div[2]/div/div/div[4]/a/span', By.XPATH)
+					# except:
+					# 	pass
+					# time.sleep(2)
+
+					# try:
+					# 	print('entra')
+					# 	self.act.clicar_elemento('/html/body/div[1]/div[4]/div/div/div/div/div[1]/div/div/div/div[2]/div/div/div[4]/a/span', By.XPATH)
+					# except:
+					# 	pass
+
+					time.sleep(1)
+					
+					#self.act.clicar_elemento('/html/body/section/div/div/div[3]/div/div[2]/button', By.XPATH)
+					time.sleep(1)
+				except:
+					pass
+
 			except:
 				print('Sem erro de login')
 				pass
@@ -136,7 +163,7 @@ class PromoBank:
 					while not self.login():
 						print("Tentativa de Login...")	
 			except:
-				self.driver.get("https://promobank.com.br/")
+				self.driver.get("https://www.promobank.online/")
 				while not self.login():
 						print("Tentativa de Login...")
 
@@ -185,13 +212,13 @@ class PromoBank:
 					time.sleep(random.randrange(2,4))
 					time.sleep(3)
 
-					self.selecionar_aba_consulta()
+					#self.selecionar_aba_consulta()
 					print('Aguardando 90 segundos...')
 					time.sleep(90)
 				except Exception as e:
 					self.driver.quit()
 					PromoBank().main()
-					self.main()
+					#self.main()
 					#self.main()
 					# identificar_erro_robo()
 					# raise Exception(str(e))
@@ -219,7 +246,7 @@ class PromoBank:
 				pass
 
 	def load_cookies_pasta(self):
-		self.driver.get('https://www.promobank.com.br/')
+		self.driver.get('https://www.promobank.online/')
 		self.driver.delete_all_cookies()
 		file = open(self.cookies_path_json)
 		cookies = json.load(file)
@@ -230,14 +257,14 @@ class PromoBank:
 					self.driver.add_cookie(cookie)
 			except Exception as e:
 				pass
-		self.driver.get('https://promobank.com.br/sistema')
+		self.driver.get('https://www.promobank.online/sistema')
 
 	def load_cookies_promobank_web_admin(self):
 		
 		url = "http://emprestimofacil.co/web_admin/api/v1/consulta/cookies/promobank/?key={}".format(self.api_key)
 		cookies = self.selenium_helper.load_cookies_robo_web_admin(url, self.id_robo)
 
-		self.driver.get('https://www.promobank.com.br/')
+		self.driver.get('https://www.promobank.online/')
 		self.driver.delete_all_cookies()
 
 		for cookie in cookies:
@@ -246,11 +273,11 @@ class PromoBank:
 					self.driver.add_cookie(cookie)
 			except Exception as e:
 				pass
-		self.driver.get('https://promobank.com.br/sistema')
+		self.driver.get('https://www.promobank.online/sistema')
 		self.selecionar_aba_consulta_api()
 
 	def load_cookies_promobank_web_admin_api(self):
-		self.driver.get('https://www.promobank.com.br/')
+		self.driver.get('https://www.promobank.online/')
 		
 		url = "http://emprestimofacil.co/web_admin/api/v1/consulta/cookies/promobank/?key={}".format(self.api_key)
 		cookies = self.selenium_helper.load_cookies_robo_web_admin(url, self.id_robo)
@@ -263,18 +290,18 @@ class PromoBank:
 					self.driver.add_cookie(cookie)
 			except Exception as e:
 				pass
-		self.driver.get('https://promobank.com.br/sistema')
+		self.driver.get('https://www.promobank.online/sistema')
 		self.selecionar_aba_consulta_api()
 
 	def abre_chrome(self,fila_tipo = 'api'):
-		self.driver.get('https://www.promobank.com.br/')
+		self.driver.get('https://www.promobank.online/')
 		self.driver.delete_all_cookies()
 		try:
 			self.escreve_json(self.cookies_path)
 		except:
 			self.main()
 		if(fila_tipo == 'api'):
-			self.driver.get('https://promobank.com.br/sistema')
+			self.driver.get('https://www.promobank.online/sistema')
 			self.selecionar_aba_consulta_api()
 		else:
 			self.main()
@@ -420,6 +447,7 @@ class PromoBank:
 					"idPerfilPessoa": solicitacao['fk_idPerfil_pessoa']
 				}
 				print("Salvando consulta com os dados:", dados)
+				#pdb.set_trace()
 				request_consulta = requests.post("https://uconecte.me/api/v1/consultas/inss", data=dados)
 
 				print(request_consulta.status_code);
@@ -453,7 +481,7 @@ class PromoBank:
 			if(self.selenium_helper.buscar_quantidade_elemento('.logoCRM')==0 and self.selenium_helper.buscar_quantidade_elemento('.panel-body')==0):
 				self.main()
 			else:
-				self.driver.get("https://promobank.com.br/sistema/")
+				self.driver.get('https://www.promobank.online/sistema')
 		except Exception:
 			#pdb.set_trace()
 			self.driver.quit()
@@ -498,7 +526,7 @@ class PromoBank:
 		self.driver.switch_to.frame(iframe_consulta)
 
 	def selecionar_aba_consulta_tentativa(self):
-		self.driver.get("https://promobank.com.br/sistema/")
+		self.driver.get('https://www.promobank.online/sistema')
 		time.sleep(5)
 		loc_consulta = '//*[text()="Consulta"]'
 		self.act.clicar_elemento(loc_consulta, By.XPATH)
@@ -534,6 +562,7 @@ class PromoBank:
 				pass
 		except:
 			self.driver.quit()
+			PromoBank().main()
 			return {'retorno': 11, 'mensagem': 'Erro na consulta...'}
 
 		self.aguardar_loading_botao()
@@ -561,6 +590,7 @@ class PromoBank:
 			return {'retorno': 4, 'mensagem': e.message}
 		except SiteLimitePesquisa as e:
 			self.driver.quit()
+			PromoBank().main()
 			return {'retorno': 11, 'mensagem': 'Erro na consulta...'}
 		except ConsultErrorException as e:
 			if(fila != 'api'):
@@ -584,7 +614,7 @@ class PromoBank:
 					if('Informe uma Matrícula ou CPF válido' in self.mensagem_erro):
 						self.mensagem_erro = ""
 						return {'retorno': 11, 'mensagem': 'Erro na consulta possivel beneficio novo...'}
-					self.driver.quit()
+					#self.driver.quit()
 					
 					#self.reabrir_tela_consulta()
 
@@ -734,16 +764,21 @@ class PromoBank:
 		
 		# - NO AUMENTO TROCAR OS 2 RESULTADOS NOS 2 IFS DE PARCELA AUMENTO
 
-		porcentagem_aumento = 0.0742
-		porcentagem_aumento_salario = 0.0593
+		array = ['87','88']
+		porcentagem_aumento = 0.0765
+		porcentagem_aumento_salario = 0.0475
+		porcentagem_margem = 0.35
+
+		if especie_beneficio in array:
+			porcentagem_margem = 0.30
 
 		if('ADQUIRIR' in competencia_detalhamento[0]): 
 			
 			try:
 				credito_liquido = formatar_moeda(self.selenium_helper.verificar_valor_campo_driver('[name=con_liquido]'))
-				parcela_aumento = credito_total_liquido * porcentagem_aumento * 0.35
+				parcela_aumento = credito_total_liquido * porcentagem_aumento * porcentagem_margem
 			except:
-				parcela_aumento = (credito_total * 0.35) - self.debito_total 			
+				parcela_aumento = (credito_total * porcentagem_margem) - self.debito_total 			
 
 			self.retorno.update({
 				'retorno':1,
@@ -776,29 +811,40 @@ class PromoBank:
 			#pdb.set_trace()
 			try:
 				credito_liquido = formatar_moeda(self.selenium_helper.verificar_valor_campo_driver('[name=con_liquido]'))
-				if(ano_competencia == 2023 and mes_competencia <= 3):
+				if(ano_competencia == 2024 and mes_competencia <= 3):
 					#parcela_aumento = margem_disponivel
-					if(credito_total <= 1302):
-						parcela_aumento = credito_total_liquido * porcentagem_aumento * 0.35
+					if(credito_total <= 1320):
+						parcela_aumento = credito_total_liquido * porcentagem_aumento * porcentagem_margem
+						credito_total = credito_total * (1+porcentagem_aumento)
 					else:
-						parcela_aumento = credito_total_liquido * porcentagem_aumento_salario * 0.35
-				elif(ano_competencia == 2022 and mes_competencia <= 12):
-					if(credito_total <= 1212):
-						parcela_aumento = credito_total_liquido * porcentagem_aumento * 0.35
+						parcela_aumento = credito_total_liquido * porcentagem_aumento_salario * porcentagem_margem
+						credito_total = credito_total * (1+porcentagem_aumento_salario)
+
+				elif(ano_competencia == 2023 and mes_competencia <= 12):
+					if(credito_total <= 1320):
+						parcela_aumento = credito_total_liquido * porcentagem_aumento * porcentagem_margem
+						credito_total = credito_total * (1+porcentagem_aumento)
 					else:
-						parcela_aumento = credito_total_liquido * porcentagem_aumento_salario * 0.35
+						parcela_aumento = credito_total_liquido * porcentagem_aumento_salario * porcentagem_margem
+						credito_total = credito_total * (1+porcentagem_aumento_salario)
+
 			except:
-				if (ano_competencia == 2022 and mes_competencia <= 12):
-					if(credito_total <= 1212):
-						parcela_aumento = credito_total * porcentagem_aumento * 0.35 
+				if (ano_competencia == 2023 and mes_competencia <= 12):
+					if(credito_total <= 1320):
+						parcela_aumento = credito_total * porcentagem_aumento * porcentagem_margem
+						credito_total = credito_total * (1+porcentagem_aumento)
 					else:
-						parcela_aumento = credito_total * porcentagem_aumento_salario * 0.35
-				elif(ano_competencia == 2023 and mes_competencia <= 3):
+						parcela_aumento = credito_total * porcentagem_aumento_salario * porcentagem_margem
+						credito_total = credito_total * (1+porcentagem_aumento_salario)
+
+				elif(ano_competencia == 2024 and mes_competencia <= 3):
 					#parcela_aumento = margem_disponivel 
-					if(credito_total <= 1302):
-						parcela_aumento = credito_total * porcentagem_aumento * 0.35
+					if(credito_total <= 1320):
+						parcela_aumento = credito_total * porcentagem_aumento * porcentagem_margem
+						credito_total = credito_total * (1+porcentagem_aumento)
 					else:
-						parcela_aumento = credito_total * porcentagem_aumento_salario * 0.35
+						parcela_aumento = credito_total * porcentagem_aumento_salario * porcentagem_margem
+						credito_total = credito_total * (1+porcentagem_aumento_salario)
 
 
 			self.retorno.update({
@@ -823,11 +869,11 @@ class PromoBank:
 		refinanciamentos = []
 		self.debito_total = 0
 
-		linhas_refinanciamento = self.driver.find_element(By.CSS_SELECTOR,'.gridContratos tbody tr')
+		linhas_refinanciamento = self.driver.find_elements_by_css_selector('.gridContratos tbody tr')
 
 		try:
 			for linha_refinanciamento in linhas_refinanciamento:
-				colunas = linha_refinanciamento.find_element(By.CSS_SELECTOR,'td')
+				colunas = linha_refinanciamento.find_elements_by_css_selector('td')
 
 				if len(colunas) == 0:
 					continue
@@ -985,6 +1031,7 @@ class PromoBank:
 		print("Erro, {}. Deseja continuar? r/p (reprovar/pular)".format(mensagem_erro))
 		time.sleep(300)
 		self.driver.quit()
+		PromoBank().main()
 
 	def fechar_mensagem_erro(self):
 		style = self.selenium_helper.verificar_atributo_campo_jquery('#error', 'style')
