@@ -573,7 +573,7 @@ class DadosProposta(AutoGUI):
                 #     continue
 
             if self._DadosProposta__tipo_beneficio != '87'and self._DadosProposta__tipo_beneficio != '88':
-                if '87' in valor_opt.text or '88' in valor_opt.text:
+                if '87' in valor_opt.text or '88' in valor_opt.text  or 'loas' in valor_opt.text.lower():
                     print(self.__tipo_beneficio)
                     print('É tabela do tipo beneficio 87 e 88 e vai pular...')
                     continue
