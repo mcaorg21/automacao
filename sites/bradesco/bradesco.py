@@ -288,6 +288,7 @@ class Bradesco:
         self.aguardar_loading()
         self.tratar_erros_modal_consulta()
 
+
     def buscar_solicitacoes(self):
         solicitacoes: List[dict] = self.dados.buscar_solicatacoes_refinanciamento()
 
@@ -430,12 +431,13 @@ class Bradesco:
                 self.selecionar_dados_validacao(item.format(seletor_select_produto), 3)
                 self.aguardar_loading()
 
+                self.tratar_erros_modal_consulta()
+
                 #tentando fechar janela
-                try:
-                    sleep(2)
-                    self.act.clicar_elemento('/html/body/div[16]/div[1]/button/span[1]', By.XPATH)
-                except:
-                    pass
+                # try:
+                #     self.act.clicar_elemento('/html/body/div[16]/div[1]/button/span[1]', By.XPATH)
+                # except:
+                #     pass
 
                 seletor_select_loja = "#cphBodyMain_cphBody_cphBody_ucDadosValidacao_upLojas"
                 self.selecionar_dados_validacao(item.format(seletor_select_loja), 1)
@@ -632,6 +634,8 @@ class Bradesco:
             identificar_erros_sessao(mensagem_erro, throw=True)
 
     def tratar_erros_modal_consulta(self):
+
+
         try:
             from sites.baseRobos.core.data_helpers import similaridade
             if self.selenium.buscar_quantidade_elemento('.ui-dialog-content:visible') > 0:
@@ -736,6 +740,11 @@ class Bradesco:
                 "erro" : r"vencimento do seu certificado",
                 "Fechar" : True
 
+            },
+            {
+                "erro" : r"CONFIRME SE ESTÁ CLARO OU RESTAM DÚVIDAS",
+                "Fechar" : True
+
             }
 
         ]
@@ -786,8 +795,12 @@ class Bradesco:
                 raise PularCheckboxException(message=mensagem_erro)
             elif 'Fechar' in erro_regex:
                 try: 
-                    self.act.clicar_elemento('/html/body/div[1]/div[1]/button/span[1]', By.XPATH)
+                    self.act.clicar_elemento('/html/body/div[1]/div[1]/button/span[1]', By.XPATH)                    
                 except:
+                    try:
+                        self.act.clicar_elemento('/html/body/div[17]/div[1]/button/span[1]', By.XPATH)
+                    except:
+                        pass
                     pass
                 return
 
