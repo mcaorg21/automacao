@@ -101,24 +101,17 @@ class GerarContratoIbConsig(IbConsig):
         options = Options()
         #options.add_argument('--profile-directory=Default')
         options.add_argument('--ignore-ssl-errors')
-        try:
-            #pdb.set_trace()
-            pasta = self.chrome_user.split('=')[1]
-            shutil.rmtree(pasta)
-        except:
-            pass
         Manager.criar_pasta_usuario_chrome(self.chrome_user)
         options.add_argument(self.chrome_user)
 
         if not os.path.exists(self.contratos_pdf_path):
             os.mkdir(self.contratos_pdf_path)
-        
+
         prefs = {
             "download.default_directory": self.contratos_pdf_path,
             'profile.default_content_setting_values.automatic_downloads': True,
             'download.prompt_for_download': False,
-            'plugins.plugins_disabled': 'Chrome PDF Viewer',
-            "plugins.always_open_pdf_externally": True
+            'plugins.plugins_disabled': 'Chrome PDF Viewer'
         }
 
         options.add_experimental_option('prefs', prefs)
@@ -704,7 +697,7 @@ class GerarContratoIbConsig(IbConsig):
             "codigoCon": codigo_contrato,
         }
 
-        request_dados_contrato = requests.post("http://emprestimofacil.co/web_admin/api/v1/atualiza-status/banco-itau"
+        request_dados_contrato = requests.post("https://emprestimofacil.co/web_admin/api/v1/atualiza-status/banco-itau"
                                                "-consignado/liberacao-proposta/?key=f689f1e12a0399fba803cb2365fc362f",
                                                data=dados)
 
@@ -719,7 +712,7 @@ class GerarContratoIbConsig(IbConsig):
             "codigoCon": codigo_contrato,
         }
 
-        request_dados_contrato = requests.post("http://emprestimofacil.co/web_admin/api/v1/atualiza-status/banco-itau"
+        request_dados_contrato = requests.post("https://emprestimofacil.co/web_admin/api/v1/atualiza-status/banco-itau"
                                                "-consignado/liberacao-proposta/?key=f689f1e12a0399fba803cb2365fc362f",
                                                data=dados)
 
