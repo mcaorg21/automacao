@@ -1106,7 +1106,11 @@ class InsercaoIbConsigPortabilidadeFila(Manager):
         form.selecionarUFNascimento()
 
         form.selecionarNacionalidade()
+
+        time.sleep(2)
         form.selecionarTipoIdentidade()
+        time.sleep(2)
+        
         form.selecionarOrgaoEmissor()
         form.selecionarUFIdentidade()
         form.preencherNumeroIdentidade()
