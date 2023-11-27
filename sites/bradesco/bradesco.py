@@ -731,6 +731,11 @@ class Bradesco:
             }, {
                 "erro": r"Não é possível efetuar a consulta ao PDC com os parâmetros informado",
                 'PularCheckBox': True
+            },
+            {
+                "erro" : r"vencimento do seu certificado",
+                "Fechar" : True
+
             }
 
         ]
@@ -779,6 +784,12 @@ class Bradesco:
                 self.selenium.clicar_elemento('#cphBodyMain_cphBody_cphBody_ucDadosFinanciamento_btnDialogNo')
                 self.aguardar_loading()
                 raise PularCheckboxException(message=mensagem_erro)
+            elif 'Fechar' in erro_regex:
+                try: 
+                    self.act.clicar_elemento('/html/body/div[1]/div[1]/button/span[1]', By.XPATH)
+                except:
+                    pass
+                return
 
         raise Exception("Mensagem não encontrada...")
 
