@@ -100,7 +100,7 @@ class ItauGerarContratos(Manager):
                     return
                     continue
                 pdfHandler.addPdfToQueue(pdf)
-                pdfHandler.addPdfToQueue(self.condicoesPdf)
+                #pdfHandler.addPdfToQueue(self.condicoesPdf)
                 ade_gerar = infosContrato.ade
 
             unificadoPdf = pdfHandler.mergePdfsFromQueue(
