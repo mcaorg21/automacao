@@ -55,6 +55,7 @@ def login(driver: Chrome, cpf_login: str, senha: str, parceiros="003442"):
         act.manusear_alerta('aceitar')
 
 
+
 def preencher_usuario(driver: Chrome, act: SeleniumActions, cpf_login: str, rec=0):
     sleep(2)
     if rec > 1500:
@@ -68,7 +69,7 @@ def preencher_usuario(driver: Chrome, act: SeleniumActions, cpf_login: str, rec=
         act.enviar_texto_intervalado(loc_cpf, cpf_login, By.XPATH)
         #act.press_TAB(loc_cpf)
         #act.enviar_texto_intervalado(loc_cpf, cpf_login, clear=True)
-        sleep(5)
+        sleep(2)
 
         #act.press_enter(loc_cpf)
         #sleep(0)
@@ -121,6 +122,11 @@ def preencher_campo_senha(act: SeleniumActions, senha: str, rec=0):
         except:
             pass
         print("Senha:", senha)
+
+        if(act.quantidade_elemento('/html/body/login-page/app-leitura-qr-code-login/main/div[2]/div/qrcode/div/canvas', By.XPATH) == 1):
+            print('FAZER BIOMETRIA - 90s...')
+            sleep(90)
+            return preencher_usuario(act, senha, rec+1)
 
         #loc_senha = "#ESenha_CAMPO"
         loc_senha = "/html/body/login-page/main/div/div/div[3]/app-login-form/form/mahoe-input[2]/label/span[2]/input"

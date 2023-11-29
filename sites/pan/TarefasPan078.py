@@ -63,9 +63,11 @@ class TarefasPan078:
         self.cookies_path_json = self.caminho_base+"\\pan\\cookies\\" + "usuario_078.json"
         self.act = SeleniumActions(self.driver)
         self.act2 = SeleniumActions2(self.driver)
-        self.id_robo = '32'
-        #self.usuario = '07823888688'
-        self.usuario = '03507179660'
+        
+        self.usuario = '06050694680'
+        self.id_robo = '7002'
+        # self.usuario = '03507179660'
+        # self.id_robo = '32'
         #pdb.set_trace()
         #self.driver.delete_all_cookies()
 
@@ -113,7 +115,7 @@ class TarefasPan078:
         dados_login = query_login_pass_robo(self.id_robo, self.usuario)
         #pdb.set_trace()
 
-        login(self.driver, cpf_login=self.usuario, senha=dados_login['senha'], parceiros="003442")
+        login(self.driver, cpf_login=self.usuario, senha=dados_login['senha'], parceiros="007596")
         # self.load_cookies(self.cookies_path)
 
         while True:
