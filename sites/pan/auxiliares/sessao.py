@@ -37,7 +37,7 @@ def login(driver: Chrome, cpf_login: str, senha: str, parceiros="003442"):
         logado = preencher_usuario(driver, act, cpf_login)
         #sleep(2)
 
-        #preencher_campo_parceiros(act, parceiros)
+        preencher_campo_parceiros(act, parceiros)
         #sleep(2)
 
 
@@ -97,10 +97,15 @@ def preencher_campo_parceiros(act: SeleniumActions, parceiros: str, rec=0):
     if rec > 5:
         raise InvalidElementStateException
     try:
-        loc_par = "#cbParceiros_CAMPO"
-        act.select_drop_down(loc_par, parceiros)
-        act.press_enter(loc_par)
-        act.press_TAB(loc_par)
+        loc_par = '//*[@id="form-partner-value"]'
+        #act.select_drop_down(loc_par, parceiros)
+        act.clicar_elemento(loc_par, By.XPATH)
+        for i in act.retornar_elementos('.combo-option'):
+            if parceiros in i.text:
+                act.clicar_elemento(i.get_attribute('id'), By.ID)
+
+        #act.press_enter(loc_par)
+        #act.press_TAB(loc_par)
     except StaleElementReferenceException:
         return preencher_usuario(act, parceiros, rec+1)
     except InvalidElementStateException:
