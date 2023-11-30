@@ -97,11 +97,19 @@ def preencher_campo_parceiros(act: SeleniumActions, parceiros: str, rec=0):
     if rec > 5:
         raise InvalidElementStateException
     try:
-        loc_par = '//*[@id="form-partner-value"]'
+        try:
+            act.clicar_elemento('//*[@id="onetrust-accept-btn-handler"]', By.XPATH)
+        except:
+            pass
+
+        sleep(2)
+        loc_par = '//*[@id="form-partner"]'
         #act.select_drop_down(loc_par, parceiros)
         act.clicar_elemento(loc_par, By.XPATH)
+
         for i in act.retornar_elementos('.combo-option'):
             if parceiros in i.text:
+                sleep(5)
                 act.clicar_elemento(i.get_attribute('id'), By.ID)
 
         #act.press_enter(loc_par)

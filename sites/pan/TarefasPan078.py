@@ -3,9 +3,11 @@
 ##################################
 
 import sys, pdb, json, unidecode,re
-sys.path.append('../../')
+#sys.path.append('../../../../../../../')
+
+sys.path.insert(1, '/home/gustavo/Desktop/automacao-python/')
 import PATHS
-import pickle
+import pickle, shutil
 #from sites.pan.pan_gerar_contratos.gerar_contratos import GerarContratos
 from sites.pan.pan_consulta_status.consulta_status_pan import Pan
 from sites.pan.pan_insercao.data.pan_inserc_data import PanInsercaoData
@@ -49,13 +51,22 @@ class TarefasPan078:
     TITLE = 'Pan Todas Tarefas 078'
 
     def __init__(self):
-        self.chrome_user: str = PATHS.chrome_user('TarefasPan078_FGTS')
+        self.chrome_user: str = PATHS.chrome_user('x')
+        try:
+            pasta = self.chrome_user.split('=')[1]
+            shutil.rmtree(pasta)
+        except:
+            pass
+
         Manager().criar_pasta_usuario_chrome(self.chrome_user)
         self.driver_path: str = PATHS.driver_path()
         self.base_path: str = PATHS.project_path()
 
+        #pdb.set_trace()
+
         opts = ('--disable-blink-features=AutomationControlled','--ignore-ssl-errors', self.chrome_user, 'log-level=3',"--no-sandbox","--window-size=1150,800","--ignore-autocomplete-off-autofill","disable-infobars")
         exp_opt = {"prefs": PREFS}
+
         self.driver = Manager.driver_factory(*opts, **exp_opt)
         self.ocioso: int = 0
         self.caminho_base = PATHS.project_path()
