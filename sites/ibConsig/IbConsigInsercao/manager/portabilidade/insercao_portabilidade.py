@@ -226,7 +226,11 @@ class InsercaoIbConsigPortabilidade(Manager):
         form.preencherInputEntidade()
         form.selecionarSelectServico("1")
         form.preencherInputCpf()
-        form.preencherInputMatricula()
+        try:
+            form.preencherInputMatricula()
+        except:
+            raise Exception("Pulando o contrato!")
+
         form.preencherInputDataNascimento()
 
         while True:
