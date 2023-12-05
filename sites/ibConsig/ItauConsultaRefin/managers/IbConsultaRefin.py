@@ -333,7 +333,10 @@ class IbConsultaRefin(Manager):
 
             if form.servidor_federal:
                 form.preencher_matricula()
-                form.selecionar_situcao_servidor(consulta_refin=True)
+                try:
+                    form.selecionar_situcao_servidor(consulta_refin=True)
+                except:
+                    pass
 
             form.resolver_captcha()
 
