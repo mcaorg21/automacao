@@ -1080,12 +1080,20 @@ class InsercaoIbConsigPortabilidadeFila(Manager):
         else:
             retorna_valor = form.atualizarValorSolicitadoPortabilidade()
 
+
         if retorna_valor == False: 
             print(rec)
+            #pdb.set_trace()
+
             contrato._Contrato__valorTabela = str(float(contrato._Contrato__valorTabela) - 0.05)  
-                      
+            print("Tentativa na taxa de: " + contrato._Contrato__valorTabela)        
+
+
             if(float(contrato._Contrato__valorTabela) < 1.0):
-                raise NotFoundResultException('Valor não disponível até na tentativa de taxa de ' + contrato._Contrato__valorTabela )
+                if(rec == 0):
+                    contrato._Contrato__valorTabela = '1.8'
+                else:
+                    raise NotFoundResultException('Valor não disponível até na tentativa de taxa de ' + contrato._Contrato__valorTabela )
 
             print('Tentando tabela menor com taxa de:' + contrato._Contrato__valorTabela)
             rec = rec + 1
