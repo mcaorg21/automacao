@@ -333,11 +333,11 @@ class ConsultaStatus(Manager):
         return link
 
 
-    def verificar_loading(self, interacoes=35, aguardar = False):
+    def verificar_loading(self, interacoes=300, aguardar = False):
         while (self.act.quantidade_elemento('//*[@id="modal-root"]/div/div', By.XPATH) == 1):
             print('Aguardando Loading...' + str(interacoes))
             time.sleep(2)
             interacoes -= 1
-            if(interacoes < 0):
+            if(interacoes < -35):
 
                 raise Exception('Tempo excedido...')

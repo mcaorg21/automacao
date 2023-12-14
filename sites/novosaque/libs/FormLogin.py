@@ -75,8 +75,10 @@ class FormLogin:
         print("Resolver recaptcha")
         SeleniumActions(self.driver).reCaptcha_v2(DATA_SITE_KEY)
 
-    def verificar_loading(self, interacoes=35, aguardar = False):
+    def verificar_loading(self, interacoes=300, aguardar = False):
         while (SeleniumActions(self.driver).quantidade_elemento('//*[@id="modal-root"]/div/div', By.XPATH) == 1):
             print('Aguardando Loading...' + str(interacoes))
             sleep(2)
             interacoes -= 1
+            if(interacoes < -35):
+                self.driver.quit()
