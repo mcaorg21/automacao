@@ -54,6 +54,7 @@ class DadosProposta(AutoGUI):
         self.grau_instrucao_cliente: str = dados.get('grauInstrucao', None)
         self.tabela_digital_sistema: str = dados.get('tabelaDigital', None)
         #self.especie_beneficio: str = dados.get('especieBeneficio', None)
+        self.taxa_basica_juros = "1,8"
 
     @property
     def prazo_refin(self):
@@ -166,7 +167,7 @@ class DadosProposta(AutoGUI):
             loc = '[id="ade.codigoTabelaEspecial"]'  # tabela estatutários
 
         print("TipoTabela:", loc)
-        #pdb.set_trace()
+        
         if(self.__carenciaTabela and self.__carenciaTabela != 0 and self.__carenciaTabela != '0' and self.__val_contrato >= valor_minimo_contrato_carencia):
             if(self.__val_contrato <= valor_primeira_faixa_carencia_maximo):
                 string_tabela = "DIG Inss/Novo R$ 730 a R$ 1499 - Car "+str(self.__carenciaTabela)+")" 
@@ -176,12 +177,12 @@ class DadosProposta(AutoGUI):
             print('Procurar tabela:' + string_tabela)
 
             if(tabela_digital == False):
-                opt_tabela: WebElement = self.__opcao_tabela_nova_proposta_sem_digital(loc, filt=lambda taxa: "DIG" not in taxa and string_tabela in taxa and '2,14' in taxa)
+                opt_tabela: WebElement = self.__opcao_tabela_nova_proposta_sem_digital(loc, filt=lambda taxa: "DIG" not in taxa and string_tabela in taxa and self.taxa_basica_juros in taxa)
             else:
                 if(self.__val_contrato <= valor_primeira_faixa_carencia_maximo):
                     opt_tabela: WebElement = self.__opcao_tabela_nova_proposta(loc, filt=lambda taxa: "DIG" in taxa and "Car" in taxa)
                 else:
-                    opt_tabela: WebElement = self.__opcao_tabela_nova_proposta(loc, filt=lambda taxa: "DIG" in taxa and "Car" in taxa and '2,14' in taxa)
+                    opt_tabela: WebElement = self.__opcao_tabela_nova_proposta(loc, filt=lambda taxa: "DIG" in taxa and "Car" in taxa and self.taxa_basica_juros  in taxa)
 
             if not opt_tabela:
                 raise PreenchimentoTabelaException("Não há tabela disponível para carência 120 dias. Com valor de" + str(self.__val_contrato))
@@ -189,15 +190,15 @@ class DadosProposta(AutoGUI):
         else:
             if(tabela_digital):
                 if(self.__tipo_beneficio == "87" or self.__tipo_beneficio == "88"):
-                    opt_tabela: WebElement = self.__opcao_tabela_nova_proposta(loc, filt=lambda taxa: "DIG" in taxa and "Loas" in taxa and 'Car' not in taxa and '1,84' in taxa)
+                    opt_tabela: WebElement = self.__opcao_tabela_nova_proposta(loc, filt=lambda taxa: "DIG" in taxa and "Loas" in taxa and 'Car' not in taxa and self.taxa_basica_juros  in taxa)
                 else:  
                     #pdb.set_trace()
                     if(self.__tipo_beneficio != ""):
-                        opt_tabela: WebElement = self.__opcao_tabela_nova_proposta(loc, filt=lambda taxa: "DIG" in taxa and 'Car' not in taxa and '1,84' in taxa)
+                        opt_tabela: WebElement = self.__opcao_tabela_nova_proposta(loc, filt=lambda taxa: "DIG" in taxa and 'Car' not in taxa and self.taxa_basica_juros  in taxa)
                     else:
-                        opt_tabela: WebElement = self.__opcao_tabela_nova_proposta(loc, filt=lambda taxa: "DIG" in taxa and 'Car' not in taxa and '1,84' in taxa)
+                        opt_tabela: WebElement = self.__opcao_tabela_nova_proposta(loc, filt=lambda taxa: "DIG" in taxa and 'Car' not in taxa and self.taxa_basica_juros  in taxa)
             else:
-                opt_tabela: WebElement = self.__opcao_tabela_nova_proposta_sem_digital(loc, filt=lambda taxa: "DIG" not in taxa and '1,84' in taxa)
+                opt_tabela: WebElement = self.__opcao_tabela_nova_proposta_sem_digital(loc, filt=lambda taxa: "DIG" not in taxa and self.taxa_basica_juros in taxa)
         
         self.act.select_drop_down(loc, opt_tabela.get_attribute("value"))
 
@@ -560,8 +561,8 @@ class DadosProposta(AutoGUI):
         print("Encontrando opção da tabela de carência segundo valor do contrato.")
         valores_opts: List[WebElement] = self.act.retornar_opcoes_select(loc_tabela)
 
-        array_tabelas_menor_1400 = ['1194','2108']
-        array_tabelas_maior_1400 = ['1948','4533']
+        array_tabelas_menor_1200 = ['1194','2108']
+        array_tabelas_maior_1200 = ['1948','4533']
 
         for valor_opt in valores_opts:
  
@@ -578,6 +579,8 @@ class DadosProposta(AutoGUI):
                     print('É tabela do tipo beneficio 87 e 88 e vai pular...')
                     continue
 
+            #pdb.set_trace()
+
             if "DIG" in valor_opt.text:
                 # filtro: expressão lambda a ser aplicada para filtrar o tipo de taxa na tabela
                 if not filt(valor_opt.text):
@@ -586,7 +589,7 @@ class DadosProposta(AutoGUI):
                 if(valor_opt.get_attribute("value") == '2503' and self.nova_formalizazao_in100 == False):
                     continue
 
-                if(valor_opt.get_attribute("value") in array_tabelas_menor_1400 and self.__val_contrato >= 2400):
+                if(valor_opt.get_attribute("value") in array_tabelas_menor_1200 and self.__val_contrato >= 2400):
                     continue
 
                 if(valor_opt.get_attribute("value") == '1323' and self.__val_contrato >= 3000):
