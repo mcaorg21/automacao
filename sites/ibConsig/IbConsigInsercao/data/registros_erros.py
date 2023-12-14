@@ -230,7 +230,20 @@ def registro_erros_form_insercao(**kwargs) -> list:
             'aceitar': True,
             'pular': True,
             'interacaoHumana': 0
-        },  {
+        }, 
+        {
+            'erro': r'Número de prestações deve ser no máximo',
+            'atualizar': True,
+            'mensagem': "Reprovado a Conferir",
+            'modal': True,
+            'textoModal': alert_text,
+            'observacao': 'Parametrização idade' + alert_text,
+            'textoMensagem': '',
+            'aceitar': True,
+            'pular': True,
+            'interacaoHumana': 1
+        },
+        {
             'erro': r'Número de prestações inválido conforme parametrização da Entidade. '
                     r'Número de prestações deve ser no máximo: 12',
             'atualizar': True,
