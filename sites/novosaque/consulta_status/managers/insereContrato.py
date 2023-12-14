@@ -272,14 +272,19 @@ class InserirContrato(Manager):
                 email_invalido = self.act.quantidade_elemento('/html/body/div[3]/div/div/div',By.XPATH)
                 tentativa = 0
                 texto_email_invalido = ""
+
                 self.verificar_loading() 
-                while email_invalido == 0:
-                    print('Tentando pegar email inválido')
-                    email_invalido = self.act.quantidade_elemento('/html/body/div[3]/div/div/div',By.XPATH)
-                    texto_email_invalido = self.act.obter_texto('/html/body/div[3]/div/div/div',By.XPATH)
-                    tentativa += 1
-                    if(tentativa > 30):
-                        break
+
+                try:
+                    while email_invalido == 0:
+                        print('Tentando pegar email inválido')
+                        email_invalido = self.act.quantidade_elemento('/html/body/div[3]/div/div/div',By.XPATH)
+                        texto_email_invalido = self.act.obter_texto('/html/body/div[3]/div/div/div',By.XPATH)
+                        tentativa += 1
+                        if(tentativa > 30):
+                            break
+                except:
+                    pass
 
                 time.sleep(5)
   
