@@ -307,7 +307,10 @@ class InserirContrato(Manager):
 
                 self.aguardar_consulta(5)
 
-                self.act.select_drop_down('//*[@id="payment_method"]','credit_card', By.XPATH)
+                try:
+                    self.act.select_drop_down('//*[@id="payment_method"]','credit_card', By.XPATH)
+                except:
+                    pass
                 
                 try:
                     self.act.select_drop_down('//*[@id="month"]',informacoes['contrato']['cartao']['dataFatura'].split('/')[0], By.XPATH)
