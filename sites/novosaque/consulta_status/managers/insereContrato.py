@@ -250,8 +250,9 @@ class InserirContrato(Manager):
                 self.act.enviar_texto('//*[@id="agency_account"]',informacoes['contrato']['banco']['agencia'],By.XPATH)
                 #self.act.enviar_texto('/html/body/div[1]/div[1]/div[2]/div/div/div/div[2]/form/div[3]/div[2]/div[2]/div/input',informacoes['contrato']['banco']['digitoAgencia'],By.XPATH)
                 self.act.enviar_texto('//*[@id="number_account"]',informacoes['contrato']['banco']['numeroConta'],By.XPATH)
-                self.act.enviar_texto('/html/body/div[1]/div[1]/div[2]/div/div/div/div[2]/form/div[3]/div[3]/div[4]/div/input',informacoes['contrato']['banco']['digitoConta'],By.XPATH)
 
+                self.act.enviar_texto('/html/body/div[1]/div[1]/div[2]/div/div/div/div[2]/form/div[4]/div[3]/div[4]/div/input',informacoes['contrato']['banco']['digitoConta'],By.XPATH)
+                
                 if(informacoes['contrato']['banco']['tipoConta'] == 'Conta-corrente'):
                     tipo_conta = '0'
                 else:
@@ -264,7 +265,7 @@ class InserirContrato(Manager):
                 #self.act.select_drop_down('//*[@id="kind_account"]','ted', By.XPATH)
                 #self.act.select_drop_down('//*[@id="kind_account"]','cpf_cnpj', By.XPATH)
                 #self.act.enviar_texto('//*[@id="pix"]',formatar_cpf_sem_caracteres(contrato['cpf_cli']),By.XPATH)
-                self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[4]/button', By.XPATH)
+                self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[5]/button', By.XPATH)
                 #self.verificar_loading()
 
                 print('Finalizando ficha do contrato...')
