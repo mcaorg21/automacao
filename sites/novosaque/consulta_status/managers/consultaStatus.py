@@ -83,22 +83,14 @@ class ConsultaStatus(Manager):
                 #self.act.enviar_texto('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[1]/input', cpf, By.XPATH, clear = True)
                 #self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/button', By.XPATH)
 
-                cpf_formatado = formatar_cpf_sem_caracteres(cpf_bd)
-                self.driver.get(f'https://nsaque.ultragate.com.br/admin/contracts?cpf={cpf_formatado}')
-                
-
-                self.verificar_loading(1)
-
-                if self.act.quantidade_elemento('//*[@id="table-responsive-custom"]/tbody/tr', By.XPATH) == 0:
-                    print('Se resultado pelo cpf formatar, tentando sem ser formatado...')
-                    self.driver.get(f'https://nsaque.ultragate.com.br/admin/contracts?cpf={cpf_bd}')
-                    
-                    self.verificar_loading(1)
-                
-                while self.act.quantidade_elemento('//*[@id="table-responsive-custom"]/tbody/tr', By.XPATH) > 100:
-                    print('Busca ainda não realizada... Tentando novamente...')
-                    self.aguardar_consulta(10)
-                    self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/button', By.XPATH)                    
+                #cpf_formatado = formatar_cpf_sem_caracteres(cpf_bd)                
+                #self.driver.get(f'https://nsaque.ultragate.com.br/admin/contracts?cpf={cpf_formatado}')
+            
+                self.driver.get(f'https://nsaque.ultragate.com.br/admin/contracts')
+                self.verificar_loading()
+                self.act.enviar_texto('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[1]/input',ade, By.XPATH)
+                self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/button', By.XPATH)
+                self.verificar_loading(2)
 
                 while self.act.quantidade_elemento('//*[@id="table-responsive-custom"]/tbody/tr', By.XPATH) == 1 and busca_reiniciada == False:
                     
@@ -107,6 +99,7 @@ class ConsultaStatus(Manager):
                     except:
                         print('Procurando ade pelo link')
                         self.act.clicar_elemento('//*[@id="table-responsive-custom"]/tbody/tr[1]/td[1]/div/a', By.XPATH)
+
                         link_ade = self.act.obter_atributo('/html/body/div[1]/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[1]/td[1]/div/div/a','href',By.XPATH)
                         ade_primeira = re.findall('\\d+',link_ade)[0]
 
@@ -119,32 +112,24 @@ class ConsultaStatus(Manager):
                         self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/button', By.XPATH)  
 
                 quantidade_propostas = self.act.quantidade_elemento('//*[@id="table-responsive-custom"]/tbody/tr', By.XPATH)
-                
+
                 for i in range(1,quantidade_propostas+1):
                     
                     try:
                         
-                        print('Procurando ade pelo link')
-
-                        if(quantidade_propostas == 1):
-                            self.aguardar_consulta(2)
-                            self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/button', By.XPATH) 
-                        self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr[{i}]/td[1]/div/a', By.XPATH)
+                        print('Procurando ade pelo link')                    
                         link_ade = self.act.obter_atributo(f'/html/body/div[1]/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[{i}]/td[1]/div/div/a','href',By.XPATH)
                         ade_sistema = re.findall('\\d+',link_ade)[0]
-                        
+ 
                     except:                        
                         ade_sistema = self.act.obter_texto(f'//*[@id="table-responsive-custom"]/tbody/tr[{i}]/th/div/div/span', By.XPATH)
-
                     
+
                     if(ade_sistema == ade):
                         
                         self.act.clicar_elemento(f'/html/body/div/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[1]/td[3]', By.XPATH)
 
                         print('Consultando ade:' + ade)
-                        #try: 
-                        #    dados_consulta['statusPropostaBanco'] = self.act.obter_texto(f'//*[@id="table-responsive-custom"]/tbody/tr/td[7]/div/div', By.XPATH).replace('\n',' ')                      
-                        #except:
 
                         self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr[{i}]/td[1]/div/a', By.XPATH)
                         try:
@@ -152,18 +137,9 @@ class ConsultaStatus(Manager):
                         except:
                             self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr[{i}]/td[1]/div/div/button[2]', By.XPATH)
                             pass
+ 
+                        self.aguardar_consulta(2)
 
-                        #pdb.set_trace()  
-                        self.aguardar_consulta(5)
-                        # botao_fechar = self.act.quantidade_elemento('/html/body/div[3]/div/div[1]/div/div/div[1]/button/span', XPATH)
-                        # if botao_fechar == 0:
-                        #     xpath_fechar = '/html/body/div[3]/div/div[1]/div/div/div[1]/button/span'
-                        # else:
-                        #     xpath_fechar = '/html/body/div[2]/div/div[1]/div/div/div[1]/button/span' 
-                                                            
-                        # while self.act.quantidade_elemento(xpath_fechar, By.XPATH) == 0:
-                        #     print("Aguardando tela de detalhes abrir...")
-                        #     self.aguardar_consulta(2)
                         try:
                             dados_consulta['statusPropostaBanco'] = self.act.obter_texto('/html/body/div[3]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr/td[2]', By.XPATH)
                             dados_consulta['observacaoDetalhadaBanco']  = self.act.obter_texto('/html/body/div[3]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr/td[4]', By.XPATH)
@@ -200,7 +176,7 @@ class ConsultaStatus(Manager):
                             else:  
                                 self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr/td[1]/div/a', By.XPATH)
 
-                                if(tempo_atualizacao >=  2 and dados_consulta['statusPropostaBanco'] == 'Link Enviado' or 'Reenvie o SMS por favor para o número' in observacao and dados_consulta['statusPropostaBanco'] == 'Link Enviado'):
+                                if(tempo_atualizacao >= 3 and dados_consulta['statusPropostaBanco'] == 'Link Enviado' or 'Reenvie o SMS por favor para o número' in observacao and dados_consulta['statusPropostaBanco'] == 'Link Enviado'):
                                     self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr/td[1]/div/div/button[1]', By.XPATH)
                                     self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr/td[1]/div/a', By.XPATH)     
                                 
@@ -230,7 +206,10 @@ class ConsultaStatus(Manager):
                                 if(quantidade_propostas > 1):                                    
                                     self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr[{i}]/td[1]/div/div/button[1]', By.XPATH)                                     
                                 else:
-                                    self.act.clicar_elemento('//*[@id="table-responsive-custom"]/tbody/tr/td[1]/div/div/button[1]', By.XPATH)                                    
+                                    try:
+                                        self.act.clicar_elemento('//*[@id="table-responsive-custom"]/tbody/tr/td[1]/div/div/button[1]', By.XPATH)
+                                    except:
+                                        pass                                   
                                 try:
                                     dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto('/html/body/div[2]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr/td[4]', By.XPATH)       
                                 except:
