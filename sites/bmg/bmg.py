@@ -46,8 +46,9 @@ class BMG:
         self.uconecte = Uconecte()
         self.act = SeleniumActions(self.driver, time_out=2)
         self.captcha = TwoCaptcha(self.driver, manual=False)
-        self.user = "carolina.1873"
-        self.password = "t#909164"
+        
+        self.user = "CAROLINA.BRIUS"
+
         self.ultima_atualizacao = datetime.now()
         self.id_robo = 18
         self.timer = 600
@@ -338,7 +339,7 @@ class BMG:
             return
 
         loc_password = "#j_password"
-        dados_login = query_login_pass_robo(318, self.user)
+        dados_login = query_login_pass_robo(3181, self.user)
 
         self.act.enviar_texto(loc_password, dados_login['senha'])
         sleep(0.5)
