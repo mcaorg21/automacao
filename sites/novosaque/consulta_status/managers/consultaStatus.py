@@ -113,6 +113,7 @@ class ConsultaStatus(Manager):
 
                 quantidade_propostas = self.act.quantidade_elemento('//*[@id="table-responsive-custom"]/tbody/tr', By.XPATH)
 
+                #ajuste 
                 for i in range(1,quantidade_propostas+1):
                     
                     try:
