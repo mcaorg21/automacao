@@ -91,6 +91,7 @@ class ConsultaStatus(Manager):
                 self.act.enviar_texto('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[1]/input',ade, By.XPATH)
                 self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/button', By.XPATH)
                 self.verificar_loading(2)
+                
 
                 while self.act.quantidade_elemento('//*[@id="table-responsive-custom"]/tbody/tr', By.XPATH) == 1 and busca_reiniciada == False:
                     
