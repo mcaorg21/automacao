@@ -121,7 +121,7 @@ class InserirContrato(Manager):
 
                 self.act.clicar_elemento('//*[@id="phone_store"]',By.XPATH)  
                 self.aguardar_consulta(1) 
-                self.act.enviar_texto('//*[@id="phone_store"]',"3140420041",By.XPATH)
+                self.act.enviar_texto('//*[@id="phone_store"]',"31940420041",By.XPATH)
 
                 loc_radio_tipo_calculo = '//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[2]/div/div/fieldset/div/div[3]/div/label/input'
                 tentativa = 0
