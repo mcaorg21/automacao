@@ -203,7 +203,7 @@ class AnexarDocumentos(OleConsignado):
 
     def buscar_documentos_contrato(self, ade):
         request_contratos = requests.get(
-            'https://uconecte.me/api/v1/contratos/documentos?ade=%s&key=f689f1e12a0399fba803cb2365fc362f' % (ade))
+            'https://app.emprestimofacil.com/api/v1/contratos/documentos?ade=%s&key=f689f1e12a0399fba803cb2365fc362f' % (ade))
 
         if (request_contratos.status_code != 200):
             input('Banco Olé Error - Não foi possível buscar os documentos')

@@ -76,7 +76,7 @@ class OleConsignado:
 
     def buscar_contratos_gerar(self):
         request_contratos_a_gerar = requests.get(
-            'https://uconecte.me/api/v1/contratos/status/gerar?key={}&consulta=gerar&banco=ole'.format(
+            'https://app.emprestimofacil.com/api/v1/contratos/status/gerar?key={}&consulta=gerar&banco=ole'.format(
                 self.api_key))
 
         if request_contratos_a_gerar.status_code != 200:
@@ -92,7 +92,7 @@ class OleConsignado:
 
     def atualizar_contrato(self, codigo_contrato, dados):
         request_atualizar_contrato = requests.put(
-            'https://uconecte.me/api/v1/contratos/%s?key=f689f1e12a0399fba803cb2365fc362f' % (
+            'https://app.emprestimofacil.com/api/v1/contratos/%s?key=f689f1e12a0399fba803cb2365fc362f' % (
                 codigo_contrato),
             data=dados)
         
@@ -298,7 +298,7 @@ class OleConsignado:
             'banco': 'ole'
         }
 
-        request_gerar_contrato = requests.post("https://uconecte.me/api/v1/contratos/gerar",data=dados_pdf)
+        request_gerar_contrato = requests.post("https://app.emprestimofacil.com/api/v1/contratos/gerar",data=dados_pdf)
 
         if request_gerar_contrato.status_code != 200:
             print(request_gerar_contrato.json())

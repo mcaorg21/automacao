@@ -937,7 +937,7 @@ class Inss:
 
     def buscar_perfis(self):
         request_perfis = requests.get(
-            f"https://uconecte.me/dev/index.php/api/v1/consultas/consultarMeuInss?perfil"
+            f"https://app.emprestimofacil.com/dev/index.php/api/v1/consultas/consultarMeuInss?perfil"
             f"=4,5&key={self.api_key}")
 
         if request_perfis.status_code != 200:
@@ -962,7 +962,7 @@ class Inss:
             "mensagem": mensagem + " Funcao 8",
         }
 
-        request_dados_perfil = requests.post("https://uconecte.me/dev/index.php/api/v1/consultas"
+        request_dados_perfil = requests.post("https://app.emprestimofacil.com/dev/index.php/api/v1/consultas"
                                              "/atualizaSituacaoContrato", data=dados)
 
         print(request_dados_perfil.text)
@@ -1006,7 +1006,7 @@ class Inss:
         }
 
         request_dados_perfil = requests.post(
-            "https://uconecte.me/dev/index.php/api/v1/consultas/inss", data=dados_post)
+            "https://app.emprestimofacil.com/dev/index.php/api/v1/consultas/inss", data=dados_post)
         print(request_dados_perfil.text)
         if request_dados_perfil.status_code != 201:
             print(f"Status code: {request_dados_perfil.status_code}")

@@ -135,7 +135,7 @@ class ApiResponseException(Exception):
 
 
 def buscar_documentos_contrato(cod_con):
-    url_api = f'https://uconecte.me/api/v1/contratos/documentos?key=f689f1e12a0399fba803cb2365fc362f&contrato={cod_con}'
+    url_api = f'https://app.emprestimofacil.com/api/v1/contratos/documentos?key=f689f1e12a0399fba803cb2365fc362f&contrato={cod_con}'
 
     request_contratos = make_request('GET', url_api,
                                      msg="Em <buscar_documentos_contrato>")

@@ -5,7 +5,7 @@ class DadosConsultaStatus(DataHandler):
     def __init__(self):
         super().__init__()
         self.api_urls = {
-            "POST": "https://uconecte.me/api/v1/carteira/atualizarTransacaoAberta"
+            "POST": "https://app.emprestimofacil.com/api/v1/carteira/atualizarTransacaoAberta"
         }
         self.api_keys = {
             'GERAL': "f689f1e12a0399fba803cb2365fc362f"

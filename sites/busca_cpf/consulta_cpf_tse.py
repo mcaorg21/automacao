@@ -1,4 +1,8 @@
-import json,sys
+import json,sys,os
+
+cmd = 'tmpreaper 1m /tmp'
+os.system(cmd)
+
 sys.path.append('../')
 
 import PATHS
@@ -21,12 +25,11 @@ class Consulta_Cpf:
     def __init__(self):
         self.key = "6Ld5n8EUAAAAAJJuJF7h6B7JLjhvFZzoYTQ6jCJ1"
         self.count = 0
-        self.user_driver_path: str = PATHS.project_path()+"/chrome_user_dir/MTSE21"
-
+        self.user_driver_path: str = PATHS.project_path()+"/chrome_user_dir/MTSE22"
         self.options = Options()
         #self.options.add_argument('--headless')
-        self.options.add_argument('--no-sandbox')
-        self.options.add_argument('--disable-dev-shm-usage')
+        #self.options.add_argument('--no-sandbox')
+        #self.options.add_argument('--disable-dev-shm-usage')
         self.key = "6Lc0k1MUAAAAAJgAqPTO0dutvMB_m4ZVuvcvUMhA"
 
 
@@ -39,6 +42,8 @@ class Consulta_Cpf:
             response = APIDataSource().get_request("consulta-cpf-tse")
             response = response.text
             response = json.loads(response)
+
+
             
             try:
                 contratos = response['contratos']
@@ -48,21 +53,25 @@ class Consulta_Cpf:
                 self.consultar()
 
             if(resetar == False):
-                root = tk.Tk()
-                screen_width = root.winfo_screenwidth()
-                screen_height = root.winfo_screenheight()
+                #root = tk.Tk()
+                #screen_width = root.winfo_screenwidth()
+                #screen_height = root.winfo_screenheight()
+
+                chrome_user = PATHS.chrome_user("MTSE22")
                 try:
-                    shutil.rmtree(self.user_driver_path)
+                    pasta = chrome_user.split('=')[1]
+                    shutil.rmtree(pasta)
                 except:
                     pass
-                chrome_user = PATHS.chrome_user("MTSE21")
                 options = Options()
                 options.add_argument('--ignore-ssl-errors')
                 options.add_argument('--window-size=826,800')
+                options.add_argument('--no-sandbox')  
+                options.add_argument('--disable-dev-shm-usage')
                 options.add_argument(chrome_user)
                 options.add_experimental_option("w3c", False)
                 #options.add_argument('--headless')
-                options.add_argument(f'--window-position={int(screen_width-screen_width/3)},0')
+                #options.add_argument(f'--window-position={int(screen_width-screen_width/3)},0')
                 options.add_argument(chrome_user)
                 options.add_argument('--profile-directory=Default')
                 Manager.criar_pasta_usuario_chrome(chrome_user)
@@ -71,7 +80,9 @@ class Consulta_Cpf:
                 self.driver = webdriver.Chrome(options=self.options)
                 self.driver.delete_all_cookies()
                 self.act = SeleniumActions(self.driver)
+                #self.driver.get('https://www.tse.jus.br/servicos-eleitorais/titulo-e-local-de-votacao/copy_of_consulta-por-nome')
                 self.driver.get("http://www.tse.jus.br/eleitor/titulo-e-local-de-votacao/copy_of_consulta-por-nome")
+                sleep(30)
                 self.driver.delete_all_cookies()
                 
 

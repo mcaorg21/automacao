@@ -281,7 +281,7 @@ class Marinha:
         dados das solicitações de financiamento dos clientes à plataforma.
         :return: (list) uma lista de dicts
         """
-        ulr_api = 'https://uconecte.me/api/v1/Consultas/consultarMargemMarinha'
+        ulr_api = 'https://app.emprestimofacil.com/api/v1/Consultas/consultarMargemMarinha'
 
         parametros = {'key': self.key_api_consulta}
 

@@ -2,7 +2,7 @@ import requests
 
 class Uconecte():
 	def __init__(self, id_banco=False):
-		self.url = "https://uconecte.me/api/v1/{}"
+		self.url = "https://app.emprestimofacil.com/api/v1/{}"
 		self.api_key = "f689f1e12a0399fba803cb2365fc362f"
 		self.id_banco = id_banco
 
@@ -86,7 +86,7 @@ class Uconecte():
 			dados_calcular['retorno'] = solicitacao['retorno']
 			dados_calcular['mensagem'] = solicitacao['mensagem']
 
-		request_calcular = requests.post("https://uconecte.me/api/calcular/emprestimo_novo", data=dados_calcular)
+		request_calcular = requests.post("https://app.emprestimofacil.com/api/calcular/emprestimo_novo", data=dados_calcular)
 		print(request_calcular.text)
 	
 	def calcular_financiamento_aumento_margem(self, solicitacao, status_solicit=False):
@@ -111,7 +111,7 @@ class Uconecte():
 			dados_calcular['retorno'] = solicitacao['retorno']
 			dados_calcular['mensagem'] = solicitacao['mensagem']
 
-		request_calcular = requests.post("https://uconecte.me/api/calcular/aumento_inss", data=dados_calcular)
+		request_calcular = requests.post("https://app.emprestimofacil.com/api/calcular/aumento_inss", data=dados_calcular)
 		print(request_calcular.text)
 
 	def calcular_cartao_consignado(self, solicitacao, status_solicit=False):
@@ -128,7 +128,7 @@ class Uconecte():
 			dados_calcular['retorno'] = solicitacao['retorno']
 			dados_calcular['mensagem'] = solicitacao['mensagem']
 
-		request_calcular = requests.post("https://uconecte.me/api/calcular/cartao_consignado", data=dados_calcular)
+		request_calcular = requests.post("https://app.emprestimofacil.com/api/calcular/cartao_consignado", data=dados_calcular)
 		print(request_calcular.text)
 
 	# Realiza o calculo de todos os refinanciamentos de uma solicitação
@@ -147,7 +147,7 @@ class Uconecte():
 				}
 
 				request_calcular_refinanciamento = requests.post(
-					"https://uconecte.me/api/calcular/refinanciamento", data=dados_calcular)
+					"https://app.emprestimofacil.com/api/calcular/refinanciamento", data=dados_calcular)
 
 				if request_calcular_refinanciamento.status_code != 200:
 					print(request_calcular_refinanciamento.text)
@@ -158,7 +158,7 @@ class Uconecte():
 				'solicitacao': solicitacao['idSolicitacao'],
 			}
 
-			request_calcular_refinanciamento = requests.post("https://uconecte.me/api/calcular/finalizar_solicitacao", data=dados_calcular)
+			request_calcular_refinanciamento = requests.post("https://app.emprestimofacil.com/api/calcular/finalizar_solicitacao", data=dados_calcular)
 			print(request_calcular_refinanciamento.text)
 			if request_calcular_refinanciamento.status_code != 200:
 				print(request_calcular_refinanciamento.text)
@@ -211,7 +211,7 @@ class Uconecte():
 			consulta['retorno'] = 1
 
 			request_inserir_oferta = requests.post(
-				"https://uconecte.me/api/v1/ofertas/crm?key={}".format(self.api_key), json=consulta)
+				"https://app.emprestimofacil.com/api/v1/ofertas/crm?key={}".format(self.api_key), json=consulta)
 
 			if request_inserir_oferta.status_code != 200:
 				print(request_inserir_oferta.text)
@@ -228,7 +228,7 @@ class Uconecte():
 		}
 
 		request_finalizar_oferta = requests.post(
-			"https://uconecte.me/api/v1/ofertas/crm?key={}".format(self.api_key), data=dados_oferta)
+			"https://app.emprestimofacil.com/api/v1/ofertas/crm?key={}".format(self.api_key), data=dados_oferta)
 
 		if request_finalizar_oferta.status_code != 200:
 			print(request_finalizar_oferta.text)

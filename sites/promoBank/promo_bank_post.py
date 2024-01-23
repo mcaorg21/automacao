@@ -305,7 +305,7 @@ class PromoBank:
 			return self.main()
 
 	def buscar_solicitacoes(self, tipo_consulta):
-		request_solicitacoes = requests.get("https://uconecte.me/api/v1/solicitacoes/{}?key={}".format(tipo_consulta, self.api_key))
+		request_solicitacoes = requests.get("https://app.emprestimofacil.com/api/v1/solicitacoes/{}?key={}".format(tipo_consulta, self.api_key))
 
 		if (request_solicitacoes.status_code != 200):
 			print(request_solicitacoes.text)
@@ -349,7 +349,7 @@ class PromoBank:
 				}
 				print("Salvando consulta com os dados:", dados)
 				
-				request_consulta = requests.post("https://uconecte.me/api/v1/consultas/inss", data=dados)
+				request_consulta = requests.post("https://app.emprestimofacil.com/api/v1/consultas/inss", data=dados)
 
 				print(request_consulta.status_code);
 				

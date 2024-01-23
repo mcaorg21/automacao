@@ -94,7 +94,7 @@ class DataHandler(object):
 
         resp: Response = self.dh.make_request(
             method='POST',
-            url='https://uconecte.me/api/v1/robos/salvar',
+            url='https://app.emprestimofacil.com/api/v1/robos/salvar',
             params_data=post_data,
             msg=f"Em <iniciar_log_robo>"
         )
@@ -137,7 +137,7 @@ class DataHandler(object):
         print(f"\nRegistrando log com os dados: {put_data} \n")
         self.dh.make_request(
             method='PUT',
-            url='https://uconecte.me/api/v1/robos/atualizar',
+            url='https://app.emprestimofacil.com/api/v1/robos/atualizar',
             params_data=put_data,
             msg=f"Em <registrar_log_robo>"
         )

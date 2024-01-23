@@ -17,7 +17,7 @@ class DadosInsercaoOle(DataHandler):
         self.api_urls = {
             "GET_SINC": ("https://emprestimofacil.co/web_admin/api/v1/"
                          "atualiza-status/banco-ole/sincronizacao/"),
-            "PUT_ATUALIZACOES": 'https://uconecte.me/api/v1/contratos/{}/'
+            "PUT_ATUALIZACOES": 'https://app.emprestimofacil.com/api/v1/contratos/{}/'
         }
         self.api_keys = {
             'INSERIR': "f689f1e12a0399fba803cb2365fc362f"}
@@ -36,7 +36,7 @@ class DadosInsercaoOle(DataHandler):
             dados['mensagem'] = "Aguardando Gerar Contrato"
         print(dados)
         request_atualizar_contrato = requests.put(
-            'https://uconecte.me/api/v1/contratos/%s?key=f689f1e12a0399fba803cb2365fc362f' % (
+            'https://app.emprestimofacil.com/api/v1/contratos/%s?key=f689f1e12a0399fba803cb2365fc362f' % (
                 codigo_contrato),
             data=dados)
 

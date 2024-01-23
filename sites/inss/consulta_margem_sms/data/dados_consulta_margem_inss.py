@@ -9,10 +9,10 @@ class DadosConsultaINSS(DataHandler):
     def __init__(self):
         super().__init__()
         self.api_urls = {
-            "GET_PERFIS": ("https://uconecte.me/index.php/api"
+            "GET_PERFIS": ("https://app.emprestimofacil.com/index.php/api"
                            "/v1/consultas/consultarMeuInss"),
-            "POST_STATUS": "https://uconecte.me/index.php/api/v1/consultas/inss",
-            "POST_FALHA": "https://uconecte.me/index.php/api/v1"
+            "POST_STATUS": "https://app.emprestimofacil.com/index.php/api/v1/consultas/inss",
+            "POST_FALHA": "https://app.emprestimofacil.com/index.php/api/v1"
                           "/consultas/atualizaSituacaoContrato"
         }
         self.api_keys = {

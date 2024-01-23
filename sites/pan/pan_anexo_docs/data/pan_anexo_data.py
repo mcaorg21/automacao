@@ -17,7 +17,7 @@ class PanAnexoDocsData(DataHandler):
         self.api_urls = {
             'GET_CONTRATOS': ('https://emprestimofacil.co/web_admin/api/v1/'
                               'contratos/enviar-documentos-banco/banco-pan/'),
-            'GET_DOCS': 'https://uconecte.me/api/v1/contratos/documentos',
+            'GET_DOCS': 'https://app.emprestimofacil.com/api/v1/contratos/documentos',
             'POST_WEBADMIN': ("https://emprestimofacil.co/web_admin/api/"
                               "v1/atualiza-status/banco-pan/contratos/")
         }

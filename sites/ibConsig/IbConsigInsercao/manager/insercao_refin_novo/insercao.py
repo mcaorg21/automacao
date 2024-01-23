@@ -88,7 +88,7 @@ class InsercaoIbConsig(Manager):
             #self.usuario = "cristiano.1873"          
         elif(hoje == 2 or hoje == 4):
             #terca quinta
-            self.usuario = kwargs.get("usuario", "mca1873")
+            self.usuario = kwargs.get("usuario", "carolina.1873")
             #self.usuario = "mca1873" 
         else:
             #sexta

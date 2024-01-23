@@ -581,7 +581,7 @@ class OleInsercao(AutoGUI):
     @staticmethod
     def __atualizar_contrato(codigo_contrato, dados):
         request_atualizar_contrato = requests.put(
-            'https://uconecte.me/api/v1/contratos/%s?key=f689f1e12a0399fba803cb2365fc362f' % (
+            'https://app.emprestimofacil.com/api/v1/contratos/%s?key=f689f1e12a0399fba803cb2365fc362f' % (
                 codigo_contrato),
             data=dados)
 

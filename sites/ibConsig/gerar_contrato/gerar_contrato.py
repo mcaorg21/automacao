@@ -642,7 +642,7 @@ class GerarContratoIbConsig(IbConsig):
             'base64': contrato_base_64,
             'banco': 'itau'
         }
-        request_gerar_contrato = requests.post("https://uconecte.me/api/v1/contratos/gerar", data=dados_pdf)
+        request_gerar_contrato = requests.post("https://app.emprestimofacil.com/api/v1/contratos/gerar", data=dados_pdf)
         print(request_gerar_contrato.content)
         if request_gerar_contrato.status_code != 200:
             print(request_gerar_contrato.json())
@@ -667,7 +667,7 @@ class GerarContratoIbConsig(IbConsig):
         return propostas
 
     def buscar_contratos_gerar(self):
-        request_contratos_a_gerar = requests.get('https://uconecte.me/api/v1/contratos/status/gerar?key'
+        request_contratos_a_gerar = requests.get('https://app.emprestimofacil.com/api/v1/contratos/status/gerar?key'
                                                  '=f689f1e12a0399fba803cb2365fc362f&consulta=gerar&banco=itau')
         print(request_contratos_a_gerar.content)
         if request_contratos_a_gerar.status_code != 200:

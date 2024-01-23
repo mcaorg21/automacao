@@ -276,7 +276,7 @@ class GerarContratos:
 
     def buscar_contratos_gerar(self):
         request_contratos_a_gerar = requests.get(
-            f'https://uconecte.me/api/v1/contratos/status/gerar?key={self.api_key}&consulta=gerar&banco=pan')
+            f'https://app.emprestimofacil.com/api/v1/contratos/status/gerar?key={self.api_key}&consulta=gerar&banco=pan')
 
         if request_contratos_a_gerar.status_code != 200:
             input('Pan Error - Não foi possível buscar os contratos')
@@ -298,7 +298,7 @@ class GerarContratos:
             "mensagem": "Contrato não gerado",
             "observacao" : "Gerar manualmente"
                   }                         
-        request_gerar_contrato = requests.put("https://uconecte.me/dev/api/v1/contratos/"+self.contrato['codigo_con']+"?key=f689f1e12a0399fba803cb2365fc362f",
+        request_gerar_contrato = requests.put("https://app.emprestimofacil.com/dev/api/v1/contratos/"+self.contrato['codigo_con']+"?key=f689f1e12a0399fba803cb2365fc362f",
                                                data=dados)
 
         if request_gerar_contrato.status_code != 200:
@@ -320,7 +320,7 @@ class GerarContratos:
             'linkAssinaturaDigital': self.url
         }
         print(self.url)
-        request_gerar_contrato = requests.post("https://uconecte.me/api/v1/contratos/gerar",
+        request_gerar_contrato = requests.post("https://app.emprestimofacil.com/api/v1/contratos/gerar",
                                                data=dados_pdf)
         if request_gerar_contrato.status_code != 200:
             print(request_gerar_contrato.json())

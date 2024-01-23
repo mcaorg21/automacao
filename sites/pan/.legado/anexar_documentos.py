@@ -213,7 +213,7 @@ class AnexarDocumentos:
 
     def buscar_documentos(self, ade):
         request_contratos = requests.get(
-            f'https://uconecte.me/api/v1/contratos/documentos?ade={ade}&key={self.api_key}')
+            f'https://app.emprestimofacil.com/api/v1/contratos/documentos?ade={ade}&key={self.api_key}')
 
         if request_contratos.status_code != 200:
             input('Banco Pan Error - Não foi possível buscar os documentos')

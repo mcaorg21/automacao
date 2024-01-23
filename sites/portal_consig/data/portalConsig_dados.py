@@ -9,7 +9,7 @@ class PortalConsigData(DataHandler):
         super().__init__()
         self.solicitacao = None
         self.api_urls = {
-            "get_solicitacoes": 'https://uconecte.me/api/v1/Consultas/consultarMargemServidor'
+            "get_solicitacoes": 'https://app.emprestimofacil.com/api/v1/Consultas/consultarMargemServidor'
         }
         self.api_keys = {
             "get_solicitacoes": 'e3594254f00c5ba21854dfe55e20f2f9'

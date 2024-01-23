@@ -7,7 +7,7 @@ dbg = DebugTools(debugging=False)
 
 class BradescoConsultaRefinDados(DataHandler):
 
-    URL_GET = "https://uconecte.me/api/v1/solicitacoes/refinanciamento"
+    URL_GET = "https://app.emprestimofacil.com/api/v1/solicitacoes/refinanciamento"
 
     def __init__(self):
         super().__init__()

@@ -30,7 +30,7 @@ class DadosPortabilidade(DataHandler):
             '164': 'http://www.transparencia.gov.br/api-de-dados/servidores/remuneracao',
             'port_retencao': 'https://emprestimofacil.co/web_admin/api/v1/atualiza-status'
                              '/banco-itau-consignado/retencao-portabilidade',
-            'docs_contrato': 'https://uconecte.me/api/v1/contratos/documentos'
+            'docs_contrato': 'https://app.emprestimofacil.com/api/v1/contratos/documentos'
         }
         self.api_keys = {
             'uconecte_inserir': 'f689f1e12a0399fba803cb2365fc362f'

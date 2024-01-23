@@ -1,1 +1,1 @@
-ENDPOINT_GERAR_CONTRATO = "https://uconecte.me/api/v1/contratos/gerar"
+ENDPOINT_GERAR_CONTRATO = "https://app.emprestimofacil.com/api/v1/contratos/gerar"
