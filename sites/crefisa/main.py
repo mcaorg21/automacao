@@ -63,7 +63,7 @@ class Main:
         options.add_argument('--window-size=1150,600"')
         options.add_argument(self.chrome_user)
         options.add_experimental_option("w3c", False)
-        opts = ('--disable-blink-features=AutomationControlled','--ignore-ssl-errors', self.chrome_user, 'log-level=3',"--no-sandbox","--window-size=1150,800","--ignore-autocomplete-off-autofill","disable-infobars")
+        opts = ('--disable-blink-features=AutomationControlled','--ignore-ssl-errors', self.chrome_user, 'log-level=3',"--no-sandbox","--window-size=1150,1000","--ignore-autocomplete-off-autofill","disable-infobars")
 
 
         try:
@@ -86,13 +86,15 @@ class Main:
     @AguardarHorarioComercial(*HORARIO_COMERCIAL)
     def main(self):
         definir_nome_robo(self.TITLE)
-
-        dados_login = query_login_pass_robo(self.id_robo, self.usuario)
-        login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'])
+        try:
+            dados_login = query_login_pass_robo(self.id_robo, self.usuario)
+            login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'])
+        except:
+            self.main()
 
         #fila de insercao de contrato
-        definir_nome_robo(self.TITLE)
-        InserirContrato.iniciar_horario_comercial(self.driver)
+        definir_nome_robo(self.TITLE)   
+        #InserirContrato.iniciar_horario_comercial(self.driver)
           
         #fila de sincronizacao
         definir_nome_robo(self.TITLE)

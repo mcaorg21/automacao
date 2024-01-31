@@ -109,11 +109,12 @@ def preencher_campo_parceiros(act: SeleniumActions, parceiros: str, rec=0):
 
         for i in act.retornar_elementos('.combo-option'):
             if parceiros in i.text:
-                sleep(5)
+                sleep(1)
                 act.clicar_elemento(i.get_attribute('id'), By.ID)
 
         #act.press_enter(loc_par)
         #act.press_TAB(loc_par)
+        act.clicar_elemento('//*[@id="formulario"]/app-login-form/form/div[4]/div/mahoe-button', By.XPATH)
     except StaleElementReferenceException:
         return preencher_usuario(act, parceiros, rec+1)
     except InvalidElementStateException:
@@ -145,7 +146,7 @@ def preencher_campo_senha(act: SeleniumActions, senha: str, rec=0):
         loc_senha = "/html/body/login-page/main/div/div/div[3]/app-login-form/form/mahoe-input[2]/label/span[2]/input"
         #act.enviar_texto(loc_senha, senha, clear=False)
         act.enviar_texto_intervalado(loc_senha, senha, By.XPATH)
-        loc_entrar = '//*[@id="formulario"]/app-login-form/form/div[2]/div/mahoe-button/button'
+        loc_entrar = '//*[@id="formulario"]/app-login-form/form/div[4]/div[2]/mahoe-button/button'
         act.press_enter(loc_entrar, By.XPATH)
         #act.press_enter(loc_entrar)
         #act.press_TAB(loc_senha)

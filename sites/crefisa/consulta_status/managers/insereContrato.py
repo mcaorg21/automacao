@@ -75,7 +75,8 @@ class InserirContrato(Manager):
         #teste     
         #já dentro do laco esse ser o codigo
         #verificar se está aprovado para continuar
-        informacoes = self.dados.get_informacoes_contrato('632981') 
+        dados_atualizacao = {}
+        informacoes = self.dados.get_informacoes_contrato('634296') 
         self.chrome_driver.get(self.urls["insercao"]) 
         
         #verifica se pode realizar
@@ -97,7 +98,7 @@ class InserirContrato(Manager):
         if retorno['erro'] == True:
             return False 
 
-        if 'Não é possível atender à solicitação de empréstimo' in retorno['objeto']['mensagem']:
+        if retorno['objeto']['permiteCaptura'] == False:
             dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
             dados_atualizacao['erro'] = retorno['objeto']['mensagem']
             dados_atualizacao['observacao'] = retorno['objeto']['mensagem']
@@ -171,6 +172,7 @@ class InserirContrato(Manager):
         self.act.enviar_texto('//*[@id="txtDataNascimento"]', informacoes['contrato']['dataNascimento'], By.XPATH)
         self.act.enviar_texto('//*[@id="txtRg"]', informacoes['contrato']['identidade'][0:-1], By.XPATH)
         self.act.enviar_texto('//*[@id="txtDigito"]', informacoes['contrato']['identidade'][-1], By.XPATH)
+        #informacoes['contrato']['dataEmissao'] = '10/10/1950'
         self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
         self.act.select_drop_down('//*[@id="ddlOrgaoEmissorRg"]', 'SESP', By.XPATH) #informacoes['contrato']['orgaoEmissor'],
         self.act.select_drop_down('//*[@id="ddlEstadoCivil"]', informacoes['contrato']['estadoEmissor'], By.XPATH)        
@@ -178,89 +180,125 @@ class InserirContrato(Manager):
         self.act.enviar_texto('//*[@id="txtNaturalidade"]',informacoes['contrato']['naturalidade'], By.XPATH) 
         self.act.select_drop_down('//*[@id="txtSexo"]',informacoes['contrato']['sexo'][0], By.XPATH)
 
+        
+        if self.remove_div() == True:
+            self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', '10/10/2020', By.XPATH)
+            self.act.enviar_texto('//*[@id="txtDataNascimento"]', informacoes['contrato']['dataNascimento'], By.XPATH)
 
         switch = {'CASADO(A)': '1','SOLTEIRO(A)':'2','DIVORCIADO(A)': '3','VIÚVO(A)': '4'}        
         codigoEstadoCivil = switch.get(informacoes['contrato']['estadoCivil'].replace(" ","").upper(), '2')
         self.act.select_drop_down('/html/body/div[7]/div/div[2]/div/div[2]/div[4]/div[2]/select',codigoEstadoCivil, By.XPATH)
-
         self.act.select_drop_down('//*[@id="txtEscolaridade"]','2', By.XPATH)
         self.act.enviar_texto('//*[@id="txtNomeMae"]',informacoes['contrato']['nomeMae'], By.XPATH)
         self.act.select_drop_down('//*[@id="txtCanalDivulgacao"]','419', By.XPATH)
-        self.act.enviar_texto('//*[@id="txtCep"]',informacoes['contrato']['cep'], By.XPATH)
-        self.act.enviar_texto('//*[@id="txtNumeroEndereco"]',informacoes['contrato']['numeroCasa'], By.XPATH)
-        self.act.enviar_texto('//*[@id="txtComplemento"]',informacoes['contrato']['complemento'], By.XPATH)
-        self.act.enviar_texto('//*[@id="txtContaCorrente"]',informacoes['contrato']['numeroConta'], By.XPATH)
-        self.act.enviar_texto('//*[@id="txtDigitoConta"]',informacoes['contrato']['digitoConta'], By.XPATH)
         print('----------------------------------------------------------------------------------------')
 
+        print('Preenchendo dados endereço')
+        self.act.enviar_texto('//*[@id="txtCep"]',informacoes['contrato']['cep'], By.XPATH)
+        self.act.enviar_texto('//*[@id="txtNumeroEndereco"]',informacoes['contrato']['numeroCasa'], By.XPATH)
+        self.remove_div()
+        self.act.press_TAB('//*[@id="txtNumeroEndereco"]', By.XPATH)
+        self.act.enviar_texto('//*[@id="txtComplemento"]',informacoes['contrato']['complemento'], By.XPATH)
+        print('----------------------------------------------------------------------------------------')
+
+        print('Preenchendo dados conta bancária')
+        self.act.enviar_texto('//*[@id="txtContaCorrente"]',informacoes['contrato']['numeroConta'], By.XPATH)
+        self.act.enviar_texto('//*[@id="txtDigitoConta"]',informacoes['contrato']['digitoConta'], By.XPATH)
+        print('----------------------------------------------------------------------------------------')        
+        
+        self.remove_div()
+
         print('Finalizando Contrato')
-        self.act.clicar_elemento('//*[@id="chkAutorizaSms"]', By.XPATH)
-        self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)        
+        if(self.driver.find_element(By.CSS_SELECTOR,"#chkAutorizaSms").is_selected() == False):
+            self.act.clicar_elemento('//*[@id="chkAutorizaSms"]', By.XPATH)
+
+        
+
+        self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)  
+
+        self.remove_div() 
+
         self.verificar_loading()
         print('----------------------------------------------------------------------------------------')
-        
         
         #idPessoa = informacoes['dadosContrato']['idPessoa']
         #idContrato = informacoes['dadosContrato']['idContrato']
 
-        print('Anexando arquivos')
+        print('Anexando arquivos')        
         documentos_pessoais = buscar_documentos_contrato(informacoes['dadosContrato']['codigoContrato'])['arquivos']
 
         counter = 1
 
-        for doc in documentos_pessoais: 
+        print("XXXXXXXXXXXXXXXXXXXXX TEMPORARIO xxxxxxxxxxxxxxxxxxxxxxxxxxxx") 
+        array_xpaths = ['//*[@id="ddlarquivosRg"]','//*[@id="ddlarquivosCpf"]','//*[@id="ddlarquivosContracheque"]','//*[@id="ddlarquivosComprovanteResidencia"]', '//*[@id="ddlarquivosExtratoBancario"]','//*[@id="ddlarquivosOutros"]']
+
+        for path in array_xpaths:
 
             arquivo = self.path_documentos + f'{counter}_arquivo.pdf'
-
-            extensao = doc.split('?')[0].split('.')[-1]
-            
-            if 'pdf' in extensao:
-                 download(doc, arquivo)
-            else:
-                download(doc, self.path_documentos + f'{counter}_arquivo.jpg')
-                Image.open(self.path_documentos + f'{counter}_arquivo.jpg').convert('RGB').save(arquivo)
-
-            if 'documentoPessoal' in doc:                
-                caminho_xpath = '//*[@id="ddlarquivosRg"]'
-
-                #vai anexar em arquivo de cpf também
-                upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosCpf"]')
-                upload2.send_keys(arquivo)       
-
-            elif 'CONTRA_CHEQUE' in doc:
-                caminho_xpath = '//*[@id="ddlarquivosContracheque"]'         
-
-            elif 'COMPROVANTE_ENDERECO' in doc:
-                caminho_xpath = '//*[@id="ddlarquivosComprovanteResidencia"]' 
-
-            elif 'EXTRATO' in doc:
-                caminho_xpath = '//*[@id="ddlarquivosExtratoBancario"]' 
-
-            else:
-                caminho_xpath = '//*[@id="ddlarquivosOutros"]'
-
+            upload = self.driver.find_element(By.XPATH, path)
+            upload.send_keys(arquivo)
             counter += 1
 
-            upload = self.driver.find_element(By.XPATH, caminho_xpath)
-            upload.send_keys(arquivo)
+        # for doc in documentos_pessoais: 
 
+        #     arquivo = self.path_documentos + f'{counter}_arquivo.pdf'
+
+        #     extensao = doc.split('?')[0].split('.')[-1]
+            
+        #     if 'pdf' in extensao:
+        #          download(doc, arquivo)
+        #     else:
+        #         download(doc, self.path_documentos + f'{counter}_arquivo.jpg')
+        #         Image.open(self.path_documentos + f'{counter}_arquivo.jpg').convert('RGB').save(arquivo)
+
+        #     if 'documentoPessoal' in doc:                
+        #         caminho_xpath = '//*[@id="ddlarquivosRg"]'
+
+        #         #vai anexar em arquivo de cpf também
+        #         upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosCpf"]')
+        #         upload2.send_keys(arquivo)       
+
+        #     elif 'CONTRA_CHEQUE' in doc:
+        #         caminho_xpath = '//*[@id="ddlarquivosContracheque"]'         
+
+        #     elif 'COMPROVANTE_ENDERECO' in doc:
+        #         caminho_xpath = '//*[@id="ddlarquivosComprovanteResidencia"]' 
+
+        #     elif 'EXTRATO' in doc:
+        #         caminho_xpath = '//*[@id="ddlarquivosExtratoBancario"]' 
+
+        #     else:
+        #         caminho_xpath = '//*[@id="ddlarquivosOutros"]'
+
+        #     counter += 1
+
+        #     upload = self.driver.find_element(By.XPATH, caminho_xpath)
+        #     upload.send_keys(arquivo)
+
+        print('----------------------------------------------------------------------------------------')
+
+        print('Procurando por ade...')
+        for i in range(3,6): 
+            self.act.clicar_elemento(f'//*[@id="accordion"]/div[{i}]/div[1]/h4/a', By.XPATH)
 
         self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[2]/div[3]/div/button[2]', By.XPATH)        
         ade = self.verificar_loading()
 
-        pdb.set_trace()
-
         if ade:
             deleta_todos_arquivos(self.path_documentos)
-            self.act.clicar_elemento('/html/body/div[9]/div/div[3]/button[1]', By.XPATH)
+
+            self.drive.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown > div > div.swal2-actions > button.swal2-confirm.swal2-styled").click()""")
 
             dados_atualizacao['mensagem'] = 'Aguardando Gerar Contrato'
             dados_atualizacao['valorContrato'] = formatar_moeda(str_valor.split(" ")[1])
             dados_atualizacao['mensagem'] = ade
+            dados_atualizacao['textoMensagem'] = "Faça a assinatura digital do seu contrato. Ao entrar em sua proposta clique no botão |Assinatura Digital|"
+            dados_atualizacao['linkAssinatura'] = r"https://api.whatsapp.com/send?phone=5511988060603&text=Quero%20assinar%20o%20contrato%20meu%20contrato%20%23"+ade
+
             self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
 
         else:
-
+            print("XXXXXXXXXXXXXXXXXXx ERRO PROCURA DA ADE ########################")
             pdb.set_trace()
             #continue
  
@@ -299,6 +337,17 @@ class InserirContrato(Manager):
 
     def aguardar_consulta(self,segundos = 3):
         time.sleep(segundos)
+
+    def remove_div(self):
+        try:
+            if self.act.quantidade_elemento('/html/body/div[9]/div/div[3]/button[1]', By.XPATH) == 1:
+                self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
+                return True
+            else:
+                return False                      
+        except:
+            pass
+
 
     def verificar_loading(self, interacoes=300, aguardar = False):
         while (self.act.quantidade_elemento('/html/body/div[9]', By.XPATH) == 1):
