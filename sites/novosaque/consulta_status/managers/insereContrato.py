@@ -5,6 +5,7 @@ from sites.baseRobos.core.selenium_helper import SeleniumHelper
 from sites.baseRobos.core.selenium_actions import SeleniumActions
 from sites.baseRobos.core.data_helpers import formatar_moeda,formatar_cpf_sem_caracteres,formatar_data_banco_dados
 from sites.baseRobos.core.uconecte import Uconecte
+from sites.baseRobos.core.data_helpers import similaridade
 
 import os,time,pdb,re
 from sites.baseRobos.core.decorators import ApenasHorarioComercial, AguardarHorarioComercial
@@ -122,7 +123,7 @@ class InserirContrato(Manager):
                 self.act.clicar_elemento('//*[@id="phone_store"]',By.XPATH)  
                 self.aguardar_consulta(1) 
                 #telefone da loja
-                self.act.enviar_texto('//*[@id="phone_store"]',"31940420041",By.XPATH)
+                self.act.enviar_texto('//*[@id="phone_store"]',"3993448917",By.XPATH)
 
                 loc_radio_tipo_calculo = '//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[2]/div/div/fieldset/div/div[3]/div/label/input'
                 tentativa = 0
@@ -385,21 +386,33 @@ class InserirContrato(Manager):
 
                 print('Pesquisando a ade gerada...')
                 cpf_formatado = formatar_cpf_sem_caracteres(contrato['cpf_cli'])
-                
-                self.driver.get(self.urls['consulta_status']+contrato['cpf_cli'])
 
-                self.aguardar_consulta(4)
-                self.verificar_loading()
+                nome = self.act.obter_texto('/html/body/div/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[1]/td[3]', By.XPATH)
+
+                if(similaridade(nome,informacoes['contrato']['nome']) < 80):
+                    print("XXXXXXXXXXXXXXXXXXXXXXXX TRATAR ERRO DA BUSCA DE ADE xxxxxxxxxxxxxxxxxxxxxxxxxx")
+                    pdb.set_trace()
+
+                # self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[2]/div/button[1]', By.XPATH)
+                # self.aguardar_consulta(2)
+                # self.act.enviar_texto('//*[@id="filterCpf"]',contrato['cpf_cli'], By.XPATH)
+                # self.clicar_elemento('/html/body/div[4]/div/div[1]/div/div/div[3]/button[3]', By.XPATH)
+
+
+                # self.driver.get(self.urls['consulta_status']+contrato['cpf_cli'])
+
+                # self.aguardar_consulta(4)
+                # self.verificar_loading()
                 
-                if self.act.quantidade_elemento('//*[@id="table-responsive-custom"]/tbody/tr', By.XPATH) == 0:
-                    print('Se resultado pelo cpf formatado sem sucesso, tentando sem ser formatado...')
-                    #cpf_formatado = formatar_cpf_sem_caracteres(contrato['cpf_cli'])
-                    #self.driver.get(f'https://nsaque.ultragate.com.br/admin/contracts?cpf={cpf_formatado}')
-                    self.driver.get(self.urls['consulta_status']+cpf_formatado)
-                    self.verificar_loading()
-                    self.aguardar_consulta(5)
+                # if self.act.quantidade_elemento('//*[@id="table-responsive-custom"]/tbody/tr', By.XPATH) == 0:
+                #     print('Se resultado pelo cpf formatado sem sucesso, tentando sem ser formatado...')
+                #     #cpf_formatado = formatar_cpf_sem_caracteres(contrato['cpf_cli'])
+                #     #self.driver.get(f'https://nsaque.ultragate.com.br/admin/contracts?cpf={cpf_formatado}')
+                #     self.driver.get(self.urls['consulta_status']+cpf_formatado)
+                #     self.verificar_loading()
+                #     self.aguardar_consulta(5)
                 
-                self.aguardar_consulta(2) 
+                #self.aguardar_consulta(2) 
                 
                 print('Atualizando contrato no web_admin')
                 ade = ''
