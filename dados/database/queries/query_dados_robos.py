@@ -8,7 +8,7 @@ def query_login_pass_robo(id_robo: int, login: str) -> Dict[str, str]:
     cur = db.cursor()
 
     cur.execute(
-        "SELECT login,senha FROM tbl_repositorio_adm"
+        "SELECT login,senha,link FROM tbl_repositorio_adm"
         f" WHERE fk_idRobo IN ({id_robo}) AND login LIKE '%{login}%'")
     res = cur.fetchone()
 

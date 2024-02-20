@@ -39,8 +39,6 @@ class DadosConsultaStatus(DataHandler):
             msg="Em POST DADOS CONSULTA"
         )
 
-        #pdb.set_trace()
-
         if not atualizado:
             raise Exception("Não foi possível atualizar os dados da proposta.")
         else:

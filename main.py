@@ -14,6 +14,12 @@ def robo_cora_sincronizacao():
     run = IniciarEmissaoConsulta()
     run.sincronizacao()
 
+def robo_crefisa():
+    from sites.crefisa.main import Main
+    system("title Robô - Crefisa")
+    run = Main()
+    run.main()
+
 def robo_novo_saque():
     from sites.novosaque.main import Main
     system("title Robô - Novo Saque")
@@ -490,7 +496,12 @@ def main(site=False):
                     }, {
                         'name': 'Cora Login',
                         'value': 'cora_login'
-                    }
+                    },
+                    Separator(),
+                    {
+                        'name': 'Crefisa',
+                        'value': 'crefisa'
+                    },
 
 
                 ]
@@ -587,6 +598,8 @@ def main(site=False):
         robo_cora_sincronizacao()
     elif site == 'cora_login':
         robo_cora_login()
+    elif site == 'crefisa':
+        robo_crefisa()
     else:
         print("Não foi possível encontrar o robô desejado!")
 

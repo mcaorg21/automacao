@@ -160,9 +160,25 @@ class APIGetSource:
 
     def documentos_contrato(self, cpf: str) -> dict:
         resp = self.data_source.get_request(
-            nome_endpoint="documentos-contrato",
+            nome_endpoint="download-documentos-contrato",
             ade=self.codigo_dados,
             cpf=cpf
+        )
+        if resp.status_code != 200:
+            raise ApiResponseException(
+                resp.status_code, resp.content)
+
+        return resp.json()
+
+    def download_documentos_contrato(self, idPessoa: int, idContrato: int) -> dict:
+        resp = self.data_source.get_request(
+            nome_endpoint="download-documentos-contrato",
+            pessoa=idPessoa,
+            contrato=idContrato,
+            analise=True,
+            enviarFotos=False,
+            area=""
+
         )
         if resp.status_code != 200:
             raise ApiResponseException(

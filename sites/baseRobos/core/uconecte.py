@@ -1,13 +1,13 @@
 from datetime import datetime
 
-import requests
+import requests,pdb
 from typing import List
 from time import sleep
 
 
 class Uconecte:
     def __init__(self, id_banco=False):
-        self.url = "https://uconecte.me/api/v1/{}"
+        self.url = "https://app.emprestimofacil.com/api/v1/{}"
         self.api_key = "f689f1e12a0399fba803cb2365fc362f"
         self.id_banco = id_banco
         self.consulta_refin_banco: str = ""
@@ -93,7 +93,7 @@ class Uconecte:
             dados_calcular["consultaPortal"] = True
 
         print("INICIO ATUALIZAÇÃO:", datetime.now())
-        request_calcular = requests.post("https://uconecte.me/api/calcular/emprestimo_novo",
+        request_calcular = requests.post("https://app.emprestimofacil.com/api/calcular/emprestimo_novo",
                                          data=dados_calcular)
         print("FIM ATUALIZAÇÃO:", datetime.now())
         print("Codigo:", request_calcular)
@@ -121,7 +121,7 @@ class Uconecte:
             dados_calcular['retorno'] = solicitacao['retorno']
             dados_calcular['mensagem'] = solicitacao['mensagem']
 
-        request_calcular = requests.post("https://uconecte.me/api/calcular/aumento_inss",
+        request_calcular = requests.post("https://app.emprestimofacil.com/api/calcular/aumento_inss",
                                          data=dados_calcular)
         print(request_calcular.text)
 
@@ -139,7 +139,7 @@ class Uconecte:
             dados_calcular['mensagem'] = solicitacao['mensagem']
         print("INICIO ATUALIZAÇÃO:", datetime.now())
         
-        request_calcular = requests.post("https://uconecte.me/api/calcular/cartao_consignado",
+        request_calcular = requests.post("https://app.emprestimofacil.com/api/calcular/cartao_consignado",
                                          data=dados_calcular)
         print("FIM ATUALIZAÇÃO:", datetime.now())
         print("Codigo:", request_calcular)
@@ -161,7 +161,7 @@ class Uconecte:
                 }
 
                 request_calcular_refinanciamento = requests.post(
-                    "https://uconecte.me/api/calcular/refinanciamento", data=dados_calcular)
+                    "https://app.emprestimofacil.com/api/calcular/refinanciamento", data=dados_calcular)
 
                 if request_calcular_refinanciamento.status_code != 200:
                     print(request_calcular_refinanciamento.text)
@@ -173,7 +173,7 @@ class Uconecte:
             }
 
             request_calcular_refinanciamento = requests.post(
-                "https://uconecte.me/api/calcular/finalizar_solicitacao", data=dados_calcular)
+                "https://app.emprestimofacil.com/api/calcular/finalizar_solicitacao", data=dados_calcular)
             print(request_calcular_refinanciamento.text)
             if request_calcular_refinanciamento.status_code != 200:
                 print(request_calcular_refinanciamento.text)
@@ -229,7 +229,7 @@ class Uconecte:
 
     def buscar_pessoas_potenciais(self) -> List[dict]:
         request_pessoas = requests.get(
-            f"https://uconecte.me/api/v1/consultas/crm/?key="
+            f"https://app.emprestimofacil.com/api/v1/consultas/crm/?key="
             f"{self.api_key}&banco={self.id_banco}")
 
         if request_pessoas.status_code != 200:
@@ -248,7 +248,7 @@ class Uconecte:
             consulta['retorno'] = 1
 
             request_inserir_oferta = requests.post(
-                "https://uconecte.me/api/v1/ofertas/crm?key={}".format(self.api_key), json=consulta)
+                "https://app.emprestimofacil.com/api/v1/ofertas/crm?key={}".format(self.api_key), json=consulta)
 
             if request_inserir_oferta.status_code != 200:
                 print(request_inserir_oferta.text)
@@ -265,7 +265,7 @@ class Uconecte:
         }
 
         request_finalizar_oferta = requests.post(
-            "https://uconecte.me/api/v1/ofertas/crm?key={}".format(self.api_key), data=dados_oferta)
+            "https://app.emprestimofacil.com/api/v1/ofertas/crm?key={}".format(self.api_key), data=dados_oferta)
 
         if request_finalizar_oferta.status_code != 200:
             print(request_finalizar_oferta.text)
