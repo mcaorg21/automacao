@@ -389,7 +389,7 @@ class InserirContrato(Manager):
 
                 nome = self.act.obter_texto('/html/body/div/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[1]/td[3]', By.XPATH)
 
-                if(similaridade(nome,informacoes['contrato']['nome']) < 80):
+                if(similaridade(nome,informacoes['contrato']['nome']) < 50):
                     print("XXXXXXXXXXXXXXXXXXXXXXXX TRATAR ERRO DA BUSCA DE ADE xxxxxxxxxxxxxxxxxxxxxxxxxx")
                     pdb.set_trace()
 
