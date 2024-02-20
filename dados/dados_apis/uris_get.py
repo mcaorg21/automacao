@@ -78,6 +78,9 @@ GET = {
     # links com documentos associados a um contrato
     "documentos-contrato": UCONECTE + "/v1/contratos/documentos",
 
+    # documentos associados a um contrato
+    "download-documentos-contrato": UCONECTE + "/api/documentacao/verificar_documentos_contrato",
+
     # filas de propostas com liberação pendente
     "liberar-propostas": WEBADMIN + "/v1/contratos/a-liberar/banco-{nome-banco}",
 

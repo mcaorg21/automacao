@@ -114,6 +114,7 @@ class PromoBank:
 		else:
 
 			print('Consulta via robo iniciando...')
+
 			self.contar_inicio += 1
 			if(self.contar_inicio > 10):
 				self.driver.quit()
@@ -404,8 +405,8 @@ class PromoBank:
 			return self.main()
 
 	def buscar_solicitacoes(self, tipo_consulta):
-		request_solicitacoes = requests.get("https://uconecte.me/api/v1/solicitacoes/{}?key={}".format(tipo_consulta, self.api_key))
-
+		request_solicitacoes = requests.get("https://app.emprestimofacil.com/api/v1/solicitacoes/{}?key={}".format(tipo_consulta, self.api_key))
+		
 		if (request_solicitacoes.status_code != 200):
 			print(request_solicitacoes.text)
 			input("Não foi possível buscar as solicitações")
@@ -418,6 +419,7 @@ class PromoBank:
 		"""
 		raises Exception("Parâmetro tipo consulta inválido:", tipo_consulta)
 		"""
+		#pdb.set_trace()
 		solicitacoes = self.buscar_solicitacoes(tipo_consulta)
 
 		for solicitacao in solicitacoes:
@@ -448,7 +450,7 @@ class PromoBank:
 				}
 				print("Salvando consulta com os dados:", dados)
 				#pdb.set_trace()
-				request_consulta = requests.post("https://uconecte.me/api/v1/consultas/inss", data=dados)
+				request_consulta = requests.post("https://app.emprestimofacil.com/api/v1/consultas/inss", data=dados)
 
 				print(request_consulta.status_code);
 				
@@ -477,6 +479,7 @@ class PromoBank:
 
 	def selecionar_aba_consulta(self,modo='manual'):
 		print("Recarregando a página!")
+		#pdb.set_trace()
 		try:
 			if(self.selenium_helper.buscar_quantidade_elemento('.logoCRM')==0 and self.selenium_helper.buscar_quantidade_elemento('.panel-body')==0):
 				self.main()
@@ -503,8 +506,8 @@ class PromoBank:
 				self.act.clicar_elemento('/html/body/div[3]/div/div[2]/ul/li[4]/a/i[2]', By.XPATH)
 				self.act.clicar_elemento(loc_consulta, By.XPATH)
 				pass
-
-			loc_frame_consulta = '//iframe[@src="corpo.php?src=consulta/index.php"]'
+			#pdb.set_trace()
+			loc_frame_consulta = '//iframe[@src="/sistema/corpo.php?src=consulta/index.php"]'
 			iframe_consulta = self.act.retornar_elemento(loc_frame_consulta, By.XPATH)
 
 			self.driver.switch_to.frame(iframe_consulta)
@@ -765,8 +768,8 @@ class PromoBank:
 		# - NO AUMENTO TROCAR OS 2 RESULTADOS NOS 2 IFS DE PARCELA AUMENTO
 
 		array = ['87','88']
-		porcentagem_aumento = 0.0765
-		porcentagem_aumento_salario = 0.0475
+		porcentagem_aumento = 0.0697
+		porcentagem_aumento_salario = 0.0371
 		porcentagem_margem = 0.35
 
 		if especie_beneficio in array:
@@ -813,12 +816,12 @@ class PromoBank:
 				credito_liquido = formatar_moeda(self.selenium_helper.verificar_valor_campo_driver('[name=con_liquido]'))
 				if(ano_competencia == 2024 and mes_competencia <= 3):
 					#parcela_aumento = margem_disponivel
-					if(credito_total <= 1320):
+					if(credito_total <= 1413):
 						parcela_aumento = credito_total_liquido * porcentagem_aumento * porcentagem_margem
-						credito_total = credito_total * (1+porcentagem_aumento)
+						#credito_total = credito_total * (1+porcentagem_aumento)
 					else:
 						parcela_aumento = credito_total_liquido * porcentagem_aumento_salario * porcentagem_margem
-						credito_total = credito_total * (1+porcentagem_aumento_salario)
+						#credito_total = credito_total * (1+porcentagem_aumento_salario)
 
 				elif(ano_competencia == 2023 and mes_competencia <= 12):
 					if(credito_total <= 1320):
@@ -839,12 +842,12 @@ class PromoBank:
 
 				elif(ano_competencia == 2024 and mes_competencia <= 3):
 					#parcela_aumento = margem_disponivel 
-					if(credito_total <= 1320):
+					if(credito_total <= 1413):
 						parcela_aumento = credito_total * porcentagem_aumento * porcentagem_margem
-						credito_total = credito_total * (1+porcentagem_aumento)
+						#credito_total = credito_total * (1+porcentagem_aumento)
 					else:
 						parcela_aumento = credito_total * porcentagem_aumento_salario * porcentagem_margem
-						credito_total = credito_total * (1+porcentagem_aumento_salario)
+						#credito_total = credito_total * (1+porcentagem_aumento_salario)
 
 
 			self.retorno.update({
@@ -869,40 +872,46 @@ class PromoBank:
 		refinanciamentos = []
 		self.debito_total = 0
 
-		linhas_refinanciamento = self.driver.find_elements_by_css_selector('.gridContratos tbody tr')
-
+		#antigo
+		#linhas_refinanciamento = self.driver.find_elements_by_css_selector('.gridContratos tbody tr')
+		linhas_refinanciamento = self.driver.find_element(By.ID,'gridContratos').find_elements(By.TAG_NAME, "tr")
+		
 		try:
 			for linha_refinanciamento in linhas_refinanciamento:
-				colunas = linha_refinanciamento.find_elements_by_css_selector('td')
-
-				if len(colunas) == 0:
-					continue
 				
-				tipo_contrato = colunas[0].get_attribute("innerHTML").strip()
-				tipo_contrato += colunas[1].get_attribute("innerHTML").strip()
+				#antigo
+				#colunas = linha_refinanciamento.find_elements_by_css_selector('td')
+				
+				colunas = linha_refinanciamento.text.split('\n')
+				
+				if len(colunas) != 13:
+					continue
+
+				#tipo_contrato = colunas[0].get_attribute("innerHTML").strip()
+				#tipo_contrato += colunas[1].get_attribute("innerHTML").strip()
 
 				#if 'EMPRÉSTIMO CONSIGNADO' in tipo_contrato or 'PARCELA OCULTA' in tipo_contrato:
 					
-				banco = colunas[0].text
+				banco = colunas[0]
 
 				banco = re.split(r"\-", banco)
 
 				numero_banco = banco[0].strip()
 				nome_banco = banco[1].strip()
 				
-				data_inicio = formatar_data_banco_anomenor(colunas[2].text)
-				data_fim= formatar_data_banco_anomenor(colunas[3].text)
+				data_inicio = formatar_data_banco_anomenor(colunas[2])
+				data_fim= formatar_data_banco_anomenor(colunas[3])
 
-				valor_total = formatar_moeda(colunas[4].text)
-				saldo_devedor = formatar_moeda(colunas[6].text)
+				valor_total = formatar_moeda(colunas[4])
+				saldo_devedor = formatar_moeda(colunas[5])
 
-				valor_parcela = formatar_moeda(colunas[7].text)
-				taxa_juros = formatar_porcentagem(colunas[8].text)
+				valor_parcela = formatar_moeda(colunas[6])
+				taxa_juros = formatar_porcentagem(colunas[7])
 				
-				parcelas_pag = colunas[9].text
+				parcelas_pag = colunas[8]
 				parcelas_pagas = parcelas_pag.split('/')[0]
-				prazo = int(colunas[10].text) + int(parcelas_pagas)
-				numero_contrato = colunas[11].text
+				prazo = int(colunas[9]) + int(parcelas_pagas)
+				numero_contrato = colunas[10]
 
 				refinanciamentos.append({
 						'nomeBanco': nome_banco,
@@ -921,7 +930,7 @@ class PromoBank:
 					})
 
 				print(refinanciamentos)
-
+				
 				print('----------------------')
 
 				self.debito_total += valor_parcela
@@ -932,6 +941,8 @@ class PromoBank:
 			'arrayParcelasRefin': refinanciamentos,
 			'numeroEmprestimos': len(refinanciamentos)
 		})
+
+		#pdb.set_trace()
 
 	def tratar_erros_consulta(self):
 		mensagem_erro = self.selenium_helper.verificar_texto_campo_jquery(".alert-danger span:visible")
