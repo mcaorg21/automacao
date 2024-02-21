@@ -77,7 +77,7 @@ class InserirContrato(Manager):
             informacoes = self.dados.get_informacoes_contrato(contrato['codigo_con']) 
             self.chrome_driver.get(self.urls["insercao"]) 
             
-            #verifica se pode realizar
+            #verifica se cpf está habilitado para realizar
             url = f'https://app1.gerencialcredito.com.br/CREFISA/ajax_crefisa.asp?combo=getOperacaoCliente&cpfCliente={informacoes['contrato']['cpf']}'
             cookies_name = ""
             cookies_value = ""
@@ -92,8 +92,6 @@ class InserirContrato(Manager):
             response = requests.request("GET", url, headers=headers)
             
             retorno = json.loads(response.text)
-
-            pdb.set_trace()
 
             if retorno['erro'] == True:
                 return False
@@ -111,12 +109,15 @@ class InserirContrato(Manager):
             array_docs_necessarios = ['documentoPessoal','COMPROVANTE_ENDERECO','MEU_NIS','COMPROVANTE_DE_CONTA','PRINT_EXTRATO_BANCaRIO']
             for doc_unico in documentos_pessoais:
                 for doc_exigido in array_docs_necessarios:
-                    if doc_exigido in documentos_pessoais:
+                    if doc_exigido in doc_unico:
                         pontuacao += 1
 
             if pontuacao < 7:
-                print('XXXXXXX REPROVA POR DOCUMENTOS INCOMPLETOS')
-            pdb.set_trace()
+                print('CPF aprovado, mas documentos estão incompletos...')
+                dados_atualizacao['mensagem'] = 'Pendente Documentacao'
+                self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                print('----------------------------------------------------------------------------------------')
+                continue            
 
             print("Preenchendo primeiro fomulario de aceitacao...")
             self.act.enviar_texto('//*[@id="txtCpfSimulacao"]', informacoes['contrato']['cpf'], By.XPATH)

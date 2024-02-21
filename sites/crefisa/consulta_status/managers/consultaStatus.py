@@ -47,9 +47,14 @@ class ConsultaStatus(Manager):
 
         self.verificar_loading()       
         print('Inciando sincronização...')
-        #status_a_consultar = self.dados.get_ades()[1:]
+        status_a_consultar = self.dados.get_ades()[1:]
 
-        status_a_consultar = [['508020005927', '31522563881', '634296']]
+        if not status_a_consultar:
+            print('Sem atualizações para realizar...')
+            return False
+
+        #para testes
+        #status_a_consultar = [['508020005927', '31522563881', '634296']]
 
         self.chrome_driver.get(self.urls["consulta"])
 

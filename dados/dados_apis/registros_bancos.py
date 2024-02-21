@@ -6,7 +6,8 @@ def filtrar_bancos_nome(nome_banco: str) -> str:
         "ole": "ole",
         "bmg": "bmg",
         "pan": "pan",
-        "novo-saque":"novo-saque"
+        "novo-saque": "novo-saque",
+        "crefisa": "crefisa"
 
     }
     return bancos.get(nome_banco.lower())
@@ -18,6 +19,7 @@ def filtrar_bancos_id(nome_banco: str) -> int:
         "bradesco": 2,
         "ole": 123,
         "pan": 68,
-        "novo-saque": 285
+        "novo-saque": 285,
+        "crefisa": 93
     }
     return bancos.get(nome_banco)
