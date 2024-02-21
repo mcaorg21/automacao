@@ -1,4 +1,5 @@
 opts = {
+    "Crefisa": 0,
     "NovoSaque": 0,
     "Proposta_Daycoval": 0,
     "Ole_Portal_Orienta": 0,

@@ -72,6 +72,9 @@ main_paths: dict = {
     #Novo Saque
     "NovoSaque": "/novosaque/main.py",
 
+    #Novo Saque
+    "Crefisa": "/crefisa/main.py",
+
     #Cora Sincroniza
     "Cora": "/cora/main.py",
 

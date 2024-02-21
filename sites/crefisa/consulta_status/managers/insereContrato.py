@@ -106,13 +106,21 @@ class InserirContrato(Manager):
             #verifica se tem todos os documentos necessarios
             pontuacao = 0
             documentos_pessoais = buscar_documentos_contrato(informacoes['dadosContrato']['codigoContrato'])['arquivos']
-            array_docs_necessarios = ['documentoPessoal','COMPROVANTE_ENDERECO','MEU_NIS','COMPROVANTE_DE_CONTA','PRINT_EXTRATO_BANCaRIO']
+            array_docs_necessarios = ['documentoPessoal',
+                                        'COMPROVANTE_ENDERECO',
+                                        'MEU_NIS',
+                                        'COMPROVANTE_DE_CONTA',
+                                        'EXTRATO_BANCaRIO_ULTIMOS_30',
+                                        'EXTRATO_BANCaRIO_%7CMES1%7C_DA_CONTA_DO_CAIXATEM',
+                                        'EXTRATO_BANCaRIO_%7CMES2%7C_DA_CONTA_DO_CAIXATEM',
+                                        'EXTRATO_BANCaRIO_%7CMES3%7C_DA_CONTA_DO_CAIXATEM']
+
             for doc_unico in documentos_pessoais:
                 for doc_exigido in array_docs_necessarios:
                     if doc_exigido in doc_unico:
                         pontuacao += 1
 
-            if pontuacao < 7:
+            if pontuacao < 8:
                 print('CPF aprovado, mas documentos estão incompletos...')
                 dados_atualizacao['mensagem'] = 'Pendente Documentacao'
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
@@ -235,6 +243,7 @@ class InserirContrato(Manager):
             print('Anexando arquivos')        
 
             counter = 1
+            conta_anexo_cpf = 1
             #array_xpaths = ['//*[@id="ddlarquivosRg"]','//*[@id="ddlarquivosCpf"]','//*[@id="ddlarquivosContracheque"]','//*[@id="ddlarquivosComprovanteResidencia"]', '//*[@id="ddlarquivosExtratoBancario"]','//*[@id="ddlarquivosOutros"]']
             
             for doc in documentos_pessoais: 
@@ -253,20 +262,22 @@ class InserirContrato(Manager):
                     caminho_xpath = '//*[@id="ddlarquivosRg"]'
 
                     #vai anexar em arquivo de cpf também
-                    upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosCpf"]')
-                    upload2.send_keys(arquivo)       
+                    if(conta_anexo_cpf == 1):
+                        upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosCpf"]')
+                        upload2.send_keys(arquivo)
+                        conta_anexo_cpf += 1     
 
-                elif 'CONTRA_CHEQUE' in doc or 'PRINT_EXTRATO_BANCaRIO' in doc:
+                elif 'COMPROVANTE_DE_CONTA' in doc:
                     caminho_xpath = '//*[@id="ddlarquivosContracheque"]'    
 
                     #vai anexar em arquivo de extratos também
-                    upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosExtratoBancario"]')
-                    upload2.send_keys(arquivo)     
+                    #upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosExtratoBancario"]')
+                    #upload2.send_keys(arquivo)     
 
                 elif 'COMPROVANTE_ENDERECO' in doc:
                     caminho_xpath = '//*[@id="ddlarquivosComprovanteResidencia"]' 
 
-                elif 'PRINT_EXTRATO_BANCaRIO' in doc:
+                elif 'EXTRATO_BANCaRIO' in doc:
                     caminho_xpath = '//*[@id="ddlarquivosExtratoBancario"]' 
 
                 else:
@@ -290,11 +301,11 @@ class InserirContrato(Manager):
 
             if ade:
                 deleta_todos_arquivos(self.path_documentos)
-                self.drive.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown > div > div.swal2-actions > button.swal2-confirm.swal2-styled").click()""")
+                self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown > div > div.swal2-actions > button.swal2-confirm.swal2-styled").click()""")
 
                 dados_atualizacao['mensagem'] = 'Aguardando Gerar Contrato'
                 dados_atualizacao['valorContrato'] = formatar_moeda(str_valor.split(" ")[1])
-                dados_atualizacao['mensagem'] = ade
+                dados_atualizacao['ade'] = ade
                 dados_atualizacao['textoMensagem'] = "Faça a assinatura digital do seu contrato. Ao entrar em sua proposta clique no botão |Assinatura Digital|"
                 dados_atualizacao['linkAssinatura'] = r"https://api.whatsapp.com/send?phone=5511988060603&text=Quero%20assinar%20o%20contrato%20meu%20contrato%20%23"+ade
 

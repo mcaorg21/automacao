@@ -94,7 +94,7 @@ class Main:
 
         #fila de insercao de contrato
         definir_nome_robo(self.TITLE)   
-        #InserirContrato.iniciar_horario_comercial(self.driver)
+        InserirContrato.iniciar_horario_comercial(self.driver)
           
         #fila de sincronizacao
         definir_nome_robo(self.TITLE)

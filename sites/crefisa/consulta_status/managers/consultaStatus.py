@@ -64,9 +64,6 @@ class ConsultaStatus(Manager):
         if(self.driver.find_element(By.CSS_SELECTOR,"#chkNaoExibeRecebido").is_selected() == True):
             self.act.clicar_elemento('//*[@id="chkNaoExibeRecebido"]', By.XPATH)
 
-        if not status_a_consultar:
-            print('Sem atualizações para realizar...')
-            return False
 
         for cnt, proposta in enumerate(status_a_consultar, 1):
             print(f"[{cnt}]Fila Consulta Status")
@@ -89,9 +86,9 @@ class ConsultaStatus(Manager):
 
                 self.verificar_loading()
 
-                dados_consulta["statusPropostaBanco"] = self.act.obter_texto('//*[@id="linhaContratoId_114677"]/td[6]/ul/li[2]/div/span[1]/b', By.XPATH)
-                dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto('//*[@id="linhaContratoId_114677"]/td[6]/ul/li[5]/span[2]/span', By.XPATH)
-
+                dados_consulta["statusPropostaBanco"] = self.act.obter_texto('/html/body/div[7]/div[2]/div[6]/div/div/table/tbody/tr[1]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
+                dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto('/html/body/div[7]/div[2]/div[6]/div/div/table/tbody/tr[1]/td[6]/ul/li[5]/span[2]/span', By.XPATH).strip()
+                dados_consulta['statusSecundario'] = dados_consulta['observacaoDetalhadaBanco'].split('-')[0].strip()
                 pdb.set_trace()
 
                 self.dados.post_dados_consultados(dados_consulta)                         
@@ -120,7 +117,7 @@ class ConsultaStatus(Manager):
             print('Aguardando Loading...' + str(interacoes))
             time.sleep(0.5)
             interacoes -= 1
-            if self.act.quantidade_elemento('//*[@id="linhaContratoId_114677"]/td[6]/ul/li[2]/div/span[1]/b', By.XPATH) == 1:
+            if self.act.quantidade_elemento('/html/body/div[7]/div[2]/div[6]/div/div/table/tbody/tr[1]/td[6]/ul/li[5]/span[1]', By.XPATH) == 1:
                 return
             if(interacoes < -35):
                 self.driver.quit()
