@@ -78,7 +78,7 @@ class InserirContrato(Manager):
             self.chrome_driver.get(self.urls["insercao"]) 
             
             #verifica se cpf está habilitado para realizar
-            url = f'https://app1.gerencialcredito.com.br/CREFISA/ajax_crefisa.asp?combo=getOperacaoCliente&cpfCliente={informacoes['contrato']['cpf']}'
+            url = f'https://app1.gerencialcredito.com.br/CREFISA/ajax_crefisa.asp?combo=getOperacaoCliente&cpfCliente={informacoes["contrato"]["cpf"]}'
             cookies_name = ""
             cookies_value = ""
 

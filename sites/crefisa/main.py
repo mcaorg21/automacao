@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-| file: /sites/novosaque/main.py
+| file: /sites/crefisa/main.py
 
 | projeto: automacao-python
 | data: 2021-11-25
@@ -9,6 +9,7 @@
 """
 import pdb,sys, os
 sys.path.append('../')
+#sys.path.insert(1, '/home/gustavo/Desktop/automacao-python/')
 
 
 from datetime import datetime
