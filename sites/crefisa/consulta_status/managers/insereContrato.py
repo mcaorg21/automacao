@@ -308,6 +308,7 @@ class InserirContrato(Manager):
                 dados_atualizacao['ade'] = ade
                 dados_atualizacao['textoMensagem'] = "Faça a assinatura digital do seu contrato. Ao entrar em sua proposta clique no botão |Assinatura Digital|"
                 dados_atualizacao['linkAssinatura'] = r"https://api.whatsapp.com/send?phone=5511988060603&text=Quero%20assinar%20o%20contrato%20meu%20contrato%20%23"+ade
+                dados_atualizacao['status_con'] = "Em Processo"
 
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
 
