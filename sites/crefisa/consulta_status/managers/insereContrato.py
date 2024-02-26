@@ -182,10 +182,16 @@ class InserirContrato(Manager):
             self.act.enviar_texto('//*[@id="txtValorRendaLiquida"]', informacoes['contrato']['renda'], By.XPATH)
             print('----------------------------------------------------------------------------------------')
 
-            print('Preenchendo valor da parcela')
-            self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[6]/div[2]/div/div/button', By.XPATH)
-            self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[6]/div[2]/div/div/div/ul/li[1]/a/span[1]', By.XPATH)
-            self.act.enviar_texto('//*[@id="txtValorParcela"]', informacoes['contrato']['valorParcela'], By.XPATH) 
+            print('Preenchendo calculo por parcela e valor da parcela')
+            try:
+                self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[6]/div[2]/div/div/button', By.XPATH)
+                self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[6]/div[2]/div/div/div/ul/li[1]/a/span[1]', By.XPATH)
+            except:
+                pass
+
+            self.act.select_drop_down('//*[@id="txtTipoValorContrato"]','1', By.XPATH)
+
+            self.act.enviar_texto('//*[@id="txtValorSimulacao"]', informacoes['contrato']['valorParcela'], By.XPATH) 
             print('----------------------------------------------------------------------------------------')
 
             print('Clicando em simular')
@@ -194,7 +200,7 @@ class InserirContrato(Manager):
             print('----------------------------------------------------------------------------------------')
 
             print('Selecionando o prazo...')
-            self.act.select_drop_down('//*[@id="ddlPrazo"]', informacoes['contrato']['prazo'], By.XPATH)
+            self.act.select_drop_down('//*[@id="ddlPrazo"]', str(int(informacoes['contrato']['prazo'])-1), By.XPATH)
             str_valor = self.act.obter_texto('//*[@id="appVue"]/div[4]/div[2]/div/div[2]/div/div/div/div[2]/div[2]/div/span', By.XPATH)       
             print('----------------------------------------------------------------------------------------')
 
@@ -206,11 +212,11 @@ class InserirContrato(Manager):
 
             print('Preenchendo dados pessoais')
             self.act.enviar_texto('//*[@id="txtDataNascimento"]', informacoes['contrato']['dataNascimento'], By.XPATH)
-            self.act.enviar_texto('//*[@id="txtRg"]', informacoes['contrato']['identidade'][0:-1], By.XPATH)
+            self.act.enviar_texto('//*[@id="txtRg"]', informacoes['contrato']['identidade'][0:-1].replace("-",""), By.XPATH)
             self.act.enviar_texto('//*[@id="txtDigito"]', informacoes['contrato']['identidade'][-1], By.XPATH)
             self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
             self.act.select_drop_down('//*[@id="ddlOrgaoEmissorRg"]', 'SESP', By.XPATH) #informacoes['contrato']['orgaoEmissor'],
-            self.act.select_drop_down('//*[@id="ddlEstadoCivil"]', informacoes['contrato']['estadoEmissor'], By.XPATH)        
+            self.act.select_drop_down('//*[@id="ddlUfOrgaoEmissor"]', informacoes['contrato']['estadoEmissor'], By.XPATH)        
             self.act.select_drop_down('//*[@id="ddlUfNascimento"]',informacoes['contrato']['estadoNaturalidade'], By.XPATH) 
             self.act.enviar_texto('//*[@id="txtNaturalidade"]',informacoes['contrato']['naturalidade'], By.XPATH) 
             self.act.select_drop_down('//*[@id="txtSexo"]',informacoes['contrato']['sexo'][0], By.XPATH)
@@ -308,12 +314,12 @@ class InserirContrato(Manager):
             print('----------------------------------------------------------------------------------------')
 
             print('Procurando por ade...')
-            for i in range(1,7): 
-                self.act.clicar_elemento(f'//*[@id="accordion"]/div[{i}]/div[1]/h4/a', By.XPATH)
 
-            pdb.set_trace()
+            #for i in range(1,7): 
+            #    self.act.clicar_elemento(f'//*[@id="accordion"]/div[{i}]/div[1]/h4/a', By.XPATH)
 
-            self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[2]/div[3]/div/button[2]', By.XPATH)        
+            self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[2]/div[3]/div/button[2]', By.XPATH)  
+            pdb.set_trace()      
             ade = self.verificar_loading()
 
             if ade:
