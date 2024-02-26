@@ -125,7 +125,9 @@ class InserirContrato(Manager):
                 dados_atualizacao['mensagem'] = 'Pendente Documentacao'
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                 print('----------------------------------------------------------------------------------------')
-                continue            
+                continue
+
+            deleta_todos_arquivos(self.path_documentos)         
 
             print("Preenchendo primeiro fomulario de aceitacao...")
             self.act.enviar_texto('//*[@id="txtCpfSimulacao"]', informacoes['contrato']['cpf'], By.XPATH)
@@ -151,10 +153,25 @@ class InserirContrato(Manager):
             #reverso = "567"+array_reversos[reverso_nis]
             #self.act.select_drop_down("/html/body/div[7]/div/div[3]/div/div[4]/div[2]/div/select", reverso, By.XPATH)
 
-            array_reversos_menu = {"0":"2","1":"11","2":"10","3":"9","4":"8","5":"7","6":"6","7":"5","8":"4","9":"3"}        
-            self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[4]/div[2]/div/button', By.XPATH)                          
-            self.act.clicar_elemento(f'//*[@id="appVue"]/div[3]/div/div[4]/div[2]/div/div/ul/li[{array_reversos_menu[reverso_nis]}]/a/span[1]', By.XPATH)
-            print('----------------------------------------------------------------------------------------')
+            array_reversos_menu = {
+                                    "0":"2",
+                                    "1":"11",
+                                    "2":"10",
+                                    "3":"9",
+                                    "4":"8",
+                                    "5":"7",
+                                    "6":"6",
+                                    "7":"5",
+                                    "8":"4",
+                                    "9":"3"
+                                    }     
+
+            try:   
+                self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[4]/div[2]/div/button', By.XPATH)                          
+                self.act.clicar_elemento(f'//*[@id="appVue"]/div[3]/div/div[4]/div[2]/div/div/ul/li[{array_reversos_menu[reverso_nis]}]/a/span[1]', By.XPATH)
+                print('----------------------------------------------------------------------------------------')
+            except:
+                pass
 
             print('Preenchendo matricula e digito')
             self.act.enviar_texto('//*[@id="txtMatricula"]', informacoes['contrato']['matricula'][0:-1], By.XPATH)
