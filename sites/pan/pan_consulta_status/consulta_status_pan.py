@@ -195,15 +195,15 @@ class Pan:
 
                 if ade == ade_busca:
                     try:
-                        status_proposta_banco = self.driver.execute_script(
-                            f"""return $('#ctl00_Cph_AprCons_grdConsulta').text().split('NÃO')[1].split('{cpf}')[0].replace(
-                            'DIGITAL','').replace('FÍSICO','')""")
+                        status_proposta_banco = self.driver.execute_script(f"""return $('#ctl00_Cph_AprCons_grdConsulta').text().split('NÃO')[1].split('{cpf}')[0].replace('DIGITAL','').replace('FÍSICO','')""")
                     except:
+                        status_proposta_banco = self.act.obter_texto('//*[@id="ctl00_Cph_AprCons_grdConsulta"]/tbody/tr[2]/td[6]/a', By.XPATH)+" - "+self.act.obter_texto('//*[@id="ctl00_Cph_AprCons_grdConsulta"]/tbody/tr[2]/td[7]/a', By.XPATH)
                         pass
                     try:
                         #self.driver.execute_script(""" __doPostBack('ctl00$Cph$AprCons$grdConsulta','Situacao$0')""")
                         self.driver.execute_script(""" document.querySelector("#ctl00_Cph_AprCons_grdConsulta > tbody > tr.normal > td:nth-child(3) > a").click()""")
                     except:
+                        self.driver.execute_script(""" document.querySelector("#ctl00_Cph_AprCons_grdConsulta > tbody > tr.normal > td:nth-child(6) > a").click()""")
                         pass
                     self.aguardar_loading()
 
