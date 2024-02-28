@@ -212,8 +212,10 @@ class InserirContrato(Manager):
 
             print('Preenchendo dados pessoais')
             self.act.enviar_texto('//*[@id="txtDataNascimento"]', informacoes['contrato']['dataNascimento'], By.XPATH)
-            self.act.enviar_texto('//*[@id="txtRg"]', informacoes['contrato']['identidade'][0:-1].replace("-",""), By.XPATH)
-            self.act.enviar_texto('//*[@id="txtDigito"]', informacoes['contrato']['identidade'][-1], By.XPATH)
+
+            identidade_numero = re.sub('[^0-9]', '', informacoes['contrato']['identidade'])
+            self.act.enviar_texto('//*[@id="txtRg"]', identidade_numero[0:-1], By.XPATH)
+            self.act.enviar_texto('//*[@id="txtDigito"]', identidade_numero[-1], By.XPATH)
             self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
             self.act.select_drop_down('//*[@id="ddlOrgaoEmissorRg"]', 'SESP', By.XPATH) #informacoes['contrato']['orgaoEmissor'],
             self.act.select_drop_down('//*[@id="ddlUfOrgaoEmissor"]', informacoes['contrato']['estadoEmissor'], By.XPATH)        
@@ -236,6 +238,7 @@ class InserirContrato(Manager):
 
             print('Preenchendo dados endereço')
             self.act.enviar_texto('//*[@id="txtCep"]',informacoes['contrato']['cep'], By.XPATH)
+
             self.act.enviar_texto('//*[@id="txtNumeroEndereco"]',informacoes['contrato']['numeroCasa'], By.XPATH)
             self.remove_div()
             self.act.press_TAB('//*[@id="txtNumeroEndereco"]', By.XPATH)
@@ -252,6 +255,12 @@ class InserirContrato(Manager):
             print('Finalizando Contrato')
             if(self.driver.find_element(By.CSS_SELECTOR,"#chkAutorizaSms").is_selected() == False):
                 self.act.clicar_elemento('//*[@id="chkAutorizaSms"]', By.XPATH)
+
+            if(self.act.obter_texto('//*[@id="txtLogradouro"]', By.XPATH) == ""):
+                self.act.enviar_texto('//*[@id="txtLogradouro"]',informacoes['contrato']['logradouro'], By.XPATH)  
+
+            if(self.act.obter_texto('//*[@id="txtBairro"]', By.XPATH) == ""):
+                self.act.enviar_texto('//*[@id="txtBairro"]',informacoes['contrato']['bairro'], By.XPATH)
 
             self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)  
 
@@ -274,21 +283,28 @@ class InserirContrato(Manager):
                 arquivo = self.path_documentos + f'{counter}_arquivo.pdf'
 
                 extensao = doc.split('?')[0].split('.')[-1]
-                
                 if 'pdf' in extensao:
                      download(doc, arquivo)
                 else:
-                    download(doc, self.path_documentos + f'{counter}_arquivo.jpg')
-                    Image.open(self.path_documentos + f'{counter}_arquivo.jpg').convert('RGB').save(arquivo)
+                    
+                    try:
+                        download(doc, self.path_documentos + f'{counter}_arquivo.jpg')
+                        Image.open(self.path_documentos + f'{counter}_arquivo.jpg').convert('RGB').save(arquivo)
+                    except:
+                        arquivo = self.path_documentos + f'{counter}_arquivo.'+extensao
+                        pass
 
                 if 'documentoPessoal' in doc:                
                     caminho_xpath = '//*[@id="ddlarquivosRg"]'
 
                     #vai anexar em arquivo de cpf também
-                    if(conta_anexo_cpf == 1):
-                        upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosCpf"]')
-                        upload2.send_keys(arquivo)
-                        conta_anexo_cpf += 1     
+                    if(conta_anexo_cpf == 2):
+                        caminho_xpath = '//*[@id="ddlarquivosCpf"]'
+                        #upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosCpf"]')
+                        #upload2.send_keys(arquivo)
+                        #continue
+
+                    conta_anexo_cpf += 1     
 
                 elif 'COMPROVANTE_DE_CONTA' in doc:
                     caminho_xpath = '//*[@id="ddlarquivosContracheque"]'    
@@ -332,6 +348,8 @@ class InserirContrato(Manager):
                 dados_atualizacao['textoMensagem'] = "Faça a assinatura digital do seu contrato. Ao entrar em sua proposta clique no botão |Assinatura Digital|"
                 dados_atualizacao['linkAssinatura'] = r"https://api.whatsapp.com/send?phone=5511988060603&text=Quero%20assinar%20o%20contrato%20meu%20contrato%20%23"+ade
                 dados_atualizacao['status_con'] = "Em Processo"
+                dados_atualizacao['status_cor_con'] = "Enviado ao banco"
+                dados_atualizacao['liberarDoc'] = 1
 
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
 
