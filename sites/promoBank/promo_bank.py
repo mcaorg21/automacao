@@ -498,7 +498,7 @@ class PromoBank:
 		time.sleep(3)
 		#pdb.set_trace()
 		try:
-			loc_consulta = '//*[text()="Consulta"]'
+			loc_consulta = '//*[@id="topMenu"]/span[3]/div[1]'
 
 			try:
 				self.act.clicar_elemento(loc_consulta, By.XPATH)
