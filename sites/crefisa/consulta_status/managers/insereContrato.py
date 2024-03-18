@@ -1,5 +1,5 @@
 
-import os,time,pdb,re,requests,json,sys,os,platform
+import os,time,pdb,re,requests,json,sys,os,platform,winsound
 
 from selenium.webdriver import Chrome
 from selenium.webdriver.common.by import By
@@ -90,7 +90,11 @@ class InserirContrato(Manager):
 
             headers = {'Cookie': f'{cookies_name}={cookies_value};'}
             response = requests.request("GET", url, headers=headers)
-            
+
+            winsound.Beep(6000, 750)
+            if 'page cannot be displayed' in response.text: 
+                return False
+            pdb.set_trace()
             retorno = json.loads(response.text)
 
             if retorno['erro'] == True:
@@ -302,9 +306,15 @@ class InserirContrato(Manager):
 
             self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)  
 
-            self.remove_div() 
-
-            self.verificar_loading()
+            retorno = self.verificar_loading()
+            if retorno['retorno'] == False:
+                dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                dados_atualizacao['observacao_emp'] = retorno['mensagem']
+                dados_atualizacao['observacao'] = retorno['mensagem']
+                
+                self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                self.remove_div()
+                continue
             print('----------------------------------------------------------------------------------------')
             
             #idPessoa = informacoes['dadosContrato']['idPessoa']
@@ -314,7 +324,6 @@ class InserirContrato(Manager):
 
             counter = 1
             conta_anexo_cpf = 1
-            #array_xpaths = ['//*[@id="ddlarquivosRg"]','//*[@id="ddlarquivosCpf"]','//*[@id="ddlarquivosContracheque"]','//*[@id="ddlarquivosComprovanteResidencia"]', '//*[@id="ddlarquivosExtratoBancario"]','//*[@id="ddlarquivosOutros"]']
             
             for doc in documentos_pessoais:
 
@@ -329,8 +338,8 @@ class InserirContrato(Manager):
                 else:
                     
                     try:
-                        download(doc, self.path_documentos + f'{counter}_arquivo.jpg')
-                        Image.open(self.path_documentos + f'{counter}_arquivo.jpg').convert('RGB').save(arquivo,optimize=True, quality=30)
+                        download(doc, self.path_documentos + f'{counter}_arquivo.'+extensao)
+                        Image.open(self.path_documentos + f'{counter}_arquivo.'+extensao).convert('RGB').save(arquivo,optimize=True, quality=30)
                     except:
                         arquivo = self.path_documentos + f'{counter}_arquivo.'+extensao
                         pass
@@ -419,13 +428,15 @@ class InserirContrato(Manager):
             print('Aguardando Loading...' + str(interacoes))
             time.sleep(0.5)
             interacoes -= 1
-            
+
             if(self.act.quantidade_elemento('//*[@id="swal2-content"]', By.XPATH) == 1):
                 if 'INCLUIDO COM SUCESSO' in self.act.obter_texto('//*[@id="swal2-content"]', By.XPATH):
                     ade = re.findall(r'\d+',self.act.obter_texto('//*[@id="swal2-content"]', By.XPATH))[0]
                     return {'retorno': True, 'mensagem': "Ade gerada com sucesso!", 'ade': ade}
                 if 'Verificação da matrícula. Dados inválidos' in self.act.obter_texto('//*[@id="swal2-content"]', By.XPATH):
                     return {'retorno': False, 'mensagem': "Sua matrícula está inválida! Confirme a nova matrícula.", 'ade': ""}
+                if 'Verificação de dados bancários' in self.act.obter_texto('//*[@id="swal2-content"]', By.XPATH):
+                    return {'retorno': False, 'mensagem': "Conta incorreta favor confirmar.", 'ade': ""}
 
             if(interacoes < -35):
                 self.driver.quit()

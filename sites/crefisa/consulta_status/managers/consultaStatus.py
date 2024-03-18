@@ -88,7 +88,7 @@ class ConsultaStatus(Manager):
 
                 dados_consulta["statusPropostaBanco"] = self.act.obter_texto('/html/body/div[7]/div[2]/div[6]/div/div/table/tbody/tr[1]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
                 dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto('/html/body/div[7]/div[2]/div[6]/div/div/table/tbody/tr[1]/td[6]/ul/li[5]/span[2]/span', By.XPATH).strip()
-                dados_consulta['statusSecundario'] = dados_consulta['observacaoDetalhadaBanco'].split('-')[0].strip()
+                dados_consulta['statusSecundario'] = dados_consulta['observacaoDetalhadaBanco'].split('-')[0].replace("|","").strip()
                 pdb.set_trace()
 
                 self.dados.post_dados_consultados(dados_consulta)                         
