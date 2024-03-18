@@ -93,6 +93,7 @@ class ConsultaStatus(Manager):
 
                 self.dados.post_dados_consultados(dados_consulta)                         
 
+                self.act.clicar_elemento('//*[@id="btnExibirFiltro"]', By.XPATH)
                 
             except Exception as e:
                 print(e)
