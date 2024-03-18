@@ -112,7 +112,7 @@ class InserirContrato(Manager):
                 self.act.press_backspace('//*[@id="cpf"]', metodo = By.XPATH, end = True, loop = 20, delay = 0)
                 self.act.enviar_texto('//*[@id="cpf"]',contrato['cpf_cli'],By.XPATH)
 
-                if(len(informacoes['contrato']['nome']) > 35):
+                if(len(informacoes['contrato']['nome']) > 20):
                     informacoes['contrato']['nome'] = abreviar_nomes_meio(informacoes['contrato']['nome'])
 
                 self.act.enviar_texto('//*[@id="name"]',informacoes['contrato']['nome'],By.XPATH)
@@ -120,6 +120,10 @@ class InserirContrato(Manager):
                 loop_apagar = len(self.act.obter_valor('//*[@id="email"]',By.XPATH))
                 self.act.press_backspace('//*[@id="email"]', metodo = By.XPATH, end = True, loop = loop_apagar, delay = 0)
                 self.act.enviar_texto('//*[@id="email"]',informacoes['contrato']['email'],By.XPATH)
+
+                #reescreve nome em funcao do bug
+                self.act.enviar_texto('//*[@id="name"]',informacoes['contrato']['nome'],By.XPATH)
+
                 self.act.clicar_elemento('//*[@id="phone"]',By.XPATH)  
                 self.aguardar_consulta(1) 
                 self.act.enviar_texto('//*[@id="phone"]',informacoes['contrato']['dddCelular']+informacoes['contrato']['celular'],By.XPATH)
@@ -180,6 +184,8 @@ class InserirContrato(Manager):
 
                 loop_apagar = len(self.act.obter_valor('//*[@id="email"]',By.XPATH))
                 self.act.press_backspace('//*[@id="email"]', metodo = By.XPATH, end = True, loop = loop_apagar, delay = 0)
+
+                self.act.enviar_texto('//*[@id="name"]',informacoes['contrato']['nome'],By.XPATH)
 
                 if "yahoo.com" in informacoes['contrato']['email']:
                     self.act.enviar_texto('//*[@id="email"]',"empfacil@outlook.com",By.XPATH)
