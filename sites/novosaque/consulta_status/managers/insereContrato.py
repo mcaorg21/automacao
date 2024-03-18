@@ -112,7 +112,7 @@ class InserirContrato(Manager):
                 self.act.press_backspace('//*[@id="cpf"]', metodo = By.XPATH, end = True, loop = 20, delay = 0)
                 self.act.enviar_texto('//*[@id="cpf"]',contrato['cpf_cli'],By.XPATH)
 
-                if(informacoes['contrato']['nome'] > 35):
+                if(len(informacoes['contrato']['nome']) > 35):
                     informacoes['contrato']['nome'] = abreviar_nomes_meio(informacoes['contrato']['nome'])
 
                 self.act.enviar_texto('//*[@id="name"]',informacoes['contrato']['nome'],By.XPATH)
