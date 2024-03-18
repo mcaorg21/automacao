@@ -241,3 +241,14 @@ def formatar_cpf_sem_caracteres(cpf):
 
 def similaridade(string1, string2):
     return fuzz.ratio(str(string1), str(string2))
+
+def abreviar_nomes_meio(nome):
+    partes_nome = nome.split()
+    if len(partes_nome) > 2:
+        abreviado = partes_nome[0]
+        for parte in partes_nome[1:-1]:
+            abreviado += " " + parte[0].upper() + "."
+        abreviado += " " + partes_nome[-1]  # Adiciona o último nome completo
+    else:
+        abreviado = nome
+    return abreviado

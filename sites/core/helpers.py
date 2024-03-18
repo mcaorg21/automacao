@@ -40,3 +40,14 @@ def countdown(segundos, step=1, mensagem=''):
         print ('%s %d segundo(s) %s\r' % (mensagem, i, pad_str))
         sys.stdout.flush()
         sleep(step)
+
+def abreviar_nomes_meio(nome):
+    partes_nome = nome.split()
+    if len(partes_nome) > 2:
+        abreviado = partes_nome[0]
+        for parte in partes_nome[1:-1]:
+            abreviado += " " + parte[0].upper() + "."
+        abreviado += " " + partes_nome[-1]  # Adiciona o último nome completo
+    else:
+        abreviado = nome
+    return abreviado

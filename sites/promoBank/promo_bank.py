@@ -53,6 +53,7 @@ class PromoBank:
 		options.add_argument('log-level=3')
 		options.add_argument('--profile-directory=Default')
 		#options.add_argument(f'--window-position={int(screen_width-screen_width/3)},0')
+		options.add_argument(f'--window-size=1300,600')
 
 		options.add_argument(self.chrome_user)
 		
@@ -479,7 +480,6 @@ class PromoBank:
 
 	def selecionar_aba_consulta(self,modo='manual'):
 		print("Recarregando a página!")
-		#pdb.set_trace()
 		try:
 			if(self.selenium_helper.buscar_quantidade_elemento('.logoCRM')==0 and self.selenium_helper.buscar_quantidade_elemento('.panel-body')==0):
 				self.main()
@@ -496,14 +496,14 @@ class PromoBank:
 		# except Exception:
 		# 	return self.selecionar_aba_consulta()
 		time.sleep(3)
-		#pdb.set_trace()
-		try:
-			loc_consulta = '//*[@id="topMenu"]/span[3]/div[1]'
+
+		try:	
+			loc_consulta = '/html/body/div[4]/div[2]/div[1]/div/span[3]/div[1]'
 
 			try:
 				self.act.clicar_elemento(loc_consulta, By.XPATH)
 			except:
-				self.act.clicar_elemento('/html/body/div[3]/div/div[2]/ul/li[4]/a/i[2]', By.XPATH)
+				self.act.clicar_elemento('//*[@id="navbar-container"]/div[2]/ul/li[5]/a/i[2]', By.XPATH)
 				self.act.clicar_elemento(loc_consulta, By.XPATH)
 				pass
 			#pdb.set_trace()

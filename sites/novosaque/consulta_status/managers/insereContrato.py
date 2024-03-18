@@ -3,7 +3,7 @@ from selenium.webdriver import Chrome
 from sites.baseRobos.manager import Manager
 from sites.baseRobos.core.selenium_helper import SeleniumHelper
 from sites.baseRobos.core.selenium_actions import SeleniumActions
-from sites.baseRobos.core.data_helpers import formatar_moeda,formatar_cpf_sem_caracteres,formatar_data_banco_dados
+from sites.baseRobos.core.data_helpers import formatar_moeda,formatar_cpf_sem_caracteres,formatar_data_banco_dados,abreviar_nomes_meio
 from sites.baseRobos.core.uconecte import Uconecte
 from sites.baseRobos.core.data_helpers import similaridade
 
@@ -111,6 +111,10 @@ class InserirContrato(Manager):
                 
                 self.act.press_backspace('//*[@id="cpf"]', metodo = By.XPATH, end = True, loop = 20, delay = 0)
                 self.act.enviar_texto('//*[@id="cpf"]',contrato['cpf_cli'],By.XPATH)
+
+                if(informacoes['contrato']['nome'] > 35):
+                    informacoes['contrato']['nome'] = abreviar_nomes_meio(informacoes['contrato']['nome'])
+
                 self.act.enviar_texto('//*[@id="name"]',informacoes['contrato']['nome'],By.XPATH)
 
                 loop_apagar = len(self.act.obter_valor('//*[@id="email"]',By.XPATH))
