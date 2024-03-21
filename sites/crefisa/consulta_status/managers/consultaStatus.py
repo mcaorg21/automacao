@@ -58,13 +58,6 @@ class ConsultaStatus(Manager):
 
         self.chrome_driver.get(self.urls["consulta"])
 
-        if(self.driver.find_element(By.CSS_SELECTOR,"#chkNaoExibeCancelado").is_selected() == True):
-            self.act.clicar_elemento('//*[@id="chkNaoExibeCancelado"]', By.XPATH)
-        
-        if(self.driver.find_element(By.CSS_SELECTOR,"#chkNaoExibeRecebido").is_selected() == True):
-            self.act.clicar_elemento('//*[@id="chkNaoExibeRecebido"]', By.XPATH)
-
-
         for cnt, proposta in enumerate(status_a_consultar, 1):
             print(f"[{cnt}]Fila Consulta Status")
 
@@ -74,26 +67,61 @@ class ConsultaStatus(Manager):
 
                 ade, cpf_bd = proposta[0], proposta[1]
                 cod_con = proposta[2]
-                dados_consulta = {}
+                self.dados_consulta = {}
 
-                dados_consulta['ade'] = ade
-                dados_consulta["codigoCon"] = cod_con
+                self.dados_consulta['ade'] = ade
+                self.dados_consulta["codigoCon"] = cod_con
 
-                print(dados_consulta)        
+                print(self.dados_consulta)        
 
-                self.act.enviar_texto('//*[@id="txtNumeroAde"]', ade, By.XPATH)
-                self.act.clicar_elemento('//*[@id="btnBuscaContratos"]', By.XPATH)
+                self.limpar_busca()
 
-                self.verificar_loading()
+                self.buscar_contrato(cpf_bd, "cpf", False)
 
-                dados_consulta["statusPropostaBanco"] = self.act.obter_texto('/html/body/div[7]/div[2]/div[6]/div/div/table/tbody/tr[1]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
-                dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto('/html/body/div[7]/div[2]/div[6]/div/div/table/tbody/tr[1]/td[6]/ul/li[5]/span[2]/span', By.XPATH).strip()
-                dados_consulta['statusSecundario'] = dados_consulta['observacaoDetalhadaBanco'].split('-')[0].replace("|","").strip()
-                pdb.set_trace()
+                self.dados_consulta['novaAde'] = ""
 
-                self.dados.post_dados_consultados(dados_consulta)                         
+                if(self.act.quantidade_elemento('/html/body/div[6]/div[2]/div[6]/div/div/table/tbody/tr', By.XPATH) >= 4):
 
-                self.act.clicar_elemento('//*[@id="btnExibirFiltro"]', By.XPATH)
+                    indice = str(int(self.act.quantidade_elemento('/html/body/div[6]/div[2]/div[6]/div/div/table/tbody/tr', By.XPATH))-1) 
+
+                    if self.act.quantidade_elemento('/html/body/div[6]/div[2]/div[6]/div/div/table/tbody/tr', By.XPATH) == 4:
+                        novo_contrato = self.act.obter_texto(f'/html/body/div[6]/div[2]/div[6]/div/div/table/tbody/tr[1]/td[4]/div/a[2]', By.XPATH).strip()
+                        if novo_contrato == "":
+                            indice = 1
+
+                    if(self.act.obter_texto(f'/html/body/div[6]/div[2]/div[6]/div/div/table/tbody/tr[{indice}]/td[4]/div/a[2]', By.XPATH).strip() == ""):
+
+                        self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[6]/div[2]/div[6]/div/div/table/tbody/tr[{indice}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
+                        self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[6]/div[2]/div[6]/div/div/table/tbody/tr[{indice}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
+                        self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[6]/div[2]/div[6]/div/div/table/tbody/tr[{indice}]/td[6]/ul/li[6]/a', By.XPATH).strip()
+                        self.dados_consulta['novaAde'] = self.act.obter_texto(f'/html/body/div[6]/div[2]/div[6]/div/div/table/tbody/tr[{indice}]/td[4]/div/a[1]', By.XPATH)
+
+                    else:
+                       
+                        self.buscar_contrato(ade)
+                        self.buscar_status()
+
+                else:
+                    
+                    self.buscar_status()
+
+                
+               
+
+                if ('PAGO' in self.dados_consulta["statusPropostaBanco"] or 'APROVADO' in self.dados_consulta["statusPropostaBanco"]) and 'EM ANDAMENTO' in self.dados_consulta["statusSecundario"]:
+                    self.dados_consulta['statusSecundario'] += " "+self.act.obter_texto(f'/html/body/div[6]/div[2]/div[6]/div/div/table/tbody/tr[{indice}]/td[4]', By.XPATH).replace('\n',"").split("Liberado")[1]
+
+                self.dados.post_dados_consultados(self.dados_consulta)    
+
+                try:          
+
+                    self.act.clicar_elemento('//*[@id="btnExibirFiltro"]', By.XPATH)
+                    self.act.enviar_texto('//*[@id="txtNumeroAde"]', "", By.XPATH)
+                    self.act.enviar_texto('//*[@id="txtCpf"]', "", By.XPATH)
+
+                except:
+                    pdb.set_trace()
+                    pass
                 
             except Exception as e:
                 print(e)
@@ -109,11 +137,51 @@ class ConsultaStatus(Manager):
         self.dados.api_registrar_log_robo(log="Sincronizado com sucesso.",status=2)
 
 
+    def limpar_busca(self):
+        self.act.clicar_elemento('//*[@id="btnLimparFiltro"]', By.XPATH)
+
+        if(self.driver.find_element(By.CSS_SELECTOR,"#chkNaoExibeCancelado").is_selected() == True):
+            self.act.clicar_elemento('//*[@id="chkNaoExibeCancelado"]', By.XPATH)
+        
+        if(self.driver.find_element(By.CSS_SELECTOR,"#chkNaoExibeRecebido").is_selected() == True):
+            self.act.clicar_elemento('//*[@id="chkNaoExibeRecebido"]', By.XPATH)
+
+    def buscar_contrato(self, var, tipo = "ade", clicar_voltar = True):
+
+        if clicar_voltar == True:
+            self.act.clicar_elemento('//*[@id="btnExibirFiltro"]', By.XPATH)
+
+        if tipo == "ade":
+            self.aguardar_consulta(2)
+            self.act.enviar_texto('//*[@id="txtCpf"]', "", By.XPATH)
+            self.act.enviar_texto('//*[@id="txtNumeroAde"]', var, By.XPATH)
+            
+
+        if tipo == "cpf":
+            self.act.enviar_texto('//*[@id="txtNumeroAde"]', "", By.XPATH)
+            self.act.enviar_texto('//*[@id="txtCpf"]', var, By.XPATH)
+
+        self.act.clicar_elemento('//*[@id="btnBuscaContratos"]', By.XPATH)
+
+        self.verificar_loading()
+
+    def buscar_status(self, indice = 1):
+        try:
+            self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[6]/div[2]/div[6]/div/div/table/tbody/tr[{indice}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
+            self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[6]/div[2]/div[6]/div/div/table/tbody/tr[{indice}]/td[6]/ul/li[5]/span[2]/span', By.XPATH).strip()
+            self.dados_consulta['statusSecundario'] = self.dados_consulta['observacaoDetalhadaBanco'].split('|')[0].replace("|","").strip()
+                        
+        except:
+            self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[7]/div[2]/div[6]/div/div/table/tbody/tr[{indice}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
+            self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[7]/div[2]/div[6]/div/div/table/tbody/tr[{indice}/td[6]/ul/li[5]/span[2]/span', By.XPATH).strip()
+            self.dados_consulta['statusSecundario'] = self.dados_consulta['observacaoDetalhadaBanco'].split('-')[0].replace("|","").strip()
+
     def aguardar_consulta(self,segundos = 3):
         time.sleep(segundos)
 
 
     def verificar_loading(self, interacoes=300, aguardar = False):
+        self.aguardar_consulta(0.8)
         while (self.act.quantidade_elemento('/html/body/div[9]', By.XPATH) == 1):
             print('Aguardando Loading...' + str(interacoes))
             time.sleep(0.5)

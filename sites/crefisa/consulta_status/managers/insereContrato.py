@@ -92,9 +92,18 @@ class InserirContrato(Manager):
             response = requests.request("GET", url, headers=headers)
 
             winsound.Beep(6000, 750)
+
             if 'page cannot be displayed' in response.text: 
                 return False
-            pdb.set_trace()
+
+            print(response.text)
+
+            if 'Message' in json.loads(response.text):
+                if 'Authorization has been denied for this request.' in json.loads(response.text)['Message']:
+                    pdb.set_trace()
+                    self.driver.quit()
+
+
             retorno = json.loads(response.text)
 
             if retorno['erro'] == True:
@@ -147,7 +156,7 @@ class InserirContrato(Manager):
             #             arquivo = self.path_documentos + f'{counter}_arquivo.'+extensao
             #             pass
             # ######################################################################################
-            # pdb.set_trace()
+            #pdb.set_trace()
             if pontuacao < 8:
                 print('CPF aprovado, mas documentos estão incompletos...')
                 dados_atualizacao['mensagem'] = 'Pendente Documentacao'
@@ -205,17 +214,17 @@ class InserirContrato(Manager):
             self.act.enviar_texto('//*[@id="txtMatricula"]', informacoes['contrato']['matricula'][0:-1], By.XPATH)
             self.act.enviar_texto('//*[@id="txtDigito"]', informacoes['contrato']['matricula'][-1], By.XPATH)
             print('----------------------------------------------------------------------------------------')
-            
+            #pdb.set_trace()
             print('Preenchendo renda')
             self.act.enviar_texto('//*[@id="txtValorRendaLiquida"]', informacoes['contrato']['renda'], By.XPATH)
             print('----------------------------------------------------------------------------------------')
 
             print('Preenchendo calculo por parcela e valor da parcela')
-            try:
-                self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[6]/div[2]/div/div/button', By.XPATH)
-                self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[6]/div[2]/div/div/div/ul/li[1]/a/span[1]', By.XPATH)
-            except:
-                pass
+            # try:
+            #     self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[6]/div[2]/div/div/button', By.XPATH)
+            #     self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[6]/div[2]/div/div/div/ul/li[1]/a/span[1]', By.XPATH)
+            # except:
+            #     pass
 
             self.act.select_drop_down('//*[@id="txtTipoValorContrato"]','1', By.XPATH)
 
@@ -267,7 +276,8 @@ class InserirContrato(Manager):
 
             switch = {'CASADO(A)': '1','SOLTEIRO(A)':'2','DIVORCIADO(A)': '3','VIÚVO(A)': '4'}        
             codigoEstadoCivil = switch.get(informacoes['contrato']['estadoCivil'].replace(" ","").upper(), '2')
-            self.act.select_drop_down('/html/body/div[7]/div/div[2]/div/div[2]/div[4]/div[2]/select',codigoEstadoCivil, By.XPATH)
+            
+            self.act.select_drop_down('//*[@id="ddlEstadoCivil"]', codigoEstadoCivil, By.XPATH)
             self.act.select_drop_down('//*[@id="txtEscolaridade"]','2', By.XPATH)
             self.act.enviar_texto('//*[@id="txtNomeMae"]',informacoes['contrato']['nomeMae'], By.XPATH)
             self.act.select_drop_down('//*[@id="txtCanalDivulgacao"]','419', By.XPATH)
@@ -286,10 +296,20 @@ class InserirContrato(Manager):
             self.act.enviar_texto('//*[@id="txtContaCorrente"]',informacoes['contrato']['numeroConta'], By.XPATH)
             self.act.enviar_texto('//*[@id="txtDigitoConta"]',informacoes['contrato']['digitoConta'], By.XPATH)
             print('----------------------------------------------------------------------------------------')        
-            
-            self.remove_div()
 
-            print('Finalizando Contrato')
+            retorno = self.verificar_loading()
+
+            if retorno['retorno'] == False:
+                dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                dados_atualizacao['observacao_emp'] = retorno['mensagem']
+                dados_atualizacao['observacao'] = retorno['mensagem']
+                
+                self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                self.remove_div()
+                continue
+
+            print('Finalizando dados Pessoais do Contrato')
+
             if(self.driver.find_element(By.CSS_SELECTOR,"#chkAutorizaSms").is_selected() == False):
                 self.act.clicar_elemento('//*[@id="chkAutorizaSms"]', By.XPATH)
 
@@ -306,7 +326,9 @@ class InserirContrato(Manager):
 
             self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)  
 
+            #pdb.set_trace()
             retorno = self.verificar_loading()
+
             if retorno['retorno'] == False:
                 dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                 dados_atualizacao['observacao_emp'] = retorno['mensagem']
@@ -315,6 +337,7 @@ class InserirContrato(Manager):
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                 self.remove_div()
                 continue
+
             print('----------------------------------------------------------------------------------------')
             
             #idPessoa = informacoes['dadosContrato']['idPessoa']
@@ -339,7 +362,7 @@ class InserirContrato(Manager):
                     
                     try:
                         download(doc, self.path_documentos + f'{counter}_arquivo.'+extensao)
-                        Image.open(self.path_documentos + f'{counter}_arquivo.'+extensao).convert('RGB').save(arquivo,optimize=True, quality=30)
+                        Image.open(self.path_documentos + f'{counter}_arquivo.'+extensao).convert('RGB').save(arquivo,optimize=True, quality=10)
                     except:
                         arquivo = self.path_documentos + f'{counter}_arquivo.'+extensao
                         pass
@@ -387,6 +410,8 @@ class InserirContrato(Manager):
             self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[2]/div[3]/div/button[2]', By.XPATH)  
                  
             retorno = self.verificar_loading()
+
+            
             
             if retorno['retorno'] == True  and retorno['ade'] != "":
                 deleta_todos_arquivos(self.path_documentos)
@@ -403,10 +428,30 @@ class InserirContrato(Manager):
 
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
 
+                print(f'VVVVV Contrato gerado com sucesso! Ade {retorno['ade']} VVVVV')
+                print('--------------------------------------------------------------')
+
             else:
-                print("XXXXXXXXXXXXXXXXXXx ERRO PROCURA DA ADE ########################")
                 pdb.set_trace()
-                #continue
+                try:
+                    ade = re.findall(r'\d+',self.act.obter_texto('//*[@id="swal2-content"]', By.XPATH))[0]
+                    if(ade):
+                        deleta_todos_arquivos(self.path_documentos)
+                        self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown > div > div.swal2-actions > button.swal2-confirm.swal2-styled").click()""")
+
+                        dados_atualizacao['mensagem'] = 'Aguardando Gerar Contrato'
+                        dados_atualizacao['valorContrato'] = formatar_moeda(str_valor.split(" ")[1])
+                        dados_atualizacao['ade'] = retorno['ade']
+                        dados_atualizacao['textoMensagem'] = "Faça a assinatura digital do seu contrato. Ao entrar em sua proposta clique no botão |Assinatura Digital|"
+                        dados_atualizacao['linkAssinatura'] = r"https://api.whatsapp.com/send?phone=5511988060603&text=Quero%20assinar%20o%20contrato%20meu%20contrato%20%23"+retorno['ade']
+                        dados_atualizacao['status_con'] = "Em Processo"
+                        dados_atualizacao['status_cor_con'] = "Enviado ao banco"
+                        dados_atualizacao['liberarDoc'] = 1
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                except:
+                    print("XXXXXXXXXXXXXXXXXXx ERRO PROCURA DA ADE ########################")
+                    pdb.set_trace()
+                    #continue
 
 
     def aguardar_consulta(self,segundos = 3):
@@ -424,19 +469,30 @@ class InserirContrato(Manager):
 
 
     def verificar_loading(self, interacoes=300, aguardar = False):
-        while (self.act.quantidade_elemento('/html/body/div[9]', By.XPATH) == 1):
+        time.sleep(1)
+
+        while (self.act.quantidade_elemento('/html/body/div[8]', By.XPATH) == 1 or self.act.quantidade_elemento('//*[@id="swal2-content"]', By.XPATH) == 1):
             print('Aguardando Loading...' + str(interacoes))
             time.sleep(0.5)
             interacoes -= 1
 
             if(self.act.quantidade_elemento('//*[@id="swal2-content"]', By.XPATH) == 1):
-                if 'INCLUIDO COM SUCESSO' in self.act.obter_texto('//*[@id="swal2-content"]', By.XPATH):
+
+                mensagem = self.act.obter_texto('//*[@id="swal2-content"]', By.XPATH)
+                
+                if 'INCLUIDO COM SUCESSO' in mensagem:
                     ade = re.findall(r'\d+',self.act.obter_texto('//*[@id="swal2-content"]', By.XPATH))[0]
                     return {'retorno': True, 'mensagem': "Ade gerada com sucesso!", 'ade': ade}
-                if 'Verificação da matrícula. Dados inválidos' in self.act.obter_texto('//*[@id="swal2-content"]', By.XPATH):
+                
+                elif 'Verificação da matrícula. Dados inválidos' in mensagem:
                     return {'retorno': False, 'mensagem': "Sua matrícula está inválida! Confirme a nova matrícula.", 'ade': ""}
-                if 'Verificação de dados bancários' in self.act.obter_texto('//*[@id="swal2-content"]', By.XPATH):
+                
+                elif 'Verificação de dados bancários' in mensagem:
                     return {'retorno': False, 'mensagem': "Conta incorreta favor confirmar.", 'ade': ""}
+
+                else:
+                    return {'retorno': False, 'mensagem': mensagem, 'ade': ""}
+
 
             if(interacoes < -35):
                 self.driver.quit()
