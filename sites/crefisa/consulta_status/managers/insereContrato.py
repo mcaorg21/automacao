@@ -91,7 +91,7 @@ class InserirContrato(Manager):
             headers = {'Cookie': f'{cookies_name}={cookies_value};'}
             response = requests.request("GET", url, headers=headers)
 
-            winsound.Beep(6000, 750)
+            #winsound.Beep(6000, 750)
 
             if 'page cannot be displayed' in response.text: 
                 return False
@@ -295,7 +295,7 @@ class InserirContrato(Manager):
             print('Preenchendo dados conta bancária')
             self.act.enviar_texto('//*[@id="txtContaCorrente"]',informacoes['contrato']['numeroConta'], By.XPATH)
             self.act.enviar_texto('//*[@id="txtDigitoConta"]',informacoes['contrato']['digitoConta'], By.XPATH)
-            print('----------------------------------------------------------------------------------------')        
+            print('----------------------------------------------------------------------------------------')    
 
             retorno = self.verificar_loading()
 
@@ -303,7 +303,7 @@ class InserirContrato(Manager):
                 dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                 dados_atualizacao['observacao_emp'] = retorno['mensagem']
                 dados_atualizacao['observacao'] = retorno['mensagem']
-                
+
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                 self.remove_div()
                 continue
@@ -333,6 +333,9 @@ class InserirContrato(Manager):
                 dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                 dados_atualizacao['observacao_emp'] = retorno['mensagem']
                 dados_atualizacao['observacao'] = retorno['mensagem']
+
+                if 'Conta incorreta' in retorno['mensagem']:
+                    dados_atualizacao['status_con'] = "Aguardando Comercial"
                 
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                 self.remove_div()
