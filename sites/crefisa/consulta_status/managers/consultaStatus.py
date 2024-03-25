@@ -13,6 +13,10 @@ from sites.crefisa.consulta_status.data.dados_consulta_status import DadosConsul
 
 from selenium.webdriver.common.by import By
 
+from sites.crefisa.libs.FormLogin import FormLogin
+from dados.database.queries.query_dados_robos import query_login_pass_robo
+
+
 HORARIO_COMERCIAL = 8, 20
 
 
@@ -29,6 +33,8 @@ class ConsultaStatus(Manager):
         self.dados: DadosConsultaStatus = DadosConsultaStatus()
         self.sh = SeleniumHelper(self.chrome_driver)
         self.act = SeleniumActions(self.chrome_driver)
+        self.id_robo = '691'
+        self.usuario = '50801.06050694680'
 
     @classmethod
     def iniciar_horario_comercial(cls, driver: Chrome):
@@ -126,10 +132,20 @@ class ConsultaStatus(Manager):
             except Exception as e:
                 print(e)
 
-                self.dados.api_registrar_log_robo(
-                    log=f"ERRO: {e}",
-                    status=0
-                )
+                if self.act.quantidade_elemento('//*[@id="txtUsuario"]', By.XPATH) == 1:
+                    pdb.set_trace()
+                    print("XX DESLOGADO XX")
+                    dados_login = query_login_pass_robo(self.id_robo, self.usuario)
+                    login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'])
+                    self.chrome_driver.get(self.urls["consulta"])
+                    self.limpar_busca()
+
+                else:
+
+                    self.dados.api_registrar_log_robo(
+                        log=f"ERRO: {e}",
+                        status=0
+                    )
 
                 continue
 
