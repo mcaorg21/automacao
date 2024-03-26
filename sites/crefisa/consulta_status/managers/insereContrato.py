@@ -1,5 +1,6 @@
 
-import os,time,pdb,re,requests,json,sys,os,platform,winsound
+import os,time,pdb,re,requests,json,sys,os,platform
+#winsound
 
 from selenium.webdriver import Chrome
 from selenium.webdriver.common.by import By
@@ -431,7 +432,7 @@ class InserirContrato(Manager):
 
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
 
-                print(f'VVVVV Contrato gerado com sucesso! Ade {retorno['ade']} VVVVV')
+                print(f'VVVVV Contrato gerado com sucesso! Ade {retorno["ade"]} VVVVV')
                 print('--------------------------------------------------------------')
 
             else:
