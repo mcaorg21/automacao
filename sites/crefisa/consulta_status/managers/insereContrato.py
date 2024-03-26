@@ -43,10 +43,10 @@ class InserirContrato(Manager):
         self.atualiza = Uconecte()
         self.request_get = APIDataSource()
 
-        self.path_documentos = sys.path[0]+'\\sites\\crefisa\\documentos\\'
+        self.path_documentos = sys.path[0]+'/sites/crefisa/documentos/'
 
         if 'Windows' in platform.system():
-            self.path_documentos = sys.path[0]+'//sites/crefisa/documentos/'
+            self.path_documentos = sys.path[0]+'/sites/crefisa/documentos/'
 
     @classmethod
     def iniciar_horario_comercial(cls, driver: Chrome):
