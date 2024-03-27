@@ -90,6 +90,8 @@ class ConsultaStatus(Manager):
                 if(self.act.quantidade_elemento(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody', By.XPATH) == 0):
                     self.div = div = '6'
 
+                self.aguardar_consulta()
+
                 linhas_tr = self.act.quantidade_elemento(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr', By.XPATH)
 
                 print('Verificando se possui contrato aprovado...')
