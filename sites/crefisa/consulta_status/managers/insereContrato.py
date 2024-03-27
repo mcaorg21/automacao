@@ -43,7 +43,7 @@ class InserirContrato(Manager):
         self.atualiza = Uconecte()
         self.request_get = APIDataSource()
 
-        self.path_documentos = sys.path[0]+'/sites/crefisa/documentos/'
+        self.path_documentos = sys.path[0]+'/documentos/'
 
         if 'Windows' in platform.system():
             self.path_documentos = sys.path[0]+'/sites/crefisa/documentos/'
@@ -101,9 +101,7 @@ class InserirContrato(Manager):
 
             if 'Message' in json.loads(response.text):
                 if 'Authorization has been denied for this request.' in json.loads(response.text)['Message']:
-                    pdb.set_trace()
                     self.driver.quit()
-
 
             retorno = json.loads(response.text)
 
@@ -165,7 +163,11 @@ class InserirContrato(Manager):
                 print('----------------------------------------------------------------------------------------')
                 continue
 
-            deleta_todos_arquivos(self.path_documentos)         
+            #pdb.set_trace()
+            try:
+                deleta_todos_arquivos(self.path_documentos)
+            except:
+                pass   
 
             print("Preenchendo primeiro fomulario de aceitacao...")
             self.act.enviar_texto('//*[@id="txtCpfSimulacao"]', informacoes['contrato']['cpf'], By.XPATH)
