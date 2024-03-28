@@ -43,7 +43,7 @@ class InserirContrato(Manager):
         self.atualiza = Uconecte()
         self.request_get = APIDataSource()
 
-        self.path_documentos = sys.path[0]+'/documentos/'
+        self.path_documentos = sys.path[0]+'/sites/crefisa/documentos/'
 
         if 'Windows' in platform.system():
             self.path_documentos = sys.path[0]+'/sites/crefisa/documentos/'
@@ -74,6 +74,9 @@ class InserirContrato(Manager):
 
         for contrato in contratos['contratos']:
             dados_atualizacao = {}
+            dados_atualizacao['mensagem'] = 'Inserir contrato'
+            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+
 
             informacoes = self.dados.get_informacoes_contrato(contrato['codigo_con']) 
             self.chrome_driver.get(self.urls["insercao"]) 
@@ -93,17 +96,20 @@ class InserirContrato(Manager):
             response = requests.request("GET", url, headers=headers)
 
             #winsound.Beep(6000, 750)
-
             if 'page cannot be displayed' in response.text: 
                 return False
 
             print(response.text)
+            try:
+                if 'Message' in json.loads(response.text):
+                    if 'Authorization has been denied for this request.' in json.loads(response.text)['Message']:
+                        self.driver.quit()
 
-            if 'Message' in json.loads(response.text):
-                if 'Authorization has been denied for this request.' in json.loads(response.text)['Message']:
-                    self.driver.quit()
-
-            retorno = json.loads(response.text)
+            
+                retorno = json.loads(response.text)
+            except:
+                print('XXXXXXXXXXXXXXXXXXXXX Erro na consulta do JSON XXXXXXXXXXXXXXXXXXXXX')
+                continue
 
             if retorno['erro'] == True:
                 return False
@@ -168,6 +174,8 @@ class InserirContrato(Manager):
                 deleta_todos_arquivos(self.path_documentos)
             except:
                 pass   
+
+
 
             print("Preenchendo primeiro fomulario de aceitacao...")
             self.act.enviar_texto('//*[@id="txtCpfSimulacao"]', informacoes['contrato']['cpf'], By.XPATH)
@@ -438,26 +446,38 @@ class InserirContrato(Manager):
                 print('--------------------------------------------------------------')
 
             else:
-                pdb.set_trace()
-                try:
-                    ade = re.findall(r'\d+',self.act.obter_texto('//*[@id="swal2-content"]', By.XPATH))[0]
-                    if(ade):
-                        deleta_todos_arquivos(self.path_documentos)
-                        self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown > div > div.swal2-actions > button.swal2-confirm.swal2-styled").click()""")
+                retorno = self.verificar_loading()
+                if retorno['retorno'] == False:
+                    print('XXXXXXXXXXXXXXXXXXXXX ERRO AO GERAR ADE XXXXXXXXXXXXXXXXXXXXX')
+                    dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                    dados_atualizacao['observacao_emp'] = retorno['mensagem']
+                    dados_atualizacao['observacao'] = retorno['mensagem']
+                    dados_atualizacao['status_con'] = "Aguardando Comercial"
+                    
+                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                    self.remove_div()
+                    continue
 
-                        dados_atualizacao['mensagem'] = 'Aguardando Gerar Contrato'
-                        dados_atualizacao['valorContrato'] = formatar_moeda(str_valor.split(" ")[1])
-                        dados_atualizacao['ade'] = retorno['ade']
-                        dados_atualizacao['textoMensagem'] = "Faça a assinatura digital do seu contrato. Ao entrar em sua proposta clique no botão |Assinatura Digital|"
-                        dados_atualizacao['linkAssinatura'] = r"https://api.whatsapp.com/send?phone=5511988060603&text=Quero%20assinar%20o%20contrato%20meu%20contrato%20%23"+retorno['ade']
-                        dados_atualizacao['status_con'] = "Em Processo"
-                        dados_atualizacao['status_cor_con'] = "Enviado ao banco"
-                        dados_atualizacao['liberarDoc'] = 1
-                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
-                except:
-                    print("XXXXXXXXXXXXXXXXXXx ERRO PROCURA DA ADE ########################")
-                    pdb.set_trace()
-                    #continue
+
+                # try:
+                #     ade = re.findall(r'\d+',self.act.obter_texto('//*[@id="swal2-content"]', By.XPATH))[0]
+                #     if(ade):
+                #         deleta_todos_arquivos(self.path_documentos)
+                #         self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown > div > div.swal2-actions > button.swal2-confirm.swal2-styled").click()""")
+
+                #         dados_atualizacao['mensagem'] = 'Aguardando Gerar Contrato'
+                #         dados_atualizacao['valorContrato'] = formatar_moeda(str_valor.split(" ")[1])
+                #         dados_atualizacao['ade'] = retorno['ade']
+                #         dados_atualizacao['textoMensagem'] = "Faça a assinatura digital do seu contrato. Ao entrar em sua proposta clique no botão |Assinatura Digital|"
+                #         dados_atualizacao['linkAssinatura'] = r"https://api.whatsapp.com/send?phone=5511988060603&text=Quero%20assinar%20o%20contrato%20meu%20contrato%20%23"+retorno['ade']
+                #         dados_atualizacao['status_con'] = "Em Processo"
+                #         dados_atualizacao['status_cor_con'] = "Enviado ao banco"
+                #         dados_atualizacao['liberarDoc'] = 1
+                #         self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                # except:
+                #     print("XXXXXXXXXXXXXXXXXXx ERRO PROCURA DA ADE ########################")
+                #     pdb.set_trace()
+                #     #continue
 
 
     def aguardar_consulta(self,segundos = 3):
