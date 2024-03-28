@@ -247,7 +247,7 @@ def abreviar_nomes_meio(nome):
     if len(partes_nome) > 2:
         abreviado = partes_nome[0]
         for parte in partes_nome[1:-1]:
-            abreviado += " " + parte[0].upper() + "."
+            abreviado += " " + parte[0].upper() + ""
         abreviado += " " + partes_nome[-1]  # Adiciona o último nome completo
     else:
         abreviado = nome
