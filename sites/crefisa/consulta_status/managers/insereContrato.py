@@ -43,7 +43,7 @@ class InserirContrato(Manager):
         self.atualiza = Uconecte()
         self.request_get = APIDataSource()
 
-        self.path_documentos = sys.path[0]+'/sites/crefisa/documentos/'
+        self.path_documentos = sys.path[0]+'/documentos/'
 
         if 'Windows' in platform.system():
             self.path_documentos = sys.path[0]+'/sites/crefisa/documentos/'
@@ -361,7 +361,7 @@ class InserirContrato(Manager):
 
             counter = 1
             conta_anexo_cpf = 1
-            
+            #pdb.set_trace()
             for doc in documentos_pessoais:
 
                 if 'COMPROVANTE_ENDERECO' in doc:
