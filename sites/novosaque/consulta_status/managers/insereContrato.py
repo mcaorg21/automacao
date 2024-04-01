@@ -125,7 +125,7 @@ class InserirContrato(Manager):
                 self.act.enviar_texto('//*[@id="name"]',informacoes['contrato']['nome'],By.XPATH)
 
                 self.act.clicar_elemento('//*[@id="phone"]',By.XPATH)  
-                self.aguardar_consulta(1) 
+                self.aguardar_consulta(2) 
                 self.act.enviar_texto('//*[@id="phone"]',informacoes['contrato']['dddCelular']+informacoes['contrato']['celular'],By.XPATH)
 
                 self.act.clicar_elemento('//*[@id="phone_store"]',By.XPATH)  
