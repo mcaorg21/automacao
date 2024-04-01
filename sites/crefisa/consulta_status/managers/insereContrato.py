@@ -125,8 +125,8 @@ class InserirContrato(Manager):
                         continue
                 else:
                     continue
-
-            if retorno['erro'] == True:
+            
+            if 'erro' in retorno and retorno['erro'] == True:
                 return False
 
             if 'objeto' in retorno and retorno['objeto']['permiteCaptura'] == False:
