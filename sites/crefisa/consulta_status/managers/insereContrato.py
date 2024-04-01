@@ -86,30 +86,45 @@ class InserirContrato(Manager):
             cookies_name = ""
             cookies_value = ""
 
-            for i in self.driver.get_cookies():
-                if 'SESSION' in i['name']:
-                    cookies_name = i['name']
-                    cookies_value = i['value']
-                    break
+            #for i in self.driver.get_cookies():
+            #    if 'SESSION' in i['name']:
+            #        cookies_name = i['name']
+            #        cookies_value = i['value']
+            #        break
 
-            headers = {'Cookie': f'{cookies_name}={cookies_value};'}
-            response = requests.request("GET", url, headers=headers)
+            #headers = {'Cookie': f'{cookies_name}={cookies_value};'}
+            #response = requests.request("GET", url, headers=headers)
 
             #winsound.Beep(6000, 750)
             if 'page cannot be displayed' in response.text: 
                 return False
 
             print(response.text)
-            try:
-                if 'Message' in json.loads(response.text):
-                    if 'Authorization has been denied for this request.' in json.loads(response.text)['Message']:
-                        self.driver.quit()
+            for i in self.driver.get_cookies(): 
+                if 'SESSION' in i['name']:
+                    cookies_name = i['name']
+                    cookies_value = i['value']
 
-            
-                retorno = json.loads(response.text)
-            except:
-                print('XXXXXXXXXXXXXXXXXXXXX Erro na consulta do JSON XXXXXXXXXXXXXXXXXXXXX')
-                continue
+                    try:
+                        if 'Message' in json.loads(response.text):
+                            if 'Authorization has been denied for this request.' in json.loads(response.text)['Message']:
+                                self.driver.quit()
+                    
+                        retorno = json.loads(response.text)
+                        headers = {'Cookie': f'{cookies_name}={cookies_value};'}
+                        response = requests.request("GET", url, headers=headers)
+
+                        if 'page cannot be displayed' in response.text: 
+                            return False
+
+                    except:
+                        print('XXXXXXXXXXXXXXXXXXXXX Erro na consulta do JSON XXXXXXXXXXXXXXXXXXXXX')
+
+                        continue
+                else:
+                    continue
+
+            pdb.set_trce()
 
             if retorno['erro'] == True:
                 return False
