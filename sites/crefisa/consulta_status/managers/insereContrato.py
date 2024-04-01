@@ -129,7 +129,7 @@ class InserirContrato(Manager):
             if retorno['erro'] == True:
                 return False
 
-            if retorno['objeto']['permiteCaptura'] == False:
+            if 'objeto' in retorno and retorno['objeto']['permiteCaptura'] == False:
                 dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
                 dados_atualizacao['erro'] = retorno['objeto']['mensagem']
                 dados_atualizacao['observacao'] = retorno['objeto']['mensagem']

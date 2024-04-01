@@ -102,6 +102,7 @@ class Main:
         ConsultaStatus.iniciar_horario_comercial(self.driver)
 
         print('Aguardando 10 minutos para reiniciar...')
+        self.driver.delete_all_cookies()
         self.driver.quit()
         sleep(600)
         Main().main()
