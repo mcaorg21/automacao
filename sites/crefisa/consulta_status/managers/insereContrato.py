@@ -96,23 +96,25 @@ class InserirContrato(Manager):
             #response = requests.request("GET", url, headers=headers)
 
             #winsound.Beep(6000, 750)
-            if 'page cannot be displayed' in response.text: 
-                return False
+            #if 'page cannot be displayed' in response.text: 
+            #    return False
 
-            print(response.text)
+            #print(response.text)
             for i in self.driver.get_cookies(): 
                 if 'SESSION' in i['name']:
                     cookies_name = i['name']
                     cookies_value = i['value']
 
                     try:
+                        headers = {'Cookie': f'{cookies_name}={cookies_value};'}
+                        response = requests.request("GET", url, headers=headers)
+
                         if 'Message' in json.loads(response.text):
                             if 'Authorization has been denied for this request.' in json.loads(response.text)['Message']:
                                 self.driver.quit()
                     
                         retorno = json.loads(response.text)
-                        headers = {'Cookie': f'{cookies_name}={cookies_value};'}
-                        response = requests.request("GET", url, headers=headers)
+                        break
 
                         if 'page cannot be displayed' in response.text: 
                             return False
@@ -123,8 +125,6 @@ class InserirContrato(Manager):
                         continue
                 else:
                     continue
-
-            pdb.set_trce()
 
             if retorno['erro'] == True:
                 return False
