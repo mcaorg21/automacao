@@ -53,7 +53,7 @@ class PromoBank:
 		options.add_argument('log-level=3')
 		options.add_argument('--profile-directory=Default')
 		#options.add_argument(f'--window-position={int(screen_width-screen_width/3)},0')
-		options.add_argument(f'--window-size=1300,600')
+		options.add_argument(f'--window-size=1300,1000')
 
 		options.add_argument(self.chrome_user)
 		
@@ -391,6 +391,16 @@ class PromoBank:
 		try:
 			self.selenium_helper.press_enter('#submitButton')
 			time.sleep(5)
+		except:
+			pass
+
+		try:
+			segundos = int(self.act.obter_texto('//*[@id="msg"]', By.XPATH).split(':')[1])*60
+			#pdb.set_trace()
+			countdown(segundos, 3, "Aguardando desbloqueio de "+ str(segundos))
+
+			time.sleep(30)
+			self.main()
 		except:
 			pass
 
