@@ -100,7 +100,26 @@ class InserirContrato(Manager):
             #    return False
 
             #print(response.text)
-            for i in self.driver.get_cookies(): 
+           
+            self.act.enviar_texto('//*[@id="txtCpfSimulacao"]', informacoes["contrato"]["cpf"], By.XPATH)
+            self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div[2]/div[2]/div/button', By.XPATH)
+            self.verificar_loading()
+
+            retorno_mensagem = ""
+            try:
+                retorno_mensagem = self.act.obter_texto('/html/body/div[6]/div/div[2]/div[2]/div[2]/div/div/span', By.XPATH)
+            except:
+                retorno_mensagem = ""
+                pass
+
+            if retorno_mensagem != "":
+                dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                dados_atualizacao['erro'] = retorno_mensagem
+                dados_atualizacao['observacao'] = retorno_mensagem
+                self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                continue
+
+            """for i in self.driver.get_cookies(): 
                 if 'SESSION' in i['name']:
                     cookies_name = i['name']
                     cookies_value = i['value']
@@ -135,7 +154,7 @@ class InserirContrato(Manager):
                 dados_atualizacao['observacao'] = retorno['objeto']['mensagem']
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                 continue
-
+            """
 
             #verifica se tem todos os documentos necessarios
             pontuacao = 0
@@ -192,10 +211,11 @@ class InserirContrato(Manager):
 
 
 
-            print("Preenchendo primeiro fomulario de aceitacao...")
+            """print("Preenchendo primeiro fomulario de aceitacao...")
             self.act.enviar_texto('//*[@id="txtCpfSimulacao"]', informacoes['contrato']['cpf'], By.XPATH)
             self.act.press_enter('//*[@id="appVue"]/div[2]/div[2]/div[2]/div/button', By.XPATH)
             print('----------------------------------------------------------------------------------------')
+            """
 
             self.verificar_loading()
 
