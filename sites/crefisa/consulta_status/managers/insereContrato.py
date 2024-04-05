@@ -307,6 +307,7 @@ class InserirContrato(Manager):
             data_nascimento = informacoes['contrato']['dataNascimento'].split('/')
             data_nascimento = data_nascimento[2]+'-'+data_nascimento[1]+'-'+data_nascimento[0]
             self.driver.execute_script(f"""$('#txtDataNascimento').val('{data_nascimento}')""")
+            self.act.clicar_elemento('//*[@id="txtDataNascimento"]', By.XPATH)
             #self.act.enviar_texto('//*[@id="txtDataNascimento"]', informacoes['contrato']['dataNascimento'], By.XPATH)
 
             identidade_numero = re.sub('[^0-9]', '', informacoes['contrato']['identidade'])
