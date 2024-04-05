@@ -308,6 +308,9 @@ class InserirContrato(Manager):
             identidade_numero = re.sub('[^0-9]', '', informacoes['contrato']['identidade'])
             self.act.enviar_texto('//*[@id="txtRg"]', identidade_numero[0:-1], By.XPATH)
             self.act.enviar_texto('//*[@id="txtDigito"]', identidade_numero[-1], By.XPATH)
+
+            #pdb.set_trace()
+            time.sleep(2)
             self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
             self.act.select_drop_down('//*[@id="ddlOrgaoEmissorRg"]', 'SESP', By.XPATH) #informacoes['contrato']['orgaoEmissor'],
             self.act.select_drop_down('//*[@id="ddlUfOrgaoEmissor"]', informacoes['contrato']['estadoEmissor'], By.XPATH)        
