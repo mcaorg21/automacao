@@ -226,7 +226,7 @@ class InserirContrato(Manager):
             print('----------------------------------------------------------------------------------------')
             
             print("Preenchendo o convenio")
-            self.act.select_drop_down("//select[@id='txtConvenio']",'70567', By.XPATH)
+            self.act.select_drop_down("//select[@id='ddlConvenio']",'38', By.XPATH)
             print('----------------------------------------------------------------------------------------')
 
             print("Preenchendo o reverso")
@@ -304,11 +304,12 @@ class InserirContrato(Manager):
 
             print('Preenchendo dados pessoais')
             
-            data_nascimento = informacoes['contrato']['dataNascimento'].split('/')
-            data_nascimento = data_nascimento[2]+'-'+data_nascimento[1]+'-'+data_nascimento[0]
-            self.driver.execute_script(f"""$('#txtDataNascimento').val('{data_nascimento}')""")
-            self.act.clicar_elemento('//*[@id="txtDataNascimento"]', By.XPATH)
-            #self.act.enviar_texto('//*[@id="txtDataNascimento"]', informacoes['contrato']['dataNascimento'], By.XPATH)
+            #data_nascimento = informacoes['contrato']['dataNascimento'].split('/')
+            #data_nascimento = data_nascimento[2]+'-'+data_nascimento[1]+'-'+data_nascimento[0]
+            #self.driver.execute_script(f"""$('#txtDataNascimento').val('{data_nascimento}')""")
+            #pdb.set_trace()
+            #self.act.clicar_elemento('//*[@id="txtDataNascimento"]', By.XPATH)
+            self.act.enviar_texto('//*[@id="txtDataNascimento"]', informacoes['contrato']['dataNascimento'], By.XPATH)
 
             identidade_numero = re.sub('[^0-9]', '', informacoes['contrato']['identidade'])
             self.act.enviar_texto('//*[@id="txtRg"]', identidade_numero[0:-1], By.XPATH)

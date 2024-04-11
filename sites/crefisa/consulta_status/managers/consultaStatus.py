@@ -112,7 +112,7 @@ class ConsultaStatus(Manager):
                         self.dados_consulta["statusPropostaBanco"] = ""
                         pass
 
-                    if numero_contrato == "" and 'CANCELADO' not in self.dados_consulta["statusPropostaBanco"]:
+                    if numero_contrato == "" and 'CANCELADO' not in self.dados_consulta["statusPropostaBanco"] and 'PAGO' not in self.dados_consulta["statusPropostaBanco"]:
                         contrato_aprovado = True
                         self.dados_consulta['novaAde'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH)
                         self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
