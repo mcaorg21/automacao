@@ -265,6 +265,10 @@ class InserirContrato(Manager):
             self.act.enviar_texto('//*[@id="txtValorRendaLiquida"]', informacoes['contrato']['renda'], By.XPATH)
             print('----------------------------------------------------------------------------------------')
 
+            print("Preenchendo o tipo de simulação")
+            self.act.select_drop_down("//select[@id='txtTipoSimulacao']",'1', By.XPATH)
+            print('----------------------------------------------------------------------------------------')
+
             print('Preenchendo calculo por parcela e valor da parcela')
             # try:
             #     self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[6]/div[2]/div/div/button', By.XPATH)
