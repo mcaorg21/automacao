@@ -73,6 +73,7 @@ class ConsultaStatus(Manager):
 
                 ade, cpf_bd = proposta[0], proposta[1]
                 cod_con = proposta[2]
+                self.data_proposta = proposta[6]
                 self.dados_consulta = {}
 
                 self.dados_consulta['ade'] = ade
@@ -87,8 +88,10 @@ class ConsultaStatus(Manager):
                 self.dados_consulta['novaAde'] = ""
 
                 self.div = div = '7'
-                if(self.act.quantidade_elemento(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody', By.XPATH) == 0):
-                    self.div = div = '6'
+                while(self.act.quantidade_elemento(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody', By.XPATH) == 0):
+                    div = int(div)
+                    div += 1
+                    self.div = div = str(div)
 
                 self.aguardar_consulta()
 
@@ -109,10 +112,10 @@ class ConsultaStatus(Manager):
                     try:
                         self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
                     except:
-                        self.dados_consulta["statusPropostaBanco"] = ""
+                        self.dados_consulta["statusPropostaBanco"] = None
                         pass
 
-                    if numero_contrato == "" and 'CANCELADO' not in self.dados_consulta["statusPropostaBanco"] and 'PAGO' not in self.dados_consulta["statusPropostaBanco"]:
+                    if numero_contrato == "" and 'CANCELADO' not in self.dados_consulta["statusPropostaBanco"]:
                         contrato_aprovado = True
                         self.dados_consulta['novaAde'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH)
                         self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
@@ -120,6 +123,8 @@ class ConsultaStatus(Manager):
                         self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
                         indice = i
                         break
+
+
 
                 if contrato_aprovado == False:
 
@@ -197,6 +202,8 @@ class ConsultaStatus(Manager):
             self.act.enviar_texto('//*[@id="txtNumeroAde"]', "", By.XPATH)
             self.act.enviar_texto('//*[@id="txtCpf"]', var, By.XPATH)
 
+        self.act.enviar_texto('//*[@id="txtDataInicial"]', self.data_proposta, By.XPATH)
+
         self.act.clicar_elemento('//*[@id="btnBuscaContratos"]', By.XPATH)
 
         self.verificar_loading()
@@ -224,5 +231,8 @@ class ConsultaStatus(Manager):
             interacoes -= 1
             if self.act.quantidade_elemento('/html/body/div[7]/div[2]/div[6]/div/div/table/tbody/tr[1]/td[6]/ul/li[5]/span[1]', By.XPATH) == 1:
                 return
+            if self.act.quantidade_elemento('/html/body/div[8]/div[2]/div[6]/div/div/table/tbody/tr[1]/td[6]/ul/li[2]/div/span[1]/b', By.XPATH) == 1:
+                return
+
             if(interacoes < -35):
                 self.driver.quit()
