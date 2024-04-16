@@ -5,6 +5,8 @@ from sites.baseRobos.core.selenium_helper import SeleniumHelper
 from sites.baseRobos.core.selenium_actions import SeleniumActions
 
 import os,time,pdb,re
+from datetime import date
+
 from sites.baseRobos.core.decorators import ApenasHorarioComercial, AguardarHorarioComercial
 from sites.baseRobos.core.Exceptions import ForaHorarioComercialError
 from sites.baseRobos.core.data_helpers import formatar_cpf_sem_caracteres
@@ -202,8 +204,12 @@ class ConsultaStatus(Manager):
             self.act.enviar_texto('//*[@id="txtNumeroAde"]', "", By.XPATH)
             self.act.enviar_texto('//*[@id="txtCpf"]', var, By.XPATH)
 
-        self.act.enviar_texto('//*[@id="txtDataInicial"]', self.data_proposta, By.XPATH)
 
+        #pdb.set_trace()
+        self.act.enviar_texto('//*[@id="txtDataInicial"]', self.data_proposta, By.XPATH)
+        #self.driver.execute_script(f"""$('#txtDataInicial').val('{self.data_proposta}')""")
+        self.act.enviar_texto('//*[@id="txtDataFinal"]',  date.today().strftime("%m/%d/%Y"), By.XPATH)
+        #self.driver.execute_script(f"""$('#txtDataFinal').val('{date.today().strftime("%Y-%d-%")}')""")
         self.act.clicar_elemento('//*[@id="btnBuscaContratos"]', By.XPATH)
 
         self.verificar_loading()
