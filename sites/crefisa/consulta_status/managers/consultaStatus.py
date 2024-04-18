@@ -140,6 +140,13 @@ class ConsultaStatus(Manager):
                             self.dados_consulta['observacaoDetalhadaBanco'] += "\n\n"+self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[2]/span', By.XPATH).strip()
                             self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
                             indice = i
+
+                            if 'CANCELADO' in self.dados_consulta["statusPropostaBanco"]:
+                                
+                                self.act.clicar_elemento('//*[@id="linkSubStatus_0"]', By.XPATH)                                
+                                self.dados_consulta['statusSecundario'] += "\n\n"+self.act.obter_texto('//*[@id="modalSubStatus"]/div/div/div[2]/div/div[2]/table/tbody/tr[1]', By.XPATH)
+                                self.act.clicar_elemento('/html/body/div[8]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
+                            
                             break             
 
                 if ('PAGO' in self.dados_consulta["statusPropostaBanco"] or 'APROVADO' in self.dados_consulta["statusPropostaBanco"]) and 'EM ANDAMENTO' in self.dados_consulta["statusSecundario"]:
