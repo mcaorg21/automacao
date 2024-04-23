@@ -10,6 +10,8 @@ from time import sleep
 from sites.baseRobos.core.DebugTools import DebugTools
 from sites.baseRobos.core.decorators import AguardarHorarioComercial
 
+from dados.APIDataSource import APIDataSource
+
 HORARIO_COMERCIAL = 8, 20
 
 dbg: DebugTools = DebugTools(debugging=False)
@@ -139,6 +141,8 @@ def preencher_campo_senha(act: SeleniumActions, senha: str, rec=0):
 
         if(act.quantidade_elemento('/html/body/login-page/app-leitura-qr-code-login/main/div[2]/div/qrcode/div/canvas', By.XPATH) == 1):
             print('FAZER BIOMETRIA - 90s...')
+            payload = {"telefoneDDD": '31993448917', "area" : "autotarefa_robo" ,"mensagem": act.obter_texto('/html/body/login-page/app-leitura-qr-code-login/main/div[2]/a/span',By.XPATH) ,"key": "f9223937d6a342a75fa449a2e5bbd75b"}
+            response = APIDataSource().post_request_v2('enviar-mensagem-whatsapp', payload)
             sleep(90)
             return preencher_usuario(act, senha, rec+1)
 

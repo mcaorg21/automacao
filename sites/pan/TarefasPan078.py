@@ -51,7 +51,7 @@ class TarefasPan078:
     TITLE = 'Pan Todas Tarefas 078'
 
     def __init__(self):
-        self.chrome_user: str = PATHS.chrome_user('x')
+        self.chrome_user: str = PATHS.chrome_user('TarefasPan080_FGTS')
         try:
             pasta = self.chrome_user.split('=')[1]
             shutil.rmtree(pasta)
