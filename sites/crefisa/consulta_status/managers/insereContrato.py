@@ -67,12 +67,16 @@ class InserirContrato(Manager):
         print('Iniciando inserção de contrato...')
 
         contratos = self.dados.get_contratos_inserir()  
-        
+
+        #testes
+        #contratos['contratos'] = [{'codigo_con' : '644147'}] 
+
         if contratos['tipo'] == 'alert':
             print('Sem contratos para inserir...')
             return False
 
         for contrato in contratos['contratos']:
+
             dados_atualizacao = {}
             dados_atualizacao['mensagem'] = 'Inserir contrato'
             self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
@@ -203,7 +207,6 @@ class InserirContrato(Manager):
                 print('----------------------------------------------------------------------------------------')
                 continue
 
-            #pdb.set_trace()
             try:
                 deleta_todos_arquivos(self.path_documentos)
             except:
@@ -257,10 +260,13 @@ class InserirContrato(Manager):
             #     pass
 
             print('Preenchendo matricula e digito')
+            self.act.press_backspace('//*[@id="txtMatricula"]',30,By.XPATH,0, True)
             self.act.enviar_texto('//*[@id="txtMatricula"]', informacoes['contrato']['matricula'][0:-1], By.XPATH)
             self.act.enviar_texto('//*[@id="txtDigito"]', informacoes['contrato']['matricula'][-1], By.XPATH)
+            self.act.press_backspace('//*[@id="txtDigito"]',3,By.XPATH,0, True)
+            self.act.enviar_texto_intervalado('//*[@id="txtDigito"]', informacoes['contrato']['matricula'][-1], By.XPATH)
+
             print('----------------------------------------------------------------------------------------')
-            #pdb.set_trace()
             print('Preenchendo renda')
             self.act.enviar_texto('//*[@id="txtValorRendaLiquida"]', informacoes['contrato']['renda'], By.XPATH)
             print('----------------------------------------------------------------------------------------')
@@ -275,7 +281,6 @@ class InserirContrato(Manager):
             #     self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[6]/div[2]/div/div/div/ul/li[1]/a/span[1]', By.XPATH)
             # except:
             #     pass
-
             self.act.select_drop_down('//*[@id="txtTipoValorContrato"]','1', By.XPATH)
 
             self.act.enviar_texto('//*[@id="txtValorSimulacao"]', informacoes['contrato']['valorParcela'], By.XPATH) 
