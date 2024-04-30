@@ -476,9 +476,7 @@ class InserirContrato(Manager):
 
             self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[2]/div[3]/div/button[2]', By.XPATH)  
                  
-            retorno = self.verificar_loading()
-
-            
+            retorno = self.verificar_loading(30)
             
             if retorno['retorno'] == True  and retorno['ade'] != "":
                 deleta_todos_arquivos(self.path_documentos)
@@ -499,9 +497,9 @@ class InserirContrato(Manager):
                 print('--------------------------------------------------------------')
 
             else:
-                retorno = self.verificar_loading()
+                #retorno = self.verificar_loading()
                 if retorno['retorno'] == False:
-                    print('XXXXXXXXXXXXXXXXXXXXX ERRO AO GERAR ADE XXXXXXXXXXXXXXXXXXXXX')
+                    print('XXXXXXXXXXXXXXXXXXXXX ERRO XXXXXXXXXXXXXXXXXXXXX')
                     dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                     dados_atualizacao['observacao_emp'] = retorno['mensagem']
                     dados_atualizacao['observacao'] = retorno['mensagem']
@@ -573,7 +571,8 @@ class InserirContrato(Manager):
                     return {'retorno': False, 'mensagem': mensagem, 'ade': ""}
 
 
-            if(interacoes < -35):
-                self.driver.quit()
+            if(interacoes < 0):
+                return {'retorno': False, 'mensagem': "Loading eterno", 'ade': ""}
+                #self.driver.quit()
 
         return {'retorno': True, 'mensagem': "", 'ade': ""}
