@@ -200,7 +200,7 @@ class InserirContrato(Manager):
             #             pass
             # ######################################################################################
             #pdb.set_trace()
-            if pontuacao < 8:
+            if pontuacao < 6:
                 print('CPF aprovado, mas documentos estão incompletos...')
                 dados_atualizacao['mensagem'] = 'Pendente Documentacao'
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
