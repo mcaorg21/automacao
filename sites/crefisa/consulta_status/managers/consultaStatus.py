@@ -89,7 +89,8 @@ class ConsultaStatus(Manager):
 
                 self.dados_consulta['novaAde'] = ""
 
-                self.div = div = '7'
+                self.div = div = '6'
+                
                 while(self.act.quantidade_elemento(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody', By.XPATH) == 0):
                     div = int(div)
                     div += 1
