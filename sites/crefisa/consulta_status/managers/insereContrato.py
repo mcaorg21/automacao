@@ -118,8 +118,8 @@ class InserirContrato(Manager):
 
             if retorno_mensagem != "":
                 dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
-                if('System.Exception' in retorno_mensagem):
-                    dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                #if('System.Exception' in retorno_mensagem):
+                #    dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                 dados_atualizacao['erro'] = retorno_mensagem
                 dados_atualizacao['observacao'] = retorno_mensagem
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
