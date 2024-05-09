@@ -116,12 +116,17 @@ class InserirContrato(Manager):
                 retorno_mensagem = ""
                 pass
 
+
             if retorno_mensagem != "":
                 dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
-                #if('System.Exception' in retorno_mensagem):
-                #    dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                 dados_atualizacao['erro'] = retorno_mensagem
                 dados_atualizacao['observacao'] = retorno_mensagem
+                if('Exception' in retorno_mensagem):
+                    dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                    dados_atualizacao['interacaoHumana'] = 0
+                    dados_atualizacao['observacao'] = "Erro ao inserir: "+retorno['mensagem']
+                    dados_atualizacao['erro'] = retorno['mensagem']
+
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                 continue
 
@@ -222,7 +227,7 @@ class InserirContrato(Manager):
             print('----------------------------------------------------------------------------------------')
             """
 
-            self.verificar_loading()
+            retorno = self.verificar_loading()
 
             print("Preenchendo segundo fomulario de simulacao...")
             self.act.enviar_texto("//input[@id='txtNomeCompleto']", informacoes['contrato']['nome'], By.XPATH)
@@ -296,7 +301,7 @@ class InserirContrato(Manager):
                 dados_atualizacao['mensagem'] = 'Pendente Dados'
                 dados_atualizacao['textoMensagem'] = retorno['mensagem']
                 dados_atualizacao['observacao'] = retorno['mensagem']
-                if('System.Exception' in retorno_mensagem):
+                if('Exception' in retorno_mensagem):
                     dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                     dados_atualizacao['interacaoHumana'] = 0
                     dados_atualizacao['observacao'] = "Erro ao inserir: "+retorno['mensagem']
