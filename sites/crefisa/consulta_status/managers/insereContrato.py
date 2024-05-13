@@ -11,7 +11,7 @@ from sites.baseRobos.core.selenium_helper import SeleniumHelper
 from sites.baseRobos.core.selenium_actions import SeleniumActions
 
 from sites.baseRobos.core.data_helpers import formatar_moeda,formatar_cpf_sem_caracteres,formatar_data_banco_dados,buscar_documentos_contrato,download
-from sites.baseRobos.core.helpers import deleta_todos_arquivos
+from sites.baseRobos.core.helpers import deleta_todos_arquivos,get_id_perfil
 from sites.baseRobos.core.uconecte import Uconecte
 from sites.baseRobos.core.decorators import ApenasHorarioComercial, AguardarHorarioComercial
 from sites.baseRobos.core.Exceptions import ForaHorarioComercialError
@@ -85,6 +85,7 @@ class InserirContrato(Manager):
             dados_atualizacao['mensagem'] = 'Inserir contrato'
             self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
 
+            print(f"Inserindo contrato para o perfil ---------{contrato['perfil']}----------")
 
             informacoes = self.dados.get_informacoes_contrato(contrato['codigo_con']) 
             self.chrome_driver.get(self.urls["insercao"]) 
@@ -174,7 +175,15 @@ class InserirContrato(Manager):
             #verifica se tem todos os documentos necessarios
             pontuacao = 0
             documentos_pessoais = buscar_documentos_contrato(informacoes['dadosContrato']['codigoContrato'])['arquivos']
-            array_docs_necessarios = ['documentoPessoal',
+
+            id_perfil = get_id_perfil(contrato['perfil'])
+            tipo_produto_crefisa = self.get_produto_crefisa(id_perfil)
+
+            if(id_perfil in [9,10,11]):
+                baixa_renda = True
+                preenche_dia_salario = False
+                pontuacao_documentos = 6
+                array_docs_necessarios = ['documentoPessoal',
                                         'COMPROVANTE_ENDERECO',
                                         'MEU_NIS',
                                         'COMPROVANTE_DE_CONTA',
@@ -182,6 +191,17 @@ class InserirContrato(Manager):
                                         'EXTRATO_BANCaRIO_%7CMES1%7C_DA_CONTA_DO_CAIXATEM',
                                         'EXTRATO_BANCaRIO_%7CMES2%7C_DA_CONTA_DO_CAIXATEM',
                                         'EXTRATO_BANCaRIO_%7CMES3%7C_DA_CONTA_DO_CAIXATEM']
+
+            else:
+                baixa_renda = False
+                preenche_dia_salario = True
+                pontuacao_documentos = 5
+                array_docs_necessarios = ['documentoPessoal',
+                                          'COMPROVANTE_ENDERECO',
+                                          'CONTRA_CHEQUE',
+                                          'EXTRATO_BANCaRIO_ULTIMOS_30',      
+                                        ]
+            
 
             for doc_unico in documentos_pessoais:
                 for doc_exigido in array_docs_necessarios:
@@ -211,7 +231,7 @@ class InserirContrato(Manager):
             #             pass
             # ######################################################################################
             #pdb.set_trace()
-            if pontuacao < 6:
+            if pontuacao < pontuacao_documentos:
                 print('CPF aprovado, mas documentos estão incompletos...')
                 dados_atualizacao['mensagem'] = 'Pendente Documentacao'
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
@@ -226,7 +246,7 @@ class InserirContrato(Manager):
                 pass   
 
 
-
+            print(f"Continuando inserção contrato para o perfil ---------{contrato['perfil']}----------")
             """print("Preenchendo primeiro fomulario de aceitacao...")
             self.act.enviar_texto('//*[@id="txtCpfSimulacao"]', informacoes['contrato']['cpf'], By.XPATH)
             self.act.press_enter('//*[@id="appVue"]/div[2]/div[2]/div[2]/div/button', By.XPATH)
@@ -242,7 +262,7 @@ class InserirContrato(Manager):
             print('----------------------------------------------------------------------------------------')
             
             print("Preenchendo o convenio")
-            self.act.select_drop_down("//select[@id='ddlConvenio']",'38', By.XPATH)
+            self.act.select_drop_down("//select[@id='ddlConvenio']",tipo_produto_crefisa, By.XPATH)
             print('----------------------------------------------------------------------------------------')
 
             print("Preenchendo o reverso")
@@ -278,6 +298,12 @@ class InserirContrato(Manager):
             self.act.enviar_texto('//*[@id="txtDigito"]', informacoes['contrato']['matricula'][-1], By.XPATH)
             self.act.press_backspace('//*[@id="txtDigito"]',3,By.XPATH,0, True)
             self.act.enviar_texto_intervalado('//*[@id="txtDigito"]', informacoes['contrato']['matricula'][-1], By.XPATH)
+
+
+            if(baixa_renda == False):
+                self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[5]/div[1]/div/button', By.XPATH)
+                select_dia_salario = str(int(informacoes['contrato']['diaSalario']) + 1)
+                self.act.clicar_elemento(f'/html/body/div[6]/div/div[3]/div/div[5]/div[1]/div/div/ul/li[{select_dia_salario}]', By.XPATH)
 
             print('----------------------------------------------------------------------------------------')
             print('Preenchendo renda')
@@ -397,6 +423,13 @@ class InserirContrato(Manager):
             print('----------------------------------------------------------------------------------------')
 
             print('Preenchendo dados conta bancária')
+            if(baixa_renda == False):
+                if informacoes['contrato']['numeroBanco'] == '955':
+                    informacoes['contrato']['numeroBanco'] = '033'
+                self.act.select_drop_down('//*[@id="ddlBanco"]', informacoes['contrato']['numeroBanco'], By.XPATH)
+                self.act.enviar_texto('//*[@id="txtAgencia"]',informacoes['contrato']['agencia'], By.XPATH)
+
+
             self.act.enviar_texto('//*[@id="txtContaCorrente"]',informacoes['contrato']['numeroConta'], By.XPATH)
             self.act.enviar_texto('//*[@id="txtDigitoConta"]',informacoes['contrato']['digitoConta'], By.XPATH)
             print('----------------------------------------------------------------------------------------')    
@@ -492,7 +525,7 @@ class InserirContrato(Manager):
             #pdb.set_trace()
             for doc in documentos_pessoais:
 
-                if 'COMPROVANTE_ENDERECO' in doc:
+                if 'COMPROVANTE_ENDERECO' in doc and baixa_renda == True:
                     continue
 
                 arquivo = self.path_documentos + f'{counter}_arquivo.pdf'
@@ -509,39 +542,75 @@ class InserirContrato(Manager):
                         arquivo = self.path_documentos + f'{counter}_arquivo.'+extensao
                         pass
 
-                if 'documentoPessoal' in doc:                
-                    caminho_xpath = '//*[@id="ddlarquivosRg"]'
+                if(baixa_renda == True):
 
-                    #vai anexar em arquivo de cpf também
-                    if(conta_anexo_cpf == 2):
-                        caminho_xpath = '//*[@id="ddlarquivosCpf"]'
-                        #upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosCpf"]')
-                        #upload2.send_keys(arquivo)
-                        #continue
+                    if 'documentoPessoal' in doc:                
+                        caminho_xpath = '//*[@id="ddlarquivosRg"]'
 
-                    conta_anexo_cpf += 1     
+                        #vai anexar em arquivo de cpf também
+                        if(conta_anexo_cpf == 2):
+                            caminho_xpath = '//*[@id="ddlarquivosCpf"]'
+                            #upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosCpf"]')
+                            #upload2.send_keys(arquivo)
+                            #continue
 
-                elif 'COMPROVANTE_DE_CONTA' in doc:
-                    caminho_xpath = '//*[@id="ddlarquivosContracheque"]'    
+                        conta_anexo_cpf += 1     
 
-                    #vai anexar em arquivo de extratos também
-                    #upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosExtratoBancario"]')
-                    #upload2.send_keys(arquivo)     
+                    elif 'COMPROVANTE_DE_CONTA' in doc:
+                        caminho_xpath = '//*[@id="ddlarquivosContracheque"]'    
 
-                elif 'COMPROVANTE_ENDERECO' in doc:
-                    caminho_xpath = '//*[@id="ddlarquivosComprovanteResidencia"]' 
+                        #vai anexar em arquivo de extratos também
+                        #upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosExtratoBancario"]')
+                        #upload2.send_keys(arquivo)     
 
-                elif 'EXTRATO_BANCaRIO' in doc:
-                    caminho_xpath = '//*[@id="ddlarquivosExtratoBancario"]' 
+                    elif 'COMPROVANTE_ENDERECO' in doc:
+                        caminho_xpath = '//*[@id="ddlarquivosComprovanteResidencia"]' 
+
+                    elif 'EXTRATO_BANCaRIO' in doc:
+                        caminho_xpath = '//*[@id="ddlarquivosExtratoBancario"]' 
+
+                    else:
+                        caminho_xpath = '//*[@id="ddlarquivosOutros"]'
 
                 else:
-                    caminho_xpath = '//*[@id="ddlarquivosOutros"]'
+
+                    if 'documentoPessoal' in doc:                
+                        caminho_xpath = '//*[@id="ddlarquivosRg"]'
+
+                        #vai anexar em arquivo de cpf também
+                        if(conta_anexo_cpf == 2):
+                            caminho_xpath = '//*[@id="ddlarquivosCpf"]'
+                            #upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosCpf"]')
+                            #upload2.send_keys(arquivo)
+                            #continue
+
+                        conta_anexo_cpf += 1     
+
+                    elif 'CONTRA_CHEQUE' in doc:
+                        caminho_xpath = '//*[@id="ddlarquivosContracheque"]'    
+
+                        #vai anexar em arquivo de extratos também
+                        #upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosExtratoBancario"]')
+                        #upload2.send_keys(arquivo)     
+
+                    elif 'COMPROVANTE_ENDERECO' in doc:
+                        caminho_xpath = '//*[@id="ddlarquivosComprovanteResidencia"]' 
+
+                    elif 'EXTRATO_BANCaRIO' in doc:
+                        caminho_xpath = '//*[@id="ddlarquivosExtratoBancario"]' 
+
+                    else:
+                        caminho_xpath = '//*[@id="ddlarquivosOutros"]'
+
 
                 counter += 1
 
+                
                 upload = self.driver.find_element(By.XPATH, caminho_xpath)
                 upload.send_keys(arquivo)
 
+                    
+            #pdb.set_trace()
             print('----------------------------------------------------------------------------------------')
 
             print('Procurando por ade...')
@@ -656,3 +725,19 @@ class InserirContrato(Manager):
                 #self.driver.quit()
 
         return {'retorno': True, 'mensagem': "", 'ade': ""}
+
+    def get_produto_crefisa(self, perfil):
+        switcher = {
+            1 : "43",
+            2 : "42",
+            3 : "44",
+            4 : "1",
+            5 : "1",
+            6 : "42",
+            7 : "42",
+            8 : "42",
+            9 : "38",
+            10 : "38",
+            11 : "38"
+        }
+        return switcher.get(perfil, 'Opção inválida')

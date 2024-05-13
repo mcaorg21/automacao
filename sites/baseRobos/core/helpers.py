@@ -219,3 +219,19 @@ def apagar_arquivos_pasta(path):
 
 def apagar_um_arquivo(file):
     os.remove(file)
+
+def get_id_perfil(perfil):
+    switcher = {
+        'Servidor Estadual': 1,
+        'Servidor Federal': 2,
+        'Servidor Municipal': 3,
+        'Aposentado do INSS': 4,
+        'Pensionista do INSS': 5,
+        'Militar Aeronáutica': 6,
+        'Militar Exército': 7,
+        'Militar Marinha': 8,
+        'Empresário': 9,
+        'Autônomo': 10,
+        'CLT(Empresa Privada)': 11
+    }
+    return switcher.get(perfil, 'Opção inválida')
