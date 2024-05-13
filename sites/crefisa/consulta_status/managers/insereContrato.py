@@ -113,15 +113,19 @@ class InserirContrato(Manager):
             self.act.enviar_texto('//*[@id="txtCpfSimulacao"]', informacoes["contrato"]["cpf"], By.XPATH)
             self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div[2]/div[2]/div/button', By.XPATH)
             self.verificar_loading()
-
+           
             retorno_mensagem = ""
             try:
                 retorno_mensagem = self.act.obter_texto('/html/body/div[6]/div/div[2]/div[2]/div[2]/div/div/span', By.XPATH)
             except:
-                retorno_mensagem = ""
+                try:
+                    retorno_mensagem = self.act.obter_texto('/html/body/div[8]/div/div[2]/div[1]', By.XPATH)
+                except:
+                    retorno_mensagem = ""
+                    pass   
                 pass
 
-
+            
             if retorno_mensagem != "":
                 dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
                 dados_atualizacao['erro'] = retorno_mensagem
