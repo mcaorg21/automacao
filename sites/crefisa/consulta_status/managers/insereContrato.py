@@ -604,7 +604,7 @@ class InserirContrato(Manager):
 
                         conta_anexo_cpf += 1     
 
-                    elif 'CONTRA_CHEQUE' in doc:
+                    elif 'CONTRA_CHEQUE' in doc or 'EXTRATO_DE_PAGAMENTOS' in doc:
                         caminho_xpath = '//*[@id="ddlarquivosContracheque"]'    
 
                         #vai anexar em arquivo de extratos também
@@ -614,7 +614,7 @@ class InserirContrato(Manager):
                     elif 'COMPROVANTE_ENDERECO' in doc:
                         caminho_xpath = '//*[@id="ddlarquivosComprovanteResidencia"]' 
 
-                    elif 'EXTRATO_BANCaRIO' in doc:
+                    elif 'EXTRATO_BANCaRIO' in doc or 'CARTA_DE_CONCESSaO' in doc:
                         caminho_xpath = '//*[@id="ddlarquivosExtratoBancario"]' 
 
                     else:
