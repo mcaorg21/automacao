@@ -350,6 +350,9 @@ class InserirContrato(Manager):
             #self.act.select_drop_down('//*[@id="ddlUfOrgaoEmissor"]', informacoes['contrato']['estadoEmissor'], By.XPATH)     
             self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[2]/div[6]/div/button', By.XPATH)  
             self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[2]/div[6]/div/div/div/input', informacoes['contrato']['estadoEmissor'], By.XPATH)
+
+            if informacoes['contrato']['estadoEmissor'] == 'SE':
+                self.act.press_DOWN('/html/body/div[6]/div/div[2]/div/div[2]/div[2]/div[6]/div/div/ul/li[1]/a',By.XPATH)
             self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[2]/div[6]/div/div/div/input', By.XPATH)
 
             
@@ -357,6 +360,10 @@ class InserirContrato(Manager):
             #pdb.set_trace()
             self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[3]/div[2]/div/button', By.XPATH)  
             self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[2]/div/div/div/input', informacoes['contrato']['estadoNaturalidade'], By.XPATH)
+            
+            if informacoes['contrato']['estadoNaturalidade'] == 'SE':
+                self.act.press_DOWN('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[2]/div/div/ul/li[1]/a',By.XPATH)
+
             self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[2]/div/div/div/input', By.XPATH)
             time.sleep(5)
             #self.act.enviar_texto('//*[@id="txtNaturalidade"]',informacoes['contrato']['naturalidade'], By.XPATH) 
@@ -430,6 +437,8 @@ class InserirContrato(Manager):
             #self.act.select_drop_down('//*[@id="ddlUfEndereco"]',informacoes['contrato']['uf'], By.XPATH)
             self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[8]/div[2]/div/button', By.XPATH)  
             self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[8]/div[2]/div/div/div/input', informacoes['contrato']['uf'], By.XPATH)
+            if informacoes['contrato']['uf'] == 'SE':
+                self.act.press_DOWN('/html/body/div[6]/div/div[2]/div/div[2]/div[8]/div[2]/div/div/ul/li[1]/a',By.XPATH)
             self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[8]/div[2]/div/div/div/input', By.XPATH)
 
 
