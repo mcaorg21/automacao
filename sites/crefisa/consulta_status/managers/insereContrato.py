@@ -354,7 +354,7 @@ class InserirContrato(Manager):
 
             
             #self.act.select_drop_down('//*[@id="ddlUfNascimento"]',informacoes['contrato']['estadoNaturalidade'], By.XPATH) 
-            pdb.set_trace()
+            #pdb.set_trace()
             self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[3]/div[2]/div/button', By.XPATH)  
             self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[2]/div/div/div/input', informacoes['contrato']['estadoNaturalidade'], By.XPATH)
             self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[2]/div/div/div/input', By.XPATH)
@@ -418,8 +418,9 @@ class InserirContrato(Manager):
             if(self.act.obter_texto('//*[@id="txtBairro"]', By.XPATH) == ""):
                 self.act.enviar_texto('//*[@id="txtBairro"]',informacoes['contrato']['bairro'], By.XPATH)
 
-            #pdb.set_trace()
-            if(self.act.obter_texto('//*[@id="appVue"]/div[2]/div/div[2]/div[8]/div[3]/div/button', By.XPATH) == ""):
+            
+            texto_cidade = self.act.obter_texto('//*[@id="appVue"]/div[2]/div/div[2]/div[8]/div[3]/div/button', By.XPATH)
+            if( texto_cidade == "" or texto_cidade == "Selecione"):
                 #self.act.enviar_texto('//*[@id="txtCidade"]',informacoes['contrato']['cidade'], By.XPATH)
                 self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[8]/div[3]/div/button', By.XPATH)  
                 self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[8]/div[3]/div/div/div/input', informacoes['contrato']['cidade'], By.XPATH)
