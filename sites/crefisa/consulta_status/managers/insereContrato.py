@@ -201,6 +201,14 @@ class InserirContrato(Manager):
                                           'CONTRA_CHEQUE',
                                           'EXTRATO_BANCaRIO_ULTIMOS_30',      
                                         ]
+
+                if(id_perfil in [4,5]):
+                    array_docs_necessarios = ['documentoPessoal',
+                                              'COMPROVANTE_ENDERECO',
+                                              'EXTRATO_DE_PAGAMENTO',
+                                              'CARTA_DE_CONCESSaO',      
+                                            ]
+
             
 
             for doc_unico in documentos_pessoais:
