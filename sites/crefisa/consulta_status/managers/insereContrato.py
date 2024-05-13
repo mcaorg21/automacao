@@ -20,6 +20,8 @@ from sites.crefisa.consulta_status.data.dados_consulta_status import DadosConsul
 
 from dados.APIGetSource import APIDataSource
 
+from unidecode import unidecode
+
 from PIL import Image
 
 HORARIO_COMERCIAL = 8, 20
@@ -35,7 +37,9 @@ class InserirContrato(Manager):
             "consulta_status": "https://app1.gerencialcredito.com.br/CREFISA/EsteiraAnaliseContrato.asp"
         }
 
-        self.set_options('--ignore-ssl-errors')
+        #self.set_options('--ignore-ssl-errors',"--lang=pt_BR")
+        #self.set_experimental_opts({'intl.accept_languages': 'pt,pt_BR'})
+        #pdb.set_trace()
         self.init_chrome_driver(import_driver=driver)
         self.dados: DadosConsultaStatus = DadosConsultaStatus()
         self.sh = SeleniumHelper(self.chrome_driver)
@@ -43,7 +47,7 @@ class InserirContrato(Manager):
         self.atualiza = Uconecte()
         self.request_get = APIDataSource()
 
-        self.path_documentos = sys.path[0]+'/documentos/'
+        self.path_documentos = sys.path[0]+'/sites/crefisa/documentos/'
 
         if 'Windows' in platform.system():
             self.path_documentos = sys.path[0]+'/sites/crefisa/documentos/'
@@ -217,6 +221,8 @@ class InserirContrato(Manager):
             try:
                 deleta_todos_arquivos(self.path_documentos)
             except:
+                self.path_documentos = sys.path[0]+'/documentos/'
+                deleta_todos_arquivos(self.path_documentos)
                 pass   
 
 
@@ -341,9 +347,23 @@ class InserirContrato(Manager):
             time.sleep(2)
             self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
             self.act.select_drop_down('//*[@id="ddlOrgaoEmissorRg"]', 'SESP', By.XPATH) #informacoes['contrato']['orgaoEmissor'],
-            self.act.select_drop_down('//*[@id="ddlUfOrgaoEmissor"]', informacoes['contrato']['estadoEmissor'], By.XPATH)        
-            self.act.select_drop_down('//*[@id="ddlUfNascimento"]',informacoes['contrato']['estadoNaturalidade'], By.XPATH) 
-            self.act.enviar_texto('//*[@id="txtNaturalidade"]',informacoes['contrato']['naturalidade'], By.XPATH) 
+            #self.act.select_drop_down('//*[@id="ddlUfOrgaoEmissor"]', informacoes['contrato']['estadoEmissor'], By.XPATH)     
+            self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[2]/div[6]/div/button', By.XPATH)  
+            self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[2]/div[6]/div/div/div/input', informacoes['contrato']['estadoEmissor'], By.XPATH)
+            self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[2]/div[6]/div/div/div/input', By.XPATH)
+
+            
+            #self.act.select_drop_down('//*[@id="ddlUfNascimento"]',informacoes['contrato']['estadoNaturalidade'], By.XPATH) 
+            pdb.set_trace()
+            self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[3]/div[2]/div/button', By.XPATH)  
+            self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[2]/div/div/div/input', informacoes['contrato']['estadoNaturalidade'], By.XPATH)
+            self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[2]/div/div/div/input', By.XPATH)
+            time.sleep(5)
+            #self.act.enviar_texto('//*[@id="txtNaturalidade"]',informacoes['contrato']['naturalidade'], By.XPATH) 
+            self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[3]/div[3]/div/button', By.XPATH)  
+            self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[3]/div/div/div/input', unidecode(informacoes['contrato']['naturalidade']), By.XPATH)
+            self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[3]/div/div/div/input', By.XPATH)
+
             self.act.select_drop_down('//*[@id="txtSexo"]',informacoes['contrato']['sexo'][0], By.XPATH)
 
             
@@ -387,6 +407,8 @@ class InserirContrato(Manager):
 
             print('Finalizando dados Pessoais do Contrato')
 
+
+
             if(self.driver.find_element(By.CSS_SELECTOR,"#chkAutorizaSms").is_selected() == False):
                 self.act.clicar_elemento('//*[@id="chkAutorizaSms"]', By.XPATH)
 
@@ -396,15 +418,45 @@ class InserirContrato(Manager):
             if(self.act.obter_texto('//*[@id="txtBairro"]', By.XPATH) == ""):
                 self.act.enviar_texto('//*[@id="txtBairro"]',informacoes['contrato']['bairro'], By.XPATH)
 
-            if(self.act.obter_texto('//*[@id="txtCidade"]', By.XPATH) == ""):
-                self.act.enviar_texto('//*[@id="txtCidade"]',informacoes['contrato']['cidade'], By.XPATH)
+            #pdb.set_trace()
+            if(self.act.obter_texto('//*[@id="appVue"]/div[2]/div/div[2]/div[8]/div[3]/div/button', By.XPATH) == ""):
+                #self.act.enviar_texto('//*[@id="txtCidade"]',informacoes['contrato']['cidade'], By.XPATH)
+                self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[8]/div[3]/div/button', By.XPATH)  
+                self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[8]/div[3]/div/div/div/input', informacoes['contrato']['cidade'], By.XPATH)
+                self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[8]/div[3]/div/div/div/input', By.XPATH)
 
-            self.act.select_drop_down('//*[@id="ddlUfEndereco"]',informacoes['contrato']['uf'], By.XPATH)
+            #pdb.set_trace()
+            #self.act.select_drop_down('//*[@id="ddlUfEndereco"]',informacoes['contrato']['uf'], By.XPATH)
+            self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[8]/div[2]/div/button', By.XPATH)  
+            self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[8]/div[2]/div/div/div/input', informacoes['contrato']['uf'], By.XPATH)
+            self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[8]/div[2]/div/div/div/input', By.XPATH)
+
 
             self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)  
 
-            #pdb.set_trace()
             retorno = self.verificar_loading()
+
+            if 'Data' in retorno['mensagem']:
+                self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
+                if 'RG' in retorno['mensagem']:
+                    erro = "XXXXXXXXXXXXXXXX ERRO NA DATA DE NASCIMENTO XXXXXXXXXXXXXXXXXXX"
+                    self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', '10/10/2020', By.XPATH)
+                    self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)  
+                    retorno = self.verificar_loading()
+
+                elif 'Nascimento' in retorno['mensagem']: 
+                    erro = "XXXXXXXXXXXXXXXX ERRO NA DATA DE NASCIMENTO XXXXXXXXXXXXXXXXXXX"
+                
+                    print(erro)
+
+                    dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                    dados_atualizacao['observacao_emp'] = erro
+                    dados_atualizacao['observacao'] = erro
+                    dados_atualizacao['status_con'] = "Aguardando Comercial"
+
+                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+
+                    continue
 
             if retorno['retorno'] == False:
                 dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
@@ -483,19 +535,24 @@ class InserirContrato(Manager):
             print('----------------------------------------------------------------------------------------')
 
             print('Procurando por ade...')
-
+            self.driver.execute_script("document.body.style.zoom='60%'")
             #for i in range(1,7): 
             #    self.act.clicar_elemento(f'//*[@id="accordion"]/div[{i}]/div[1]/h4/a', By.XPATH)
 
-            self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[2]/div[3]/div/button[2]', By.XPATH)  
+            try:
+                self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[2]/div[3]/div/button[2]', By.XPATH)  
+            except:
+                self.driver.execute_script("""$('#appVue > div:nth-child(3) > div > div.card-body > div.row.mt-4 > div > button.btn.btn-primary').click()""")
                  
             retorno = self.verificar_loading(30)
+            self.driver.execute_script("document.body.style.zoom='100%'")
             
             if retorno['retorno'] == True  and retorno['ade'] != "":
                 deleta_todos_arquivos(self.path_documentos)
                 self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown > div > div.swal2-actions > button.swal2-confirm.swal2-styled").click()""")
 
                 dados_atualizacao['mensagem'] = 'Aguardando Gerar Contrato'
+                #pdb.set_trace()
                 dados_atualizacao['valorContrato'] = formatar_moeda(str_valor.split(" ")[1])
                 dados_atualizacao['ade'] = retorno['ade']
                 dados_atualizacao['textoMensagem'] = "Faça a assinatura digital do seu contrato. Ao entrar em sua proposta clique no botão |Assinatura Digital|"
