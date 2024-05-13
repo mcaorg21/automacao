@@ -266,7 +266,18 @@ class InserirContrato(Manager):
             print('----------------------------------------------------------------------------------------')
 
             print("Preenchendo o reverso")
-            reverso_nis = informacoes['contrato']['matricula'][-1]
+
+            try:
+                reverso_nis = informacoes['contrato']['matricula'][-1]
+            except:
+                dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                dados_atualizacao['observacao_emp'] = "Matrícula incorreta"
+                dados_atualizacao['observacao'] = "Matrícula incorreta"
+                dados_atualizacao['status_con'] = "Aguardando Comercial"
+                self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                self.remove_div()
+                continue
+
 
             #array_reversos ={"0":"01","1":"10","2":"09","3":"08","4":"07","5":"06","6":"05","7":"04","8":"03","9":"02"}
             #reverso = "567"+array_reversos[reverso_nis]
