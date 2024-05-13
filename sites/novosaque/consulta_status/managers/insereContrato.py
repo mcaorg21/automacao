@@ -250,6 +250,9 @@ class InserirContrato(Manager):
 
                 #self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[3]/div[1]/div/div/div/div/div[1]',By.XPATH)  
                 
+                if(informacoes['contrato']['banco']['numeroBanco'] == '955'):
+                    informacoes['contrato']['banco']['numeroBanco'] = '033'
+
                 try:
                     self.act.enviar_texto('//*[@id="react-select-2-input"]',informacoes['contrato']['banco']['numeroBanco'],By.XPATH)
                     self.aguardar_consulta(1)
