@@ -136,17 +136,24 @@ class ConsultaStatus(Manager):
                         linha_tr_ade = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
                         
                         if ade in linha_tr_ade:
+                            print('Achou Contrato de ade igual do sistema...')
                             self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
                             self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
                             self.dados_consulta['observacaoDetalhadaBanco'] += "\n\n"+self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[2]/span', By.XPATH).strip()
                             self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
                             indice = i
 
-                            if 'CANCELADO' in self.dados_consulta["statusPropostaBanco"]:
+                            if 'CANCELADO' in self.dados_consulta["statusPropostaBanco"] or 'PENDENTE' in self.dados_consulta["statusPropostaBanco"]:
                                 
                                 self.act.clicar_elemento('//*[@id="linkSubStatus_0"]', By.XPATH)                                
                                 self.dados_consulta['statusSecundario'] += "\n\n"+self.act.obter_texto('//*[@id="modalSubStatus"]/div/div/div[2]/div/div[2]/table/tbody/tr[1]', By.XPATH)
-                                self.act.clicar_elemento('/html/body/div[8]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
+                                
+                                for i in range(6,15):
+                                    try:
+                                        self.act.clicar_elemento(f'/html/body/div[{i}]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
+                                        break
+                                    except:
+                                        continue
                             
                             break             
 

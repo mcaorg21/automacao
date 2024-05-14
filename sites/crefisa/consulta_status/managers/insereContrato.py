@@ -24,6 +24,8 @@ from unidecode import unidecode
 
 from PIL import Image
 
+from PyPDF2 import PdfReader
+
 HORARIO_COMERCIAL = 8, 20
 
 
@@ -207,11 +209,34 @@ class InserirContrato(Manager):
                                         ]
 
                 if(id_perfil in [4,5]):
+                    pontuacao_documentos = 6
                     array_docs_necessarios = ['documentoPessoal',
                                               'COMPROVANTE_ENDERECO',
                                               'EXTRATO_DE_PAGAMENTO',
-                                              'CARTA_DE_CONCESSaO',      
+                                              'CARTA_DE_CONCESSaO', 
+                                              'EXTRATO_BANCaRIO'     
                                             ]
+
+                    for doc in documentos_pessoais:
+                        if 'CARTA_DE_CONCESSaO_DO_BENEFiCIO' in doc:
+                            try:
+                                download(doc, self.path_documentos + 'carta.pdf')
+                                reader = PdfReader(self.path_documentos + 'carta.pdf')
+                                page = reader.pages[0]
+                                texto = page.extract_text()
+                                pattern = re.compile(r"\(\d{2}\)")
+                                numero_beneficio = pattern.findall(texto)[0].replace('(',"").replace(')',"")
+                            
+                            except:
+                                dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                                dados_atualizacao['observacao_emp'] = "Número do benefício não encontrato no documento carta concessão"
+                                dados_atualizacao['observacao'] = "Número do benefício  não encontrato no documento carta concessão"
+                                dados_atualizacao['status_con'] = "Aguardando Comercial"
+
+                            
+                                self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                                self.remove_div()
+                                continue
 
             
 
@@ -257,7 +282,7 @@ class InserirContrato(Manager):
                 deleta_todos_arquivos(self.path_documentos)
                 pass   
 
-
+            #pdb.set_trace()
             print(f"Continuando inserção contrato para o perfil ---------{contrato['perfil']}----------")
             """print("Preenchendo primeiro fomulario de aceitacao...")
             self.act.enviar_texto('//*[@id="txtCpfSimulacao"]', informacoes['contrato']['cpf'], By.XPATH)
@@ -328,6 +353,15 @@ class InserirContrato(Manager):
                 select_dia_salario = str(int(informacoes['contrato']['diaSalario']) + 1)
                 self.act.clicar_elemento(f'/html/body/div[6]/div/div[3]/div/div[5]/div[1]/div/div/ul/li[{select_dia_salario}]', By.XPATH)
 
+                if id_perfil in [4,5]:
+                    dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                    dados_atualizacao['observacao_emp'] = "Contrato teste de inss para colocar o beneficio"
+                    dados_atualizacao['observacao'] = "Contrato teste de inss para colocar o beneficio"
+                    dados_atualizacao['status_con'] = "Aguardando Comercial"
+                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                    self.remove_div()
+                    continue
+
             print('----------------------------------------------------------------------------------------')
             print('Preenchendo renda')
             self.act.enviar_texto('//*[@id="txtValorRendaLiquida"]', informacoes['contrato']['renda'], By.XPATH)
@@ -351,7 +385,7 @@ class InserirContrato(Manager):
             print('Clicando em simular')
             self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[7]/div/button', By.XPATH)    
             retorno = self.verificar_loading()
-            
+            #pdb.set_trace()
             if retorno['retorno'] == False:
                 dados_atualizacao['mensagem'] = 'Pendente Dados'
                 dados_atualizacao['textoMensagem'] = retorno['mensagem']
@@ -362,10 +396,16 @@ class InserirContrato(Manager):
                     dados_atualizacao['observacao'] = "Erro ao inserir: "+retorno['mensagem']
                     dados_atualizacao['erro'] = retorno['mensagem']
 
-                if('matricula' in retorno['mensagem']):
+                if('matrícula' in retorno['mensagem']):
                     dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                     dados_atualizacao['observacao_emp'] = "Matrícula incorreta"
                     dados_atualizacao['observacao'] = "Matrícula incorreta"
+                    dados_atualizacao['status_con'] = "Aguardando Comercial"
+
+                if('Selecione Espécie do Benefício' in retorno['mensagem']):
+                    dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                    dados_atualizacao['observacao_emp'] = "Informe número do benefício"
+                    dados_atualizacao['observacao'] = "Informe número do benefício"
                     dados_atualizacao['status_con'] = "Aguardando Comercial"
 
                 
@@ -741,10 +781,10 @@ class InserirContrato(Manager):
                     return {'retorno': True, 'mensagem': "Ade gerada com sucesso!", 'ade': ade}
                 
                 elif 'Verificação da matrícula. Dados inválidos' in mensagem:
-                    return {'retorno': False, 'mensagem': "Sua matrícula está inválida! Confirme a nova matrícula.", 'ade': ""}
+                    return {'retorno': False, 'mensagem': "Sua matrícula está inválida! Confirme a nova matrícula." + mensagem, 'ade': ""}
                 
                 elif 'Verificação de dados bancários' in mensagem:
-                    return {'retorno': False, 'mensagem': "Conta incorreta favor confirmar.", 'ade': ""}
+                    return {'retorno': False, 'mensagem': "Conta incorreta favor confirmar. " + mensagem, 'ade': ""}
 
                 else:
                     return {'retorno': False, 'mensagem': mensagem, 'ade': ""}
