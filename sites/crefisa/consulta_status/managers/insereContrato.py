@@ -312,6 +312,7 @@ class InserirContrato(Manager):
                 dados_atualizacao['observacao_emp'] = "Matrícula incorreta"
                 dados_atualizacao['observacao'] = "Matrícula incorreta"
                 dados_atualizacao['status_con'] = "Aguardando Comercial"
+                dados_atualizacao['erro'] = "Matrícula incorreta"
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                 self.remove_div()
                 continue
@@ -359,6 +360,7 @@ class InserirContrato(Manager):
                     dados_atualizacao['observacao_emp'] = "Contrato teste de inss para colocar o beneficio"
                     dados_atualizacao['observacao'] = "Contrato teste de inss para colocar o beneficio"
                     dados_atualizacao['status_con'] = "Aguardando Comercial"
+                    dados_atualizacao['erro'] = "Contrato teste de inss para colocar o beneficio"
                     self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                     self.remove_div()
                     continue
