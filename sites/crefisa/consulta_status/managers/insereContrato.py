@@ -142,6 +142,7 @@ class InserirContrato(Manager):
                 if('Experimente fazer login novamente' in retorno_mensagem or 'Erro interno' in retorno_mensagem):
                     print('XXXXXXXXXXX Sessão deslogada... Aguardando 5 minutos pra logar XXXXXXXXXXX')
                     time.sleep(300)
+                    self.driver.delete_all_cookies()
                     self.driver.quit()
                     continue
 
