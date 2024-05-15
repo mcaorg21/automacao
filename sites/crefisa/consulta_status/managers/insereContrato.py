@@ -139,6 +139,12 @@ class InserirContrato(Manager):
                     dados_atualizacao['observacao'] = "Erro ao inserir: "+retorno['mensagem']
                     dados_atualizacao['erro'] = retorno['mensagem']
 
+                if('Experimente fazer login novamente' in retorno_mensagem or 'Erro interno' in retorno_mensagem):
+                    print('XXXXXXXXXXX Sessão deslogada... Aguardando 5 minutos pra logar XXXXXXXXXXX')
+                    time.sleep(300)
+                    self.driver.quit()
+                    continue
+
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                 continue
 
