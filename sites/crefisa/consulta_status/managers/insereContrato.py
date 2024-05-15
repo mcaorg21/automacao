@@ -127,11 +127,12 @@ class InserirContrato(Manager):
                     pass   
                 pass
 
-            
             if retorno_mensagem != "":
+
                 dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
                 dados_atualizacao['erro'] = retorno_mensagem
                 dados_atualizacao['observacao'] = retorno_mensagem
+
                 if('Exception' in retorno_mensagem):
                     dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                     dados_atualizacao['interacaoHumana'] = 0
@@ -390,23 +391,35 @@ class InserirContrato(Manager):
                 dados_atualizacao['mensagem'] = 'Pendente Dados'
                 dados_atualizacao['textoMensagem'] = retorno['mensagem']
                 dados_atualizacao['observacao'] = retorno['mensagem']
+                dados_atualizacao['erro'] = retorno['mensagem']
+
                 if('Exception' in retorno_mensagem):
                     dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                     dados_atualizacao['interacaoHumana'] = 0
                     dados_atualizacao['observacao'] = "Erro ao inserir: "+retorno['mensagem']
+                    dados_atualizacao['erro'] = retorno['mensagem']
                     dados_atualizacao['erro'] = retorno['mensagem']
 
                 if('matrícula' in retorno['mensagem']):
                     dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                     dados_atualizacao['observacao_emp'] = "Matrícula incorreta"
                     dados_atualizacao['observacao'] = "Matrícula incorreta"
+                    dados_atualizacao['erro'] = retorno['mensagem']
                     dados_atualizacao['status_con'] = "Aguardando Comercial"
 
                 if('Selecione Espécie do Benefício' in retorno['mensagem']):
                     dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                     dados_atualizacao['observacao_emp'] = "Informe número do benefício"
                     dados_atualizacao['observacao'] = "Informe número do benefício"
+                    dados_atualizacao['erro'] = retorno['mensagem']
                     dados_atualizacao['status_con'] = "Aguardando Comercial"
+
+                if('o cliente já possui contrato em andamento com a parcela' in retorno['mensagem']):
+                    dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                    dados_atualizacao['observacao_emp'] = retorno['mensagem']
+                    dados_atualizacao['observacao'] = retorno['mensagem']
+                    dados_atualizacao['erro'] = retorno['mensagem']
+                    dados_atualizacao['status_con'] = "Reprovado a Conferir"
 
                 
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
