@@ -97,11 +97,11 @@ class Main:
 
         #fila de insercao de contrato
         definir_nome_robo(self.TITLE)   
-        #InserirContrato.iniciar_horario_comercial(self.driver)
+        InserirContrato.iniciar_horario_comercial(self.driver)
           
         #fila de sincronizacao
         definir_nome_robo(self.TITLE)
-        #ConsultaStatus.iniciar_horario_comercial(self.driver)
+        ConsultaStatus.iniciar_horario_comercial(self.driver)
 
         print('Aguardando minutos para reiniciar...')
         #self.driver.delete_all_cookies()
