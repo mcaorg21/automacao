@@ -93,20 +93,22 @@ class Main:
         except:
             self.main()
 
+        #pdb.set_trace()
+
         #fila de insercao de contrato
         definir_nome_robo(self.TITLE)   
-        InserirContrato.iniciar_horario_comercial(self.driver)
+        #InserirContrato.iniciar_horario_comercial(self.driver)
           
         #fila de sincronizacao
         definir_nome_robo(self.TITLE)
-        ConsultaStatus.iniciar_horario_comercial(self.driver)
+        #ConsultaStatus.iniciar_horario_comercial(self.driver)
 
-        print('Aguardando 10 minutos para reiniciar...')
-        self.driver.delete_all_cookies()
-        self.driver.quit()
-        sleep(600)
-        Main().main()
-        #self.main()
+        print('Aguardando minutos para reiniciar...')
+        #self.driver.delete_all_cookies()
+        #self.driver.quit()
+        sleep(60)
+        #Main().main()
+        self.main()
 
 
     def verificar_tempo_execucao(self):

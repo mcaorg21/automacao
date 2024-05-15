@@ -21,15 +21,23 @@ class FormLogin:
         self.login: str = login
         self.senha: str = senha
         self.driver: Chrome = driver
+        #self.site_key_captcha = '6Lf-1q0pAAAAAJCrjBOtEvZLrrFlL50mkWpwvSTN'
+        #self.act = 
 
     @staticmethod
-    def realizar_login(driver: Chrome, login: str, senha: str, link: str = "") -> bool:
+    def realizar_login(driver: Chrome, login: str, senha: str, link: str = "", link_home = "https://app1.gerencialcredito.com.br/CREFISA/Dashboard.asp") -> bool:
         
         login: FormLogin = FormLogin(driver, login, senha)
 
+        driver.get(link_home)
+
+        if login.esta_logado():
+            driver.refresh()
+            return True
+
         driver.get(link)
 
-        for i in range(1, 11):
+        for i in range(1, 20):
             if login.esta_logado():
                 return True
             else:
@@ -38,7 +46,13 @@ class FormLogin:
             print(f"Login tentativa {i}")
 
             login.preencher_login()
-            login.preencher_senha()            
+            login.preencher_senha()    
+            captcha_presente = SeleniumActions(driver).quantidade_elemento('//*[@id="recaptcha"]', By.XPATH)
+
+            if(captcha_presente == 1):
+                print('Resolvendo Captcha')
+                retorno = SeleniumActions(driver).reCaptcha_v2('6Lf-1q0pAAAAAJCrjBOtEvZLrrFlL50mkWpwvSTN')    
+
             login.clicar_btn_acessar()
             print('Tentando logar')
             login.verificar_loading()
@@ -74,7 +88,7 @@ class FormLogin:
 
     def resolver_recaptcha(self):
         print("Resolver recaptcha")
-        SeleniumActions(self.driver).reCaptcha_v2(DATA_SITE_KEY)
+        SeleniumActions(self.driver).reCaptcha_v2(self.site_key_captcha)
 
     def verificar_loading(self, interacoes=300, aguardar = False):
         while (SeleniumActions(self.driver).quantidade_elemento('//*[@id="modal-root"]/div/div', By.XPATH) == 1):
@@ -83,3 +97,4 @@ class FormLogin:
             interacoes -= 1
             if(interacoes < -35):
                 self.driver.quit()
+
