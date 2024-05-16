@@ -226,14 +226,14 @@ class InserirContrato(Manager):
                                             ]
 
                     for doc in documentos_pessoais:
-                        if 'CARTA_DE_CONCESSaO_DO_BENEFiCIO' in doc:
+                        if 'EXTRATO_DE_PAGAMENTOS_EMITIDO' in doc:
                             try:
                                 download(doc, self.path_documentos + 'carta.pdf')
                                 reader = PdfReader(self.path_documentos + 'carta.pdf')
                                 page = reader.pages[0]
                                 texto = page.extract_text()
-                                pattern = re.compile(r"\(\d{2}\)")
-                                numero_beneficio = pattern.findall(texto)[0].replace('(',"").replace(')',"")
+                                pattern = re.compile(r"Espécie:\s(\d{2})")
+                                numero_beneficio = pattern.findall(texto)[0]
                             
                             except:
                                 dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
@@ -356,21 +356,33 @@ class InserirContrato(Manager):
             self.act.press_backspace('//*[@id="txtDigito"]',3,By.XPATH,0, True)
             self.act.enviar_texto_intervalado('//*[@id="txtDigito"]', informacoes['contrato']['matricula'][-1], By.XPATH)
 
-
             if(baixa_renda == False):
+
                 self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[5]/div[1]/div/button', By.XPATH)
                 select_dia_salario = str(int(informacoes['contrato']['diaSalario']) + 1)
-                self.act.clicar_elemento(f'/html/body/div[6]/div/div[3]/div/div[5]/div[1]/div/div/ul/li[{select_dia_salario}]', By.XPATH)
+
+                try:
+                    self.act.clicar_elemento(f'/html/body/div[6]/div/div[3]/div/div[5]/div[1]/div/div/ul/li[{select_dia_salario}]', By.XPATH)
+                except:
+                    self.act.clicar_elemento(f'/html/body/div[6]/div/div[3]/div/div[5]/div[1]/div/div/ul/li[2]', By.XPATH)
+                    pass
 
                 if id_perfil in [4,5]:
-                    dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
-                    dados_atualizacao['observacao_emp'] = "Contrato teste de inss para colocar o beneficio"
-                    dados_atualizacao['observacao'] = "Contrato teste de inss para colocar o beneficio"
-                    dados_atualizacao['status_con'] = "Aguardando Comercial"
-                    dados_atualizacao['erro'] = "Contrato teste de inss para colocar o beneficio"
-                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
-                    self.remove_div()
-                    continue
+
+                    try:
+                        self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[5]/div[2]/div/button', By.XPATH)  
+                        self.act.enviar_texto('/html/body/div[6]/div/div[3]/div/div[5]/div[2]/div/div/div/input', numero_beneficio, By.XPATH)
+                        self.act.press_enter('/html/body/div[6]/div/div[3]/div/div[5]/div[2]/div/div/div/input', By.XPATH)
+
+                    except:
+                        dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                        dados_atualizacao['observacao_emp'] = "Contrato teste de inss para colocar o beneficio"
+                        dados_atualizacao['observacao'] = "Contrato teste de inss para colocar o beneficio"
+                        dados_atualizacao['status_con'] = "Aguardando Comercial"
+                        dados_atualizacao['erro'] = "Contrato teste de inss para colocar o beneficio"
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        self.remove_div()
+                        continue
 
             print('----------------------------------------------------------------------------------------')
             print('Preenchendo renda')
