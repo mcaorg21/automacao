@@ -133,7 +133,7 @@ class InserirContrato(Manager):
                 dados_atualizacao['erro'] = retorno_mensagem
                 dados_atualizacao['observacao'] = retorno_mensagem
 
-                if('Exception' in retorno_mensagem):
+                if('Exception' in retorno_mensagem or 'erro no processamento' in retorno_mensagem):
                     dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                     dados_atualizacao['interacaoHumana'] = 0
                     dados_atualizacao['observacao'] = "Erro ao inserir: "+retorno['mensagem']
