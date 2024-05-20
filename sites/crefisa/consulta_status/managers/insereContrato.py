@@ -1,5 +1,5 @@
 
-import os,time,pdb,re,requests,json,sys,os,platform
+import os,time,pdb,re,requests,json,sys,os,platform,datetime
 #winsound
 
 from selenium.webdriver import Chrome
@@ -558,8 +558,6 @@ class InserirContrato(Manager):
 
             print('Finalizando dados Pessoais do Contrato')
 
-
-
             if(self.driver.find_element(By.CSS_SELECTOR,"#chkAutorizaSms").is_selected() == False):
                 self.act.clicar_elemento('//*[@id="chkAutorizaSms"]', By.XPATH)
 
@@ -593,24 +591,30 @@ class InserirContrato(Manager):
             if 'Data' in retorno['mensagem']:
                 self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
                 if 'RG' in retorno['mensagem']:
-                    erro = "XXXXXXXXXXXXXXXX ERRO NA DATA DE NASCIMENTO XXXXXXXXXXXXXXXXXXX"
+                    erro = "XXXXXXXXXXXXXXXX ERRO NA DATA DE RG XXXXXXXXXXXXXXXXXXX"
                     self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', '10/10/2020', By.XPATH)
                     self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)  
                     retorno = self.verificar_loading()
 
                 elif 'Nascimento' in retorno['mensagem']: 
                     erro = "XXXXXXXXXXXXXXXX ERRO NA DATA DE NASCIMENTO XXXXXXXXXXXXXXXXXXX"
-                
-                    print(erro)
+                    pdb.set_trace()
+                    nova_data_nascimento = datetime.datetime.strptime(informacoes['contrato']['dataNascimento'], "%d/%m/%Y").strftime("%m-%d-%Y")
+                    self.act.enviar_texto('//*[@id="txtDataNascimento"]', nova_data_nascimento, By.XPATH)
 
-                    dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                    self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)  
+
+                    retorno = self.verificar_loading()
+                    #print(erro)
+
+                    """dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                     dados_atualizacao['observacao_emp'] = erro
                     dados_atualizacao['observacao'] = erro
                     dados_atualizacao['status_con'] = "Aguardando Comercial"
 
                     self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
 
-                    continue
+                    continue"""
 
             if retorno['retorno'] == False:
                 dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
