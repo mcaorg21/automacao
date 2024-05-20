@@ -375,14 +375,21 @@ class InserirContrato(Manager):
                         self.act.press_enter('/html/body/div[6]/div/div[3]/div/div[5]/div[2]/div/div/div/input', By.XPATH)
 
                     except:
-                        dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
-                        dados_atualizacao['observacao_emp'] = "Contrato teste de inss para colocar o beneficio"
-                        dados_atualizacao['observacao'] = "Contrato teste de inss para colocar o beneficio"
-                        dados_atualizacao['status_con'] = "Aguardando Comercial"
-                        dados_atualizacao['erro'] = "Contrato teste de inss para colocar o beneficio"
-                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
-                        self.remove_div()
-                        continue
+
+                        if 'numeroBeneficio' in informacoes['contrato']['dadosProfissionais']:
+                            numero_beneficio = informacoes['contrato']['dadosProfissionais']['numeroBeneficio']
+
+                        else:
+
+                            dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                            dados_atualizacao['observacao_emp'] = "Contrato teste de inss para colocar o beneficio"
+                            dados_atualizacao['observacao'] = "Contrato teste de inss para colocar o beneficio"
+                            dados_atualizacao['status_con'] = "Aguardando Comercial"
+                            dados_atualizacao['erro'] = "Contrato teste de inss para colocar o beneficio"
+                            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                            self.remove_div()
+                            continue
+                        pass
 
             print('----------------------------------------------------------------------------------------')
             print('Preenchendo renda')
