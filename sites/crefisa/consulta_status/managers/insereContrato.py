@@ -394,27 +394,35 @@ class InserirContrato(Manager):
             print('----------------------------------------------------------------------------------------')
             print('Preenchendo renda')
             self.act.enviar_texto('//*[@id="txtValorRendaLiquida"]', informacoes['contrato']['renda'], By.XPATH)
+
             print('----------------------------------------------------------------------------------------')
 
             print("Preenchendo o tipo de simulação")
-            self.act.select_drop_down("//select[@id='txtTipoSimulacao']",'1', By.XPATH)
+
+            try:
+                self.act.select_drop_down("//select[@id='txtTipoSimulacao']",'1', By.XPATH)
+                novo_contrato = True
+            except:
+                self.act.select_drop_down("//select[@id='txtTipoSimulacao']",'2', By.XPATH)
+                novo_contrato = False
+                pass
+
+
             print('----------------------------------------------------------------------------------------')
 
             print('Preenchendo calculo por parcela e valor da parcela')
-            # try:
-            #     self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[6]/div[2]/div/div/button', By.XPATH)
-            #     self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[6]/div[2]/div/div/div/ul/li[1]/a/span[1]', By.XPATH)
-            # except:
-            #     pass
-            self.act.select_drop_down('//*[@id="txtTipoValorContrato"]','1', By.XPATH)
 
-            self.act.enviar_texto('//*[@id="txtValorSimulacao"]', informacoes['contrato']['valorParcela'], By.XPATH) 
-            print('----------------------------------------------------------------------------------------')
+            if(novo_contrato == True):
+                self.act.select_drop_down('//*[@id="txtTipoValorContrato"]','1', By.XPATH)
 
+                self.act.enviar_texto('//*[@id="txtValorSimulacao"]', informacoes['contrato']['valorParcela'], By.XPATH) 
+                print('----------------------------------------------------------------------------------------')
+
+            
             print('Clicando em simular')
             self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[7]/div/button', By.XPATH)    
             retorno = self.verificar_loading()
-            #pdb.set_trace()
+            
             if retorno['retorno'] == False:
                 dados_atualizacao['mensagem'] = 'Pendente Dados'
                 dados_atualizacao['textoMensagem'] = retorno['mensagem']
