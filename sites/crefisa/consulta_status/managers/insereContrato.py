@@ -597,14 +597,10 @@ class InserirContrato(Manager):
             retorno = self.verificar_loading()
 
             if 'Data' in retorno['mensagem']:
-                self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
-                if 'RG' in retorno['mensagem']:
-                    erro = "XXXXXXXXXXXXXXXX ERRO NA DATA DE RG XXXXXXXXXXXXXXXXXXX"
-                    self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', '10/10/2020', By.XPATH)
-                    self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)  
-                    retorno = self.verificar_loading()
 
-                elif 'Nascimento' in retorno['mensagem']: 
+                self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
+                
+                if 'Nascimento' in retorno['mensagem']: 
                     erro = "XXXXXXXXXXXXXXXX ERRO NA DATA DE NASCIMENTO XXXXXXXXXXXXXXXXXXX"
                     #pdb.set_trace()
                     nova_data_nascimento = datetime.datetime.strptime(informacoes['contrato']['dataNascimento'], "%d/%m/%Y").strftime("%m-%d-%Y")
@@ -613,6 +609,13 @@ class InserirContrato(Manager):
                     self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)  
 
                     retorno = self.verificar_loading()
+
+                if 'RG' in retorno['mensagem']:
+                    erro = "XXXXXXXXXXXXXXXX ERRO NA DATA DE RG XXXXXXXXXXXXXXXXXXX"
+                    self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', '10/10/2020', By.XPATH)
+                    self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)  
+                    retorno = self.verificar_loading()
+                    
                     #print(erro)
 
                     """dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
