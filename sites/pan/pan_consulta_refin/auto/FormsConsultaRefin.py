@@ -347,12 +347,14 @@ class FormIdentificacao(AutoGUI):
     def descartar_card_ofertas_pendente(self, rec=0):
         loc = '/html/body/div[5]/div[3]/div/button[2]'
         loc_2 = '/html/body/div[4]/div[3]/div/button[1]'  
+        #loc_2 = '/html/body/div[5]/div[3]/div/button[1]'
         
         sleep(0.2)
-
+        
         try:
             try:
-                self.act.hover_e_clique(loc, self.by.XPATH)
+                self.driver.execute_script("""document.querySelector("body > div.ui-dialog.ui-corner-all.ui-widget.ui-widget-content.ui-front.ui-dialog-buttons.ui-draggable > div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button:nth-child(1)").click()""")
+                #self.act.hover_e_clique(loc, self.by.XPATH)
             except:
                 self.act.hover_e_clique(loc_2, self.by.XPATH) 
         except ElementClickInterceptedException as e:
