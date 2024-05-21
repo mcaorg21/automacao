@@ -24,7 +24,9 @@ from unidecode import unidecode
 
 from PIL import Image
 
-from PyPDF2 import PdfReader
+#from PyPDF2 import PdfReader
+from pypdf import PdfReader
+
 
 HORARIO_COMERCIAL = 8, 20
 
@@ -236,15 +238,18 @@ class InserirContrato(Manager):
                                 numero_beneficio = pattern.findall(texto)[0]
                             
                             except:
-                                dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
-                                dados_atualizacao['observacao_emp'] = "Número do benefício não encontrato no documento carta concessão"
-                                dados_atualizacao['observacao'] = "Número do benefício  não encontrato no documento carta concessão"
-                                dados_atualizacao['status_con'] = "Aguardando Comercial"
+                                if 'numeroBeneficio' in informacoes['contrato']['dadosProfissionais']:
+                                    numero_beneficio = informacoes['contrato']['dadosProfissionais']['numeroBeneficio']
 
-                            
-                                self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
-                                self.remove_div()
-                                continue
+                                else:
+                                    dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                                    dados_atualizacao['observacao_emp'] = "Número do benefício não encontrato no documento carta concessão"
+                                    dados_atualizacao['observacao'] = "Número do benefício  não encontrato no documento carta concessão"
+                                    dados_atualizacao['status_con'] = "Aguardando Comercial"
+
+                                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                                    self.remove_div()
+                                    continue
 
             
 
