@@ -323,13 +323,15 @@ class FormIdentificacao(AutoGUI):
         print("Consultando...--------" + str(rec))
         if(rec > 50):
             return False
-
+        
         loc_consulta = '//*[@id="gpbtnConsultar"]'
+        #loc_consulta_2 =  '/html/body/div[3]/div/form/div/div/div[2]/div/fieldset/div[4]/div[3]/button'
         loc_consulta_2 = '//*[@id="btnConsultar"]'
         loc_consulta_novo = '//*[@id="btnNovo"]'  
         try:
-            self.act.hover_e_clique(loc_consulta_2, self.by.XPATH)
-            #aguardar_loading(self.act, self.by.XPATH)
+            #self.act.hover_e_clique(loc_consulta_2, self.by.XPATH)
+            self.driver.execute_script("""$('#btnConsultar').click()""")
+            aguardar_loading(self.act, self.by.XPATH)
         except:
             try:
                 self.act.hover_e_clique(loc_consulta, self.by.XPATH)
