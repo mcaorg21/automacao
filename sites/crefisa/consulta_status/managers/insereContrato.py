@@ -646,6 +646,7 @@ class InserirContrato(Manager):
             counter = 1
             conta_anexo_cpf = 1
             #pdb.set_trace()
+            self.driver.execute_script("document.body.style.zoom='50%'")
             for doc in documentos_pessoais:
 
                 if 'COMPROVANTE_ENDERECO' in doc and baixa_renda == True:
@@ -728,8 +729,12 @@ class InserirContrato(Manager):
 
                 counter += 1
 
-                
-                upload = self.driver.find_element(By.XPATH, caminho_xpath)
+                try:
+                    upload = self.driver.find_element(By.XPATH, caminho_xpath)
+                except:
+                    upload = self.driver.find_element(By.XPATH, '//*[@id="ddlarquivosOutros"]')
+                    pass
+
                 upload.send_keys(arquivo)
 
                     
@@ -737,7 +742,7 @@ class InserirContrato(Manager):
             print('----------------------------------------------------------------------------------------')
 
             print('Procurando por ade...')
-            self.driver.execute_script("document.body.style.zoom='60%'")
+            
             #for i in range(1,7): 
             #    self.act.clicar_elemento(f'//*[@id="accordion"]/div[{i}]/div[1]/h4/a', By.XPATH)
 
