@@ -89,7 +89,7 @@ class ConsultaStatus(Manager):
 
                 self.dados_consulta['novaAde'] = ""
 
-                self.div = div = '6'
+                self.div = div = '5'
                 
                 while(self.act.quantidade_elemento(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody', By.XPATH) == 0):
                     div = int(div)
@@ -102,6 +102,9 @@ class ConsultaStatus(Manager):
 
                 print('Verificando se possui contrato aprovado...')
                 contrato_aprovado = False
+
+                if(linhas_tr > 4):
+                    self.driver.execute_script("document.body.style.zoom='75%'")
 
                 for i in range(1,linhas_tr,2):
 
@@ -137,18 +140,25 @@ class ConsultaStatus(Manager):
                         
                         if ade in linha_tr_ade:
                             print('Achou Contrato de ade igual do sistema...')
-                            loc_atualizar = f'/html/body/div[7]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[2]/button'
-                            self.act.clicar_elemento(loc_atualizar, By.XPATH)
+
+                            #loc_atualizar = f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[2]/button'
+                            #loc_atualizar = '//*[@id="btnAtualizarResultado"]'
+                            #self.act.clicar_elemento(loc_atualizar, By.XPATH)
+                            self.driver.execute_script("""$('#btnAtualizarResultado').click()""")
                             self.verificar_loading()
-                            while self.act.quantidade_elemento('/html/body/div[10]', By.XPATH) == 0:
-                                print("Aguardando o ok de status atualizado...")
+                            #while self.act.quantidade_elemento('/html/body/div[10]', By.XPATH) == 0:
+                            #    print("Aguardando o ok de status atualizado...")
                             self.aguardar_consulta(1)
                             try:
                                 self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
                             except:
                                 print("Aguardando o ok aparecer...")
-                                self.aguardar_consulta(3)
-                                self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
+                                self.aguardar_consulta(10)
+
+                                try: 
+                                    self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
+                                except:
+                                    pass
 
                             self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
                             self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
@@ -170,9 +180,12 @@ class ConsultaStatus(Manager):
                             
                             break             
 
+                self.driver.execute_script("document.body.style.zoom='100%'")
+
                 if ('PAGO' in self.dados_consulta["statusPropostaBanco"] or 'APROVADO' in self.dados_consulta["statusPropostaBanco"]) and 'EM ANDAMENTO' in self.dados_consulta["statusSecundario"]:
                     self.dados_consulta['statusSecundario'] += " "+self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{indice}]/td[4]', By.XPATH).replace('\n',"").split("Liberado")[1]
 
+                
                 self.dados.post_dados_consultados(self.dados_consulta)    
 
                 try:          
@@ -259,7 +272,8 @@ class ConsultaStatus(Manager):
 
     def verificar_loading(self, interacoes=300, aguardar = False):
         self.aguardar_consulta(0.8)
-        while (self.act.quantidade_elemento('/html/body/div[9]', By.XPATH) == 1):
+
+        while (self.act.quantidade_elemento('/html/body/div[9]', By.XPATH) == 1 or self.act.quantidade_elemento('/html/body/div[10]', By.XPATH) == 1):
             print('Aguardando Loading...' + str(interacoes))
             time.sleep(0.5)
             interacoes -= 1
