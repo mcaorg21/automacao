@@ -137,6 +137,19 @@ class ConsultaStatus(Manager):
                         
                         if ade in linha_tr_ade:
                             print('Achou Contrato de ade igual do sistema...')
+                            loc_atualizar = f'/html/body/div[7]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[2]/button'
+                            self.act.clicar_elemento(loc_atualizar, By.XPATH)
+                            self.verificar_loading()
+                            while self.act.quantidade_elemento('/html/body/div[10]', By.XPATH) == 0:
+                                print("Aguardando o ok de status atualizado...")
+                            self.aguardar_consulta(1)
+                            try:
+                                self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
+                            except:
+                                print("Aguardando o ok aparecer...")
+                                self.aguardar_consulta(3)
+                                self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
+
                             self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
                             self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
                             self.dados_consulta['observacaoDetalhadaBanco'] += "\n\n"+self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[2]/span', By.XPATH).strip()
