@@ -24,8 +24,11 @@ from unidecode import unidecode
 
 from PIL import Image
 
-#from PyPDF2 import PdfReader
-from pypdf import PdfReader
+try:
+    from pypdf import PdfReader
+except:
+    from PyPDF2 import PdfReader
+
 
 
 HORARIO_COMERCIAL = 8, 20
@@ -600,27 +603,20 @@ class InserirContrato(Manager):
             self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)  
 
             retorno = self.verificar_loading()
-
+            
             if 'Data' in retorno['mensagem']:
 
-                self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
-                
                 if 'Nascimento' in retorno['mensagem']: 
-                    erro = "XXXXXXXXXXXXXXXX ERRO NA DATA DE NASCIMENTO XXXXXXXXXXXXXXXXXXX"
-                    #pdb.set_trace()
-                    nova_data_nascimento = datetime.datetime.strptime(informacoes['contrato']['dataNascimento'], "%d/%m/%Y").strftime("%m-%d-%Y")
-                    self.act.enviar_texto('//*[@id="txtDataNascimento"]', nova_data_nascimento, By.XPATH)
-
-                    self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)  
-
+                    self.registra_data_nascimento(informacoes)
                     retorno = self.verificar_loading()
 
+                    if 'data de nascimento deve ser maior ou igual' in retorno['mensagem']:
+                        self.registra_data_rg()
+                        self.registra_data_nascimento(informacoes)
+
+
                 if 'RG' in retorno['mensagem']:
-                    self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
-                
-                    erro = "XXXXXXXXXXXXXXXX ERRO NA DATA DE RG XXXXXXXXXXXXXXXXXXX"
-                    self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', '10/10/2020', By.XPATH)
-                    self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)  
+                    self.registra_data_rg()
                     retorno = self.verificar_loading()
 
                     #print(erro)
@@ -879,3 +875,21 @@ class InserirContrato(Manager):
             11 : "38"
         }
         return switcher.get(perfil, 'Opção inválida')
+
+
+    def registra_data_rg(self):
+        self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
+                
+        print("XXXXXXXXXXXXXXXX ERRO NA DATA DE RG XXXXXXXXXXXXXXXXXXX")
+
+        self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', '10/10/2020', By.XPATH)
+        self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)
+
+    def registra_data_nascimento(self, informacoes):
+        self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
+
+        print("XXXXXXXXXXXXXXXX ERRO NA DATA DE NASCIMENTO XXXXXXXXXXXXXXXXXXX")
+
+        nova_data_nascimento = datetime.datetime.strptime(informacoes['contrato']['dataNascimento'], "%d/%m/%Y").strftime("%m-%d-%Y")
+        self.act.enviar_texto('//*[@id="txtDataNascimento"]', nova_data_nascimento, By.XPATH)
+        self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)  
