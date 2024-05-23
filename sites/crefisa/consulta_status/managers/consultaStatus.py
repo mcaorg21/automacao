@@ -153,8 +153,7 @@ class ConsultaStatus(Manager):
                                 self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
                             except:
                                 print("Aguardando o ok aparecer...")
-                                self.aguardar_consulta(10)
-
+                                self.aguardar_consulta(5)
                                 try: 
                                     self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
                                 except:
@@ -168,7 +167,9 @@ class ConsultaStatus(Manager):
 
                             if 'CANCELADO' in self.dados_consulta["statusPropostaBanco"] or 'PENDENTE' in self.dados_consulta["statusPropostaBanco"]:
                                 
-                                self.act.clicar_elemento('//*[@id="linkSubStatus_0"]', By.XPATH)                                
+                                elemento = str(int((i - 1) / 2))
+                                self.driver.execute_script(f""" document.querySelector("#linkSubStatus_{elemento}").click() """)
+                             
                                 self.dados_consulta['statusSecundario'] += "\n\n"+self.act.obter_texto('//*[@id="modalSubStatus"]/div/div/div[2]/div/div[2]/table/tbody/tr[1]', By.XPATH)
                                 
                                 for i in range(6,15):
@@ -177,7 +178,6 @@ class ConsultaStatus(Manager):
                                         break
                                     except:
                                         continue
-                            
                             break             
 
                 self.driver.execute_script("document.body.style.zoom='100%'")
@@ -289,3 +289,20 @@ class ConsultaStatus(Manager):
 
             if(interacoes < -35):
                 self.driver.quit()
+
+    def get_indice_cancelado(self, indice):
+        
+        switcher = {
+            1 : "0",
+            3 : "1",
+            5 : "2",
+            7 : "3",
+            9 : "4",
+            11 : "5",
+            13 : "6",
+            15 : "7",
+            17 : "8",
+            19 : "9",
+            21 : "10"
+        }
+        return switcher.get(indice, 'Opção inválida')
