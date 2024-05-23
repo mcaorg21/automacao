@@ -216,7 +216,7 @@ class ConsultaStatus(Manager):
                     # )
 
                     self.chrome_driver.delete_all_cookies()
-                    self.driver.quit()
+                    #self.driver.quit()
 
                     return
 
