@@ -169,15 +169,9 @@ class ConsultaStatus(Manager):
                                 
                                 elemento = str(int((i - 1) / 2))
                                 self.driver.execute_script(f""" document.querySelector("#linkSubStatus_{elemento}").click() """)
-                             
                                 self.dados_consulta['statusSecundario'] += "\n\n"+self.act.obter_texto('//*[@id="modalSubStatus"]/div/div/div[2]/div/div[2]/table/tbody/tr[1]', By.XPATH)
-                                
-                                for i in range(6,15):
-                                    try:
-                                        self.act.clicar_elemento(f'/html/body/div[{i}]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
-                                        break
-                                    except:
-                                        continue
+                                self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
+
                             break             
 
                 self.driver.execute_script("document.body.style.zoom='100%'")
