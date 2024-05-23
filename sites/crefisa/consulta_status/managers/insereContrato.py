@@ -458,7 +458,7 @@ class InserirContrato(Manager):
                     dados_atualizacao['erro'] = retorno['mensagem']
                     dados_atualizacao['status_con'] = "Aguardando Comercial"
 
-                if('o cliente já possui contrato em andamento com a parcela' in retorno['mensagem']):
+                if('o cliente já possui contrato em andamento com a parcela' in retorno['mensagem'] or 'possui contrato em andamento com a parcela' in retorno['mensagem']):
                     dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
                     dados_atualizacao['observacao_emp'] = retorno['mensagem']
                     dados_atualizacao['observacao'] = retorno['mensagem']
