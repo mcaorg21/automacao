@@ -210,10 +210,15 @@ class ConsultaStatus(Manager):
 
                 else:
 
-                    self.dados.api_registrar_log_robo(
-                        log=f"ERRO: {e}",
-                        status=0
-                    )
+                    # self.dados.api_registrar_log_robo(
+                    #     log=f"ERRO: {e}",
+                    #     status=0
+                    # )
+
+                    self.chrome_driver.delete_all_cookies()
+                    self.driver.quit()
+
+                    return
 
                 continue
 
