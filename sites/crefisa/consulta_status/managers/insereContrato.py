@@ -610,18 +610,19 @@ class InserirContrato(Manager):
                 retorno = self.verificar_loading()
                 
                 if 'Data' in retorno['mensagem']:
-
+                    
                     if 'Nascimento' in retorno['mensagem']: 
                         self.registra_data_nascimento(informacoes)
                         retorno = self.verificar_loading()
 
                         if 'data de nascimento deve ser maior ou igual' in retorno['mensagem']:
-                            self.registra_data_rg()
+                            self.registra_data_rg(informacoes, True)
                             self.registra_data_nascimento(informacoes)
-
+                            retorno['retorno'] == True
+                            retorno['mensagem'] == ""
 
                     if 'RG' in retorno['mensagem']:
-                        self.registra_data_rg()
+                        self.registra_data_rg(informacoes)
                         retorno = self.verificar_loading()
 
                         #print(erro)
@@ -885,12 +886,17 @@ class InserirContrato(Manager):
         return switcher.get(perfil, 'Opção inválida')
 
 
-    def registra_data_rg(self):
+    def registra_data_rg(self,informacoes, forjar_data = False):
         self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
                 
         print("XXXXXXXXXXXXXXXX ERRO NA DATA DE RG XXXXXXXXXXXXXXXXXXX")
 
-        self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', '10/10/2020', By.XPATH)
+        if(forjar_data == True):
+            data_nova = "10/10/" + str(int(informacoes['contrato']['dataNascimento'].split('/')[2]) - 1)
+        else:
+            data_nova = "10/10/2020"
+
+        self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', data_nova, By.XPATH)
         self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)
 
     def registra_data_nascimento(self, informacoes):
