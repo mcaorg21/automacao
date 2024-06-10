@@ -172,8 +172,12 @@ class ConsultaStatus(Manager):
                                 self.dados_consulta['statusSecundario'] += "\n\n"+self.act.obter_texto('//*[@id="modalSubStatus"]/div/div/div[2]/div/div[2]/table/tbody/tr[1]', By.XPATH)
                                 try:
                                     self.act.clicar_elemento(f'//*[@id="modalSubStatus"]', By.XPATH)
-                                except:
                                     self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
+                                except:
+                                    try:
+                                        self.act.quantidade_elemento(f'/html/body/div[{div}]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
+                                    except:
+                                        pass
                                     pass
 
                             break             
