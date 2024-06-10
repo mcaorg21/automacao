@@ -87,7 +87,7 @@ class InserirContrato(Manager):
             return False
 
         for contrato in contratos['contratos']:
-
+            #pdb.set_trace()
             try:
                 dados_atualizacao = {}
                 dados_atualizacao['mensagem'] = 'Inserir contrato'
@@ -430,7 +430,6 @@ class InserirContrato(Manager):
 
                     self.act.enviar_texto('//*[@id="txtValorSimulacao"]', informacoes['contrato']['valorParcela'], By.XPATH) 
                     print('----------------------------------------------------------------------------------------')
-
                 
                 print('Clicando em simular')
                 self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[7]/div/button', By.XPATH)    
@@ -478,7 +477,46 @@ class InserirContrato(Manager):
                 print('----------------------------------------------------------------------------------------')
 
                 print('Selecionando o prazo...')
-                self.act.select_drop_down('//*[@id="ddlPrazo"]', str(int(informacoes['contrato']['prazo'])-1), By.XPATH)
+
+                if novo_contrato == False:
+
+                    self.act.select_drop_down('//*[@id="txtTipoValorContratoNovaSimulacao"]', "1", By.XPATH)
+                    self.act.enviar_texto('//*[@id="txtValorSimulacaoNovaSimulacao"]', informacoes['contrato']['valorParcela'], By.XPATH)
+                    self.act.clicar_elemento('/html/body/div[6]/div/div[4]/div[2]/div/div[2]/div/div/button', By.XPATH)
+
+                    retorno = self.verificar_loading()
+
+                    if retorno['retorno'] == False:
+
+                        dados_atualizacao['mensagem'] = 'Pendente Dados'
+                        dados_atualizacao['textoMensagem'] = retorno['mensagem']
+                        dados_atualizacao['observacao'] = retorno['mensagem']
+                        dados_atualizacao['erro'] = retorno['mensagem']
+
+                        if('Nenhuma simulação encontrada' in retorno['mensagem']):
+
+                            dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                            dados_atualizacao['observacao_emp'] = retorno['mensagem']
+                            dados_atualizacao['observacao'] = retorno['mensagem']
+                            dados_atualizacao['erro'] = retorno['mensagem']
+                            dados_atualizacao['status_con'] = "Reprovado a Conferir"
+
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        self.remove_div()
+                        continue
+
+                    else:
+
+                        dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                        dados_atualizacao['observacao_emp'] = "Esse contrato e de refinanciamento e precisa tratar no codigo para quando resultado"
+                        dados_atualizacao['observacao'] = "Esse contrato e de refinanciamento e precisa tratar no codigo para quando resultado"
+                        dados_atualizacao['erro'] = retorno['mensagem']
+                        dados_atualizacao['status_con'] = "Aguardando Comercial"
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        continue
+
+                else:
+                    self.act.select_drop_down('//*[@id="ddlPrazo"]', str(int(informacoes['contrato']['prazo'])-1), By.XPATH)
                 str_valor = self.act.obter_texto('//*[@id="appVue"]/div[4]/div[2]/div/div[2]/div/div/div/div[2]/div[2]/div/span', By.XPATH)       
                 print('----------------------------------------------------------------------------------------')
 
