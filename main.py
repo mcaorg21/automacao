@@ -20,6 +20,12 @@ def robo_crefisa():
     run = Main()
     run.main()
 
+def robo_waw():
+    from sites.whatsappwu.main import Main
+    system("title Robô - Whatsapp Warmup")
+    run = Main()
+    run.main()
+
 def robo_novo_saque():
     from sites.novosaque.main import Main
     system("title Robô - Novo Saque")
@@ -502,6 +508,11 @@ def main(site=False):
                         'name': 'Crefisa',
                         'value': 'crefisa'
                     },
+                    Separator(),
+                    {
+                        'name': 'Whatsapp Warmup',
+                        'value': 'whatsapp'
+                    },
 
 
                 ]
@@ -600,6 +611,8 @@ def main(site=False):
         robo_cora_login()
     elif site == 'crefisa':
         robo_crefisa()
+    elif site == 'whatsapp':
+        robo_waw()
     else:
         print("Não foi possível encontrar o robô desejado!")
 

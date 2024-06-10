@@ -1,6 +1,9 @@
 from dados.dados_apis import UCONECTE, WEBADMIN
 
 POST = {
+        # ia vertex
+        "ia-vertex-texto": UCONECTE + '/v1/consultas/simple_response_ia_vertex/',
+        
         # post dos dados insercao itau
         "enviar-dados-itau-sincronizacao": WEBADMIN + '/v1/atualiza-status/banco-itau-consignado/contratos/',
         

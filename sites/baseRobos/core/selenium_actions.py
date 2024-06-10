@@ -132,6 +132,7 @@ class SeleniumActions:
             for char in texto:
                 sleep(delay)
                 input_element.send_keys(char)
+
         except StaleElementReferenceException:
             input_element = WebDriverWait(self.driver, self.__time_out).until(
                 EC.element_to_be_clickable((metodo, seletor)),
@@ -143,6 +144,32 @@ class SeleniumActions:
             for char in texto:
                 sleep(delay)
                 input_element.send_keys(char)
+
+    def enviar_texto_intervalado_uma_vez(self, seletor: str, texto: str, metodo: object = By.CSS_SELECTOR, clear: bool = True,
+                                 delay: float = 0.2):
+        """
+        Envia o texto para o campo inserindo um intervalo entre cada
+        caractere.
+        :param seletor: (str) seletor do elemento web.
+        :param texto: (str) texto a ser enviado para o campo.
+        :param metodo: (function) metodo da classe selenium.webdriver.common.by.By.
+        :param clear: (bool) apaga o campo quando == True.
+        :param delay: (float) intervalo entre cada caractere.
+        """
+        try:
+            input_element = WebDriverWait(self.driver, self.__time_out).until(
+                EC.visibility_of_element_located((metodo, seletor)),
+                message=self.message
+            )
+            if clear:
+                input_element.clear()
+
+            for char in texto:
+                sleep(delay)
+                input_element.send_keys(char)
+                
+        except StaleElementReferenceException:
+            pass
 
     def buscar_quantidade_elemento(self, seletor):
         return self.driver.execute_script("""return $('%s').length""" % (seletor))
@@ -321,6 +348,28 @@ class SeleniumActions:
             EC.visibility_of_element_located((metodo, seletor)),
             message=self.message
         ).send_keys(Keys.RETURN)
+
+    def press_shift_enter(self, seletor, metodo=By.CSS_SELECTOR):
+        """
+        Pressiona a tecla <ctrl A> no elemento elecionado.
+        :param seletor: (str) seletor do elemento web.
+        :param metodo: (function) metodo da classe selenium.webdriver.common.by.By.
+        """
+        WebDriverWait(self.driver, self.__time_out).until(
+            EC.visibility_of_element_located((metodo, seletor)),
+            message=self.message
+        ).send_keys(Keys.SHIFT + Keys.RETURN)
+
+    def press_ctrl_A(self, seletor, metodo=By.CSS_SELECTOR):
+        """
+        Pressiona a tecla <ctrl A> no elemento elecionado.
+        :param seletor: (str) seletor do elemento web.
+        :param metodo: (function) metodo da classe selenium.webdriver.common.by.By.
+        """
+        WebDriverWait(self.driver, self.__time_out).until(
+            EC.visibility_of_element_located((metodo, seletor)),
+            message=self.message
+        ).send_keys(Keys.CONTROL+"A")
 
     def press_pagedown(self, seletor, metodo=By.CSS_SELECTOR):
         """

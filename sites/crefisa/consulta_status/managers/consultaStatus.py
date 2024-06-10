@@ -97,9 +97,9 @@ class ConsultaStatus(Manager):
                     self.div = div = str(div)
 
                 self.aguardar_consulta()
-
+                
                 linhas_tr = self.act.quantidade_elemento(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr', By.XPATH)
-
+                
                 print('Verificando se possui contrato aprovado...')
                 contrato_aprovado = False
 
@@ -107,7 +107,7 @@ class ConsultaStatus(Manager):
                     self.driver.execute_script("document.body.style.zoom='75%'")
 
                 for i in range(1,linhas_tr,2):
-
+                                                            
                     numero_contrato = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
                     texto_aprovada = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[2]/span', By.XPATH)
                     
@@ -170,7 +170,11 @@ class ConsultaStatus(Manager):
                                 elemento = str(int((i - 1) / 2))
                                 self.driver.execute_script(f""" document.querySelector("#linkSubStatus_{elemento}").click() """)
                                 self.dados_consulta['statusSecundario'] += "\n\n"+self.act.obter_texto('//*[@id="modalSubStatus"]/div/div/div[2]/div/div[2]/table/tbody/tr[1]', By.XPATH)
-                                self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
+                                try:
+                                    self.act.clicar_elemento(f'//*[@id="modalSubStatus"]', By.XPATH)
+                                except:
+                                    self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
+                                    pass
 
                             break             
 
