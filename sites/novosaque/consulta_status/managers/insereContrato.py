@@ -281,7 +281,7 @@ class InserirContrato(Manager):
                 #self.act.select_drop_down('//*[@id="kind_account"]','ted', By.XPATH)
                 #self.act.select_drop_down('//*[@id="kind_account"]','cpf_cnpj', By.XPATH)
                 #self.act.enviar_texto('//*[@id="pix"]',formatar_cpf_sem_caracteres(contrato['cpf_cli']),By.XPATH)
-                self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[5]/button', By.XPATH)
+                self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[6]/button', By.XPATH)
                 #self.verificar_loading()
 
                 print('Finalizando ficha do contrato...')
