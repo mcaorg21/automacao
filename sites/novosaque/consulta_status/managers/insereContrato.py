@@ -267,7 +267,7 @@ class InserirContrato(Manager):
                 #self.act.enviar_texto('/html/body/div[1]/div[1]/div[2]/div/div/div/div[2]/form/div[3]/div[2]/div[2]/div/input',informacoes['contrato']['banco']['digitoAgencia'],By.XPATH)
                 self.act.enviar_texto('//*[@id="number_account"]',informacoes['contrato']['banco']['numeroConta'],By.XPATH)
 
-                self.act.enviar_texto('/html/body/div[1]/div[1]/div[2]/div/div/div/div[2]/form/div[4]/div[3]/div[4]/div/input',informacoes['contrato']['banco']['digitoConta'],By.XPATH)
+                self.act.enviar_texto('/html/body/div[1]/div[1]/div[2]/div/div/div/div[2]/form/div[5]/div[3]/div[4]/div/input',informacoes['contrato']['banco']['digitoConta'],By.XPATH)
                 
                 if(informacoes['contrato']['banco']['tipoConta'] == 'Conta-corrente'):
                     tipo_conta = '0'
