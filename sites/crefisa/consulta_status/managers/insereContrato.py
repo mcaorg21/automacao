@@ -314,7 +314,17 @@ class InserirContrato(Manager):
                 try:
                     self.act.enviar_texto("//input[@id='txtNomeCompleto']", informacoes['contrato']['nome'], By.XPATH)
                     self.act.enviar_texto("//input[@id='txtEmail']", informacoes['contrato']['email'], By.XPATH)
-                    self.act.enviar_texto("//input[@id='txtTelefone']", informacoes['contrato']['dddCelular']+informacoes['contrato']['celular'], By.XPATH)
+
+                    self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[2]/div[2]/div/div[1]/div/button', By.XPATH)
+                    elementos_ddd = '/html/body/div[6]/div/div[3]/div/div[2]/div[2]/div/div[1]/div/div/ul/li'
+                    ddd_lista = self.act.retornar_elementos(elementos_ddd, By.XPATH)
+
+                    for i in ddd_lista:
+                        if i.text == informacoes['contrato']['dddCelular']:
+                            print('Achou o DDD...')
+                            i.click()
+                            
+                    self.act.enviar_texto("//input[@id='txtTelefone']", informacoes['contrato']['celular'], By.XPATH)
                     print('----------------------------------------------------------------------------------------')
                 except:
                     self.driver.delete_all_cookies()
@@ -600,7 +610,7 @@ class InserirContrato(Manager):
                     self.act.enviar_texto('//*[@id="txtAgencia"]',informacoes['contrato']['agencia'], By.XPATH)
 
 
-                self.act.enviar_texto('//*[@id="txtContaCorrente"]',informacoes['contrato']['numeroConta'], By.XPATH)
+                self.act.enviar_texto('//*[@id="txtContaCorrente"]',informacoes['contrato']['numeroConta'], By.XPATH)                
                 self.act.enviar_texto('//*[@id="txtDigitoConta"]',informacoes['contrato']['digitoConta'], By.XPATH)
                 print('----------------------------------------------------------------------------------------')    
 
