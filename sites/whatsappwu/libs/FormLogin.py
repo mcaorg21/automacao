@@ -6,6 +6,8 @@ from sites.elementos import Chrome
 from sites.baseRobos.core.selenium_actions import SeleniumActions
 from selenium.webdriver.common.by import By
 
+from selenium.webdriver.common.alert import Alert
+
 from time import sleep
 
 import pdb
@@ -22,8 +24,11 @@ class FormLogin:
 
         driver.get(link_home)
 
+        sleep(3)
+
         if login.esta_logado():
             print('VVVVVVVVVVVVVVVVVVVVV LOGADO VVVVVVVVVVVVVVVVVVVVV')
+            login.verificar_loading()
 
         else:
             input('-------------------- Faça o QRCODE --------------------')
@@ -31,18 +36,22 @@ class FormLogin:
         return True
 
     def esta_logado(self) -> bool:
-        print(SeleniumActions(self.driver).quantidade_elemento('//*[@id="wa_web_initial_startup"]', By.XPATH))
+        try:
+            Alert(self.driver).dismiss()
+        except:
+            pass
+
         if(SeleniumActions(self.driver).quantidade_elemento('//*[@id="wa_web_initial_startup"]', By.XPATH) == 1):
             return False
         else:
             return True
 
     def verificar_loading(self, interacoes=300, aguardar = False):
-        pdb.set_trace()
-        while (SeleniumActions(self.driver).quantidade_elemento('//*[@id="wa_web_initial_startup"]', By.XPATH) == 0):
-            print('Aguardando Loading...' + str(interacoes))
-            sleep(2)
-            interacoes -= 1
-            if(interacoes < -35):
-                self.driver.quit()
+        while (SeleniumActions(self.driver).quantidade_elemento("/html/body/div[1]/div/div/div[2]/div[4]/div/div/div[2]/div[1]/h1", By.XPATH) == 0):
+            if(SeleniumActions(self.driver).obter_texto("/html/body/div[1]/div/div/div[2]/div[4]/div/div/div[2]/div[1]/h1", By.XPATH) != 'WhatsApp Web'):
+                print('Aguardando Loading...' + str(interacoes))
+                sleep(1)
+                interacoes -= 1
+                if(interacoes < -35):
+                    self.driver.quit()
 

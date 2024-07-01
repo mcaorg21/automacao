@@ -58,7 +58,14 @@ class Main:
         options.add_argument('--window-size=1150,600"')
         options.add_argument(self.chrome_user)
         options.add_experimental_option("w3c", False)
-        opts = ('--disable-blink-features=AutomationControlled','--ignore-ssl-errors', self.chrome_user, 'log-level=3',"--no-sandbox","--window-size=1150,1000","--ignore-autocomplete-off-autofill","disable-infobars")
+        opts = ('--disable-blink-features=AutomationControlled',
+                '--ignore-ssl-errors', 
+                self.chrome_user, 
+                'log-level=3',
+                "--no-sandbox",
+                "--window-size=1150,1000",
+                "--ignore-autocomplete-off-autofill",
+                "disable-infobars")
 
 
         try:
@@ -85,7 +92,7 @@ class Main:
         Tarefas.iniciar_horario_comercial(self.driver)
 
         print('Aguardando minutos para reiniciar...')
-        sleep(random. randint(1, 5))
+        sleep(random. randint(1, 300))
         self.main()
 
 
