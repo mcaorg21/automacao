@@ -74,8 +74,11 @@ INSTANCIAS: Dict[str, ProcessWrapper] = {
     #Novo Saque
     'NovoSaque': NovoSaque(),
 
-    #Novo Saque
+    #Crefisa
     'Crefisa': Crefisa(),
+
+    #Crefisa
+    'WhatsappWU': WhatsappWU(),    
 
     #Cora Sincroniza
     'Cora': Cora()
