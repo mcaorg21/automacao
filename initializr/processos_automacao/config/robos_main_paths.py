@@ -72,8 +72,11 @@ main_paths: dict = {
     #Novo Saque
     "NovoSaque": "/novosaque/main.py",
 
-    #Novo Saque
+    #Crefisa
     "Crefisa": "/crefisa/main.py",
+
+    #Wahtsapp WarmUP
+    "WhatsappWU": "/whatsappwu/main.py",
 
     #Cora Sincroniza
     "Cora": "/cora/main.py",
