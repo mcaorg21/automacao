@@ -30,5 +30,5 @@ from initializr.processos_automacao.classes_processos.ProcessosOle import (
 )
 from initializr.processos_automacao.classes_processos.ProcessoNovoSaque import NovoSaque
 from initializr.processos_automacao.classes_processos.ProcessoCrefisa import Crefisa
-from initializr.processos_automacao.classes_processos.ProcessWhatsappWU import WhatsappWU
+from initializr.processos_automacao.classes_processos.ProcessoWhatsappWU import WhatsappWU
 from initializr.processos_automacao.classes_processos.ProcessoCora import Cora,CoraLogin
