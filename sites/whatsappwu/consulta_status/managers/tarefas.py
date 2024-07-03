@@ -96,8 +96,8 @@ class Tarefas(Manager):
             self.responder_mensagem()
 
         print('Atuando...') 
-        #self.iniciar_conversa(random.randint(2,5))
-        #sleep(random.randint(1,3)) 
+        self.iniciar_conversa(random.randint(2,5))
+        sleep(random.randint(1,3)) 
 
         #self.postar_status()
         self.participar_comunidade()
