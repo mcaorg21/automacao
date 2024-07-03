@@ -63,8 +63,10 @@ class Tarefas(Manager):
                 "concordar_continuar": "/html/body/div[1]/div/div/span[2]/div/div/div/div/div/div/div[2]/div/button[2]/div/div",
                 "input_pesquisa" : "/html/body/div[1]/div/div/div[2]/div[2]/div[1]/span/div/span/span/div/div/div[1]/div/div/div/div[2]/div[1]/p",
                 "seguir": f"/html/body/div[1]/div/div/div[2]/div[2]/div[1]/span/div/span/span/div/div/div[2]/div/div/div/div[{random.randint(1,5)}]/div/div/div/div/div[3]/button",
+                "cancelar_seguir": "/html/body/div[1]/div/div/span[2]/div/div/div/div/div/div/div[2]/div/button[1]/div/div",
                 "botao_encontrar_mais": "/html/body/div[1]/div/div/div[2]/div[2]/div[1]/span/div/span/span/div/div/header/div/div[1]/div",
                 "voltar" : "/html/body/div[1]/div/div/div[2]/div[2]/div[1]/span/div/span/span/div/div/header/div/div[1]/div/span",
+                "ler_canal" : "/html/body/div[1]/div/div/div[2]/div[2]/div[1]/span/div/span/div/div/div/div[2]/div[1]/div/div",
                 "voltar_principal" : "/html/body/div[1]/div/div/div[2]/div[2]/div[1]/span/div/span/div/div/header/div/div[1]/div/span"
             },            
         }
@@ -94,8 +96,8 @@ class Tarefas(Manager):
             self.responder_mensagem()
 
         print('Atuando...') 
-        self.iniciar_conversa(random.randint(2,5))
-        sleep(random.randint(1,3)) 
+        #self.iniciar_conversa(random.randint(2,5))
+        #sleep(random.randint(1,3)) 
 
         #self.postar_status()
         self.participar_comunidade()
@@ -158,7 +160,7 @@ class Tarefas(Manager):
 
     def participar_comunidade(self):
         print("---------- ENTRANDO EM COMUNIDADES  ----------")
-        
+
         self.act.clicar_elemento(self.xpath_menu['canais']['icone'], By.XPATH)
         self.verificar_loading(self.xpath_menu['canais']['icone_mais'], 0, "Aguardando Canais")
 
@@ -179,9 +181,20 @@ class Tarefas(Manager):
         except:
             pass
 
-        self.apagar_input(self.xpath_menu['canais']['input_pesquisa'])
+        try:
+            self.act.clicar_elemento(self.xpath_menu['canais']['cancelar_seguir'], By.XPATH)
+        except:
+            pass
 
+        self.apagar_input(self.xpath_menu['canais']['input_pesquisa'])
         self.act.clicar_elemento(self.xpath_menu['canais']['voltar'], By.XPATH)
+
+        try:
+            self.act.clicar_elemento(self.xpath_menu['canais']['ler_canal']+f'[{random.randint(1,30)}]', By.XPATH)
+            sleep(random.randint(5,9))
+        except:
+            pass
+
         self.act.clicar_elemento(self.xpath_menu['canais']['voltar_principal'], By.XPATH)
 
         #self.act.clicar_elemento(self.xpath_menu['canais']['botao_encontrar_mais'], By.XPATH)
