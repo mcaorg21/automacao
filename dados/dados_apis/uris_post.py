@@ -2,6 +2,9 @@ from dados.dados_apis import UCONECTE, WEBADMIN
 
 POST = {
         # ia vertex
+        "ia-vertex-arquivo": UCONECTE + '/v1/consultas/response_ia_file_vertex/',
+
+        # ia vertex
         "ia-vertex-texto": UCONECTE + '/v1/consultas/simple_response_ia_vertex/',
         
         # post dos dados insercao itau

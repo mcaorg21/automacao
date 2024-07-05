@@ -26,13 +26,13 @@ class FormLogin:
     def realizar_login(driver: Chrome, login: str, senha: str) -> bool:
         login: FormLogin = FormLogin(driver, login, senha)
 
-        driver.get('https://nsaque.ultragate.com.br/')
+        driver.get('https://https://sistema.novosaque.com.br/')
 
         for i in range(1, 11):
             if login.esta_logado():
                 return True
             else:
-                driver.get('https://nsaque.ultragate.com.br/')
+                driver.get('https://sistema.novosaque.com.br/')
 
             print(f"Login tentativa {i}")
 

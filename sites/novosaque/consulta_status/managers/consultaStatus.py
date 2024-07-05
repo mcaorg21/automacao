@@ -24,7 +24,7 @@ class ConsultaStatus(Manager):
         super().__init__()
 
         self.urls = {
-            "consulta": "https://nsaque.ultragate.com.br/admin/contracts"
+            "consulta": "https://sistema.novosaque.com.br/admin/contracts"
         }
         self.set_options('--ignore-ssl-errors')
         self.init_chrome_driver(import_driver=driver)
@@ -86,7 +86,7 @@ class ConsultaStatus(Manager):
                 #cpf_formatado = formatar_cpf_sem_caracteres(cpf_bd)                
                 #self.driver.get(f'https://nsaque.ultragate.com.br/admin/contracts?cpf={cpf_formatado}')
             
-                self.driver.get(f'https://nsaque.ultragate.com.br/admin/contracts')
+                self.driver.get(f'https://sistema.novosaque.com.br/admin/contracts')
                 self.verificar_loading()
                 self.act.enviar_texto('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[1]/input',ade, By.XPATH)
                 self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/button', By.XPATH)

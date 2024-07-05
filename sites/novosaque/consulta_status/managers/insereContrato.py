@@ -22,11 +22,11 @@ class InserirContrato(Manager):
 
     def __init__(self, driver: Chrome = False):
         super().__init__()
-
+        #https://nsaque.ultragate.com.br
         self.urls = {
-            "consulta": "https://nsaque.ultragate.com.br/admin/contracts",
-            "insercao": "https://nsaque.ultragate.com.br/admin/customer-services/create",
-            "consulta_status": "https://nsaque.ultragate.com.br/admin/contracts?cpf="
+            "consulta": "https://sistema.novosaque.com.br/admin/contracts",
+            "insercao": "https://sistema.novosaque.com.br/admin/customer-services/create",
+            "consulta_status": "https://sistema.novosaque.com.br/admin/contracts?cpf="
         }
         #https://nsaque.ultragate.com.br/admin/contracts?cpf=84986301004
         self.set_options('--ignore-ssl-errors')
