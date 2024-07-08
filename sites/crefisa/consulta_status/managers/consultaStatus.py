@@ -62,7 +62,7 @@ class ConsultaStatus(Manager):
             return False
 
         #para testes
-        #status_a_consultar = [['508020005927', '31522563881', '634296']]
+        #status_a_consultar = [['508020069211', '09477282529', '656410','','','','']]
 
         self.chrome_driver.get(self.urls["consulta"])
 
@@ -124,7 +124,6 @@ class ConsultaStatus(Manager):
                     texto_aprovada = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[2]/span', By.XPATH)
 
                     if 'Aprovada(Nova Proposta' in texto_aprovada:
-                        pdb,set
                         self.dados_consulta['novaAde'] = re.findall(r'\d+', texto_aprovada)[0]
                         atualiza_ade = True
                         continue
@@ -172,14 +171,24 @@ class ConsultaStatus(Manager):
                                 if 'CANCELADO' in self.dados_consulta["statusPropostaBanco"] or 'PENDENTE' in self.dados_consulta["statusPropostaBanco"]:
                                     
                                     elemento = str(int((i - 1) / 2))
-                                    self.driver.execute_script(f""" document.querySelector("#linkSubStatus_{elemento}").click() """)
-                                    self.dados_consulta['statusSecundario'] += "\n\n"+self.act.obter_texto('//*[@id="modalSubStatus"]/div/div/div[2]/div/div[2]/table/tbody/tr[1]', By.XPATH)
+                                    #self.driver.execute_script(f""" document.querySelector("#linkSubStatus_{elemento}").click() """)
+                                    
+                                    self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH)
+
+                                    self.act.trocar_frame_referencia("iframeHistorico")
+
+                                    self.dados_consulta['statusSecundario'] += "\n\n"+self.act.obter_texto('/html/body/div[3]/div/div[2]/div[2]/table/tbody', By.XPATH)
+
+                                    #self.dados_consulta['statusSecundario'] += "\n\n"+self.act.obter_texto('//*[@id="modalSubStatus"]/div/div/div[2]/div/div[2]/table/tbody/tr[1]', By.XPATH)
                                     try:
-                                        self.act.clicar_elemento(f'//*[@id="modalSubStatus"]', By.XPATH)
-                                        self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
+                                        self.act.trocar_frame_referencia("default")
+                                        self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[8]/div/div/div[1]/button', By.XPATH)
+                                        #self.act.clicar_elemento(f'//*[@id="modalSubStatus"]', By.XPATH)
+                                        #self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
                                     except:
                                         try:
-                                            self.act.quantidade_elemento(f'/html/body/div[{div}]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
+                                            #self.act.quantidade_elemento(f'/html/body/div[{div}]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
+                                            self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[8]/div/div/div[1]/button', By.XPATH)
                                         except:
                                             pass
                                         pass
@@ -201,7 +210,7 @@ class ConsultaStatus(Manager):
 
                 except:
                     print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ERRO DE FILTRO XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-                    pdb.set_trace()
+                    time.sleep(600)
                     pass
                 
             except Exception as e:

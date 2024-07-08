@@ -461,6 +461,11 @@ class SeleniumActions:
         :type metodo: object
         :param metodo: selenium.webdriver.common.by.By
         """
+
+        if referencia.lower() == 'default':
+            self.driver.switch_to.default_content()
+            return True
+            
         try:
             frame = WebDriverWait(self.driver, self.__time_out).until(
                 EC.visibility_of_element_located((metodo, referencia)),
@@ -473,6 +478,7 @@ class SeleniumActions:
             self.driver.switch_to.frame(frame)
             return True
         except Exception as e:
+
             print("Frame Inexistente", end=' ')
             return False
 
