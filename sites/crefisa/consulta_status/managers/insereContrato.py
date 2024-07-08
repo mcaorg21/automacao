@@ -1,5 +1,5 @@
 
-import os,time,pdb,re,requests,json,sys,os,platform,datetime
+import os,time,pdb,re,requests,json,sys,os,platform,datetime,base64
 #winsound
 
 from selenium.webdriver import Chrome
@@ -79,15 +79,17 @@ class InserirContrato(Manager):
 
         contratos = self.dados.get_contratos_inserir()  
 
-        #testes
-        #contratos['contratos'] = [{'codigo_con' : '644147'}] 
-
         if contratos['tipo'] == 'alert':
             print('Sem contratos para inserir...')
             return False
 
+        #testes
+        # contratos = {}
+        # contratos['contratos'] = [{'codigo_con' : '655296', 'perfil' : 'CLT(Empresa Privada)'}] 
+
+        
+
         for contrato in contratos['contratos']:
-            #pdb.set_trace()
             try:
                 dados_atualizacao = {}
                 dados_atualizacao['mensagem'] = 'Inserir contrato'
@@ -195,7 +197,7 @@ class InserirContrato(Manager):
                 #verifica se tem todos os documentos necessarios
                 pontuacao = 0
                 documentos_pessoais = buscar_documentos_contrato(informacoes['dadosContrato']['codigoContrato'])['arquivos']
-
+                #pdb.set_trace()
                 id_perfil = get_id_perfil(contrato['perfil'])
                 tipo_produto_crefisa = self.get_produto_crefisa(id_perfil)
 
@@ -297,9 +299,30 @@ class InserirContrato(Manager):
                 except:
                     self.path_documentos = sys.path[0]+'/documentos/'
                     deleta_todos_arquivos(self.path_documentos)
-                    pass   
+                    pass  
 
-                #pdb.set_trace()
+
+                if(id_perfil in [9,10,11]):
+                    for doc_unico in documentos_pessoais:
+                        for doc_exigido in array_docs_necessarios:
+                            if doc_exigido in doc_unico:
+                                if('COMPROVANTE_DE_CONTA_DO_CAIXATEM' in doc_unico):
+                                    base64Arquivo = base64.b64encode(requests.get(doc_unico).content)
+                                    prompt = 'informe em formato JSON usando as keys banco, agencia, conta, digito_conta com os dados do arquivo'
+                                    retorno_conta = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
+                                    retorno_conta_json = json.loads(retorno_conta['retorno'].replace('```','').replace('\n','').replace('json',''))
+                                    informacoes['contrato']['numeroConta'] = retorno_conta_json['conta']
+                                    informacoes['contrato']['digitoConta'] = retorno_conta_json['digito_conta']
+                                    continue
+
+                                elif('MEU_NIS' in doc_unico):
+                                    base64Arquivo = base64.b64encode(requests.get(doc_unico).content)
+                                    prompt = 'a imagem é um comprovante de matricula meu nis nela contem a matricula que é formada por 11 numeros retorne essa informacao em formato json usando a key com nome matricula com os dados contidos no arquivo e com o regex \\d{11}'
+                                    retorno_matricula = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
+                                    retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
+                                    informacoes['contrato']['matricula'] = retorno_matricula_json['matricula']
+                                    continue
+
                 print(f"Continuando inserção contrato para o perfil ---------{contrato['perfil']}----------")
                 """print("Preenchendo primeiro fomulario de aceitacao...")
                 self.act.enviar_texto('//*[@id="txtCpfSimulacao"]', informacoes['contrato']['cpf'], By.XPATH)
