@@ -174,6 +174,8 @@ class ConsultaStatus(Manager):
                                     #self.driver.execute_script(f""" document.querySelector("#linkSubStatus_{elemento}").click() """)
                                     
                                     self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH)
+                                    
+                                    self.verificar_loading_pendente()
 
                                     self.act.trocar_frame_referencia("iframeHistorico")
 
@@ -183,6 +185,7 @@ class ConsultaStatus(Manager):
                                     try:
                                         self.act.trocar_frame_referencia("default")
                                         self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[8]/div/div/div[1]/button', By.XPATH)
+                                        self.act.clicar_elemento(f'/html/body', By.XPATH)
                                         #self.act.clicar_elemento(f'//*[@id="modalSubStatus"]', By.XPATH)
                                         #self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
                                     except:
@@ -199,7 +202,7 @@ class ConsultaStatus(Manager):
                         self.dados_consulta['statusSecundario'] += " "+self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{indice}]/td[4]', By.XPATH).replace('\n',"").split("Liberado")[1]
 
                 self.driver.execute_script("document.body.style.zoom='100%'")
-
+                
                 self.dados.post_dados_consultados(self.dados_consulta)    
 
                 try:          
@@ -271,7 +274,7 @@ class ConsultaStatus(Manager):
         #self.act.enviar_texto('//*[@id="txtDataFinal"]',  date.today().strftime("%m/%d/%Y"), By.XPATH)
         self.act.clicar_elemento('//*[@id="btnBuscaContratos"]', By.XPATH)
 
-        self.verificar_loading(3)
+        self.verificar_loading(2)
 
     def atualizar_contrato(self, div, linha):
 
@@ -289,6 +292,7 @@ class ConsultaStatus(Manager):
         except:
             print("Aguardando o ok aparecer...")
             self.aguardar_consulta(5)
+            self.verificar_loading()
             try: 
                 self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
             except:
@@ -302,6 +306,7 @@ class ConsultaStatus(Manager):
         except:
             print("Aguardando o ok aparecer...")
             self.aguardar_consulta(5)
+            self.verificar_loading()
             try: 
                 self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
             except:
@@ -338,6 +343,17 @@ class ConsultaStatus(Manager):
 
             if(interacoes < -35):
                 self.driver.quit()
+
+    def verificar_loading_pendente(self, interacoes=50):
+        self.aguardar_consulta(0.8)
+
+        while (self.act.quantidade_elemento('//*[@id="iframeHistorico"]', By.XPATH) == 0):
+            print('Aguardando Loading...' + str(interacoes))
+            time.sleep(0.5)
+            interacoes -= 1
+
+            if(interacoes < 1):
+                return
 
     def get_indice_cancelado(self, indice):
         
