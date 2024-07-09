@@ -175,9 +175,9 @@ class ConsultaStatus(Manager):
                                     
                                     self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH)
                                     
-                                    self.verificar_loading_pendente()
-
+                                    self.verificar_loading_pendente('modal_historico')
                                     self.act.trocar_frame_referencia("iframeHistorico")
+                                    self.verificar_loading_pendente('tabela_historico')
 
                                     self.dados_consulta['statusSecundario'] += "\n\n"+self.act.obter_texto('/html/body/div[3]/div/div[2]/div[2]/table/tbody', By.XPATH)
 
@@ -202,7 +202,6 @@ class ConsultaStatus(Manager):
                         self.dados_consulta['statusSecundario'] += " "+self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{indice}]/td[4]', By.XPATH).replace('\n',"").split("Liberado")[1]
 
                 self.driver.execute_script("document.body.style.zoom='100%'")
-                
                 self.dados.post_dados_consultados(self.dados_consulta)    
 
                 try:          
@@ -344,18 +343,26 @@ class ConsultaStatus(Manager):
             if(interacoes < -35):
                 self.driver.quit()
 
-    def verificar_loading_pendente(self, interacoes=60):
+    def verificar_loading_pendente(self, tipo_modal, interacoes=30):
 
         print('Verificando loading...')
         self.aguardar_consulta(0.8)
 
-        while (self.act.quantidade_elemento('/html/body/div[4]', By.XPATH) == 1):
-            print('Aguardando Loading...' + str(interacoes))
-            time.sleep(0.5)
-            interacoes -= 1
+        if(tipo_modal == "modal_historico"):
 
-            if(interacoes < 1):
-                return
+            while (self.sh.buscar_quantidade_elemento('#ModalHistoricoAnaliseContrato\\:visible') == 0):
+                print('Aguardando Loading modal...')
+
+        else:
+            self.act.trocar_frame_referencia("iframeHistorico")
+
+            while (self.sh.buscar_quantidade_elemento('#tableHistoricoAnalise\\:visible') == 0):
+                print('Aguardando Loading...' + str(interacoes))
+                time.sleep(1)
+                interacoes -= 1
+
+                if(interacoes < 1):
+                    return
 
     def get_indice_cancelado(self, indice):
         
