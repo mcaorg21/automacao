@@ -331,7 +331,7 @@ class ConsultaStatus(Manager):
 
         while (self.act.quantidade_elemento('/html/body/div[9]', By.XPATH) == 1 or self.act.quantidade_elemento('/html/body/div[10]', By.XPATH) == 1):
             print('Aguardando Loading...' + str(interacoes))
-            time.sleep(0.5)
+            time.sleep(1)
             interacoes -= 1
             if self.act.quantidade_elemento('/html/body/div[7]/div[2]/div[6]/div/div/table/tbody/tr[1]/td[6]/ul/li[5]/span[1]', By.XPATH) == 1:
                 return
@@ -344,10 +344,12 @@ class ConsultaStatus(Manager):
             if(interacoes < -35):
                 self.driver.quit()
 
-    def verificar_loading_pendente(self, interacoes=50):
+    def verificar_loading_pendente(self, interacoes=60):
+
+        print('Verificando loading...')
         self.aguardar_consulta(0.8)
 
-        while (self.act.quantidade_elemento('//*[@id="iframeHistorico"]', By.XPATH) == 0):
+        while (self.act.quantidade_elemento('/html/body/div[4]', By.XPATH) == 1):
             print('Aguardando Loading...' + str(interacoes))
             time.sleep(0.5)
             interacoes -= 1
