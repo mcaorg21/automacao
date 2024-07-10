@@ -122,7 +122,7 @@ class InserirContrato(Manager):
                
                 self.act.enviar_texto('//*[@id="txtCpfSimulacao"]', informacoes["contrato"]["cpf"], By.XPATH)
                 self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div[2]/div[2]/div/button', By.XPATH)
-                self.verificar_loading(5)
+                self.verificar_loading(2)
                
                 retorno_mensagem = ""
                 try:
@@ -659,9 +659,8 @@ class InserirContrato(Manager):
                 if(self.act.obter_texto('//*[@id="txtBairro"]', By.XPATH) == ""):
                     self.act.enviar_texto('//*[@id="txtBairro"]',informacoes['contrato']['bairro'], By.XPATH)
 
-                if(self.act.obter_texto('//*[@id="ddlUfEndereco"]', By.XPATH) == ""):
-                    self.act.enviar_texto('//*[@id="txtBairro"]',informacoes['contrato']['uf'], By.XPATH)
-
+                #if(self.act.obter_texto('//*[@id="ddlUfEndereco"]', By.XPATH) == ""):
+                #    self.act.enviar_texto('//*[@id="txtBairro"]',informacoes['contrato']['uf'], By.XPATH)
 
                 self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[8]/div[2]/div/button', By.XPATH)  
                 self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[8]/div[2]/div/div/div/input', informacoes['contrato']['uf'], By.XPATH)
@@ -677,6 +676,7 @@ class InserirContrato(Manager):
                     self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[8]/div[3]/div/div/div/input', By.XPATH)
 
                 self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)  
+                
 
                 retorno = self.verificar_loading()
                 
