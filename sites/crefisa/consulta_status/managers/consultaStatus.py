@@ -227,15 +227,34 @@ class ConsultaStatus(Manager):
 
                 else:
 
+                    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ERRO DE SINCRONIZACAO XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+
                     # self.dados.api_registrar_log_robo(
                     #     log=f"ERRO: {e}",
                     #     status=0
                     # )
 
-                    self.chrome_driver.delete_all_cookies()
-                    #self.driver.quit()
+                    self.dados_consulta["statusPropostaBanco"] = "ERRO NA SINCRONIZACAO"
+                    self.dados_consulta['observacaoDetalhadaBanco'] = ""
+                    self.dados_consulta['statusSecundario'] = e
+                    self.dados.post_dados_consultados(self.dados_consulta) 
 
-                    return
+                    try:          
+
+                        self.act.clicar_elemento('//*[@id="btnExibirFiltro"]', By.XPATH)
+                        self.act.enviar_texto('//*[@id="txtNumeroAde"]', "", By.XPATH)
+                        self.act.enviar_texto('//*[@id="txtCpf"]', "", By.XPATH)
+
+                    except:
+                        
+                        print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ERRO DE FILTRO XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+                        time.sleep(30)
+                        return
+                        pass
+
+                    #self.chrome_driver.delete_all_cookies()
+                    #self.driver.quit()
+                    #return
 
                 continue
 
@@ -285,6 +304,8 @@ class ConsultaStatus(Manager):
             pass
 
         self.verificar_loading()
+
+        self.aguardar_consulta(5)
 
         try:
             self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
