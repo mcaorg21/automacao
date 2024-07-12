@@ -302,26 +302,70 @@ class InserirContrato(Manager):
                     pass  
 
 
+                erro_leitura_ia = False
                 if(id_perfil in [9,10,11]):
                     for doc_unico in documentos_pessoais:
                         for doc_exigido in array_docs_necessarios:
                             if doc_exigido in doc_unico:
                                 if('COMPROVANTE_DE_CONTA_DO_CAIXATEM' in doc_unico):
                                     base64Arquivo = base64.b64encode(requests.get(doc_unico).content)
-                                    prompt = 'informe em formato JSON usando as keys banco, agencia, conta, digito_conta com os dados do arquivo'
+                                    # prompt1 = """
+                                    #             You are a document entity extraction specialist. Given a document, your task is to extract the text value of the following entities:
+                                    #               {
+                                    #                "banco": "",
+                                    #                "agencia": "",
+                                    #                "conta": "",
+                                    #                "digito_conta": ""
+                                    #               }
+
+
+                                    #             - The JSON schema must be followed during the extraction.
+                                    #             - The values must only include text strings found in the document.
+                                    #             - Generate null for missing entities.
+                                    #             """
+                                    #prompt = 'quais os dados da imagem. JSON schema, {"banco":"","agencia":"","conta":"","digito_conta":""}'
+                                    #prompt = 'informe em formato JSON usando as keys banco, agencia, conta, digito_conta com os dados do arquivo'
+                                    prompt = 'informe o retorno dos dados da imagem em formato json'
                                     retorno_conta = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
+                                    
+                                    print('.... Lendo o comprovante de conta')
+                                    if 'tipo' in retorno_conta and retorno_conta['tipo'] == 'alert':
+                                        erro_leitura_ia = True
+                                        break;
+
                                     retorno_conta_json = json.loads(retorno_conta['retorno'].replace('```','').replace('\n','').replace('json',''))
-                                    informacoes['contrato']['numeroConta'] = retorno_conta_json['conta']
-                                    informacoes['contrato']['digitoConta'] = retorno_conta_json['digito_conta']
+                                    informacoes['contrato']['numeroConta'] = retorno_conta_json['Conta'].split("-")[0]
+                                    informacoes['contrato']['digitoConta'] = retorno_conta_json['Conta'].split("-")[-1]
                                     continue
 
                                 elif('MEU_NIS' in doc_unico):
                                     base64Arquivo = base64.b64encode(requests.get(doc_unico).content)
+
                                     prompt = 'a imagem é um comprovante de matricula meu nis nela contem a matricula que é formada por 11 numeros retorne essa informacao em formato json usando a key com nome matricula com os dados contidos no arquivo e com o regex \\d{11}'
                                     retorno_matricula = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
+                                    
+                                    print('.... Lendo dados da matricula')
+                                    if 'tipo' in retorno_matricula and retorno_matricula['tipo'] == 'alert':
+                                        erro_leitura_ia = True
+                                        break;
+
                                     retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
                                     informacoes['contrato']['matricula'] = retorno_matricula_json['matricula']
                                     continue
+
+                
+
+                if erro_leitura_ia == True:
+                    dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                    dados_atualizacao['observacao_emp'] = "IA não reconheceu o documento na leitura"
+                    dados_atualizacao['observacao'] = "IA não reconheceu o documento na leitura"
+                    dados_atualizacao['status_con'] = "Aguardando Comercial"
+                    dados_atualizacao['erro'] = "IA não reconheceu o documento na leitura"
+                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                    self.remove_div()
+                    continue
+
+
 
                 print(f"Continuando inserção contrato para o perfil ---------{contrato['perfil']}----------")
                 """print("Preenchendo primeiro fomulario de aceitacao...")
@@ -676,7 +720,7 @@ class InserirContrato(Manager):
                     self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[8]/div[3]/div/div/div/input', By.XPATH)
 
                 self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)  
-                
+
 
                 retorno = self.verificar_loading()
                 
