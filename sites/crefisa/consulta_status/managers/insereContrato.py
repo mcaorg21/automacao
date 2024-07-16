@@ -340,8 +340,14 @@ class InserirContrato(Manager):
                                     if 'conta' in retorno_conta_json:
                                         key_conta = 'conta'
 
-                                    informacoes['contrato']['numeroConta'] = retorno_conta_json[key_conta].split("-")[0]
-                                    informacoes['contrato']['digitoConta'] = retorno_conta_json[key_conta].split("-")[-1]
+                                    try:
+                                        informacoes['contrato']['numeroConta'] = retorno_conta_json[key_conta].split("-")[0]
+                                        informacoes['contrato']['digitoConta'] = retorno_conta_json[key_conta].split("-")[-1]
+                                    except:
+                                        erro_leitura_ia = True
+                                        break
+                                        pass
+
                                     continue
 
                                 elif('MEU_NIS' in doc_unico):
