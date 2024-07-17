@@ -35,6 +35,7 @@ class InserirContrato(Manager):
         self.sh = SeleniumHelper(self.chrome_driver)
         self.act = SeleniumActions(self.chrome_driver)
         self.atualiza = Uconecte()
+        self.taxa_proposta = '9.00%'
 
     @classmethod
     def iniciar_horario_comercial(cls, driver: Chrome):
@@ -155,8 +156,8 @@ class InserirContrato(Manager):
 
                 taxa = ''
                 for i in range(1,30):
-                    self.act.press_pagedown('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[2]/div[3]/div[1]/div[2]/div/div/div',By.XPATH)
-                    self.aguardar_consulta(2)
+                    self.act.press_DOWN('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[2]/div[3]/div[1]/div[2]/div/div/div',By.XPATH)
+                    #self.aguardar_consulta(2)
                     j = 0
                     while 'Carregando' in self.act.obter_texto('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[2]/div[3]/div[2]/div[1]/div[2]',By.XPATH):
                         print('Aguardando calculo...')
@@ -168,7 +169,7 @@ class InserirContrato(Manager):
 
                     taxa = self.act.obter_texto('/html/body/div/div[1]/div[2]/div/div/div/div[2]/form/div[2]/div[3]/div[1]/div[2]/div/div/div/div[1]', By.XPATH)
 
-                    if('9.00%' in taxa):
+                    if(self.taxa_proposta == taxa):
                         print('Achou a taxa...')
                         self.aguardar_consulta(15)
                         break
