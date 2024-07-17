@@ -75,6 +75,14 @@ class ConsultaStatus(Manager):
                 busca_reiniciada = False
                 dados_consulta = {}
 
+                if((ade is None)):
+                    dados_consulta['ade'] = ade
+                    dados_consulta["codigoCon"] = cod_con
+                    dados_consulta['statusPropostaBanco'] = "ERRO SINCRONIZACAO"
+                    dados_consulta['observacaoDetalhadaBanco']  = "PROPOSTA NAO POSSUI ADE"
+                    self.dados.post_dados_consultados(dados_consulta)   
+                    continue 
+
                 #ade="9842"
                 #cpf="04763519603"
                 #cod_con = "521329"
@@ -88,6 +96,7 @@ class ConsultaStatus(Manager):
             
                 self.driver.get(f'https://sistema.novosaque.com.br/admin/contracts')
                 self.verificar_loading()
+
                 self.act.enviar_texto('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[1]/input',ade, By.XPATH)
                 self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/button', By.XPATH)
                 self.verificar_loading(2)
