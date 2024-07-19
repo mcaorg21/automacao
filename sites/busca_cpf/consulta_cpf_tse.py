@@ -128,10 +128,10 @@ class Consulta_Cpf:
                     except:
                         pass
                     
-                    try:                        
-                        biometria = self.act.obter_texto('/html/body/main/div/div/article/div/article/main/section/div[1]', metodo=By.XPATH)
+                    try:                       
+                        biometria = self.act.obter_texto('/html/body/main/div/div/div[3]/div/div/div/section/div[1]', metodo=By.XPATH)
                         biometria = biometria.replace('ELEITOR/ELEITORA ', '')
-                        situacao = self.act.obter_texto("//main/section/div/p[2]", metodo=By.XPATH)                        
+                        situacao = self.act.obter_texto("/html/body/main/div/div/div[3]/div/div/div/section/div[2]/p[2]", metodo=By.XPATH)                        
                         situacao = situacao.replace('Situação da Inscrição:\n', '')
                         info['resultado'] = 'success'
                         info['biometria'] = biometria
