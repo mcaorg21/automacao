@@ -149,7 +149,7 @@ class Consulta_Cpf:
                         #self.driver.get("http://www.tse.jus.br/eleitor/titulo-e-local-de-votacao/copy_of_consulta-por-nome")
                         #pass
                         try:
-                            alerta = self.act.obter_texto("/html/body/main/div/div/article/div/article/main/section/div[1]", metodo=By.XPATH)
+                            alerta = self.act.obter_texto("/html/body/main/div/div/div[3]/div/div/div/section/div[1]", metodo=By.XPATH)
                             print(f'\033[;31m{alerta}\033[m')
                             if alerta == 'Serviço temporariamente indisponível':
                                 sleep(300)
@@ -168,7 +168,7 @@ class Consulta_Cpf:
                             try:
                                 self.act.obter_texto('//*[@id="texto-conteudo"]/p', metodo=By.XPATH)
                             except:
-                                print('Captcha não passou')
+                                print('ERRO DE XPATH OU Captcha não passou')
                                 sleep(300)
                                 self.driver.quit()
                                 print('Resetando consulta...')
