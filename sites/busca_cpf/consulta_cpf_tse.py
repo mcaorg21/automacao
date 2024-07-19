@@ -100,10 +100,16 @@ class Consulta_Cpf:
                     #     sleep(10)
                     #     self.consultar(resetar = True)
 
+                    # try:
+                    #     self.act.clicar_elemento('//*[@id="consulta-situacao-eleitoral-form-submit"]', By.XPATH)
+                    # except:
+                    #     pass
+
                     try:
-                        self.act.clicar_elemento('//*[@id="consulta-situacao-eleitoral-form-submit"]', By.XPATH)
+                        self.act.clicar_elemento('/html/body/div[9]/div/div/div[2]/button', By.XPATH)
                     except:
                         pass
+
 
                     self.act.enviar_texto(
                         "//input[@name='nomeTituloCPF']", cpf, metodo=By.XPATH)
@@ -114,9 +120,9 @@ class Consulta_Cpf:
                     try:
                         self.act.hover_e_clique('//*[@id="consulta-situacao-eleitoral-form-submit"]', By.XPATH)
                         sleep(1)
-                        self.act.hover_e_clique('//*[@id="consulta-situacao-eleitoral-form-submit"]', By.XPATH)
-                        sleep(1)
-                        self.act.hover_e_clique('//*[@id="consulta-situacao-eleitoral-form-submit"]', By.XPATH)
+                        # self.act.hover_e_clique('//*[@id="consulta-situacao-eleitoral-form-submit"]', By.XPATH)
+                        # sleep(1)
+                        # self.act.hover_e_clique('//*[@id="consulta-situacao-eleitoral-form-submit"]', By.XPATH)
                     except:
                         pass
 
