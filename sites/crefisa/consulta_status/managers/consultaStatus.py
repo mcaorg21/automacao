@@ -118,8 +118,7 @@ class ConsultaStatus(Manager):
                         continue
 
                 atualiza_ade = False
-                for i in range(1,linhas_tr,2):
-                                                            
+                for i in range(1,linhas_tr,2):           
                     numero_contrato = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
                     texto_aprovada = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[2]/span', By.XPATH)
 
@@ -145,8 +144,18 @@ class ConsultaStatus(Manager):
                         indice = i
                         break
 
-                if(atualiza_ade == False):                   
+                    if numero_contrato == "" and 'CANCELADO' in self.dados_consulta["statusPropostaBanco"]:
 
+                        contrato_aprovado = True
+                        self.dados_consulta['novaAde'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH)
+                        self.dados_consulta["statusPropostaBanco"] = "VERIFICAR NOVA PROPOSTA"
+                        self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
+                        self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
+                        indice = i
+                        break
+
+                if(atualiza_ade == False): 
+                    
                     if contrato_aprovado == False:
 
                         for i in range(1,linhas_tr,2):
@@ -179,7 +188,24 @@ class ConsultaStatus(Manager):
                                     self.act.trocar_frame_referencia("iframeHistorico")
                                     self.verificar_loading_pendente('tabela_historico')
 
-                                    self.dados_consulta['statusSecundario'] += "\n\n"+self.act.obter_texto('/html/body/div[3]/div/div[2]/div[2]/table/tbody', By.XPATH)
+                                    historico_atuacao = "\n\n"+self.act.obter_texto('/html/body/div[3]/div/div[2]/div[2]/table/tbody', By.XPATH)
+
+                                    if('PENDENTE' in self.dados_consulta["statusPropostaBanco"]):  
+
+                                        regex = r"(\d{2}/\d{2}/\d{4} às \d{2}:\d{2}:\d{2} PENDENTE)" 
+                                        for observacao in historico_atuacao.split('Pendente |'):
+
+                                            obs_sanit = observacao.replace('SUPORTE 2 TECH',"").strip()
+                                            array_obs_split = list(filter(lambda x: x != '',re.split(regex, obs_sanit)))
+
+                                            if len(array_obs_split) == 1:
+                                                continue
+
+                                            self.dados_consulta['statusSecundario'] += "\n\n"+ obs_sanit 
+                                   
+                                    else:
+                                        self.dados_consulta['statusSecundario'] += "\n\n"+historico_atuacao
+
 
                                     #self.dados_consulta['statusSecundario'] += "\n\n"+self.act.obter_texto('//*[@id="modalSubStatus"]/div/div/div[2]/div/div[2]/table/tbody/tr[1]', By.XPATH)
                                     try:
@@ -246,7 +272,7 @@ class ConsultaStatus(Manager):
                         self.act.enviar_texto('//*[@id="txtCpf"]', "", By.XPATH)
 
                     except:
-                        
+
                         print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ERRO DE FILTRO XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
                         time.sleep(30)
                         return
