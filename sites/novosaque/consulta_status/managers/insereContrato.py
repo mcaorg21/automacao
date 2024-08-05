@@ -301,6 +301,8 @@ class InserirContrato(Manager):
 
                 print('Finalizando ficha do contrato...')
 
+
+
                 email_invalido = self.act.quantidade_elemento('/html/body/div[3]/div/div/div',By.XPATH)
                 tentativa = 0
                 texto_email_invalido = ""
