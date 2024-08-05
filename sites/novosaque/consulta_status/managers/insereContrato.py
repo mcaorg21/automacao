@@ -236,60 +236,76 @@ class InserirContrato(Manager):
                 self.act.enviar_texto('//*[@id="district"]',informacoes['contrato']['endereco']['bairro'],By.XPATH)
                 self.act.enviar_texto('//*[@id="complement"]',informacoes['contrato']['endereco']['complemento'],By.XPATH)
 
-                print('Preenchendo dados bancários...')
+                if(informacoes['contrato']['banco']['chavePix'] != ""):
 
-                try:
-                    self.aguardar_consulta(2)
-                    self.act.select_drop_down('//*[@id="kind_pix"]','random', By.XPATH)
-                except:
-                    pass
+                    print('Preenchendo chave pix')
+                    tipoChave = "phone"
+                    pix_path_select = ""
+                    if(informacoes['contrato']['banco']['chavePix'] == contrato['cpf_cli'].replace('.','').replace('-','')):
+                        tipoChave = "cpf_cnpj"
+                        pix_path_select = ""
 
-                try:
-                    self.act.select_drop_down('//*[@id="kind_account"]','ted', By.XPATH)
-                except:
-                    pass
+                    self.act.select_drop_down('//*[@id="kind_pix"]',tipoChave, By.XPATH)
 
-                #self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[3]/div[1]/div/div/div/div/div[1]',By.XPATH)  
-                
-                if(informacoes['contrato']['banco']['numeroBanco'] == '955'):
-                    informacoes['contrato']['banco']['numeroBanco'] = '033'
+                    self.act.select_drop_down('//*[@id="gender_customer"]',informacoes['contrato']['sexo'].upper(), By.XPATH)
 
-                try:
-                    self.act.enviar_texto('//*[@id="react-select-2-input"]',informacoes['contrato']['banco']['numeroBanco'],By.XPATH)
-                    self.aguardar_consulta(1)
-                    self.act.press_TAB('//*[@id="react-select-2-input"]',By.XPATH)  
-                except:
-                    self.act.enviar_texto('//*[@id="react-select-3-input"]',informacoes['contrato']['banco']['numeroBanco'],By.XPATH)                
-                    self.aguardar_consulta(1)
-                    self.act.press_TAB('//*[@id="react-select-3-input"]',By.XPATH)  
-                    
-                self.act.clicar_elemento('//*[@id="agency_account"]',By.XPATH)  
-                self.act.enviar_texto('//*[@id="agency_account"]',informacoes['contrato']['banco']['agencia'],By.XPATH)
-                #self.act.enviar_texto('/html/body/div[1]/div[1]/div[2]/div/div/div/div[2]/form/div[3]/div[2]/div[2]/div/input',informacoes['contrato']['banco']['digitoAgencia'],By.XPATH)
-                self.act.enviar_texto('//*[@id="number_account"]',informacoes['contrato']['banco']['numeroConta'],By.XPATH)
-
-                self.act.enviar_texto('/html/body/div[1]/div[1]/div[2]/div/div/div/div[2]/form/div[5]/div[3]/div[4]/div/input',informacoes['contrato']['banco']['digitoConta'],By.XPATH)
-                
-                if(informacoes['contrato']['banco']['tipoConta'] == 'Conta-corrente'):
-                    tipo_conta = '0'
                 else:
-                    tipo_conta = '1'
-                self.act.select_drop_down('//*[@id="account_kind"]',tipo_conta, By.XPATH)
 
-                try:
-                    texto_banco = self.act.obter_texto('//*[@id="react-select-2-input"]', By.XPATH)
-                    if(texto_banco == ""):
-                        dados_atualizacao['mensagem'] = 'Aguardando Autorização'  
-                        dados_atualizacao['textoMensagem'] = 'Para receber nesse banco informe por favor a chave PIX CPF ou telefone.'    
-                        dados_atualizacao['pedidoDocumentacao'] = 3   
-                        dados_atualizacao['interacaoHumana'] = 1      
-                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
-                        print('XXXXXXXXXXXXXXXXXXXX Pulando inserção por ser banco não cadastrado PIX PEDIDO XXXXXXXXXXXXXXXXXXXX')
-                        continue
+                    print('Preenchendo dados bancários...')
 
-                    self.act.obter_texto('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[5]/div[2]/div/div/div/div/div[1]/div[1]', By.XPATH)
-                except:
-                    pass
+                    try:
+                        self.aguardar_consulta(2)
+                        self.act.select_drop_down('//*[@id="kind_pix"]','random', By.XPATH)
+                    except:
+                        pass
+
+                    try:
+                        self.act.select_drop_down('//*[@id="kind_account"]','ted', By.XPATH)
+                    except:
+                        pass
+
+                    #self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[3]/div[1]/div/div/div/div/div[1]',By.XPATH)  
+                    
+                    if(informacoes['contrato']['banco']['numeroBanco'] == '955'):
+                        informacoes['contrato']['banco']['numeroBanco'] = '033'
+
+                    try:
+                        self.act.enviar_texto('//*[@id="react-select-2-input"]',informacoes['contrato']['banco']['numeroBanco'],By.XPATH)
+                        self.aguardar_consulta(1)
+                        self.act.press_TAB('//*[@id="react-select-2-input"]',By.XPATH)  
+                    except:
+                        self.act.enviar_texto('//*[@id="react-select-3-input"]',informacoes['contrato']['banco']['numeroBanco'],By.XPATH)                
+                        self.aguardar_consulta(1)
+                        self.act.press_TAB('//*[@id="react-select-3-input"]',By.XPATH)  
+                        
+                    self.act.clicar_elemento('//*[@id="agency_account"]',By.XPATH)  
+                    self.act.enviar_texto('//*[@id="agency_account"]',informacoes['contrato']['banco']['agencia'],By.XPATH)
+                    #self.act.enviar_texto('/html/body/div[1]/div[1]/div[2]/div/div/div/div[2]/form/div[3]/div[2]/div[2]/div/input',informacoes['contrato']['banco']['digitoAgencia'],By.XPATH)
+                    self.act.enviar_texto('//*[@id="number_account"]',informacoes['contrato']['banco']['numeroConta'],By.XPATH)
+
+                    self.act.enviar_texto('/html/body/div[1]/div[1]/div[2]/div/div/div/div[2]/form/div[5]/div[3]/div[4]/div/input',informacoes['contrato']['banco']['digitoConta'],By.XPATH)
+                    
+                    if(informacoes['contrato']['banco']['tipoConta'] == 'Conta-corrente'):
+                        tipo_conta = '0'
+                    else:
+                        tipo_conta = '1'
+
+                    self.act.select_drop_down('//*[@id="account_kind"]',tipo_conta, By.XPATH)
+
+                    try:
+                        texto_banco = self.act.obter_texto('//*[@id="react-select-2-input"]', By.XPATH)
+                        if(texto_banco == ""):
+                            dados_atualizacao['mensagem'] = 'Pendente Dados'  
+                            dados_atualizacao['textoMensagem'] = 'Para receber nesse banco informe por favor a chave PIX CPF ou telefone.'    
+                            dados_atualizacao['pedidoDocumentacao'] = 3   
+                            dados_atualizacao['interacaoHumana'] = 1      
+                            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                            print('XXXXXXXXXXXXXXXXXXXX Pulando inserção por ser banco não cadastrado PIX PEDIDO XXXXXXXXXXXXXXXXXXXX')
+                            continue
+
+                        self.act.obter_texto('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[5]/div[2]/div/div/div/div/div[1]/div[1]', By.XPATH)
+                    except:
+                        pass
                 
                 self.verificar_loading() 
                 
