@@ -381,6 +381,8 @@ class InserirContrato(Manager):
                     self.remove_div()
                     continue
 
+                #troca matricula
+
                 if 'inserir' in contrato['observacao_emp']:
                     informacoes['contrato']['matricula'] = matricula_origem
                 else:
