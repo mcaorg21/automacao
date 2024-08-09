@@ -352,6 +352,7 @@ class InserirContrato(Manager):
                                     continue
 
                                 elif('MEU_NIS' in doc_unico):
+                                    matricula_origem = informacoes['contrato']['matricula']
                                     base64Arquivo = base64.b64encode(requests.get(doc_unico).content)
 
                                     prompt = 'a imagem é um comprovante de matricula meu nis nela contem a matricula que é formada por 11 numeros retorne essa informacao em formato json usando a key com nome matricula com os dados contidos no arquivo e com o regex \\d{11}'
@@ -361,15 +362,15 @@ class InserirContrato(Manager):
                                     
                                     if 'tipo' in retorno_matricula and retorno_matricula['tipo'] == 'alert':
                                         erro_leitura_ia = True
-                                        mensagem_erro_leitura = "MEU NIS"
+                                        mensagem_erro_leitura = "MEU NIS"                                        
                                         break;
 
                                     retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
-                                    informacoes['contrato']['matricula'] = retorno_matricula_json['matricula']
+                                    matricula_json = retorno_matricula_json['matricula']
                                     continue
 
                 
-
+                #pdb.set_trace()
                 if erro_leitura_ia == True and 'inserir' not in contrato['observacao_emp']:
                     dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                     dados_atualizacao['observacao_emp'] = "IA não reconheceu o documento na leitura: "+mensagem_erro_leitura
@@ -380,6 +381,10 @@ class InserirContrato(Manager):
                     self.remove_div()
                     continue
 
+                if 'inserir' in contrato['observacao_emp']:
+                    informacoes['contrato']['matricula'] = matricula_origem
+                else:
+                    informacoes['contrato']['matricula'] = matricula_json
 
 
                 print(f"Continuando inserção contrato para o perfil ---------{contrato['perfil']}----------")
