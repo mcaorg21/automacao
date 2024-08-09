@@ -345,6 +345,7 @@ class InserirContrato(Manager):
                                         informacoes['contrato']['digitoConta'] = retorno_conta_json[key_conta].split("-")[-1]
                                     except:
                                         erro_leitura_ia = True
+                                        mensagem_erro_leitura = "COMPROVANTE DE CONTA"
                                         break
                                         pass
 
@@ -360,6 +361,7 @@ class InserirContrato(Manager):
                                     
                                     if 'tipo' in retorno_matricula and retorno_matricula['tipo'] == 'alert':
                                         erro_leitura_ia = True
+                                        mensagem_erro_leitura = "MEU NIS"
                                         break;
 
                                     retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
@@ -370,8 +372,8 @@ class InserirContrato(Manager):
 
                 if erro_leitura_ia == True:
                     dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
-                    dados_atualizacao['observacao_emp'] = "IA não reconheceu o documento na leitura"
-                    dados_atualizacao['observacao'] = "IA não reconheceu o documento na leitura"
+                    dados_atualizacao['observacao_emp'] = "IA não reconheceu o documento na leitura: "+mensagem_erro_leitura
+                    dados_atualizacao['observacao'] = "IA não reconheceu o documento na leitura: "+mensagem_erro_leitura
                     dados_atualizacao['status_con'] = "Aguardando Comercial"
                     dados_atualizacao['erro'] = "IA não reconheceu o documento na leitura"
                     self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
