@@ -370,7 +370,7 @@ class InserirContrato(Manager):
 
                 
 
-                if erro_leitura_ia == True:
+                if erro_leitura_ia == True and 'inserir' not in contrato['observacao_emp']:
                     dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                     dados_atualizacao['observacao_emp'] = "IA não reconheceu o documento na leitura: "+mensagem_erro_leitura
                     dados_atualizacao['observacao'] = "IA não reconheceu o documento na leitura: "+mensagem_erro_leitura
