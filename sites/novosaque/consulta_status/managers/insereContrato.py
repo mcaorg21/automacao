@@ -35,7 +35,7 @@ class InserirContrato(Manager):
         self.sh = SeleniumHelper(self.chrome_driver)
         self.act = SeleniumActions(self.chrome_driver)
         self.atualiza = Uconecte()
-        self.taxa_proposta = '9.00%'
+        self.taxa_proposta = '5.00%'
 
     @classmethod
     def iniciar_horario_comercial(cls, driver: Chrome):
