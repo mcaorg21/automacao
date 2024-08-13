@@ -292,12 +292,10 @@ class InserirContrato(Manager):
 
                     self.act.select_drop_down('//*[@id="account_kind"]',tipo_conta, By.XPATH)
 
-                    pdb.set_trace()
-
                     try:
                         texto_banco = self.act.obter_texto('/html/body/div[1]/div[1]/div[2]/div/div/div/div[2]/form/div[5]/div[2]/div/div/div/div/div[1]/div[1]', By.XPATH)                        
                     except:
-                        
+
                         dados_atualizacao['mensagem'] = 'Pendente Dados'  
                         dados_atualizacao['textoMensagem'] = 'Para receber nesse banco informe por favor a chave PIX CPF ou telefone.'    
                         dados_atualizacao['pedidoDocumentacao'] = 3   
