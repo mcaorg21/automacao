@@ -303,6 +303,7 @@ class InserirContrato(Manager):
 
 
                 erro_leitura_ia = False
+
                 if(id_perfil in [9,10,11]):
                     for doc_unico in documentos_pessoais:
                         for doc_exigido in array_docs_necessarios:
@@ -369,24 +370,22 @@ class InserirContrato(Manager):
                                     matricula_json = retorno_matricula_json['matricula']
                                     continue
 
-                
-                #pdb.set_trace()
-                if erro_leitura_ia == True and 'inserir' not in contrato['observacao_emp']:
-                    dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
-                    dados_atualizacao['observacao_emp'] = "IA não reconheceu o documento na leitura: "+mensagem_erro_leitura
-                    dados_atualizacao['observacao'] = "IA não reconheceu o documento na leitura: "+mensagem_erro_leitura
-                    dados_atualizacao['status_con'] = "Aguardando Comercial"
-                    dados_atualizacao['erro'] = "IA não reconheceu o documento na leitura"
-                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
-                    self.remove_div()
-                    continue
+                    if erro_leitura_ia == True and 'inserir' not in contrato['observacao_emp']:
+                        dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                        dados_atualizacao['observacao_emp'] = "IA não reconheceu o documento na leitura: "+mensagem_erro_leitura
+                        dados_atualizacao['observacao'] = "IA não reconheceu o documento na leitura: "+mensagem_erro_leitura
+                        dados_atualizacao['status_con'] = "Aguardando Comercial"
+                        dados_atualizacao['erro'] = "IA não reconheceu o documento na leitura"
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        self.remove_div()
+                        continue
 
-                #troca matricula
+                    #troca matricula
 
-                if 'inserir' in contrato['observacao_emp']:
-                    informacoes['contrato']['matricula'] = matricula_origem
-                else:
-                    informacoes['contrato']['matricula'] = matricula_json
+                    if 'inserir' in contrato['observacao_emp']:
+                        informacoes['contrato']['matricula'] = matricula_origem
+                    else:
+                        informacoes['contrato']['matricula'] = matricula_json
 
 
                 print(f"Continuando inserção contrato para o perfil ---------{contrato['perfil']}----------")
