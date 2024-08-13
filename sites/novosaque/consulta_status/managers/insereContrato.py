@@ -292,20 +292,20 @@ class InserirContrato(Manager):
 
                     self.act.select_drop_down('//*[@id="account_kind"]',tipo_conta, By.XPATH)
 
-                    try:
-                        texto_banco = self.act.obter_texto('//*[@id="react-select-2-input"]', By.XPATH)
-                        if(texto_banco == ""):
-                            dados_atualizacao['mensagem'] = 'Pendente Dados'  
-                            dados_atualizacao['textoMensagem'] = 'Para receber nesse banco informe por favor a chave PIX CPF ou telefone.'    
-                            dados_atualizacao['pedidoDocumentacao'] = 3   
-                            dados_atualizacao['interacaoHumana'] = 1      
-                            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
-                            print('XXXXXXXXXXXXXXXXXXXX Pulando inserção por ser banco não cadastrado PIX PEDIDO XXXXXXXXXXXXXXXXXXXX')
-                            continue
+                    pdb.set_trace()
 
-                        self.act.obter_texto('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[5]/div[2]/div/div/div/div/div[1]/div[1]', By.XPATH)
+                    try:
+                        texto_banco = self.act.obter_texto('/html/body/div[1]/div[1]/div[2]/div/div/div/div[2]/form/div[5]/div[2]/div/div/div/div/div[1]/div[1]', By.XPATH)                        
                     except:
-                        pass
+                        
+                        dados_atualizacao['mensagem'] = 'Pendente Dados'  
+                        dados_atualizacao['textoMensagem'] = 'Para receber nesse banco informe por favor a chave PIX CPF ou telefone.'    
+                        dados_atualizacao['pedidoDocumentacao'] = 3   
+                        dados_atualizacao['interacaoHumana'] = 1      
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        print('XXXXXXXXXXXXXXXXXXXX Pulando inserção por ser banco não cadastrado PIX PEDIDO XXXXXXXXXXXXXXXXXXXX')
+
+                        continue
                 
                 self.verificar_loading() 
                 
