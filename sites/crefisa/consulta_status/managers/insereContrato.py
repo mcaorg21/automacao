@@ -305,6 +305,8 @@ class InserirContrato(Manager):
                 erro_leitura_ia = False
 
                 if(id_perfil in [9,10,11]):
+                    mensagem_erro_leitura = "Não reconheceu nenhum arquivo anexado."
+
                     for doc_unico in documentos_pessoais:
                         for doc_exigido in array_docs_necessarios:
                             if doc_exigido in doc_unico:
