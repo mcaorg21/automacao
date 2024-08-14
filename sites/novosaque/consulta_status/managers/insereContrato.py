@@ -237,13 +237,14 @@ class InserirContrato(Manager):
                 self.act.enviar_texto('//*[@id="complement"]',informacoes['contrato']['endereco']['complemento'],By.XPATH)
 
                 if(informacoes['contrato']['banco']['chavePix'] != ""):
-
                     print('Preenchendo chave pix')
                     tipoChave = "phone"
                     pix_path_select = ""
                     if(informacoes['contrato']['banco']['chavePix'] == contrato['cpf_cli'].replace('.','').replace('-','')):
                         tipoChave = "cpf_cnpj"
                         pix_path_select = ""
+
+                    self.act.select_drop_down('//*[@id="kind_account"]', 'pix' , By.XPATH)
 
                     self.act.select_drop_down('//*[@id="kind_pix"]',tipoChave, By.XPATH)
 
