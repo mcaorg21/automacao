@@ -33,7 +33,7 @@ class Tarefas(Manager):
         self.xpath_menu = {
             "chat": {
                 "icone": "/html/body/div[1]/div/div/div[2]/header/div/div/div/div/span/div/div[1]/div[1]",
-                "criar" : "/html/body/div[1]/div/div/div[2]/div[3]/header/div[2]/div/span/div[5]/div/span",
+                "criar" : "/html/body/div[1]/div/div/div[2]/div[3]/header/header/div/span/div/span/div[1]/div/span",
                 "pesquisar" : "/html/body/div[1]/div/div/div[2]/div[2]/div[1]/span/div/span/div/div[1]/div[2]/button",
                 "input_pesquisa" : "/html/body/div[1]/div/div/div[2]/div[2]/div[1]/span/div/span/div/div[1]/div[2]/div[2]/div/div[1]/p",
                 "telefone_encontrado" : "/html/body/div[1]/div/div/div[2]/div[2]/div[1]/span/div/span/div/div[2]/div[2]/div[2]/div/div/span",
@@ -114,7 +114,8 @@ class Tarefas(Manager):
 
             telefone = telefone[random.randint(0,len(telefone) -1)]
 
-            #self.act.clicar_elemento(self.xpath_menu['chat']['icone'], By.XPATH)            
+            #self.act.clicar_elemento(self.xpath_menu['chat']['icone'], By.XPATH)    
+
             self.act.clicar_elemento(self.xpath_menu['chat']['criar'], By.XPATH)
             self.act.clicar_elemento(self.xpath_menu['chat']['pesquisar'], By.XPATH)
             self.act.enviar_texto(self.xpath_menu['chat']['input_pesquisa'], telefone, By.XPATH)
@@ -130,7 +131,7 @@ class Tarefas(Manager):
                     sleep(random.randint(2,5))
 
                     print("Enviando mensagem...")
-                    random_mensagem = self.get_assunto_aleatorio_ia(random.randint(1,11))
+                    random_mensagem = self.get_assunto_aleatorio_ia(random.randint(1,12))
 
                     self.enviar_mensagem(True, random_mensagem)
 
@@ -285,7 +286,8 @@ class Tarefas(Manager):
             7: "cante um refrao de musica",
             8: "conte um episodio da segunda guerra mundial",
             9: "cite um mitologia grega e sua historia",
-            10: "fale sobre um ator de hollywood e uma curiosidade sobre ele"
+            10: "fale sobre um ator de hollywood e uma curiosidade sobre ele",
+            11: "fale sobre curiosidades matematicas"
         }
  
         return switcher.get(id_assunto, "fale qualquer coisa engraçada")

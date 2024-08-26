@@ -41,10 +41,20 @@ class FormLogin:
         except:
             pass
 
-        if(SeleniumActions(self.driver).quantidade_elemento('//*[@id="wa_web_initial_startup"]', By.XPATH) == 1):
-            return False
-        else:
-            return True
+        logado = True
+        try:
+            botao = SeleniumActions(self.driver).obter_texto('/html/body/div[1]/div/div/div[2]/div[3]/div[1]/aside/div/div[3]/button/div/div', By.XPATH) 
+            if 'Baixar o app' in botao:
+                logado = False
+        except:
+            pass
+            
+        return logado
+
+        # if(SeleniumActions(self.driver).quantidade_elemento('//*[@id="wa_web_initial_startup"]', By.XPATH) == 1):
+        #     return False
+        # else:
+        #     return True
 
     def verificar_loading(self, interacoes=300, aguardar = False):
         while (SeleniumActions(self.driver).quantidade_elemento("/html/body/div[1]/div/div/div[2]/div[4]/div/div/div[2]/div[1]/h1", By.XPATH) == 0):
