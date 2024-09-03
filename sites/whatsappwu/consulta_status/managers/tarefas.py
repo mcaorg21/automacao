@@ -31,6 +31,7 @@ class Tarefas(Manager):
         super().__init__()
 
         self.xpath_menu = {
+        
             "chat": {
                 "icone": "/html/body/div[1]/div/div/div[2]/header/div/div/div/div/span/div/div[1]/div[1]",
                 "criar" : "/html/body/div[1]/div/div/div[2]/div[3]/header/header/div/span/div/span/div[1]/div/span",
@@ -46,20 +47,22 @@ class Tarefas(Manager):
                 "filtro" : "/html/body/div[1]/div/div/div[2]/div[3]/div/div[1]/div/button/div",
                 "filtro_mensagem_nao_lida": "/html/body/div[1]/div/div/span[5]/div/ul/div/li[1]/div/div[1]",
                 "responder_primeiro_contato" :"/html/body/div[1]/div/div/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div/div[2]",
-                "ultima_mensagem_chat" : "/html/body/div[1]/div/div/div[2]/div[4]/div/div[3]/div/div[2]/div[3]/div[3]"
+                "ultima_mensagem_chat" : "/html/body/div[1]/div/div/div[2]/div[4]/div/div[3]/div/div[2]/div[3]/div[3]",
+                "icone_chat_lateral" : "/html/body/div[1]/div/div/div[2]/header/div/div/div/div/span/div/div[1]/div[1]/div/div/span"
+            },    
 
-            },            
             "status": {
-                "icone": "/html/body/div[1]/div/div/div[2]/div[3]/header/div[2]/div/span/div[3]/div/span",
+                "icone": "/html/body/div[1]/div/div/div[2]/header/div/div/div/div/span/div/div[1]/div[2]/div",
                 "icone_adicionar": "/html/body/div[1]/div/div/div[2]/div[2]/div[1]/span/div/span/div/div/header/div/span/div/span/div[1]/div/span",
                 "adicionar_texto": "/html/body/div[1]/div/div/div[2]/div[2]/div[1]/span/div/span/div/div/header/div/span/div/span/div[1]/span/div/ul/li[2]/div",
                 "input_status" : "/html/body/div[1]/div/div/span[3]/div/div/div[2]/div/div[1]",
                 "enviar_status": "/html/body/div[1]/div/div/span[3]/div/div/div[3]/div/div[2]/div/div"
             },
+
             "canais": {
-                "icone": "/html/body/div[1]/div/div/div[2]/div[3]/header/div[2]/div/span/div[4]/div/span",
-                "icone_mais": "/html/body/div[1]/div/div/div[2]/div[2]/div[1]/span/div/span/div/div/header/div/div[3]/div/div/span",
-                "icone_encontrar_canais": "/html/body/div[1]/div/div/div[2]/div[2]/div[1]/span/div/span/div/div/header/div/div[3]/div/span/div/ul/li[2]/div",
+                "icone": "/html/body/div[1]/div/div/div[2]/header/div/div/div/div/span/div/div[1]/div[3]/div",
+                "icone_mais": "/html/body/div[1]/div/div/div[2]/div[2]/div[1]/span/div/span/div/div/header/div/div[2]/div/div/span",
+                "icone_encontrar_canais": "/html/body/div[1]/div/div/div[2]/div[2]/div[1]/span/div/span/div/div/header/div/div[2]/div/span/div/ul/li[2]/div",
                 "concordar_continuar": "/html/body/div[1]/div/div/span[2]/div/div/div/div/div/div/div[2]/div/button[2]/div/div",
                 "input_pesquisa" : "/html/body/div[1]/div/div/div[2]/div[2]/div[1]/span/div/span/span/div/div/div[1]/div/div/div/div[2]/div[1]/p",
                 "seguir": f"/html/body/div[1]/div/div/div[2]/div[2]/div[1]/span/div/span/span/div/div/div[2]/div/div/div/div[{random.randint(1,5)}]/div/div/div/div/div[3]/button",
@@ -96,11 +99,14 @@ class Tarefas(Manager):
             self.responder_mensagem()
 
         print('Atuando...') 
-        self.iniciar_conversa(random.randint(2,5))
+        self.iniciar_conversa(random.randint(1,2))
         sleep(random.randint(1,3)) 
 
-        #self.postar_status()
+        self.postar_status()
+        sleep(random.randint(1,3)) 
+
         self.participar_comunidade()
+        sleep(random.randint(1,3)) 
         
 
     def iniciar_conversa(self, limite_envios = 2):
@@ -165,7 +171,9 @@ class Tarefas(Manager):
         self.act.clicar_elemento(self.xpath_menu['canais']['icone'], By.XPATH)
         self.verificar_loading(self.xpath_menu['canais']['icone_mais'], 0, "Aguardando Canais")
 
+
         self.act.clicar_elemento(self.xpath_menu['canais']['icone_mais'], By.XPATH)
+
         self.act.clicar_elemento(self.xpath_menu['canais']['icone_encontrar_canais'], By.XPATH)
         try:
             self.act.clicar_elemento(self.xpath_menu['canais']['concordar_continuar'], By.XPATH)
@@ -196,7 +204,7 @@ class Tarefas(Manager):
         except:
             pass
 
-        self.act.clicar_elemento(self.xpath_menu['canais']['voltar_principal'], By.XPATH)
+        self.act.clicar_elemento(self.xpath_menu['chat']['icone_chat_lateral'], By.XPATH)
 
         #self.act.clicar_elemento(self.xpath_menu['canais']['botao_encontrar_mais'], By.XPATH)
 

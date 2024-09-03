@@ -84,8 +84,8 @@ class InserirContrato(Manager):
             return False
 
         #testes
-        # contratos = {}
-        # contratos['contratos'] = [{'codigo_con' : '655296', 'perfil' : 'CLT(Empresa Privada)'}] 
+        #contratos = {}
+        #contratos['contratos'] = [{'codigo_con' : '658259', 'perfil' : 'CLT(Empresa Privada)'}] 
 
         
 
@@ -99,7 +99,7 @@ class InserirContrato(Manager):
 
                 informacoes = self.dados.get_informacoes_contrato(contrato['codigo_con']) 
                 self.chrome_driver.get(self.urls["insercao"]) 
-                
+                #pdb.set_trace()
                 #verifica se cpf está habilitado para realizar
                 url = f'https://app1.gerencialcredito.com.br/CREFISA/ajax_crefisa.asp?combo=getOperacaoCliente&cpfCliente={informacoes["contrato"]["cpf"]}'
                 cookies_name = ""
@@ -721,10 +721,10 @@ class InserirContrato(Manager):
                     self.act.clicar_elemento('//*[@id="chkAutorizaSms"]', By.XPATH)
 
                 if(self.act.obter_texto('//*[@id="txtLogradouro"]', By.XPATH) == ""):
-                    self.act.enviar_texto('//*[@id="txtLogradouro"]',informacoes['contrato']['logradouro'], By.XPATH)  
+                    self.act.enviar_texto('//*[@id="txtLogradouro"]',informacoes['contrato']['logradouro'].replace('...',''), By.XPATH)  
 
                 if(self.act.obter_texto('//*[@id="txtBairro"]', By.XPATH) == ""):
-                    self.act.enviar_texto('//*[@id="txtBairro"]',informacoes['contrato']['bairro'], By.XPATH)
+                    self.act.enviar_texto('//*[@id="txtBairro"]',informacoes['contrato']['bairro'].replace('...',''), By.XPATH)
 
                 #if(self.act.obter_texto('//*[@id="ddlUfEndereco"]', By.XPATH) == ""):
                 #    self.act.enviar_texto('//*[@id="txtBairro"]',informacoes['contrato']['uf'], By.XPATH)
