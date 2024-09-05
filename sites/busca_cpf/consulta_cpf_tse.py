@@ -102,6 +102,11 @@ class Consulta_Cpf:
                     except:
                         pass
 
+                    try:
+                        self.act.clicar_elemento('/html/body/main/div/div/div[3]/div/div/app-root/app-modal-auth/div/div/div/div/div[2]/div[2]/div/button', By.XPATH)
+                    except:
+                        pass 
+
                     self.act.enviar_texto('//*[@id="modal"]/div/div/div[2]/div[2]/form/div[1]/div/input', cpf, metodo=By.XPATH)        
                     
                     sleep(4)
@@ -120,7 +125,24 @@ class Consulta_Cpf:
                     try:                       
                         biometria = self.act.obter_texto('/html/body/main/div/div/div[3]/div/div/app-root/div/app-consultar-situacao-titulo-eleitor/div[1]/div[2]/div[2]/div/p', metodo=By.XPATH)
                         biometria = biometria.replace('ELEITOR/ELEITORA ', '')
-                        situacao = self.act.obter_texto("/html/body/main/div/div/div[3]/div/div/app-root/div/app-consultar-situacao-titulo-eleitor/div[1]/div[1]/p/span", metodo=By.XPATH)                        
+
+                        try:
+                            situacao = self.act.obter_texto("/html/body/main/div/div/div[3]/div/div/app-root/div/app-consultar-situacao-titulo-eleitor/div[1]/div[1]/p/span", metodo=By.XPATH)                        
+                        except:
+                            print('ERRO DE GET DE xpath')
+                            pdb.set_trace()
+
+                        if 'REGULAR' not in situacao and 'CANCELADO' not in situacao:
+                            try:
+                                alerta = self.act.obter_texto('/html/body/main/div/div/div[3]/div/div/app-root/app-modal-mensagem/div/div/div/div[1]/p', By.XPATH)
+                                if('Deslogado por inatividade' in alerta):
+                                    sleep(10)
+                                    self.driver.quit()
+                                    print('Resetando consulta...')
+                                    self.consultar()
+                            except:
+                                pdb.set_trace()
+
                         info['resultado'] = 'success'
                         info['biometria'] = biometria
                         info['situacao'] = situacao
@@ -133,10 +155,33 @@ class Consulta_Cpf:
                         self.count += 1
                         print(self.count)
 
-                        tempo_aleatorio = random.uniform(5, 30)
+                        tempo_aleatorio = random.uniform(1,5)
                         sleep(tempo_aleatorio)
 
                     except TimeoutException:
+                        try:
+                            alerta = self.act.obter_texto('/html/body/main/div/div/div[3]/div/div/app-root/app-modal-confirmacao/div/div/div/div[1]/p', By.XPATH)
+                            if('destinada a eleitores cadastrados' in alerta):
+
+                                info['resultado'] = 'success'
+                                info['biometria'] = 'NAO POSSUI CADASTRO'
+                                info['situacao'] = 'NAO POSSUI CADASTRO'
+
+                                post_met = APIDataSource().post_request_v2('enviar-info-cpfs-tse', info)
+                                print(post_met.text)
+
+                                self.count += 1
+                                print(self.count)
+
+                                try:
+                                    self.act.clicar_elemento('/html/body/main/div/div/div[3]/div/div/app-root/app-modal-confirmacao/div/div/div/div[2]/button[1]/span[1]', By.XPATH)
+                                except:
+                                    pass
+
+                                continue
+                        except:
+                                pdb.set_trace()
+                                pass
                         print('ERRO DE XPATH OU Captcha não passou')
                         sleep(300)
                         self.driver.quit()
