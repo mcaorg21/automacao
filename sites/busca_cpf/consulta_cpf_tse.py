@@ -132,7 +132,7 @@ class Consulta_Cpf:
                             print('ERRO DE GET DE xpath')
                             pdb.set_trace()
 
-                        if 'REGULAR' not in situacao and 'CANCELADO' not in situacao:
+                        if 'REGULAR' not in situacao and 'CANCELADO' not in situacao and 'SUSPENSO' not in situacao:
                             try:
                                 alerta = self.act.obter_texto('/html/body/main/div/div/div[3]/div/div/app-root/app-modal-mensagem/div/div/div/div[1]/p', By.XPATH)
                                 if('Deslogado por inatividade' in alerta):
@@ -173,12 +173,16 @@ class Consulta_Cpf:
                                 self.count += 1
                                 print(self.count)
 
+                                sleep(3)
                                 try:
-                                    self.act.clicar_elemento('/html/body/main/div/div/div[3]/div/div/app-root/app-modal-confirmacao/div/div/div/div[2]/button[1]/span[1]', By.XPATH)
+                                    self.act.clicar_elemento('/html/body/main/div/div/div[3]/div/div/app-root/app-modal-confirmacao/div/div/div/div[2]/button[1]', By.XPATH)
                                 except:
                                     pass
 
-                                continue
+                                sleep(10)
+                                self.driver.quit()
+                                print('Resetando consulta...')
+                                self.consultar()
                         except:
                                 pdb.set_trace()
                                 pass
