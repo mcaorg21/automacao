@@ -18,7 +18,7 @@ from selenium import webdriver
 #from webdriver_manager.chrome import ChromeDriverManager
 from sites.core.selenium_actions import SeleniumActions
 from sites.baseRobos.core.helpers import definir_nome_robo
-import pdb,shutil
+import pdb,shutil,random
 import tkinter as tk
 
 class Consulta_Cpf:
@@ -82,7 +82,6 @@ class Consulta_Cpf:
                 self.act = SeleniumActions(self.driver)
                 #self.driver.get('https://www.tse.jus.br/servicos-eleitorais/titulo-e-local-de-votacao/copy_of_consulta-por-nome')
                 self.driver.get("http://www.tse.jus.br/eleitor/titulo-e-local-de-votacao/copy_of_consulta-por-nome")
-                sleep(30)
                 self.driver.delete_all_cookies()
                 
 
@@ -93,52 +92,35 @@ class Consulta_Cpf:
                     info['codigo_contrato'] = dic['codigo_contrato']
                     cpf = dic['cpf_cliente']
 
-                    # try:
-                    #     self.act.reCaptcha_v2(self.key)
-                    # except ConnectionError:
-                    #     print('Site do captcha recusou a conexão')
-                    #     sleep(10)
-                    #     self.consultar(resetar = True)
-
-                    # try:
-                    #     self.act.clicar_elemento('//*[@id="consulta-situacao-eleitoral-form-submit"]', By.XPATH)
-                    # except:
-                    #     pass
-
                     try:
                         self.act.clicar_elemento('/html/body/div[9]/div/div/div[2]/button', By.XPATH)
                     except:
                         pass
 
+                    try:
+                        self.act.clicar_elemento('//*[@id="content"]/app-root/div/app-atendimento-eleitor/div[1]/app-menu-option[7]/button', By.XPATH)
+                    except:
+                        pass
 
-                    self.act.enviar_texto(
-                        "//input[@name='nomeTituloCPF']", cpf, metodo=By.XPATH)
+                    self.act.enviar_texto('//*[@id="modal"]/div/div/div[2]/div[2]/form/div[1]/div/input', cpf, metodo=By.XPATH)        
                     
-                    self.act.press_enter("//button[@class='btn btn-amarelo']", metodo=By.XPATH)
+                    sleep(4)
 
-                    #self.act.press_enter("//button[@class='btn btn-amarelo']", metodo=By.XPATH)
-                    try:
-                        self.act.hover_e_clique('//*[@id="consulta-situacao-eleitoral-form-submit"]', By.XPATH)
+                    self.act.clicar_elemento('//*[@id="modal"]/div/div/div[2]/div[2]/form/div[2]/button[2]', metodo=By.XPATH)
+
+                    tentativa = 0
+
+                    while self.act.quantidade_elemento('//*[@id="content"]/app-root/app-barra-tempo-token/div/div/mat-icon', By.XPATH) == 0:
                         sleep(1)
-                        # self.act.hover_e_clique('//*[@id="consulta-situacao-eleitoral-form-submit"]', By.XPATH)
-                        # sleep(1)
-                        # self.act.hover_e_clique('//*[@id="consulta-situacao-eleitoral-form-submit"]', By.XPATH)
-                    except:
-                        pass
-
-                    try:
-                        loading = self.act.obter_texto('img-loading loading-situacao-eleitoral', metodo=By.CLASS_NAME)
-                        while loading:
-                            print('carregando')
-                            sleep(1)
-                    except:
-                        pass
+                        print('Aguardando abertura de tela...')
+                        tentativa += 1
+                        if(tentativa >= 50):
+                            raise TimeoutException()
                     
                     try:                       
-                        biometria = self.act.obter_texto('/html/body/main/div/div/div[3]/div/div/div/section/div[1]', metodo=By.XPATH)
+                        biometria = self.act.obter_texto('/html/body/main/div/div/div[3]/div/div/app-root/div/app-consultar-situacao-titulo-eleitor/div[1]/div[2]/div[2]/div/p', metodo=By.XPATH)
                         biometria = biometria.replace('ELEITOR/ELEITORA ', '')
-                        situacao = self.act.obter_texto("/html/body/main/div/div/div[3]/div/div/div/section/div[2]/p[2]", metodo=By.XPATH)                        
-                        situacao = situacao.replace('Situação da Inscrição:\n', '')
+                        situacao = self.act.obter_texto("/html/body/main/div/div/div[3]/div/div/app-root/div/app-consultar-situacao-titulo-eleitor/div[1]/div[1]/p/span", metodo=By.XPATH)                        
                         info['resultado'] = 'success'
                         info['biometria'] = biometria
                         info['situacao'] = situacao
@@ -151,47 +133,20 @@ class Consulta_Cpf:
                         self.count += 1
                         print(self.count)
 
+                        tempo_aleatorio = random.uniform(5, 30)
+                        sleep(tempo_aleatorio)
+
                     except TimeoutException:
-                        #self.driver.get("http://www.tse.jus.br/eleitor/titulo-e-local-de-votacao/copy_of_consulta-por-nome")
-                        #pass
-                        try:
-                            alerta = self.act.obter_texto("/html/body/main/div/div/div[3]/div/div/div/section/div[1]", metodo=By.XPATH)
-                            print(f'\033[;31m{alerta}\033[m')
-                            if alerta == 'Serviço temporariamente indisponível':
-                                sleep(300)
-                                self.consultar(resetar = True)
-
-                            info['resultado'] = 'alert'
-                            print(cpf)
-                            print(f'\033[;31m{info}\033[m')
-
-                            post_met = APIDataSource().post_request_v2('enviar-info-cpfs-tse', info)
-                            print(post_met)
-
-                            self.count += 1
-                            print(self.count)
-                        except TimeoutException or Exception:                            
-                            try:
-                                self.act.obter_texto('//*[@id="texto-conteudo"]/p', metodo=By.XPATH)
-                            except:
-                                print('ERRO DE XPATH OU Captcha não passou')
-                                sleep(300)
-                                self.driver.quit()
-                                print('Resetando consulta...')
-                                self.consultar()
+                        print('ERRO DE XPATH OU Captcha não passou')
+                        sleep(300)
+                        self.driver.quit()
+                        print('Resetando consulta...')
+                        self.consultar()
                        
-                    self.driver.get("http://www.tse.jus.br/eleitor/titulo-e-local-de-votacao/copy_of_consulta-por-nome")    
-                    # try:                    
-                    #     self.act.clicar_elemento("/html/body/main/div/div/article/div/article/main/section/div[2]/button", metodo=By.XPATH)
-                    # except:
-                    #     try:
-                    #         self.act.obter_texto('//*[@id="texto-conteudo"]/p', By.XPATH)
-                    #         print('pegou meu try')
-                    #         self.consultar(resetar=True)
-                    #     except:
-                    #         self.act.clicar_elemento("/html/body/main/div/div/article/div/article/main/section/form/fieldset/button", metodo=By.XPATH)                      
+                                
+                    self.driver.get("http://www.tse.jus.br/eleitor/titulo-e-local-de-votacao/copy_of_consulta-por-nome")                       
                 
-                print('Essa leva já acabou, esperando a api pegar mais cpfs...')
+                print('Agaurdando mais CPF´s para consulta...')
                 sleep(300)
                 self.driver.quit()
                 
