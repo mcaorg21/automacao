@@ -234,13 +234,13 @@ class InserirContrato(Manager):
                                                 ]
 
                         for doc in documentos_pessoais:
-                            if 'EXTRATO_DE_PAGAMENTOS_EMITIDO' in doc:
+                            if 'CARTA_DE_CONCESSaO_DO_BENEFiCIO' in doc:
                                 try:
                                     download(doc, self.path_documentos + 'carta.pdf')
                                     reader = PdfReader(self.path_documentos + 'carta.pdf')
                                     page = reader.pages[0]
                                     texto = page.extract_text()
-                                    pattern = re.compile(r"Espécie:\s(\d{2})")
+                                    pattern = re.compile(r"\((\d+)\)")
                                     numero_beneficio = pattern.findall(texto)[0]
                                 
                                 except:
@@ -263,7 +263,7 @@ class InserirContrato(Manager):
                     for doc_exigido in array_docs_necessarios:
                         if doc_exigido in doc_unico:
                             pontuacao += 1
-
+                
                 ######################################################################################
                 counter = 1
                 conta_anexo_cpf = 1
@@ -437,7 +437,6 @@ class InserirContrato(Manager):
                     self.remove_div()
                     continue
 
-
                 #array_reversos ={"0":"01","1":"10","2":"09","3":"08","4":"07","5":"06","6":"05","7":"04","8":"03","9":"02"}
                 #reverso = "567"+array_reversos[reverso_nis]
                 #self.act.select_drop_down("/html/body/div[7]/div/div[3]/div/div[4]/div[2]/div/select", reverso, By.XPATH)
@@ -520,20 +519,49 @@ class InserirContrato(Manager):
                     novo_contrato = False
                     pass
 
+                mensagem_refin = ""
+                try:
+                    mensagem_refin = self.act.obter_texto('//*[@id="appVue"]/div[3]/div/div[7]/div[1]/div/div/span', By.XPATH)
+                    if 'apto à contratação de refin recorrente' in mensagem_refin:
+                        novo_contrato = False
+                        self.act.select_drop_down("//select[@id='txtTipoSimulacao']",'2', By.XPATH)
+                        self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[7]/div[2]/div/label', By.XPATH)
+                        self.act.clicar_elemento('/html/body/div[6]/div/div[3]/div/div[8]/div/button[1]', By.XPATH)    
+                        retorno = self.verificar_loading()
+
+                        if(retorno['retorno'] == False):
+                            if 'Não há contratos para refinanciar' in retorno['mensagem']:
+                                novo_contrato = True
+                                time.sleep(2)
+                                self.act.clicar_elemento('/html/body/div[8]/div/div[3]/button[1]', By.XPATH)
+                                self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[7]/div[2]/div/label', By.XPATH)
+                                
+                except:
+                    pass
 
                 print('----------------------------------------------------------------------------------------')
 
                 print('Preenchendo calculo por parcela e valor da parcela')
 
                 if(novo_contrato == True):
-                    self.act.select_drop_down('//*[@id="txtTipoValorContrato"]','1', By.XPATH)
+                    try:
+                        self.act.select_drop_down('//*[@id="txtTipoValorContrato"]','1', By.XPATH)
+                    except:
+                        self.act.select_drop_down("//select[@id='txtTipoSimulacao']",'1', By.XPATH)
+                        self.act.select_drop_down('//*[@id="txtTipoValorContrato"]', '1', By.XPATH)
+                        pass
 
                     self.act.enviar_texto('//*[@id="txtValorSimulacao"]', informacoes['contrato']['valorParcela'], By.XPATH) 
                     print('----------------------------------------------------------------------------------------')
-                
-                print('Clicando em simular')
-                self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[7]/div/button', By.XPATH)    
-                retorno = self.verificar_loading()
+                    
+                    print('Clicando em simular')
+                    try:
+                        self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[7]/div/button', By.XPATH)
+                    except:
+                        self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[8]/div/button[1]', By.XPATH)
+                        pass
+
+                    retorno = self.verificar_loading()
                 
                 if retorno['retorno'] == False:
                     dados_atualizacao['mensagem'] = 'Pendente Dados'
