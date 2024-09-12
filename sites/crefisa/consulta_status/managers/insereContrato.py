@@ -533,7 +533,7 @@ class InserirContrato(Manager):
                             if 'Não há contratos para refinanciar' in retorno['mensagem']:
                                 novo_contrato = True
                                 time.sleep(2)
-                                self.act.clicar_elemento('/html/body/div[8]/div/div[3]/button[1]', By.XPATH)
+                                self.remove_div()
                                 self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[7]/div[2]/div/label', By.XPATH)
                                 
                 except:
@@ -994,7 +994,7 @@ class InserirContrato(Manager):
 
     def remove_div(self):
         try:
-            if self.act.quantidade_elemento('/html/body/div[9]/div/div[3]/button[1]', By.XPATH) == 1:
+            if self.act.quantidade_elemento('/html/body/div[9]/div/div[3]/button[1]', By.XPATH) == 1 or self.act.quantidade_elemento('/html/body/div[8]/div/div[3]/button[1]', By.XPATH) == 1:                
                 self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
                 return True
             else:
