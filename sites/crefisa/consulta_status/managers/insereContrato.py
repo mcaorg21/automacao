@@ -635,13 +635,23 @@ class InserirContrato(Manager):
 
                     else:
 
-                        dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
-                        dados_atualizacao['observacao_emp'] = "Esse contrato e de refinanciamento e precisa tratar no codigo para quando resultado"
-                        dados_atualizacao['observacao'] = "Esse contrato e de refinanciamento e precisa tratar no codigo para quando resultado"
-                        dados_atualizacao['erro'] = retorno['mensagem']
-                        dados_atualizacao['status_con'] = "Aguardando Comercial"
-                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
-                        continue
+                        self.dados_consulta ={}
+                        self.dados_consulta["atualizaTipoProposta"] = "REFINANCIAMENTO SOMANDO MARGEM"
+                        self.dados_consulta["codigoCon"] = contrato['codigo_con']
+
+                        str_valor_refin = self.act.obter_texto('//*[@id="appVue"]/div[4]/div[2]/div[1]/div[1]/div', By.XPATH).replace('\n',' ')
+                        str_valor_novo = self.act.obter_texto('//*[@id="appVue"]/div[4]/div[2]/div[2]/div[2]/div/div/div', By.XPATH).replace('\n',' ')
+
+                        self.dados_consulta["mensagemDadosRefin"] = f"Dados do refinamento: {str_valor_refin} e mais um novo de {str_valor_novo}"
+
+                        self.dados.post_dados_consultados(self.dados_consulta)
+                        # dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                        # dados_atualizacao['observacao_emp'] = "Esse contrato e de refinanciamento e precisa tratar no codigo para quando resultado"
+                        # dados_atualizacao['observacao'] = "Esse contrato e de refinanciamento e precisa tratar no codigo para quando resultado"
+                        # dados_atualizacao['erro'] = retorno['mensagem']
+                        # dados_atualizacao['status_con'] = "Aguardando Comercial"
+                        # self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        
 
                 else:
                     self.act.select_drop_down('//*[@id="ddlPrazo"]', str(int(informacoes['contrato']['prazo'])-1), By.XPATH)
