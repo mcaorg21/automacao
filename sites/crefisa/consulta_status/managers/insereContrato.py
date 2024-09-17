@@ -636,13 +636,17 @@ class InserirContrato(Manager):
                     else:
 
                         self.dados_consulta ={}
-                        self.dados_consulta["atualizaTipoProposta"] = "REFINANCIAMENTO SOMANDO MARGEM"
+                        self.dados_consulta["atualizaTipoProposta"] = "REFINANCIAMENTO"
                         self.dados_consulta["codigoCon"] = contrato['codigo_con']
 
-                        str_valor_refin = self.act.obter_texto('//*[@id="appVue"]/div[4]/div[2]/div[1]/div[1]/div', By.XPATH).replace('\n',' ')
-                        str_valor_novo = self.act.obter_texto('//*[@id="appVue"]/div[4]/div[2]/div[2]/div[2]/div/div/div', By.XPATH).replace('\n',' ')
+                        texto_refin = self.act.obter_texto('//*[@id="appVue"]/div[4]/div[2]/div[1]/div[1]/div', By.XPATH)
+                        texto_novo = self.act.obter_texto('//*[@id="appVue"]/div[4]/div[2]/div[2]/div[2]/div/div/div', By.XPATH)
 
-                        self.dados_consulta["mensagemDadosRefin"] = f"Dados do refinamento: {str_valor_refin} e mais um novo de {str_valor_novo}"
+                        str_valor = self.act.obter_texto('//*[@id="appVue"]/div[4]/div[2]/div[2]/div[2]/div/div/div/div[2]/div[4]/div/span', By.XPATH)
+                        novo_valor_contrato = formatar_moeda(str_valor.split(" ")[1])
+
+                        self.dados_consulta["mensagemDadosRefin"] = f" Dados do refinamento: {texto_refin} - {texto_novo}"
+                        self.dados_consulta["valor_con"] = novo_valor_contrato
 
                         self.dados.post_dados_consultados(self.dados_consulta)
                         # dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
@@ -655,7 +659,7 @@ class InserirContrato(Manager):
 
                 else:
                     self.act.select_drop_down('//*[@id="ddlPrazo"]', str(int(informacoes['contrato']['prazo'])-1), By.XPATH)
-                str_valor = self.act.obter_texto('//*[@id="appVue"]/div[4]/div[2]/div/div[2]/div/div/div/div[2]/div[2]/div/span', By.XPATH)       
+                    str_valor = self.act.obter_texto('//*[@id="appVue"]/div[4]/div[2]/div/div[2]/div/div/div/div[2]/div[2]/div/span', By.XPATH)       
                 print('----------------------------------------------------------------------------------------')
 
 
@@ -706,7 +710,6 @@ class InserirContrato(Manager):
                 self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[3]/div/div/div/input', By.XPATH)
 
                 self.act.select_drop_down('//*[@id="txtSexo"]',informacoes['contrato']['sexo'][0], By.XPATH)
-
                 
                 if self.remove_div() == True:
                     self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', '10/10/2020', By.XPATH)
