@@ -99,7 +99,7 @@ class Tarefas(Manager):
             self.responder_mensagem()
 
         print('Atuando...') 
-        self.iniciar_conversa(random.randint(1,2))
+        self.iniciar_conversa(random.randint(2,6))
         sleep(random.randint(1,3)) 
 
         self.postar_status()
