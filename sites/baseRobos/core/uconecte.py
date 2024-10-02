@@ -7,6 +7,7 @@ from time import sleep
 
 class Uconecte:
     def __init__(self, id_banco=False):
+        #ajuste de rota
         self.url = "https://app.emprestimofacil.com/api/v1/{}"
         self.api_key = "f689f1e12a0399fba803cb2365fc362f"
         self.id_banco = id_banco
