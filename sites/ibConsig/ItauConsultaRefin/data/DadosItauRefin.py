@@ -22,7 +22,7 @@ class DadosItauRefin(DataHandler):
         super().__init__()
         self.api_urls = {
             'GET_SOLICITACOES': 'http://localhost:5000/routing/solicitacoes-refin/itau',
-            'GET_SOLICITACOES_DEV': 'https://app.emprestimofacil.com/dev/api/v1/solicitacoes/refinanciamento?key=f689f1e12a0399fba803cb2365fc362f&banco=1&solicitacao=1035600'
+            'GET_SOLICITACOES_DEV': 'https://app.emprestimofacil.com/api/v1/solicitacoes/refinanciamento?key=f689f1e12a0399fba803cb2365fc362f&banco=1&solicitacao=1035600'
         }
         self.api_keys = {
             'UCONECTE': 'f689f1e12a0399fba803cb2365fc362f'

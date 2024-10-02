@@ -298,7 +298,7 @@ class GerarContratos:
             "mensagem": "Contrato não gerado",
             "observacao" : "Gerar manualmente"
                   }                         
-        request_gerar_contrato = requests.put("https://app.emprestimofacil.com/dev/api/v1/contratos/"+self.contrato['codigo_con']+"?key=f689f1e12a0399fba803cb2365fc362f",
+        request_gerar_contrato = requests.put("https://app.emprestimofacil.com/api/v1/contratos/"+self.contrato['codigo_con']+"?key=f689f1e12a0399fba803cb2365fc362f",
                                                data=dados)
 
         if request_gerar_contrato.status_code != 200:
