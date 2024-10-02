@@ -188,7 +188,7 @@ class Uconecte:
         except:
             data = dados
 
-        request_put_contrato = requests.put(self.url.format("contratos/{}?key={}".format(codigo_contrato, self.api_key)), data=data)
+        request_put_contrato = requests.post(self.url.format("contratos/{}?key={}".format(codigo_contrato, self.api_key)), data=data)
 
         if (request_put_contrato.status_code == 200):
             print('Contrato %s atualizado!' % (codigo_contrato))
