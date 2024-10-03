@@ -730,7 +730,7 @@ class InserirContrato(Manager):
                 self.act.enviar_texto('//*[@id="txtNumeroEndereco"]',informacoes['contrato']['numeroCasa'], By.XPATH)
                 self.remove_div()
                 self.act.press_TAB('//*[@id="txtNumeroEndereco"]', By.XPATH)
-                pdb.set_trace()
+                
                 try:
                     self.act.enviar_texto('//*[@id="txtComplemento"]',informacoes['contrato']['complemento'], By.XPATH)
                 except:
