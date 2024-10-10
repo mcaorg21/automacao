@@ -234,14 +234,16 @@ class InserirContrato(Manager):
                                                 ]
 
                         for doc in documentos_pessoais:
-                            if 'CARTA_DE_CONCESSaO_DO_BENEFiCIO' in doc:
+                            if 'EXTRATO_DE_PAGAMENTOS_' in doc:
                                 try:
+                                    print('XXXXXXXXXXXXX 12 XXXXXXXXXXXXXX')
                                     download(doc, self.path_documentos + 'carta.pdf')
                                     reader = PdfReader(self.path_documentos + 'carta.pdf')
                                     page = reader.pages[0]
                                     texto = page.extract_text()
-                                    pattern = re.compile(r"\((\d+)\)")
-                                    numero_beneficio = pattern.findall(texto)[0]
+                                    #pattern = re.compile(r"\((\d+)\)")
+                                    match = re.search(r"Espécie:\s*(\d{2})\s*-", texto)
+                                    numero_beneficio = match.group(1)
                                 
                                 except:
                                     if 'numeroBeneficio' in informacoes['contrato']['dadosProfissionais']:
@@ -286,7 +288,7 @@ class InserirContrato(Manager):
                 #             arquivo = self.path_documentos + f'{counter}_arquivo.'+extensao
                 #             pass
                 # ######################################################################################
-                #pdb.set_trace()
+
                 if pontuacao < pontuacao_documentos:
                     print('CPF aprovado, mas documentos estão incompletos...')
                     dados_atualizacao['mensagem'] = 'Pendente Documentacao'
