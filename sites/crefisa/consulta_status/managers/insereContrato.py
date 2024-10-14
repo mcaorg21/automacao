@@ -689,14 +689,19 @@ class InserirContrato(Manager):
                 self.act.enviar_texto('//*[@id="txtRg"]', identidade_numero[0:-1], By.XPATH)
                 self.act.enviar_texto('//*[@id="txtDigito"]', identidade_numero[-1], By.XPATH)
 
-                #pdb.set_trace()
+                
                 time.sleep(2)
                 self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
+
                 self.act.select_drop_down('//*[@id="ddlOrgaoEmissorRg"]', 'SESP', By.XPATH) #informacoes['contrato']['orgaoEmissor'],
                 #self.act.select_drop_down('//*[@id="ddlUfOrgaoEmissor"]', informacoes['contrato']['estadoEmissor'], By.XPATH)     
-                self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[2]/div[6]/div/button', By.XPATH)  
-                self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[2]/div[6]/div/div/div/input', informacoes['contrato']['estadoEmissor'], By.XPATH)
 
+                try:
+                    self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[2]/div[6]/div/button', By.XPATH)  
+                    self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[2]/div[6]/div/div/div/input', informacoes['contrato']['estadoEmissor'], By.XPATH)
+                except:
+                    self.driver.quit()
+                    
                 if informacoes['contrato']['estadoEmissor'] == 'SE':
                     self.act.press_DOWN('/html/body/div[6]/div/div[2]/div/div[2]/div[2]/div[6]/div/div/ul/li[1]/a',By.XPATH)
                 self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[2]/div[6]/div/div/div/input', By.XPATH)
