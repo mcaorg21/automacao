@@ -663,12 +663,12 @@ class InserirContrato(Manager):
                     elem = self.act.retornar_opcoes_select('//*[@id="ddlPrazo"]', By.XPATH)
                     for option in elem:
                         if(option.text == informacoes['contrato']['prazo']):
-                            value = i.get_attribute('value')
+                            value = option.get_attribute('value')
                             break;
 
                     self.act.select_drop_down('//*[@id="ddlPrazo"]', value, By.XPATH)
                     str_valor = self.act.obter_texto('//*[@id="appVue"]/div[4]/div[2]/div/div[2]/div/div/div/div[2]/div[2]/div/span', By.XPATH)   
-                        
+
                 print('----------------------------------------------------------------------------------------')
 
                 print('Clicando em finalizar simulacao')
