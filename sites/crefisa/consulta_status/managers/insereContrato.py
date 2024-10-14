@@ -31,7 +31,7 @@ except:
 
 
 
-HORARIO_COMERCIAL = 8, 20
+HORARIO_COMERCIAL = 8, 22
 
 
 class InserirContrato(Manager):
