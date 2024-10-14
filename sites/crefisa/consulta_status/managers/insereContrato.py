@@ -662,7 +662,7 @@ class InserirContrato(Manager):
                 else:
                     elem = self.act.retornar_opcoes_select('//*[@id="ddlPrazo"]', By.XPATH)
                     for option in elem:
-                        if(option.text == informacoes['contrato']['prazo']):
+                        if(option.text == informacoes['contrato']['prazo']+'x'):
                             value = option.get_attribute('value')
                             break;
 
