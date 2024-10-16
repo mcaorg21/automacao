@@ -476,15 +476,11 @@ class InserirContrato(Manager):
                 self.act.enviar_texto_intervalado('//*[@id="txtDigito"]', informacoes['contrato']['matricula'][-1], By.XPATH)
 
                 if(baixa_renda == False):
+                    add_leading_zero = lambda x: f"0{x}" if len(x) < 2 else x
+                    #self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[5]/div[1]/div/button', By.XPATH)
+                    select_dia_salario = add_leading_zero(str(int(informacoes['contrato']['diaSalario'])))
 
-                    self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[5]/div[1]/div/button', By.XPATH)
-                    select_dia_salario = str(int(informacoes['contrato']['diaSalario']) + 1)
-
-                    try:
-                        self.act.clicar_elemento(f'/html/body/div[6]/div/div[3]/div/div[5]/div[1]/div/div/ul/li[{select_dia_salario}]', By.XPATH)
-                    except:
-                        self.act.clicar_elemento(f'/html/body/div[6]/div/div[3]/div/div[5]/div[1]/div/div/ul/li[2]', By.XPATH)
-                        pass
+                    self.act.select_drop_down('//*[@id="ddlDataPagamento"]','324'+select_dia_salario, By.XPATH)
 
                     if id_perfil in [4,5]:
 
