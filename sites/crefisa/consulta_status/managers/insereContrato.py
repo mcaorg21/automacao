@@ -551,6 +551,7 @@ class InserirContrato(Manager):
                 if(baixa_renda == True):
                     try:
                         self.act.clicar_elemento('/html/body/div[8]/div/div[3]/button[1]', By.XPATH)
+                        self.act.enviar_texto('//*[@id="txtValorSimulacao"]', informacoes['contrato']['valorParcela'], By.XPATH) 
                     except:
                         pass
 
@@ -567,6 +568,7 @@ class InserirContrato(Manager):
                     print('----------------------------------------------------------------------------------------')
                     
                     print('Clicando em simular')
+                    
                     try: 
                         self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[9]/div/button', By.XPATH)
                     except:
