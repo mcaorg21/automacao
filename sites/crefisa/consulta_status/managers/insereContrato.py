@@ -480,9 +480,9 @@ class InserirContrato(Manager):
                     #self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[5]/div[1]/div/button', By.XPATH)
                     select_dia_salario = add_leading_zero(str(int(informacoes['contrato']['diaSalario'])))
 
-                    self.act.select_drop_down('//*[@id="ddlDataPagamento"]','324'+select_dia_salario, By.XPATH)
-
                     if id_perfil in [4,5]:
+
+                        self.act.select_drop_down('//*[@id="ddlDataPagamento"]','18711', By.XPATH)
 
                         try:
                             self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[5]/div[2]/div/button', By.XPATH)  
@@ -505,6 +505,9 @@ class InserirContrato(Manager):
                                 self.remove_div()
                                 continue
                             pass
+                    else:
+
+                        self.act.select_drop_down('//*[@id="ddlDataPagamento"]','324'+select_dia_salario, By.XPATH)
 
                 print('----------------------------------------------------------------------------------------')
                 print('Preenchendo renda')
@@ -544,7 +547,13 @@ class InserirContrato(Manager):
 
                 print('----------------------------------------------------------------------------------------')
 
-                print('Preenchendo calculo por parcela e valor da parcela')
+                print('Preenchendo calculo por parcela e valor da parcela')            
+                if(baixa_renda == True):
+                    try:
+                        self.act.clicar_elemento('/html/body/div[8]/div/div[3]/button[1]', By.XPATH)
+                    except:
+                        pass
+
 
                 if(novo_contrato == True):
                     try:
@@ -690,7 +699,8 @@ class InserirContrato(Manager):
 
                 print('----------------------------------------------------------------------------------------')
 
-                print('Clicando em finalizar simulacao')
+                print('Clicando em finalizar simulacao')                
+
                 self.act.clicar_elemento('//*[@id="appVue"]/div[4]/div[2]/div/div[3]/button', By.XPATH)    
                 self.verificar_loading()
                 print('----------------------------------------------------------------------------------------')
