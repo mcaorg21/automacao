@@ -135,7 +135,7 @@ class InserirContrato(Manager):
                         pass   
                     pass
 
-                if retorno_mensagem != "":
+                if retorno_mensagem != "" and "Informe o dígito da matricula" not in retorno_mensagem:
 
                     dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
                     dados_atualizacao['erro'] = retorno_mensagem
@@ -156,6 +156,10 @@ class InserirContrato(Manager):
 
                     self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                     continue
+
+                else:
+                    self.remove_div()
+
 
                 """for i in self.driver.get_cookies(): 
                     if 'SESSION' in i['name']:
@@ -197,10 +201,11 @@ class InserirContrato(Manager):
                 #verifica se tem todos os documentos necessarios
                 pontuacao = 0
                 documentos_pessoais = buscar_documentos_contrato(informacoes['dadosContrato']['codigoContrato'])['arquivos']
-                #pdb.set_trace()
+
                 id_perfil = get_id_perfil(contrato['perfil'])
                 tipo_produto_crefisa = self.get_produto_crefisa(id_perfil)
 
+                #pdb.set_trace()
                 if(id_perfil in [9,10,11]):
                     baixa_renda = True
                     preenche_dia_salario = False
@@ -259,7 +264,6 @@ class InserirContrato(Manager):
                                         self.remove_div()
                                         continue
 
-                
 
                 for doc_unico in documentos_pessoais:
                     for doc_exigido in array_docs_necessarios:
@@ -391,6 +395,7 @@ class InserirContrato(Manager):
                     else:
                         informacoes['contrato']['matricula'] = matricula_json
 
+                #pdb.set_trace()
 
                 print(f"Continuando inserção contrato para o perfil ---------{contrato['perfil']}----------")
                 """print("Preenchendo primeiro fomulario de aceitacao...")
@@ -557,19 +562,38 @@ class InserirContrato(Manager):
                     print('----------------------------------------------------------------------------------------')
                     
                     print('Clicando em simular')
-                    try:
-                        self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[7]/div/button', By.XPATH)
+                    try: 
+                        self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[9]/div/button', By.XPATH)
                     except:
-                        self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[8]/div/button[1]', By.XPATH)
+                        self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[10]/div/button[1]', By.XPATH)
                         pass
 
                     retorno = self.verificar_loading()
                 
                 if retorno['retorno'] == False:
+
                     dados_atualizacao['mensagem'] = 'Pendente Dados'
                     dados_atualizacao['textoMensagem'] = retorno['mensagem']
                     dados_atualizacao['observacao'] = retorno['mensagem']
                     dados_atualizacao['erro'] = retorno['mensagem']
+
+                    if('Sua matrícula está inválida!' in retorno['mensagem']):
+                        self.remove_div()
+
+                        self.act.press_backspace('//*[@id="txtMatricula"]',30,By.XPATH,0, True)
+                        self.act.enviar_texto('//*[@id="txtMatricula"]', matricula_origem[0:-1], By.XPATH)
+                        self.act.enviar_texto('//*[@id="txtDigito"]', matricula_origem[-1], By.XPATH)
+                        self.act.press_backspace('//*[@id="txtDigito"]',3,By.XPATH,0, True)
+                        self.act.enviar_texto_intervalado('//*[@id="txtDigito"]', matricula_origem[-1], By.XPATH)
+
+                        print('Clicando novamente em simular')
+                        try: 
+                            self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[9]/div/button', By.XPATH)
+                        except:
+                            self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[10]/div/button[1]', By.XPATH)
+                            pass
+
+                        retorno = self.verificar_loading()
 
                     if('Exception' in retorno_mensagem):
                         dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
@@ -599,7 +623,6 @@ class InserirContrato(Manager):
                         dados_atualizacao['erro'] = retorno['mensagem']
                         dados_atualizacao['status_con'] = "Reprovado a Conferir"
 
-                    
                     self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                     self.remove_div()
                     continue
@@ -701,7 +724,7 @@ class InserirContrato(Manager):
                     self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[2]/div[6]/div/div/div/input', informacoes['contrato']['estadoEmissor'], By.XPATH)
                 except:
                     self.driver.quit()
-                    
+
                 if informacoes['contrato']['estadoEmissor'] == 'SE':
                     self.act.press_DOWN('/html/body/div[6]/div/div[2]/div/div[2]/div[2]/div[6]/div/div/ul/li[1]/a',By.XPATH)
                 self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[2]/div[6]/div/div/div/input', By.XPATH)
