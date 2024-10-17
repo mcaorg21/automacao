@@ -407,11 +407,24 @@ class InserirContrato(Manager):
 
 
                 print('Preenchendo matricula e digito')
-                self.act.press_backspace('//*[@id="txtMatricula"]',30,By.XPATH,0, True)
-                self.act.enviar_texto('//*[@id="txtMatricula"]', informacoes['contrato']['matricula'][0:-1], By.XPATH)
-                self.act.enviar_texto('//*[@id="txtDigito"]', informacoes['contrato']['matricula'][-1], By.XPATH)
-                self.act.press_backspace('//*[@id="txtDigito"]',3,By.XPATH,0, True)
-                self.act.enviar_texto_intervalado('//*[@id="txtDigito"]', informacoes['contrato']['matricula'][-1], By.XPATH)
+
+                texto_cad = ""
+                atualiza_dado = True
+
+                if(baixa_renda == True):
+                    try:
+                        texto_cad = self.act.obter_texto('//*[@id="appVue"]/div[3]/div/div[7]/div/span', By.XPATH)
+                        if 'Consulta no Portal de Transparência atualizada' in texto_cad:
+                                atualiza_dado = False
+                    except:
+                        pass
+
+                if atualiza_dado == True:
+                    self.act.press_backspace('//*[@id="txtMatricula"]',30,By.XPATH,0, True)
+                    self.act.enviar_texto('//*[@id="txtMatricula"]', informacoes['contrato']['matricula'][0:-1], By.XPATH)
+                    self.act.enviar_texto('//*[@id="txtDigito"]', informacoes['contrato']['matricula'][-1], By.XPATH)
+                    self.act.press_backspace('//*[@id="txtDigito"]',3,By.XPATH,0, True)
+                    self.act.enviar_texto_intervalado('//*[@id="txtDigito"]', informacoes['contrato']['matricula'][-1], By.XPATH)
 
                 if(baixa_renda == False):
                     add_leading_zero = lambda x: f"0{x}" if len(x) < 2 else x
@@ -449,7 +462,8 @@ class InserirContrato(Manager):
 
                 print('----------------------------------------------------------------------------------------')
                 print('Preenchendo renda')
-                self.act.enviar_texto('//*[@id="txtValorRendaLiquida"]', informacoes['contrato']['renda'], By.XPATH)
+                if(atualiza_dado == True):
+                    self.act.enviar_texto('//*[@id="txtValorRendaLiquida"]', informacoes['contrato']['renda'], By.XPATH)
 
                 print('----------------------------------------------------------------------------------------')
 
@@ -579,7 +593,6 @@ class InserirContrato(Manager):
                 print('Selecionando o prazo...')
 
                 if novo_contrato == False:
-                    pdb.set_trace()
                     self.act.select_drop_down('//*[@id="txtTipoValorContratoNovaSimulacao"]', "1", By.XPATH)
                     self.act.enviar_texto('//*[@id="txtValorSimulacaoNovaSimulacao"]', informacoes['contrato']['valorParcela'], By.XPATH)
                     self.act.clicar_elemento('/html/body/div[6]/div/div[4]/div[2]/div/div[2]/div/div/button', By.XPATH)
