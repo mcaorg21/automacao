@@ -73,7 +73,7 @@ class InserirContrato(Manager):
 
     @ApenasHorarioComercial(*HORARIO_COMERCIAL)
     def inserir_contrato(self):     
-
+        self.driver.execute_script("document.body.style.zoom='80%'")
         self.verificar_loading()       
         print('Iniciando inserção de contrato...')
 
@@ -161,43 +161,6 @@ class InserirContrato(Manager):
                     self.remove_div()
 
 
-                """for i in self.driver.get_cookies(): 
-                    if 'SESSION' in i['name']:
-                        cookies_name = i['name']
-                        cookies_value = i['value']
-
-                        try:
-                            headers = {'Cookie': f'{cookies_name}={cookies_value};'}
-                            response = requests.request("GET", url, headers=headers)
-
-                            if 'Message' in json.loads(response.text):
-                                if 'Authorization has been denied for this request.' in json.loads(response.text)['Message']:
-                                    self.driver.quit()
-                        
-                            retorno = json.loads(response.text)
-                            break
-
-                            if 'page cannot be displayed' in response.text: 
-                                return False
-
-                        except:
-                            print('XXXXXXXXXXXXXXXXXXXXX Erro na consulta do JSON XXXXXXXXXXXXXXXXXXXXX')
-
-                            continue
-                    else:
-                        continue
-                
-                if 'erro' in retorno and retorno['erro'] == True:
-                    return False
-
-                if 'objeto' in retorno and retorno['objeto']['permiteCaptura'] == False:
-                    dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
-                    dados_atualizacao['erro'] = retorno['objeto']['mensagem']
-                    dados_atualizacao['observacao'] = retorno['objeto']['mensagem']
-                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
-                    continue
-                """
-
                 #verifica se tem todos os documentos necessarios
                 pontuacao = 0
                 documentos_pessoais = buscar_documentos_contrato(informacoes['dadosContrato']['codigoContrato'])['arquivos']
@@ -273,25 +236,6 @@ class InserirContrato(Manager):
                 ######################################################################################
                 counter = 1
                 conta_anexo_cpf = 1
-                #array_xpaths = ['//*[@id="ddlarquivosRg"]','//*[@id="ddlarquivosCpf"]','//*[@id="ddlarquivosContracheque"]','//*[@id="ddlarquivosComprovanteResidencia"]', '//*[@id="ddlarquivosExtratoBancario"]','//*[@id="ddlarquivosOutros"]']
-                
-                # for doc in documentos_pessoais: 
-
-                #     arquivo = self.path_documentos + f'{counter}_arquivo.pdf'
-
-                #     extensao = doc.split('?')[0].split('.')[-1]
-                #     if 'pdf' in extensao:
-                #          download(doc, arquivo)
-                #     else:
-                        
-                #         try:
-                #             download(doc, self.path_documentos + f'{counter}_arquivo.jpg')
-                           
-                #             Image.open(self.path_documentos + f'{counter}_arquivo.jpg').convert('RGB').save(arquivo,optimize=True, quality=25)
-                #         except:
-                #             arquivo = self.path_documentos + f'{counter}_arquivo.'+extensao
-                #             pass
-                # ######################################################################################
 
                 if pontuacao < pontuacao_documentos:
                     print('CPF aprovado, mas documentos estão incompletos...')
@@ -395,14 +339,7 @@ class InserirContrato(Manager):
                     else:
                         informacoes['contrato']['matricula'] = matricula_json
 
-                #pdb.set_trace()
-
                 print(f"Continuando inserção contrato para o perfil ---------{contrato['perfil']}----------")
-                """print("Preenchendo primeiro fomulario de aceitacao...")
-                self.act.enviar_texto('//*[@id="txtCpfSimulacao"]', informacoes['contrato']['cpf'], By.XPATH)
-                self.act.press_enter('//*[@id="appVue"]/div[2]/div[2]/div[2]/div/button', By.XPATH)
-                print('----------------------------------------------------------------------------------------')
-                """
 
                 retorno = self.verificar_loading()
 
@@ -429,6 +366,13 @@ class InserirContrato(Manager):
                 print("Preenchendo o convenio")
                 self.act.select_drop_down("//select[@id='ddlConvenio']",tipo_produto_crefisa, By.XPATH)
                 print('----------------------------------------------------------------------------------------')
+
+                if(baixa_renda == True):
+                    try:
+                        self.verificar_loading()
+                        self.act.press_enter('/html/body/div[8]/div/div[3]/button', By.XPATH)
+                    except:
+                        pass
 
                 print("Preenchendo o reverso")
 
@@ -461,12 +405,6 @@ class InserirContrato(Manager):
                                         "9":"3"
                                         }     
 
-                # try:   
-                #     self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[4]/div[2]/div/button', By.XPATH)                          
-                #     self.act.clicar_elemento(f'//*[@id="appVue"]/div[3]/div/div[4]/div[2]/div/div/ul/li[{array_reversos_menu[reverso_nis]}]/a/span[1]', By.XPATH)
-                #     print('----------------------------------------------------------------------------------------')
-                # except:
-                #     pass
 
                 print('Preenchendo matricula e digito')
                 self.act.press_backspace('//*[@id="txtMatricula"]',30,By.XPATH,0, True)
@@ -569,7 +507,7 @@ class InserirContrato(Manager):
                     
                     print('Clicando em simular')
                     try: 
-                        self.driver.execute_script("document.body.style.zoom='70%'")
+                        
                         self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[9]/div/button', By.XPATH)
                     except:
                         self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[10]/div/button[1]', By.XPATH)
@@ -577,7 +515,7 @@ class InserirContrato(Manager):
 
                     retorno = self.verificar_loading()
                 
-                self.driver.execute_script("document.body.style.zoom='100%'")
+                self.driver.execute_script("document.body.style.zoom='80%'")
 
                 if retorno['retorno'] == False:
 
@@ -641,7 +579,7 @@ class InserirContrato(Manager):
                 print('Selecionando o prazo...')
 
                 if novo_contrato == False:
-
+                    pdb.set_trace()
                     self.act.select_drop_down('//*[@id="txtTipoValorContratoNovaSimulacao"]', "1", By.XPATH)
                     self.act.enviar_texto('//*[@id="txtValorSimulacaoNovaSimulacao"]', informacoes['contrato']['valorParcela'], By.XPATH)
                     self.act.clicar_elemento('/html/body/div[6]/div/div[4]/div[2]/div/div[2]/div/div/button', By.XPATH)
@@ -996,7 +934,7 @@ class InserirContrato(Manager):
                     self.driver.execute_script("""$('#appVue > div:nth-child(3) > div > div.card-body > div.row.mt-4 > div > button.btn.btn-primary').click()""")
                      
                 retorno = self.verificar_loading(30)
-                self.driver.execute_script("document.body.style.zoom='100%'")
+                self.driver.execute_script("document.body.style.zoom='80%'")
                 
                 if retorno['retorno'] == True  and retorno['ade'] != "":
                     deleta_todos_arquivos(self.path_documentos)
