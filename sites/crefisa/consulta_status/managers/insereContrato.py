@@ -568,8 +568,8 @@ class InserirContrato(Manager):
                     print('----------------------------------------------------------------------------------------')
                     
                     print('Clicando em simular')
-                    
                     try: 
+                        self.driver.execute_script("document.body.style.zoom='70%'")
                         self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[9]/div/button', By.XPATH)
                     except:
                         self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[10]/div/button[1]', By.XPATH)
@@ -577,6 +577,8 @@ class InserirContrato(Manager):
 
                     retorno = self.verificar_loading()
                 
+                self.driver.execute_script("document.body.style.zoom='100%'")
+
                 if retorno['retorno'] == False:
 
                     dados_atualizacao['mensagem'] = 'Pendente Dados'
