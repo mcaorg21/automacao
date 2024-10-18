@@ -129,8 +129,7 @@ class Consulta_Cpf:
                         try:
                             situacao = self.act.obter_texto("/html/body/main/div/div/div[3]/div/div/app-root/div/app-consultar-situacao-titulo-eleitor/div[1]/div[1]/p/span", metodo=By.XPATH)                        
                         except:
-                            print('ERRO DE GET DE xpath')
-                            pdb.set_trace()
+                            print('ERRO DE GET DE xpath')                            
 
                         if 'REGULAR' not in situacao and 'CANCELADO' not in situacao and 'SUSPENSO' not in situacao:
                             try:
@@ -187,7 +186,7 @@ class Consulta_Cpf:
                                 pdb.set_trace()
                                 pass
                         print('ERRO DE XPATH OU Captcha não passou')
-                        sleep(300)
+                        sleep(302)
                         self.driver.quit()
                         print('Resetando consulta...')
                         self.consultar()
@@ -196,12 +195,17 @@ class Consulta_Cpf:
                     self.driver.get("http://www.tse.jus.br/eleitor/titulo-e-local-de-votacao/copy_of_consulta-por-nome")                       
                 
                 print('Agaurdando mais CPF´s para consulta...')
-                sleep(300)
+                sleep(303)
                 self.driver.quit()
                 
 
             except:
-                sleep(300)
+                #pdb.set_trace()
+                self.act.clicar_elemento('//*[@id="modal"]/div/div/div[1]/button', By.XPATH)
+                sleep(2)
+                self.act.clicar_elemento('//*[@id="content"]/app-root/app-modal-mensagem/div/div/div/div[2]/button', By.XPATH)
+                sleep(10)
+                self.driver.delete_all_cookies()
                 self.driver.quit()
                 print('Resetando consulta...')
                 self.consultar()
