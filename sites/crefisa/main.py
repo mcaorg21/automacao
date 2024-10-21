@@ -38,7 +38,7 @@ from time import sleep
 
 import shutil
 
-HORARIO_COMERCIAL = 8, 20
+HORARIO_COMERCIAL = 8, 22
 
 class Main:
 
