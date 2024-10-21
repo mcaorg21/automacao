@@ -660,7 +660,12 @@ class InserirContrato(Manager):
 
                 print('Clicando em finalizar simulacao')                
 
-                self.act.clicar_elemento('//*[@id="appVue"]/div[4]/div[2]/div/div[3]/button', By.XPATH)    
+                try:
+                    self.act.clicar_elemento('//*[@id="appVue"]/div[4]/div[2]/div/div[3]/button', By.XPATH)
+                except:
+                    self.act.press_enter('//*[@id="appVue"]/div[4]/div[2]/div/div[3]/button', By.XPATH)
+                    pass 
+                    
                 self.verificar_loading()
                 print('----------------------------------------------------------------------------------------')
 
