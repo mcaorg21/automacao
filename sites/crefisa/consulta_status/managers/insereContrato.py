@@ -665,7 +665,7 @@ class InserirContrato(Manager):
                 except:
                     self.act.press_enter('//*[@id="appVue"]/div[4]/div[2]/div/div[3]/button', By.XPATH)
                     pass 
-                    
+
                 self.verificar_loading()
                 print('----------------------------------------------------------------------------------------')
 
@@ -678,12 +678,19 @@ class InserirContrato(Manager):
                 #self.act.clicar_elemento('//*[@id="txtDataNascimento"]', By.XPATH)
                 self.act.enviar_texto('//*[@id="txtDataNascimento"]', informacoes['contrato']['dataNascimento'], By.XPATH)
 
+
+
                 identidade_numero = re.sub('[^0-9]', '', informacoes['contrato']['identidade'])
                 self.act.enviar_texto('//*[@id="txtRg"]', identidade_numero[0:-1], By.XPATH)
+                try:
+                    self.act.clicar_elemento('/html/body/div[8]/div/div[3]/button[1]' , By.XPATH)
+                except:
+                    pass
                 self.act.enviar_texto('//*[@id="txtDigito"]', identidade_numero[-1], By.XPATH)
 
                 
                 time.sleep(2)
+                self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', 'XX/XX/XXXX', By.XPATH)
                 self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
 
                 self.act.select_drop_down('//*[@id="ddlOrgaoEmissorRg"]', 'SESP', By.XPATH) #informacoes['contrato']['orgaoEmissor'],
