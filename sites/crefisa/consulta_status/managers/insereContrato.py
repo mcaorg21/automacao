@@ -764,6 +764,11 @@ class InserirContrato(Manager):
                 print('Preenchendo dados endereço')
                 self.act.enviar_texto('//*[@id="txtCep"]',informacoes['contrato']['cep'], By.XPATH)
 
+                try:
+                    self.act.press_backspace('//*[@id="txtNumeroEndereco"]',8,By.XPATH,0, True)
+                except:
+                    pass
+
                 self.act.enviar_texto('//*[@id="txtNumeroEndereco"]',informacoes['contrato']['numeroCasa'], By.XPATH)
                 self.remove_div()
                 self.act.press_TAB('//*[@id="txtNumeroEndereco"]', By.XPATH)
