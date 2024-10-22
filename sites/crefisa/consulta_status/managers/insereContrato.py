@@ -417,18 +417,23 @@ class InserirContrato(Manager):
 
                 if(baixa_renda == True):
                     try:
-                        texto_cad = self.act.obter_texto('//*[@id="appVue"]/div[3]/div/div[7]/div/span', By.XPATH)
+                        texto_cad = self.act.obter_texto('//*[@id="appVue"]/div[3]/div/div[7]/div/span', By.XPATH)  
                         if 'Consulta no Portal de Transparência atualizada' in texto_cad:
-                                atualiza_dado = False
+                            atualiza_dado = False
+
                     except:
                         pass
 
                 if atualiza_dado == True:
-                    self.act.press_backspace('//*[@id="txtMatricula"]',30,By.XPATH,0, True)
-                    self.act.enviar_texto('//*[@id="txtMatricula"]', informacoes['contrato']['matricula'][0:-1], By.XPATH)
-                    self.act.enviar_texto('//*[@id="txtDigito"]', informacoes['contrato']['matricula'][-1], By.XPATH)
-                    self.act.press_backspace('//*[@id="txtDigito"]',3,By.XPATH,0, True)
-                    self.act.enviar_texto_intervalado('//*[@id="txtDigito"]', informacoes['contrato']['matricula'][-1], By.XPATH)
+                    try:
+                        self.act.press_backspace('//*[@id="txtMatricula"]',30,By.XPATH,0, True)
+                        self.act.enviar_texto('//*[@id="txtMatricula"]', informacoes['contrato']['matricula'][0:-1], By.XPATH)
+                        self.act.enviar_texto('//*[@id="txtDigito"]', informacoes['contrato']['matricula'][-1], By.XPATH)
+                        self.act.press_backspace('//*[@id="txtDigito"]',3,By.XPATH,0, True)
+                        self.act.enviar_texto_intervalado('//*[@id="txtDigito"]', informacoes['contrato']['matricula'][-1], By.XPATH)
+                    except:
+                        atualiza_dado = False
+                        pass
 
                 if(baixa_renda == False):
                     add_leading_zero = lambda x: f"0{x}" if len(x) < 2 else x
@@ -672,13 +677,23 @@ class InserirContrato(Manager):
                 print('Preenchendo dados pessoais')
                 
                 #data_nascimento = informacoes['contrato']['dataNascimento'].split('/')
-                #data_nascimento = data_nascimento[2]+'-'+data_nascimento[1]+'-'+data_nascimento[0]
+                #data_nascimento = data_nascimento[2]+'-'+data_nascimento[1]+'-'+data_nascimento[0] 
                 #self.driver.execute_script(f"""$('#txtDataNascimento').val('{data_nascimento}')""")
                 #pdb.set_trace()
                 #self.act.clicar_elemento('//*[@id="txtDataNascimento"]', By.XPATH)
-                self.act.enviar_texto('//*[@id="txtDataNascimento"]', informacoes['contrato']['dataNascimento'], By.XPATH)
-                self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
-                #self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', 'XX/XX/XXXX', By.XPATH)
+                #pdb.set_trace()
+                
+                # self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', 'XX/XX/XXXX', By.XPATH)
+                # self.act.enviar_texto('//*[@id="txtDataNascimento"]', 'XX/XX/XXXX', By.XPATH)
+                data_nascimento = self.act.obter_valor('//*[@id="txtDataNascimento"]', By.XPATH)
+                data_emissao_rg = self.act.obter_valor('//*[@id="txtDataEmissaoRg"]', By.XPATH)
+
+                if(data_nascimento == "" and data_emissao_rg == ""):
+                    self.act.enviar_texto('//*[@id="txtDataNascimento"]', informacoes['contrato']['dataNascimento'], By.XPATH)
+                    self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
+
+                if(data_emissao_rg != '1900-01-01'):
+                    self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
 
                 identidade_numero = re.sub('[^0-9]', '', informacoes['contrato']['identidade'])
                 self.act.enviar_texto('//*[@id="txtRg"]', identidade_numero[0:-1], By.XPATH)
@@ -765,7 +780,20 @@ class InserirContrato(Manager):
                 if(baixa_renda == False):
                     if informacoes['contrato']['numeroBanco'] == '955':
                         informacoes['contrato']['numeroBanco'] = '033'
-                    self.act.select_drop_down('//*[@id="ddlBanco"]', informacoes['contrato']['numeroBanco'], By.XPATH)
+
+                    try:
+                        self.act.select_drop_down('//*[@id="ddlBanco"]', informacoes['contrato']['numeroBanco'], By.XPATH)
+                    except:
+                        pdb.set_trace()
+                        dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                        dados_atualizacao['observacao_emp'] = 'Banco informado não possui convênio com desconto em conta.'
+                        dados_atualizacao['observacao'] = "Banco informado não possui convênio com desconto em conta."
+                        dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                        
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        self.remove_div()
+                        continue
+
                     self.act.enviar_texto('//*[@id="txtAgencia"]',informacoes['contrato']['agencia'], By.XPATH)
 
 
@@ -1028,6 +1056,7 @@ class InserirContrato(Manager):
                     #     #continue
             except Exception as e:
                 print(e)
+                self.chrome_driver.quit()
                 continue
 
 
