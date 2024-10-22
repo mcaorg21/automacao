@@ -692,7 +692,7 @@ class InserirContrato(Manager):
                     self.act.enviar_texto('//*[@id="txtDataNascimento"]', informacoes['contrato']['dataNascimento'], By.XPATH)
                     self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
 
-                if(data_emissao_rg != '1900-01-01'):
+                if(data_emissao_rg == '1900-01-01'):
                     self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
 
                 identidade_numero = re.sub('[^0-9]', '', informacoes['contrato']['identidade'])
