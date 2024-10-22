@@ -677,21 +677,24 @@ class InserirContrato(Manager):
                 #pdb.set_trace()
                 #self.act.clicar_elemento('//*[@id="txtDataNascimento"]', By.XPATH)
                 self.act.enviar_texto('//*[@id="txtDataNascimento"]', informacoes['contrato']['dataNascimento'], By.XPATH)
-
-
+                self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
+                #self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', 'XX/XX/XXXX', By.XPATH)
 
                 identidade_numero = re.sub('[^0-9]', '', informacoes['contrato']['identidade'])
                 self.act.enviar_texto('//*[@id="txtRg"]', identidade_numero[0:-1], By.XPATH)
-                try:
-                    self.act.clicar_elemento('/html/body/div[8]/div/div[3]/button[1]' , By.XPATH)
-                except:
-                    pass
+
+                # erro_data = False
+                # try:
+                #     self.act.clicar_elemento('/html/body/div[8]/div/div[3]/button[1]' , By.XPATH)
+                #     erro_data = True
+                # except:
+                #     pass
+
                 self.act.enviar_texto('//*[@id="txtDigito"]', identidade_numero[-1], By.XPATH)
 
-                
                 time.sleep(2)
-                self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', 'XX/XX/XXXX', By.XPATH)
-                self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
+                
+                #self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
 
                 self.act.select_drop_down('//*[@id="ddlOrgaoEmissorRg"]', 'SESP', By.XPATH) #informacoes['contrato']['orgaoEmissor'],
                 #self.act.select_drop_down('//*[@id="ddlUfOrgaoEmissor"]', informacoes['contrato']['estadoEmissor'], By.XPATH)     
@@ -707,8 +710,7 @@ class InserirContrato(Manager):
                 self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[2]/div[6]/div/div/div/input', By.XPATH)
 
                 
-                #self.act.select_drop_down('//*[@id="ddlUfNascimento"]',informacoes['contrato']['estadoNaturalidade'], By.XPATH) 
-                #pdb.set_trace()
+                #self.act.select_drop_down('//*[@id="ddlUfNascimento"]',informacoes['contrato']['estadoNaturalidade'], By.XPATH) n
                 self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[3]/div[2]/div/button', By.XPATH)  
                 self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[2]/div/div/div/input', informacoes['contrato']['estadoNaturalidade'], By.XPATH)
                 
@@ -716,6 +718,13 @@ class InserirContrato(Manager):
                     self.act.press_DOWN('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[2]/div/div/ul/li[1]/a',By.XPATH)
 
                 self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[2]/div/div/div/input', By.XPATH)
+
+                # pdb.set_trace()
+
+                # if(erro_data):
+                #     self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', '20/04/2000', By.XPATH)
+                #     self.act.enviar_texto('//*[@id="txtDataNascimento"]', informacoes['contrato']['dataNascimento'], By.XPATH)
+
                 time.sleep(5)
                 #self.act.enviar_texto('//*[@id="txtNaturalidade"]',informacoes['contrato']['naturalidade'], By.XPATH) 
                 self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[3]/div[3]/div/button', By.XPATH)  
