@@ -686,6 +686,21 @@ class InserirContrato(Manager):
                 # self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', 'XX/XX/XXXX', By.XPATH)
                 # self.act.enviar_texto('//*[@id="txtDataNascimento"]', 'XX/XX/XXXX', By.XPATH)
                 data_nascimento = self.act.obter_valor('//*[@id="txtDataNascimento"]', By.XPATH)
+
+                retorno = self.verificar_loading()
+
+                if retorno['retorno'] == False:
+                    if 'Informe uma data de nascimento válida.' in retorno['mensagem']:
+                        dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                        dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                        dados_atualizacao['observacao_emp'] = retorno['mensagem']
+                        dados_atualizacao['observacao'] = retorno['mensagem']
+                        dados_atualizacao['erro'] = retorno['mensagem']
+
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        self.remove_div()
+                        continue
+
                 data_emissao_rg = self.act.obter_valor('//*[@id="txtDataEmissaoRg"]', By.XPATH)
 
                 if(data_nascimento == "" and data_emissao_rg == ""):
