@@ -686,7 +686,13 @@ class InserirContrato(Manager):
                 # self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', 'XX/XX/XXXX', By.XPATH)
                 # self.act.enviar_texto('//*[@id="txtDataNascimento"]', 'XX/XX/XXXX', By.XPATH)
                 data_nascimento = self.act.obter_valor('//*[@id="txtDataNascimento"]', By.XPATH)
+                data_emissao_rg = self.act.obter_valor('//*[@id="txtDataEmissaoRg"]', By.XPATH)
 
+                if(data_nascimento == "" and data_emissao_rg == ""):
+                    self.act.enviar_texto('//*[@id="txtDataNascimento"]', informacoes['contrato']['dataNascimento'], By.XPATH)
+                    self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
+
+                #verifica erros ao registrar a data de nasicmento
                 retorno = self.verificar_loading()
 
                 if retorno['retorno'] == False:
@@ -700,12 +706,6 @@ class InserirContrato(Manager):
                         self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                         self.remove_div()
                         continue
-
-                data_emissao_rg = self.act.obter_valor('//*[@id="txtDataEmissaoRg"]', By.XPATH)
-
-                if(data_nascimento == "" and data_emissao_rg == ""):
-                    self.act.enviar_texto('//*[@id="txtDataNascimento"]', informacoes['contrato']['dataNascimento'], By.XPATH)
-                    self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
 
                 if(data_emissao_rg == '1900-01-01'):
                     self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
