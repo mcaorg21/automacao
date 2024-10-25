@@ -789,7 +789,6 @@ class InserirContrato(Manager):
                     try:
                         self.act.select_drop_down('//*[@id="ddlBanco"]', informacoes['contrato']['numeroBanco'], By.XPATH)
                     except:
-                        pdb.set_trace()
                         dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
                         dados_atualizacao['observacao_emp'] = 'Banco informado não possui convênio com desconto em conta.'
                         dados_atualizacao['observacao'] = "Banco informado não possui convênio com desconto em conta."
