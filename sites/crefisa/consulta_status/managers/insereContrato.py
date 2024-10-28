@@ -1087,7 +1087,7 @@ class InserirContrato(Manager):
                     #     #continue
             except Exception as e:
                 print(e)
-                self.chrome_driver.quit()
+                #self.chrome_driver.quit()
                 continue
 
 
