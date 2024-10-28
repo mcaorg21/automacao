@@ -493,7 +493,12 @@ class InserirContrato(Manager):
                         novo_contrato = False
                         self.act.select_drop_down("//select[@id='txtTipoSimulacao']",'2', By.XPATH)
                         self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[7]/div[2]/div/label', By.XPATH)
-                        self.act.clicar_elemento('/html/body/div[6]/div/div[3]/div/div[8]/div/button[1]', By.XPATH)    
+
+                        try:
+                            self.act.clicar_elemento('/html/body/div[6]/div/div[3]/div/div[10]/div/button', By.XPATH)
+                        except:
+                            self.act.clicar_elemento('/html/body/div[6]/div/div[3]/div/div[8]/div/button[1]', By.XPATH)  
+
                         retorno = self.verificar_loading()
 
                         if(retorno['retorno'] == False):
@@ -602,9 +607,16 @@ class InserirContrato(Manager):
                 print('Selecionando o prazo...')
 
                 if novo_contrato == False:
-                    self.act.select_drop_down('//*[@id="txtTipoValorContratoNovaSimulacao"]', "1", By.XPATH)
-                    self.act.enviar_texto('//*[@id="txtValorSimulacaoNovaSimulacao"]', informacoes['contrato']['valorParcela'], By.XPATH)
-                    self.act.clicar_elemento('/html/body/div[6]/div/div[4]/div[2]/div/div[2]/div/div/button', By.XPATH)
+                    try:
+                        self.act.select_drop_down('//*[@id="txtTipoSimulacao"]', "1", By.XPATH)
+                        self.act.enviar_texto('//*[@id="txtValorSimulacao"]', informacoes['contrato']['valorParcela'], By.XPATH)
+                        self.act.clicar_elemento('/html/body/div[6]/div/div[4]/div[2]/div/div[2]/div/div/button', By.XPATH)
+                    except:
+                        self.act.select_drop_down('//*[@id="txtTipoValorContratoNovaSimulacao"]', "1", By.XPATH)
+                        self.act.select_drop_down('//*[@id="txtTipoValorContrato"]','1', By.XPATH)
+                        self.act.enviar_texto('//*[@id="txtValorSimulacaoNovaSimulacao"]', informacoes['contrato']['valorParcela'], By.XPATH)
+                        self.act.clicar_elemento('/html/body/div[6]/div/div[3]/div/div[10]/div/button', By.XPATH)
+
 
                     retorno = self.verificar_loading()
 
