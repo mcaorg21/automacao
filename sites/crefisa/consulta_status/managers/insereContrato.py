@@ -309,21 +309,43 @@ class InserirContrato(Manager):
                                     continue
 
                                 elif('MEU_NIS' in doc_unico):
+
+                                    # try:
+                                    #     texto_cad = self.act.obter_texto('//*[@id="appVue"]/div[3]/div/div[7]/div/span', By.XPATH)  
+                                    #     if 'Consulta no Portal de Transparência atualizada' in texto_cad:
+                                    #         matricula_json = matricula_origem = informacoes['contrato']['matricula']
+                                    #         erro_leitura_ia = False
+                                    #         continue
+
+                                    # except:
+                                    #     pass
+
+
                                     matricula_origem = informacoes['contrato']['matricula']
                                     base64Arquivo = base64.b64encode(requests.get(doc_unico).content)
 
-                                    prompt = 'a imagem é um comprovante de matricula meu nis nela contem a matricula que é formada por 11 numeros retorne essa informacao em formato json usando a key com nome matricula com os dados contidos no arquivo e com o regex \\d{11}'
+                                    #prompt = 'a imagem é um comprovante de matricula meu nis nela contem a matricula que é formada por 11 numeros retorne essa informacao em formato json usando a key com nome matricula com os dados contidos no arquivo e com o regex \\d{11}'
+                                    prompt = "retire o numero NIS/PIS do arquivo enviado e traga em formato json usando key matricula e essa matricula formatada sem caracteres especiais"
                                     retorno_matricula = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
                                     
                                     print('.... Lendo dados da matricula')
-                                    
-                                    if 'tipo' in retorno_matricula and retorno_matricula['tipo'] == 'alert':
-                                        erro_leitura_ia = True
-                                        mensagem_erro_leitura = "MEU NIS"                                        
-                                        break;
+
+                                    tentativaLeitura = 0
+                                    while 'tipo' in retorno_matricula and retorno_matricula['tipo'] == 'alert':
+                                        print('Tentando ler matricula novamente....')
+                                        retorno_matricula = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
+                                        time.sleep(3)
+
+                                        tentativaLeitura += 1
+
+                                        if 'tipo' in retorno_matricula and retorno_matricula['tipo'] == 'alert' and tentativaLeitura > 7:
+                                            erro_leitura_ia = True
+                                            mensagem_erro_leitura = "MEU NIS"                                        
+                                            break;
 
                                     retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
                                     matricula_json = retorno_matricula_json['matricula']
+
                                     continue
 
                     if erro_leitura_ia == True and 'inserir' not in contrato['observacao_emp']:
