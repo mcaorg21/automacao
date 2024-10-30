@@ -287,9 +287,22 @@ class InserirContrato(Manager):
                                     
                                     print('.... Lendo o comprovante de conta')
 
-                                    if 'tipo' in retorno_conta and retorno_conta['tipo'] == 'alert':
-                                        erro_leitura_ia = True
-                                        break;
+                                    # if 'tipo' in retorno_conta and retorno_conta['tipo'] == 'alert':
+                                    #     erro_leitura_ia = True
+                                    #     break;
+
+                                    tentativaLeitura = 0
+                                    while 'tipo' in retorno_conta and retorno_conta['tipo'] == 'alert':
+                                        print('Tentando ler matricula novamente....')
+                                        retorno_conta = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
+                                        time.sleep(3)
+
+                                        tentativaLeitura += 1
+
+                                        if 'tipo' in retorno_conta and retorno_conta['tipo'] == 'alert' and tentativaLeitura > 7:
+                                            erro_leitura_ia = True
+                                            mensagem_erro_leitura = "COMPROVANTE DE CONTA"                                        
+                                            break;
 
                                     retorno_conta_json = json.loads(retorno_conta['retorno'].replace('```','').replace('\n','').replace('json',''))
                                     
