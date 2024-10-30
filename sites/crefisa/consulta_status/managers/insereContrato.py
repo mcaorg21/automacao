@@ -721,7 +721,20 @@ class InserirContrato(Manager):
                     self.act.press_enter('//*[@id="appVue"]/div[4]/div[2]/div/div[3]/button', By.XPATH)
                     pass 
 
-                self.verificar_loading()
+                retorno = self.verificar_loading()
+
+                if retorno['retorno'] == False and novo_contrato == False:
+                    if 'parcela máxima de R$ 159,00 simule novamente utilizando esse valor de parcela' in retorno['mensagem']:
+                        dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                        dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                        dados_atualizacao['observacao_emp'] = retorno['mensagem']
+                        dados_atualizacao['observacao'] = retorno['mensagem']
+                        dados_atualizacao['erro'] = retorno['mensagem']
+
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        self.remove_div()
+                        continue
+
                 print('----------------------------------------------------------------------------------------')
 
                 print('Preenchendo dados pessoais')
