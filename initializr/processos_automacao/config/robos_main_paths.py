@@ -74,6 +74,7 @@ main_paths: dict = {
 
     #Crefisa
     "Crefisa": "/crefisa/main.py",
+    "CrefisaSincronizacao": "/crefisa/main_sincronizacao.py",
 
     #Wahtsapp WarmUP
     "WhatsappWU": "/whatsappwu/main.py",

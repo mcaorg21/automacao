@@ -16,7 +16,13 @@ def robo_cora_sincronizacao():
 
 def robo_crefisa():
     from sites.crefisa.main import Main
-    system("title Robô - Crefisa")
+    system("title Robô - Crefisa Insercao")
+    run = Main()
+    run.main()
+
+def robo_crefisa_sincronizacao():
+    from sites.crefisa.main_sincronizacao import Main
+    system("title Robô - Crefisa Sincronizacao")
     run = Main()
     run.main()
 
@@ -505,8 +511,12 @@ def main(site=False):
                     },
                     Separator(),
                     {
-                        'name': 'Crefisa',
+                        'name': 'Crefisa Insercao',
                         'value': 'crefisa'
+                    },
+                    {
+                        'name': 'Crefisa Sincronizacao',
+                        'value': 'crefisa_sinc'
                     },
                     Separator(),
                     {
@@ -611,6 +621,8 @@ def main(site=False):
         robo_cora_login()
     elif site == 'crefisa':
         robo_crefisa()
+    elif site == 'crefisa_sinc':
+        robo_crefisa_sincronizacao()
     elif site == 'whatsapp':
         robo_waw()
     else:
