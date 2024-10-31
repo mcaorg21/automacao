@@ -98,19 +98,21 @@ class Main:
 
         self.selenium_helper = SeleniumHelper(self.driver)
 
+        self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/')
+
         self.driver.delete_all_cookies()
 
     @AguardarHorarioComercial(*HORARIO_COMERCIAL)
     def main(self):
         definir_nome_robo(self.TITLE)
 
-        self.load_cookies_crefisa_web_admin()
+        #self.load_cookies_crefisa_web_admin()
 
         try:
             dados_login = query_login_pass_robo(self.id_robo, self.usuario)
             login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'])
         except:
-            self.driver.delete_all_cookies()
+            #self.driver.delete_all_cookies()
             self.main()
 
         self.selenium_helper.save_cookies(self.cookies_path)
@@ -123,7 +125,7 @@ class Main:
         print('Aguardando minutos para reiniciar...')
         
         #self.driver.quit()
-        sleep(1)
+        sleep(180)
         #Main().main()
         self.main()
 
