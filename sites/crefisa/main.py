@@ -21,6 +21,7 @@ from selenium.webdriver.chrome.options import Options
 
 from sites.baseRobos.core.selenium_actions import SeleniumActions
 from sites.baseRobos.core.selenium_helper import SeleniumHelper
+from sites.core.selenium_helper import SeleniumHelper
 from sites.baseRobos.manager import Manager
 from sites.core.uconecte import Uconecte
 
@@ -36,7 +37,7 @@ from dados.database.queries.query_dados_robos import query_login_pass_robo
 
 from time import sleep
 
-import shutil
+import shutil,json
 
 HORARIO_COMERCIAL = 8, 22
 
@@ -45,17 +46,22 @@ class Main:
     id_banco: int = '069'
     id_robo: int = 'x'
 
-    TITLE = "Crefisa - Insercao e Sincronizacao"
+    TITLE = "Crefisa - Insercao"
 
     def __init__(self):
 
         self.id_robo = '691'
         self.usuario = '50801.06050694680'
 
+        # self.id_robo = '692'
+        # self.usuario = '50801.03507179660'
+
         self.base_path: str = PATHS.project_path()
 
-        self.chrome_user: str = PATHS.chrome_user('Crefisa')
+        self.chrome_user: str = PATHS.chrome_user('Crefisa Insercao')
         self.driver_path: str = PATHS.driver_path()
+
+        self.api_key = "f689f1e12a0399fba803cb2365fc362f"
 
         options = Options()
         Manager().criar_pasta_usuario_chrome(self.chrome_user)
@@ -83,17 +89,25 @@ class Main:
         self.uconecte: Uconecte = Uconecte(id_banco=self.id_banco)
         self.act: SeleniumActions = SeleniumActions(self.driver)
         self.sh: SeleniumHelper = SeleniumHelper(self.driver)
+        self.selenium_helper = SeleniumHelper(self.driver)
+
+        self.caminho_base = PATHS.project_path()
+
+        self.cookies_path = self.caminho_base+"\\crefisa\\cookies\\" + "usuario_crefisa.pkl"
+        self.cookies_path_json = self.caminho_base+"\\crefisa\\cookies\\" + "usuario_crefisa.json"
 
     @AguardarHorarioComercial(*HORARIO_COMERCIAL)
     def main(self):
-        definir_nome_robo(self.TITLE)
-        try:
-            dados_login = query_login_pass_robo(self.id_robo, self.usuario)
-            login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'])
-        except:
-            self.main()
+        #definir_nome_robo(self.TITLE)
+        # try:
+        #     dados_login = query_login_pass_robo(self.id_robo, self.usuario)
+        #     login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'])
+        # except:
+        #     self.main()
 
-        #pdb.set_trace()
+        
+
+        self.load_cookies_crefisa_web_admin()
 
         #fila de insercao de contrato
         definir_nome_robo(self.TITLE)   
@@ -101,14 +115,48 @@ class Main:
           
         #fila de sincronizacao
         definir_nome_robo(self.TITLE)
-        ConsultaStatus.iniciar_horario_comercial(self.driver)
+        #ConsultaStatus.iniciar_horario_comercial(self.driver)
 
         print('Aguardando minutos para reiniciar...')
         #self.driver.delete_all_cookies()
         #self.driver.quit()
-        sleep(60)
+        sleep(1)
         #Main().main()
         self.main()
+
+    def load_cookies_crefisa_web_admin(self):
+        
+        url = "http://emprestimofacil.co/web_admin/api/v1/consulta/cookies/crefisa/?key={}".format(self.api_key)
+        cookies = self.selenium_helper.load_cookies_robo_web_admin(url, self.id_robo)
+
+        self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/simuladorCrefisa.asp')
+        self.driver.delete_all_cookies()
+
+        for cookie in cookies:
+            try:
+                self.driver.add_cookie(cookie)
+            except Exception as e:
+                pass
+
+        self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/Dashboard.asp')
+
+    def load_cookies_pasta(self):
+
+        self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/simuladorCrefisa.asp')
+        self.driver.delete_all_cookies()
+
+        file = open(self.cookies_path_json)
+        cookies = json.load(file)
+
+        for cookie in cookies:
+            try:
+                #if('expiry' not in cookie):
+                self.driver.add_cookie(cookie)
+            except Exception as e:
+                pass
+
+        pdb.set_trace()
+        self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/EsteiraAnaliseContrato.asp')
 
 
     def verificar_tempo_execucao(self):

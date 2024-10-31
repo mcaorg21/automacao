@@ -285,7 +285,7 @@ class ConsultaStatus(Manager):
                 continue
 
         #self.dados.data_source.atualizar_sincronizacao()
-        self.dados.api_registrar_log_robo(log="Sincronizado com sucesso.",status=2)
+        #self.dados.api_registrar_log_robo(log="Sincronizado com sucesso.",status=2)
 
 
     def limpar_busca(self):
