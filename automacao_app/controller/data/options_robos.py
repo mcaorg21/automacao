@@ -1,6 +1,7 @@
 opts = {
     "WhatsappWU":0,
     "Crefisa": 0,
+    "CrefisaSincronizacao": 0,
     "NovoSaque": 0,
     "Proposta_Daycoval": 0,
     "Ole_Portal_Orienta": 0,
