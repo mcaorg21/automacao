@@ -106,12 +106,11 @@ class Main:
 
         self.load_cookies_crefisa_web_admin()
 
-        #self.driver.delete_all_cookies()
-
         try:
             dados_login = query_login_pass_robo(self.id_robo, self.usuario)
             login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'])
         except:
+            self.driver.delete_all_cookies()
             self.main()
 
         self.selenium_helper.save_cookies(self.cookies_path)
