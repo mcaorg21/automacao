@@ -310,6 +310,9 @@ class InserirContrato(Manager):
                                     if 'conta' in retorno_conta_json:
                                         key_conta = 'conta'
 
+                                    if 'account_number' in retorno_conta_json:
+                                        key_conta = 'account_number'
+
                                     try:
                                         informacoes['contrato']['numeroConta'] = retorno_conta_json[key_conta].split("-")[0]
                                         informacoes['contrato']['digitoConta'] = retorno_conta_json[key_conta].split("-")[-1]
