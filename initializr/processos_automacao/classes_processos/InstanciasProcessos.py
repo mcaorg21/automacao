@@ -76,6 +76,7 @@ INSTANCIAS: Dict[str, ProcessWrapper] = {
 
     #Crefisa
     'Crefisa': Crefisa(),
+    'Crefisa': CrefisaSincronizacao(),
 
     #Crefisa
     'WhatsappWU': WhatsappWU(),    
