@@ -1141,8 +1141,13 @@ class InserirContrato(Manager):
                     #     #continue
             except Exception as e:
                 print(e)
-                #self.chrome_driver.quit()
-                return
+                dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                dados_atualizacao['observacao_emp'] = e
+                dados_atualizacao['observacao'] = e
+                dados_atualizacao['status_con'] = "Aguardando Comercial"
+                dados_atualizacao['erro'] = e
+                self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                continue
 
 
     def aguardar_consulta(self,segundos = 3):
