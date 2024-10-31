@@ -98,11 +98,15 @@ class Main:
 
         self.selenium_helper = SeleniumHelper(self.driver)
 
+        self.driver.delete_all_cookies()
+
     @AguardarHorarioComercial(*HORARIO_COMERCIAL)
     def main(self):
         definir_nome_robo(self.TITLE)
 
         self.load_cookies_crefisa_web_admin()
+
+        #self.driver.delete_all_cookies()
 
         try:
             dados_login = query_login_pass_robo(self.id_robo, self.usuario)
@@ -118,7 +122,7 @@ class Main:
         ConsultaStatus.iniciar_horario_comercial(self.driver)
 
         print('Aguardando minutos para reiniciar...')
-        #self.driver.delete_all_cookies()
+        
         #self.driver.quit()
         sleep(1)
         #Main().main()
