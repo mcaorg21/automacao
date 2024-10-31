@@ -293,7 +293,7 @@ class InserirContrato(Manager):
 
                                     tentativaLeitura = 0
                                     while 'tipo' in retorno_conta and retorno_conta['tipo'] == 'alert':
-                                        print('Tentando ler matricula novamente....')
+                                        print('Tentando ler comprovamte de conta novamente....')
                                         retorno_conta = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
                                         time.sleep(3)
 

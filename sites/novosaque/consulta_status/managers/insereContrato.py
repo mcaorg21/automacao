@@ -111,6 +111,16 @@ class InserirContrato(Manager):
                 print('Preenchendo formulário inicial')
                 
                 self.act.press_backspace('//*[@id="cpf"]', metodo = By.XPATH, end = True, loop = 20, delay = 0)
+
+                if(contrato['cpf_cli'] == '..-'):
+                    dados_atualizacao['mensagem'] = 'Reprovado a Conferir'  
+                    dados_atualizacao['textoMensagem'] = 'CPF vazio'    
+                    dados_atualizacao['erro'] = "CPF inválido"    
+                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                    print('XXXXXXXXXXXXXXXXXXXX Pulando inserção por erro no CPF XXXXXXXXXXXXXXXXXXXX')
+                    continue
+
+
                 self.act.enviar_texto('//*[@id="cpf"]',contrato['cpf_cli'],By.XPATH)
 
                 if(len(informacoes['contrato']['nome']) > 20):
@@ -504,7 +514,7 @@ class InserirContrato(Manager):
 
                 continue
 
-            self.dados.api_registrar_log_robo(log="Inserção efetuada com sucesso.",status=2)
+            #self.dados.api_registrar_log_robo(log="Inserção efetuada com sucesso.",status=2)
 
 
     def aguardar_consulta(self,segundos = 3):
