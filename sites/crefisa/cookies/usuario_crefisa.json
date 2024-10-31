@@ -1,0 +1,21 @@
+[
+    {
+        "domain": ".app1.gerencialcredito.com.br",
+        "expiry": 1730825350,
+        "httpOnly": true,
+        "name": "__goc_session__",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "value": "gxhdpbslhmlkewfezkiciutjbxqvjjdg"
+    },
+    {
+        "domain": ".app1.gerencialcredito.com.br",
+        "httpOnly": false,
+        "name": "ASPSESSIONIDAEDBDSCA",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "value": "PAPDOKKBMJAOPBGFLBMPABFD"
+    }
+]
