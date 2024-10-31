@@ -1142,7 +1142,7 @@ class InserirContrato(Manager):
             except Exception as e:
                 print(e)
                 #self.chrome_driver.quit()
-                continue
+                return
 
 
     def aguardar_consulta(self,segundos = 3):
