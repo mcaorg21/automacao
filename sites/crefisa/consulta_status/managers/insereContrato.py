@@ -359,8 +359,17 @@ class InserirContrato(Manager):
                                             mensagem_erro_leitura = "MEU NIS"                                        
                                             break;
 
-                                    retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
-                                    matricula_json = retorno_matricula_json['matricula']
+                                    try:
+
+                                        retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
+                                        matricula_json = retorno_matricula_json['matricula']
+
+                                    except:
+                                        print('Tentando retirar matricula da imagem com outro prompt...')
+                                        prompt = "qual a matricula nis na imagem,traga em formato json usando key matricula e essa matricula formatada sem caracteres especiais"
+                                        retorno_matricula = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
+                                        retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
+                                        matricula_json = retorno_matricula_json['matricula']
 
                                     continue
 
@@ -982,7 +991,7 @@ class InserirContrato(Manager):
                 self.driver.execute_script("document.body.style.zoom='50%'")
                 for doc in documentos_pessoais:
 
-                    if 'COMPROVANTE_ENDERECO' in doc and baixa_renda == True:
+                    if 'COMPROVANTE_ENDERECO' in doc and baixa_renda == True or 'CONTRA_CHEQUE' in doc and baixa_renda == True:
                         continue
 
                     arquivo = self.path_documentos + f'{counter}_arquivo.pdf'
@@ -1070,8 +1079,6 @@ class InserirContrato(Manager):
 
                     upload.send_keys(arquivo)
 
-                        
-                #pdb.set_trace()
                 print('----------------------------------------------------------------------------------------')
 
                 print('Procurando por ade...')
