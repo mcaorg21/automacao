@@ -1148,13 +1148,18 @@ class InserirContrato(Manager):
                     #     #continue
             except Exception as e:
                 print(e)
-                dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
-                dados_atualizacao['observacao_emp'] = e
-                dados_atualizacao['observacao'] = e
-                dados_atualizacao['status_con'] = "Aguardando Comercial"
-                dados_atualizacao['erro'] = e
-                self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
-                continue
+                if 'localhost' in e:
+                    self.driver.delete_all_cookies()
+                    self.driver.quit()
+
+                else:
+                    dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                    dados_atualizacao['observacao_emp'] = e
+                    dados_atualizacao['observacao'] = e
+                    dados_atualizacao['status_con'] = "Aguardando Comercial"
+                    dados_atualizacao['erro'] = e
+                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                    continue
 
 
     def aguardar_consulta(self,segundos = 3):
