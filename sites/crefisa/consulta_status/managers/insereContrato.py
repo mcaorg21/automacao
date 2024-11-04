@@ -798,6 +798,19 @@ class InserirContrato(Manager):
                 self.act.enviar_texto('//*[@id="txtDigito"]', identidade_numero[-1], By.XPATH)
 
                 time.sleep(2)
+
+                retorno = self.verificar_loading()
+                
+                if retorno['retorno'] == False:
+                    if 'A data de emissão do RG deve ser maior ou igual a data de nascimento' in retorno['mensagem']:
+                        # dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                        # dados_atualizacao['observacao_emp'] = retorno['mensagem']
+                        # dados_atualizacao['observacao'] = retorno['mensagem']
+
+                        # self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        self.remove_div()
+                        self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', '01/01/2024', By.XPATH)
+        
                 
                 #self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
 
