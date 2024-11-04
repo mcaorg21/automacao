@@ -662,7 +662,7 @@ class InserirContrato(Manager):
                         self.act.select_drop_down('//*[@id="txtTipoValorContratoNovaSimulacao"]', "1", By.XPATH)
                         #self.act.select_drop_down('//*[@id="txtTipoValorContrato"]','1', By.XPATH)
                         self.act.enviar_texto('//*[@id="txtValorSimulacaoNovaSimulacao"]', informacoes['contrato']['valorParcela'], By.XPATH)
-                         self.act.press_enter('/html/body/div[6]/div/div[4]/div[2]/div/div[2]/div/div/button', By.XPATH)
+                        self.act.press_enter('/html/body/div[6]/div/div[4]/div[2]/div/div[2]/div/div/button', By.XPATH)
                         #self.act.clicar_elemento('/html/body/div[6]/div/div[3]/div/div[10]/div/button', By.XPATH)
                     finally:
                         pass
