@@ -942,14 +942,23 @@ class InserirContrato(Manager):
                 if 'Data' in retorno['mensagem']:
                     
                     if 'Nascimento' in retorno['mensagem']: 
-                        self.registra_data_nascimento(informacoes)
-                        retorno = self.verificar_loading()
+                        dados_atualizacao['status_con'] = "Aguardando Comercial"
+                        dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                        dados_atualizacao['observacao_emp'] = retorno['mensagem']
+                        dados_atualizacao['observacao'] = retorno['mensagem']
+                        dados_atualizacao['erro'] = retorno['mensagem']
 
-                        if 'data de nascimento deve ser maior ou igual' in retorno['mensagem']:
-                            self.registra_data_rg(informacoes, True)
-                            self.registra_data_nascimento(informacoes)
-                            retorno['retorno'] == True
-                            retorno['mensagem'] == ""
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        self.remove_div()
+                        continue
+                        # self.registra_data_nascimento(informacoes)
+                        # retorno = self.verificar_loading()
+
+                        # if 'data de nascimento deve ser maior ou igual' in retorno['mensagem']:
+                        #     self.registra_data_rg(informacoes, True)
+                        #     self.registra_data_nascimento(informacoes)
+                        #     retorno['retorno'] == True
+                        #     retorno['mensagem'] == ""
 
                     if 'RG' in retorno['mensagem']:
                         self.registra_data_rg(informacoes)
