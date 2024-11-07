@@ -126,8 +126,8 @@ class Main:
         
         #self.driver.quit()
         sleep(180)
-        #Main().main()
-        self.main()
+        self.driver.delete_all_cookies()
+        self.driver.quit()
 
     def load_cookies_crefisa_web_admin(self):
         
