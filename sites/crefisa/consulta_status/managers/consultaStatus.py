@@ -5,7 +5,8 @@ from sites.baseRobos.core.selenium_helper import SeleniumHelper
 from sites.baseRobos.core.selenium_actions import SeleniumActions
 
 import os,time,pdb,re
-from datetime import date
+from datetime import date, datetime
+
 
 from sites.baseRobos.core.decorators import ApenasHorarioComercial, AguardarHorarioComercial
 from sites.baseRobos.core.Exceptions import ForaHorarioComercialError
