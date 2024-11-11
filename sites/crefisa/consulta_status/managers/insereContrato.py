@@ -93,10 +93,10 @@ class InserirContrato(Manager):
 
             if 'Inserir manual o robô já tentou por 5x e não conseguiu' in contrato['observacao_emp']:
                 dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
-                dados_atualizacao['observacao_emp'] = "5 tentativas ou mais de inserçao"
-                dados_atualizacao['observacao'] = ""
+                dados_atualizacao['observacao_emp'] = "5 tentativas ou mais de inserção"
+                dados_atualizacao['observacao'] = "5 tentativas ou mais de inserção"
                 dados_atualizacao['status_con'] = "Aguardando Comercial"
-                dados_atualizacao['erro'] = "5 tentativas ou mais de inserçao"
+                dados_atualizacao['erro'] = "5 tentativas ou mais de inserção"
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                 continue
 
