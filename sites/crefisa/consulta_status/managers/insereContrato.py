@@ -84,14 +84,24 @@ class InserirContrato(Manager):
             return False
 
         #testes
-        #contratos = {}
-        #contratos['contratos'] = [{'codigo_con' : '658259', 'perfil' : 'CLT(Empresa Privada)'}] 
-
-        
+        # contratos = {}
+        # contratos['contratos'] = [{'codigo_con' : '706694', 'perfil' : 'Autônomo', 'observacao_emp' : "teste"}] 
 
         for contrato in contratos['contratos']:
+
+            dados_atualizacao = {}
+
+            if 'Inserir manual o robô já tentou por 5x e não conseguiu' in contrato['observacao_emp']:
+                dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                dados_atualizacao['observacao_emp'] = "5 tentativas ou mais de inserçao"
+                dados_atualizacao['observacao'] = ""
+                dados_atualizacao['status_con'] = "Aguardando Comercial"
+                dados_atualizacao['erro'] = "5 tentativas ou mais de inserçao"
+                self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                continue
+
             try:
-                dados_atualizacao = {}
+                
                 dados_atualizacao['mensagem'] = 'Inserir contrato'
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
 
