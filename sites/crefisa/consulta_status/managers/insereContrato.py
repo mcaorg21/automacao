@@ -582,10 +582,9 @@ class InserirContrato(Manager):
                     
                     print('Clicando em simular')
                     try: 
-                        
-                        self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[9]/div/button', By.XPATH)
-                    except:
                         self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[10]/div/button[1]', By.XPATH)
+                    except:
+                        self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[9]/div/button', By.XPATH)
                         pass
 
                     retorno = self.verificar_loading()
@@ -601,7 +600,6 @@ class InserirContrato(Manager):
 
                     if('Sua matrícula está inválida!' in retorno['mensagem']):
                         self.remove_div()
-
                         self.act.press_backspace('//*[@id="txtMatricula"]',30,By.XPATH,0, True)
                         self.act.enviar_texto('//*[@id="txtMatricula"]', matricula_origem[0:-1], By.XPATH)
                         self.act.enviar_texto('//*[@id="txtDigito"]', matricula_origem[-1], By.XPATH)
@@ -610,9 +608,9 @@ class InserirContrato(Manager):
 
                         print('Clicando novamente em simular')
                         try: 
-                            self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[9]/div/button', By.XPATH)
-                        except:
                             self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[10]/div/button[1]', By.XPATH)
+                        except:
+                            self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[9]/div/button', By.XPATH)
                             pass
 
                         retorno = self.verificar_loading()
@@ -645,9 +643,25 @@ class InserirContrato(Manager):
                         dados_atualizacao['erro'] = retorno['mensagem']
                         dados_atualizacao['status_con'] = "Reprovado a Conferir"
 
-                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
-                    self.remove_div()
-                    continue
+                    if('Não há contratos para refinanciar.' not in retorno['mensagem']):
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        self.remove_div()
+                        continue
+
+                    elif 'Não há contratos para refinanciar.' in retorno['mensagem']: 
+                        self.remove_div()
+                        novo_contrato = True
+                        self.act.select_drop_down('//*[@id="txtTipoSimulacao"]', "1", By.XPATH)
+                        self.act.select_drop_down('//*[@id="txtTipoValorContrato"]', '1', By.XPATH)
+                        self.act.enviar_texto('//*[@id="txtValorSimulacao"]', informacoes['contrato']['valorParcela'], By.XPATH)
+
+                        print('Clicando em simular novamente')
+                        try: 
+                            self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[10]/div/button[1]', By.XPATH)                            
+                        except:
+                            self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[9]/div/button', By.XPATH)
+                            pass
+
 
                 print('----------------------------------------------------------------------------------------')
 
@@ -800,7 +814,7 @@ class InserirContrato(Manager):
                 time.sleep(2)
 
                 retorno = self.verificar_loading()
-                
+
                 if retorno['retorno'] == False:
                     if 'A data de emissão do RG deve ser maior ou igual a data de nascimento' in retorno['mensagem']:
                         # dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
