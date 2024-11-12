@@ -106,13 +106,18 @@ class ConsultaStatus(Manager):
                 self.aguardar_consulta()
                 
                 linhas_tr = self.act.quantidade_elemento(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/table/tbody/tr', By.XPATH)
+                
+                #ajuste de linhas
                 if(linhas_tr == 0):
                     linhas_tr = 3
+
+                if(linhas_tr > 2 and  linhas_tr < 9):
+                    linhas_tr += 2
+
                 print('Verificando se possui contrato aprovado...')
                 contrato_aprovado = False
 
                 if(linhas_tr > 4):
-
                     self.driver.execute_script("document.body.style.zoom='60%'")
 
                 if self.act.quantidade_elemento('//*[@id="divMsgErro"]', By.XPATH) == 1:
@@ -162,7 +167,8 @@ class ConsultaStatus(Manager):
                             pass
 
                 if contrato_aprovado == False:
-                    for i in range(1,linhas_tr,2):           
+                    for i in range(1,linhas_tr,2):      
+
                         texto_aprovada = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]/span', By.XPATH)
                         numero_contrato = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
 
