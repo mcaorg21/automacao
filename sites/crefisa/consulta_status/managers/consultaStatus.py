@@ -111,11 +111,13 @@ class ConsultaStatus(Manager):
                 if(linhas_tr == 0):
                     linhas_tr = 3
 
-                if(linhas_tr > 2 and  linhas_tr < 9):
+                if(linhas_tr > 3):
                     linhas_tr += 2
 
                 print('Verificando se possui contrato aprovado...')
                 contrato_aprovado = False
+
+
 
                 if(linhas_tr > 4):
                     self.driver.execute_script("document.body.style.zoom='60%'")
