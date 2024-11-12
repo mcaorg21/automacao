@@ -99,6 +99,7 @@ class ConsultaStatus(Manager):
 
                     self.div = div = str(div)
 
+
                 self.buscar_contrato(cpf_bd, "cpf", False)
 
                 self.dados_consulta['novaAde'] = ""
@@ -107,17 +108,15 @@ class ConsultaStatus(Manager):
                 
                 linhas_tr = self.act.quantidade_elemento(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/table/tbody/tr', By.XPATH)
                 
+                if(linhas_tr > 2):
+                    linhas_tr += 2
+
                 #ajuste de linhas
                 if(linhas_tr == 0):
                     linhas_tr = 3
 
-                if(linhas_tr > 3):
-                    linhas_tr += 2
-
                 print('Verificando se possui contrato aprovado...')
                 contrato_aprovado = False
-
-
 
                 if(linhas_tr > 4):
                     self.driver.execute_script("document.body.style.zoom='60%'")
@@ -211,11 +210,20 @@ class ConsultaStatus(Manager):
                     
                     if contrato_aprovado == False:
 
-                        for i in range(1,linhas_tr,2):
-                            print('Contrato ainda em andamento...')
+                        i = 1
+                        linha_tr_ade = 0
+                        while ade != linha_tr_ade:
+                            print(ade)
                             linha_tr_ade = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
-                            
-                            if ade in linha_tr_ade:
+                            print(linha_tr_ade)
+                            if(ade != linha_tr_ade):
+                                i += 2
+
+                        #for i in range(1,linhas_tr,2):
+                        print('Contrato ainda em andamento...')
+                        #linha_tr_ade = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
+                        
+                        if ade in linha_tr_ade:
                                 print('Achou Contrato de ade igual do sistema...')
 
                                 #loc_atualizar = f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[2]/button'
@@ -271,14 +279,12 @@ class ConsultaStatus(Manager):
                                             self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/div[1]/button/span', By.XPATH)
                                         except:
                                             pass
-                                        pass
-
-                                break             
+                                        pass           
 
                     if ('PAGO' in self.dados_consulta["statusPropostaBanco"] or 'APROVADO' in self.dados_consulta["statusPropostaBanco"]) and 'EM ANDAMENTO' in self.dados_consulta["statusSecundario"]:
                         self.dados_consulta['statusSecundario'] += " "+self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/table/tbody/tr[{indice}]/td[4]', By.XPATH).replace('\n',"").split("Liberado")[1]
 
-                self.driver.execute_script("document.body.style.zoom='100%'")
+                self.driver.execute_script("document.body.style.zoom='100%'")                
                 self.dados.post_dados_consultados(self.dados_consulta)    
 
                 try:       
