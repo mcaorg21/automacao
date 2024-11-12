@@ -80,7 +80,7 @@ class PromoBank:
 	def main(self,retorno='N'):
 		self.driver.get('https://www.promobank.online/sistema')
 		
-		self.driver.delete_all_cookies()
+		#self.driver.delete_all_cookies()
 
 
 		# o promobank esta bloqueando login direto entao comecaremos a usar os cookies gerados pelo login manual
@@ -88,7 +88,7 @@ class PromoBank:
 		#retorno = 'C'
 		if(retorno == 'C'):
 			retorno = input('Precisamos dos cookies atuais do endereço https://docs.google.com/document/d/18tv5YAqU9nE4ntppsJH_amr2mV2vPAqSrq6_FRM14OU/edit. Digite C para continuar: ')
-		#pdb.set_trace()
+
 		if(retorno == 'C'):
 			print('Iniciando função de consulta...')	
 			#self.driver.get('https://promobank.com.br/')
@@ -445,10 +445,10 @@ class PromoBank:
 					id_fila = self.id_fila_retencao
 				else:
 					raise Exception("Parâmetro tipo consulta inválido:", tipo_consulta)
-				self.log.api_iniciar_log_robo(
-					idRobo=id_fila,
-					idSolicitacao=solicitacao['idSolicitacao']
-				)
+				# self.log.api_iniciar_log_robo(
+				# 	idRobo=id_fila,
+				# 	idSolicitacao=solicitacao['idSolicitacao']
+				# )
 
 				retorno = self.consultar_matricula(solicitacao['matricula'])
 				retorno = json.dumps(retorno)
@@ -460,7 +460,7 @@ class PromoBank:
 					"idPerfilPessoa": solicitacao['fk_idPerfil_pessoa']
 				}
 				print("Salvando consulta com os dados:", dados)
-				#pdb.set_trace()
+				
 				request_consulta = requests.post("https://app.emprestimofacil.com/api/v1/consultas/inss", data=dados)
 
 				print(request_consulta.status_code);
@@ -477,15 +477,15 @@ class PromoBank:
 				elif (solicitacao['fk_idCategoria'] == '5'):
 					self.uconecte.calcular_cartao_consignado(solicitacao)
 
-				self.log.api_registrar_log_robo(
-					log="Consulta realizada com sucesso.",
-					status=2
-				)
+				# self.log.api_registrar_log_robo(
+				# 	log="Consulta realizada com sucesso.",
+				# 	status=2
+				# )
 			except Exception as e:
-				self.log.api_registrar_log_robo(
-					log=f"ERRO: {e}",
-					status=0
-				)
+				# self.log.api_registrar_log_robo(
+				# 	log=f"ERRO: {e}",
+				# 	status=0
+				# )
 				self.driver.quit()
 
 	def selecionar_aba_consulta(self,modo='manual'):
@@ -517,7 +517,7 @@ class PromoBank:
 				self.act.clicar_elemento(loc_consulta, By.XPATH)
 				pass
 			#pdb.set_trace()
-			loc_frame_consulta = '//iframe[@src="/sistema/corpo.php?src=consulta/index.php"]'
+			loc_frame_consulta = '//iframe[@src="corpo.php?src=consulta/index.php"]'
 			iframe_consulta = self.act.retornar_elemento(loc_frame_consulta, By.XPATH)
 
 			self.driver.switch_to.frame(iframe_consulta)
@@ -778,8 +778,8 @@ class PromoBank:
 		# - NO AUMENTO TROCAR OS 2 RESULTADOS NOS 2 IFS DE PARCELA AUMENTO
 
 		array = ['87','88']
-		porcentagem_aumento = 0.0697
-		porcentagem_aumento_salario = 0.0371
+		porcentagem_aumento = 0.04
+		porcentagem_aumento_salario = 0.04
 		porcentagem_margem = 0.35
 
 		if especie_beneficio in array:
@@ -821,10 +821,10 @@ class PromoBank:
 				pass
 
 			parcela_aumento = 0
-			#pdb.set_trace()
+			
 			try:
 				credito_liquido = formatar_moeda(self.selenium_helper.verificar_valor_campo_driver('[name=con_liquido]'))
-				if(ano_competencia == 2024 and mes_competencia <= 3):
+				if(ano_competencia == 2025 and mes_competencia <= 3):
 					#parcela_aumento = margem_disponivel
 					if(credito_total <= 1413):
 						parcela_aumento = credito_total_liquido * porcentagem_aumento * porcentagem_margem
@@ -833,8 +833,8 @@ class PromoBank:
 						parcela_aumento = credito_total_liquido * porcentagem_aumento_salario * porcentagem_margem
 						#credito_total = credito_total * (1+porcentagem_aumento_salario)
 
-				elif(ano_competencia == 2023 and mes_competencia <= 12):
-					if(credito_total <= 1320):
+				elif(ano_competencia == 2024 and mes_competencia <= 12):
+					if(credito_total <= 1412):
 						parcela_aumento = credito_total_liquido * porcentagem_aumento * porcentagem_margem
 						credito_total = credito_total * (1+porcentagem_aumento)
 					else:
@@ -842,15 +842,15 @@ class PromoBank:
 						credito_total = credito_total * (1+porcentagem_aumento_salario)
 
 			except:
-				if (ano_competencia == 2023 and mes_competencia <= 12):
-					if(credito_total <= 1320):
+				if (ano_competencia == 2024 and mes_competencia <= 12):
+					if(credito_total <= 1412):
 						parcela_aumento = credito_total * porcentagem_aumento * porcentagem_margem
 						credito_total = credito_total * (1+porcentagem_aumento)
 					else:
 						parcela_aumento = credito_total * porcentagem_aumento_salario * porcentagem_margem
 						credito_total = credito_total * (1+porcentagem_aumento_salario)
 
-				elif(ano_competencia == 2024 and mes_competencia <= 3):
+				elif(ano_competencia == 2025 and mes_competencia <= 3):
 					#parcela_aumento = margem_disponivel 
 					if(credito_total <= 1413):
 						parcela_aumento = credito_total * porcentagem_aumento * porcentagem_margem
@@ -860,7 +860,7 @@ class PromoBank:
 						#credito_total = credito_total * (1+porcentagem_aumento_salario)
 
 
-			self.retorno.update({
+			dados = {
 				'especieBeneficio': especie_beneficio,
 				'cpf': cpf,
 				'dataNascimento': data_nascimento,
@@ -876,7 +876,9 @@ class PromoBank:
 				'uf': uf,
 				'parcelaAumento': parcela_aumento,
 				'margemDisponivelReal': margem_disponivel,
-			})
+			}
+			
+			self.retorno.update(dados)
 
 	def extrair_refinanciamentos(self):
 		refinanciamentos = []
@@ -1093,10 +1095,10 @@ class PromoBank:
 
 		for contrato in contratos:
 			try:
-				self.log.api_iniciar_log_robo(
-					idRobo=self.id_fila_reprovado_conferir,
-					idContrato=contrato['codigo_con']
-				)
+				# self.log.api_iniciar_log_robo(
+				# 	idRobo=self.id_fila_reprovado_conferir,
+				# 	idContrato=contrato['codigo_con']
+				# )
 				beneficio = contrato['matricula']
 
 				if (len(beneficio) == 11 and beneficio[0] == '0'):
