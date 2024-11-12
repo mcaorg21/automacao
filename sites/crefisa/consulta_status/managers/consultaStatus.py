@@ -54,7 +54,7 @@ class ConsultaStatus(Manager):
     @ApenasHorarioComercial(*HORARIO_COMERCIAL)
     def consultar_status_proposta(self):     
 
-        self.verificar_loading()       
+        #self.verificar_loading()       
         print('Inciando sincronização...')
         status_a_consultar = self.dados.get_ades()[1:]
 
@@ -63,7 +63,7 @@ class ConsultaStatus(Manager):
             return False
 
         #para testes
-        #status_a_consultar = [['508020069211', '09477282529', '656410','','','','']]
+        # status_a_consultar = [['508020149801', '16106507783', '703000','','','','2024-10-24']]
 
         self.chrome_driver.get(self.urls["consulta"])
 
@@ -71,7 +71,7 @@ class ConsultaStatus(Manager):
             print(f"[{cnt}]Fila Consulta Status")
 
             try:
-                
+            
                 print("Consultando proposta:", proposta)
 
                 ade, cpf_bd = proposta[0], proposta[1]
@@ -86,28 +86,37 @@ class ConsultaStatus(Manager):
 
                 self.limpar_busca()
 
+                self.div = div = '5'
+                self.div_segunda = div_segunda = '7'
+
+                while(self.act.quantidade_elemento(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody', By.XPATH) == 0):
+                    div = int(div)
+                    div += 1
+
+                    if div > 100:
+                        print('Erro ao encontrar div correta...')
+                        input()
+
+                    self.div = div = str(div)
+
                 self.buscar_contrato(cpf_bd, "cpf", False)
 
                 self.dados_consulta['novaAde'] = ""
 
-                self.div = div = '5'
-                
-                while(self.act.quantidade_elemento(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody', By.XPATH) == 0):
-                    div = int(div)
-                    div += 1
-                    self.div = div = str(div)
-
                 self.aguardar_consulta()
                 
-                linhas_tr = self.act.quantidade_elemento(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr', By.XPATH)
-                
+                linhas_tr = self.act.quantidade_elemento(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/table/tbody/tr', By.XPATH)
+                if(linhas_tr == 0):
+                    linhas_tr = 3
                 print('Verificando se possui contrato aprovado...')
                 contrato_aprovado = False
 
                 if(linhas_tr > 4):
+
                     self.driver.execute_script("document.body.style.zoom='60%'")
 
                 if self.act.quantidade_elemento('//*[@id="divMsgErro"]', By.XPATH) == 1:
+
                     mensagem = self.act.obter_texto('//*[@id="divMsgErro"]', By.XPATH)
 
                     if('Nenhum resultado encontrado' in mensagem):
@@ -122,11 +131,11 @@ class ConsultaStatus(Manager):
 
                 for i in range(1,linhas_tr,2):  
 
-                    texto_aprovada = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[2]/span', By.XPATH)
-                    numero_contrato = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
+                    texto_aprovada = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]/span', By.XPATH)
+                    numero_contrato = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
 
                     try:
-                        self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
+                        self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div//table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
                     except:
                         self.dados_consulta["statusPropostaBanco"] = None
                     pass
@@ -134,7 +143,7 @@ class ConsultaStatus(Manager):
                     if self.dados_consulta["statusPropostaBanco"] == 'PAGO':
 
                         try:
-                            data_proposta = self.act.obter_texto(f'/html/body/div[8]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[3]/span', By.XPATH).split(' ')[1]
+                            data_proposta = self.act.obter_texto(f'/html/body/div[8]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[3]/span', By.XPATH).split(' ')[1]
                             
                             data_proposta_sistema = datetime.strptime(data_proposta, '%d/%m/%Y')
                             data_proposta_crm = datetime.strptime(self.data_proposta, '%Y-%m-%d')
@@ -142,10 +151,10 @@ class ConsultaStatus(Manager):
                             if data_proposta_sistema >= data_proposta_crm:
                                 atualiza_ade = True
                                 contrato_aprovado = True
-                                self.dados_consulta['novaAde'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH)
-                                self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
-                                self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
-                                self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
+                                self.dados_consulta['novaAde'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH)
+                                self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
+                                self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
+                                self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
                                 indice = i
                                 break
 
@@ -154,8 +163,8 @@ class ConsultaStatus(Manager):
 
                 if contrato_aprovado == False:
                     for i in range(1,linhas_tr,2):           
-                        numero_contrato = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
-                        texto_aprovada = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[2]/span', By.XPATH)
+                        texto_aprovada = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]/span', By.XPATH)
+                        numero_contrato = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
 
                         if 'Aprovada(Nova Proposta' in texto_aprovada:
                             self.dados_consulta['novaAde'] = re.findall(r'\d+', texto_aprovada)[0]
@@ -163,7 +172,7 @@ class ConsultaStatus(Manager):
                             continue
 
                         try:
-                            self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
+                            self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div//table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
                         except:
                             self.dados_consulta["statusPropostaBanco"] = None
                             pass
@@ -172,20 +181,20 @@ class ConsultaStatus(Manager):
                             self.atualizar_contrato(div,i)
 
                             contrato_aprovado = True
-                            self.dados_consulta['novaAde'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH)
-                            self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
-                            self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
-                            self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
+                            self.dados_consulta['novaAde'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH)
+                            self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
+                            self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
+                            self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
                             indice = i
                             break
 
                         if numero_contrato == "" and 'CANCELADO' in self.dados_consulta["statusPropostaBanco"]:
 
                             contrato_aprovado = True
-                            self.dados_consulta['novaAde'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH)
+                            self.dados_consulta['novaAde'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH)
                             self.dados_consulta["statusPropostaBanco"] = "VERIFICAR NOVA PROPOSTA"
-                            self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
-                            self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
+                            self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
+                            self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
                             indice = i
                             break
                     
@@ -196,21 +205,21 @@ class ConsultaStatus(Manager):
 
                         for i in range(1,linhas_tr,2):
                             print('Contrato ainda em andamento...')
-                            linha_tr_ade = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
+                            linha_tr_ade = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
                             
                             if ade in linha_tr_ade:
                                 print('Achou Contrato de ade igual do sistema...')
 
-                                #loc_atualizar = f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[2]/button'
+                                #loc_atualizar = f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[2]/button'
                                 #loc_atualizar = '//*[@id="btnAtualizarResultado"]'
                                 #self.act.clicar_elemento(loc_atualizar, By.XPATH)
                                     
                                 self.atualizar_contrato(div,i)
 
-                                self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
-                                self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
-                                self.dados_consulta['observacaoDetalhadaBanco'] += "\n\n"+self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[2]/span', By.XPATH).strip()
-                                self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
+                                self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
+                                self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
+                                self.dados_consulta['observacaoDetalhadaBanco'] += "\n\n"+self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[2]/span', By.XPATH).strip()
+                                self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
                                 indice = i
                                  
                                 if 'CANCELADO' in self.dados_consulta["statusPropostaBanco"] or 'PENDENTE' in self.dados_consulta["statusPropostaBanco"]:
@@ -218,7 +227,7 @@ class ConsultaStatus(Manager):
                                     elemento = str(int((i - 1) / 2))
                                     #self.driver.execute_script(f""" document.querySelector("#linkSubStatus_{elemento}").click() """)
                                     
-                                    self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH)
+                                    self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH)
                                     
                                     self.verificar_loading_pendente('modal_historico')
                                     self.act.trocar_frame_referencia("iframeHistorico")
@@ -246,14 +255,12 @@ class ConsultaStatus(Manager):
                                     #self.dados_consulta['statusSecundario'] += "\n\n"+self.act.obter_texto('//*[@id="modalSubStatus"]/div/div/div[2]/div/div[2]/table/tbody/tr[1]', By.XPATH)
                                     try:
                                         self.act.trocar_frame_referencia("default")
-                                        self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[8]/div/div/div[1]/button', By.XPATH)
-                                        self.act.clicar_elemento(f'/html/body', By.XPATH)
-                                        #self.act.clicar_elemento(f'//*[@id="modalSubStatus"]', By.XPATH)
-                                        #self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
+                                        self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
+
                                     except:
                                         try:
                                             #self.act.quantidade_elemento(f'/html/body/div[{div}]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
-                                            self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[8]/div/div/div[1]/button', By.XPATH)
+                                            self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/div[1]/button/span', By.XPATH)
                                         except:
                                             pass
                                         pass
@@ -261,20 +268,25 @@ class ConsultaStatus(Manager):
                                 break             
 
                     if ('PAGO' in self.dados_consulta["statusPropostaBanco"] or 'APROVADO' in self.dados_consulta["statusPropostaBanco"]) and 'EM ANDAMENTO' in self.dados_consulta["statusSecundario"]:
-                        self.dados_consulta['statusSecundario'] += " "+self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{indice}]/td[4]', By.XPATH).replace('\n',"").split("Liberado")[1]
+                        self.dados_consulta['statusSecundario'] += " "+self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/table/tbody/tr[{indice}]/td[4]', By.XPATH).replace('\n',"").split("Liberado")[1]
 
                 self.driver.execute_script("document.body.style.zoom='100%'")
                 self.dados.post_dados_consultados(self.dados_consulta)    
 
-                try:          
-
-                    self.act.clicar_elemento('//*[@id="btnExibirFiltro"]', By.XPATH)
+                try:       
+                    try:   
+                        self.act.clicar_elemento('//*[@id="btnExibirFiltro"]', By.XPATH)
+                    except:
+                        self.act.trocar_frame_referencia("default")
+                        self.act.clicar_elemento(f'/html/body', By.XPATH)
+                        self.act.clicar_elemento('//*[@id="btnExibirFiltro"]', By.XPATH)
+                        
                     self.act.enviar_texto('//*[@id="txtNumeroAde"]', "", By.XPATH)
                     self.act.enviar_texto('//*[@id="txtCpf"]', "", By.XPATH)
 
                 except:
                     print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ERRO DE FILTRO XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-                    time.sleep(600)
+                    time.sleep(30)
                     pass
                 
             except Exception as e:
@@ -360,7 +372,7 @@ class ConsultaStatus(Manager):
 
                                              
         try:                          
-            self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[6]/div/div/table/tbody/tr[{linha}]/td[6]/ul/li[2]/div/span[2]/button', By.XPATH)
+            self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{linha}]/td[6]/ul/li[2]/div/span[2]/button', By.XPATH)
         except:
             self.driver.execute_script("""$('#btnAtualizarStatus').click()""")
             pass
@@ -396,8 +408,8 @@ class ConsultaStatus(Manager):
 
     def buscar_status(self, indice = "1", div = "6"):
         try:
-            self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[6]/div/div/table/tbody/tr[{indice}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
-            self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[6]/div/div/table/tbody/tr[{indice}]/td[6]/ul/li[5]/span[2]/span', By.XPATH).strip()
+            self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{indice}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
+            self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{indice}]/td[6]/ul/li[5]/span[2]/span', By.XPATH).strip()
             self.dados_consulta['statusSecundario'] = self.dados_consulta['observacaoDetalhadaBanco'].split('|')[0].replace("|","").strip()
                         
         except:
@@ -411,13 +423,15 @@ class ConsultaStatus(Manager):
     def verificar_loading(self, interacoes=300, aguardar = False):
         self.aguardar_consulta(0.8)
 
-        while (self.act.quantidade_elemento('/html/body/div[9]', By.XPATH) == 1 or self.act.quantidade_elemento('/html/body/div[10]', By.XPATH) == 1):
+        while (self.act.quantidade_elemento(f'/html/body/div[{self.div}]', By.XPATH) == 1 or self.act.quantidade_elemento('/html/body/div[10]', By.XPATH) == 1):
             print('Aguardando Loading...' + str(interacoes))
             time.sleep(1)
             interacoes -= 1
-            if self.act.quantidade_elemento('/html/body/div[7]/div[2]/div[6]/div/div/table/tbody/tr[1]/td[6]/ul/li[5]/span[1]', By.XPATH) == 1:
+
+            if self.act.quantidade_elemento(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[1]/td[6]/ul/li[5]/span[1]', By.XPATH) == 1:
                 return
-            if self.act.quantidade_elemento('/html/body/div[8]/div[2]/div[6]/div/div/table/tbody/tr[1]/td[6]/ul/li[2]/div/span[1]/b', By.XPATH) == 1:
+
+            if self.act.quantidade_elemento(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[1]/td[6]/ul/li[2]/div/span[1]/b', By.XPATH) == 1:
                 return
 
             if(interacoes < 1):
