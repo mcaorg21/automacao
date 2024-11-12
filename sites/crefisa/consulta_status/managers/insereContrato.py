@@ -1272,8 +1272,9 @@ class InserirContrato(Manager):
 
 
     def registra_data_rg(self,informacoes, forjar_data = False):
-        self.driver.execute_script("""body > div.loadingoverlay").remove()""")
         self.remove_div()
+        self.driver.execute_script("""document.querySelector("body > div.loadingoverlay").remove()""")
+        
                 
         print("XXXXXXXXXXXXXXXX ERRO NA DATA DE RG XXXXXXXXXXXXXXXXXXX")
 
