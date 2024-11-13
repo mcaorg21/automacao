@@ -157,7 +157,6 @@ class ConsultaStatus(Manager):
                     self.dados_consulta["statusPropostaBanco"] = None
                 pass
 
-                pdb.set_trace()
                 if self.dados_consulta["statusPropostaBanco"] == 'PAGO' or self.dados_consulta['observacaoDetalhadaBanco'] == 'PENDENTE TRANSF. PIX' or ('Aprovada(Nova Proposta' not in texto_nova_proposta and self.dados_consulta["statusPropostaBanco"] == 'APROVADO'):
 
                     try:
