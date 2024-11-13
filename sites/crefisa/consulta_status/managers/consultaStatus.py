@@ -218,7 +218,7 @@ class ConsultaStatus(Manager):
 
                         #for i in range(1,linhas_tr,2):
                         print('Contrato ainda em andamento...')
-                        #linha_tr_ade = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
+                        linha_tr_ade = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
                         
                         if ade in linha_tr_ade:
                                 print('Achou Contrato de ade igual do sistema...')
