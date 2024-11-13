@@ -146,11 +146,19 @@ class ConsultaStatus(Manager):
                 try:
                     self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div//table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
                     self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
+                    
+                    texto_nova_proposta = ""
+                    try:
+                        texto_nova_proposta = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[2]/span', By.XPATH)
+                    except:
+                        pass
+
                 except:
                     self.dados_consulta["statusPropostaBanco"] = None
                 pass
 
-                if self.dados_consulta["statusPropostaBanco"] == 'PAGO' or self.dados_consulta['observacaoDetalhadaBanco'] == 'PENDENTE TRANSF. PIX':
+                pdb.set_trace()
+                if self.dados_consulta["statusPropostaBanco"] == 'PAGO' or self.dados_consulta['observacaoDetalhadaBanco'] == 'PENDENTE TRANSF. PIX' or ('Aprovada(Nova Proposta' not in texto_nova_proposta and self.dados_consulta["statusPropostaBanco"] == 'APROVADO'):
 
                     try:
                         data_proposta = self.act.obter_texto(f'/html/body/div[8]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[3]/span', By.XPATH).split(' ')[1]
