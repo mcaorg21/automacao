@@ -336,7 +336,15 @@ class ConsultaStatus(Manager):
                         self.act.enviar_texto('//*[@id="txtCpf"]', "", By.XPATH)
 
                     except:
+                        try:
+                            texto = self.act.obter_texto('//*[@id="swal2-content"]', By.XPATH)
+                        except:
+                            texto = ""
+                            pass
 
+                        if('Erro interno. Experimente fazer login novamente.' in texto):
+                            self.driver.delete_all_cookies()
+                            return
                         print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ERRO DE FILTRO XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
                         time.sleep(30)
                         return
