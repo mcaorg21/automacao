@@ -18,6 +18,7 @@ from time import sleep
 from selenium import webdriver
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 
 from sites.baseRobos.core.selenium_actions import SeleniumActions
 from sites.baseRobos.core.selenium_helper import SeleniumHelper
@@ -106,14 +107,17 @@ class Main:
     def main(self):
         definir_nome_robo(self.TITLE)
 
-        #self.load_cookies_crefisa_web_admin()
+        self.load_cookies_crefisa_web_admin()
 
-        try:
-            dados_login = query_login_pass_robo(self.id_robo, self.usuario)
-            login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'])
-        except:
-            #self.driver.delete_all_cookies()
-            self.main()
+        area_logada = self.act.quantidade_elemento('//*[@id="imgLogoEmpresa"]', By.XPATH)
+
+        if(area_logada == 0):
+            try:
+                dados_login = query_login_pass_robo(self.id_robo, self.usuario)
+                login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'])
+            except:
+                #self.driver.delete_all_cookies()
+                self.main()
 
         self.selenium_helper.save_cookies(self.cookies_path)
         self.escreve_json()
