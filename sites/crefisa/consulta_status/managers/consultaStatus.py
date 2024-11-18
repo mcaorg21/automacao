@@ -180,42 +180,22 @@ class ConsultaStatus(Manager):
                         pass
 
                 if contrato_aprovado == False:
-                    for i in range(1,linhas_tr,2):      
+                    #for i in range(1,linhas_tr,2):      
 
-                        texto_aprovada = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]/span', By.XPATH)
-                        numero_contrato = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
+                    #texto_aprovada = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]/span', By.XPATH)
+                    #numero_contrato = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
 
-                        if 'Aprovada(Nova Proposta' in texto_aprovada:
-                            self.dados_consulta['novaAde'] = re.findall(r'\d+', texto_aprovada)[0]
-                            atualiza_ade = True
-                            continue
+                    if 'Aprovada(Nova Proposta' in texto_nova_proposta:
+                        self.dados_consulta['novaAde'] = re.findall(r'\d+', texto_nova_proposta)[0]
+                        atualiza_ade = True
+                        #continue
 
-                        try:
-                            self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div//table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
-                        except:
-                            self.dados_consulta["statusPropostaBanco"] = None
-                            pass
+                    # try:
+                    #     self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div//table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
+                    # except:
+                    #     self.dados_consulta["statusPropostaBanco"] = None
+                    #     pass
 
-                        if numero_contrato == "" and 'CANCELADO' not in self.dados_consulta["statusPropostaBanco"]:
-                            self.atualizar_contrato(div,i)
-
-                            contrato_aprovado = True
-                            self.dados_consulta['novaAde'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH)
-                            self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
-                            self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
-                            self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
-                            indice = i
-                            break
-
-                        if numero_contrato == "" and 'CANCELADO' in self.dados_consulta["statusPropostaBanco"]:
-
-                            contrato_aprovado = True
-                            self.dados_consulta['novaAde'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH)
-                            self.dados_consulta["statusPropostaBanco"] = "VERIFICAR NOVA PROPOSTA"
-                            self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
-                            self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
-                            indice = i
-                            break
                     
                 if(atualiza_ade == False): 
                     
@@ -229,10 +209,6 @@ class ConsultaStatus(Manager):
                         
                         if ade in linha_tr_ade:
                                 print('Achou Contrato de ade igual do sistema...')
-
-                                #loc_atualizar = f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[2]/button'
-                                #loc_atualizar = '//*[@id="btnAtualizarResultado"]'
-                                #self.act.clicar_elemento(loc_atualizar, By.XPATH)
                                     
                                 self.atualizar_contrato(div,i)
 
@@ -287,6 +263,26 @@ class ConsultaStatus(Manager):
 
                     if ('PAGO' in self.dados_consulta["statusPropostaBanco"] or 'APROVADO' in self.dados_consulta["statusPropostaBanco"]) and 'EM ANDAMENTO' in self.dados_consulta["statusSecundario"]:
                         self.dados_consulta['statusSecundario'] += " "+self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/table/tbody/tr[{indice}]/td[4]', By.XPATH).replace('\n',"").split("Liberado")[1]
+
+                    if numero_contrato == "" and 'CANCELADO' not in self.dados_consulta["statusPropostaBanco"]:
+                        self.atualizar_contrato(div,i)
+
+                        contrato_aprovado = True
+                        self.dados_consulta['novaAde'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH)
+                        self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
+                        self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
+                        self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
+                        indice = i
+
+                    if numero_contrato == "" and 'CANCELADO' in self.dados_consulta["statusPropostaBanco"]:
+
+                        contrato_aprovado = True
+                        self.dados_consulta['novaAde'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH)
+                        self.dados_consulta["statusPropostaBanco"] = "VERIFICAR NOVA PROPOSTA"
+                        self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
+                        self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
+                        indice = i
+                    
 
                 self.driver.execute_script("document.body.style.zoom='100%'")                
                 self.dados.post_dados_consultados(self.dados_consulta)    
