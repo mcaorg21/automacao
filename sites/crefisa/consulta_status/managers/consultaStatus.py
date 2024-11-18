@@ -343,8 +343,11 @@ class ConsultaStatus(Manager):
                             pass
 
                         if('Erro interno. Experimente fazer login novamente.' in texto):
+                            print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX DESLOGANDO XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
                             self.driver.delete_all_cookies()
+                            self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/FinalizaSecao.asp')
                             return
+                        
                         print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ERRO DE FILTRO XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
                         time.sleep(30)
                         return
