@@ -113,6 +113,7 @@ class Main:
 
         if(area_logada == 0):
             try:
+                self.driver.delete_all_cookies()
                 dados_login = query_login_pass_robo(self.id_robo, self.usuario)
                 login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'])
             except:
@@ -129,7 +130,7 @@ class Main:
         print('Aguardando minutos para reiniciar...')
         
         #self.driver.quit()
-        sleep(180)
+        sleep(30)
         self.driver.delete_all_cookies()
         self.driver.quit()
 
