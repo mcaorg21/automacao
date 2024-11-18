@@ -187,6 +187,8 @@ class ConsultaStatus(Manager):
 
                     if 'Aprovada(Nova Proposta' in texto_nova_proposta:
                         self.dados_consulta['novaAde'] = re.findall(r'\d+', texto_nova_proposta)[0]
+                        extrair_valor = lambda texto: float(re.search(r'Liberado: R\$ ([\d.,]+)', texto).group(1).replace('.', '').replace(',', '.')) 
+                        self.dados_consulta['valorContrato'] = extrair_valor(self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div', By.XPATH))
                         atualiza_ade = True
                         #continue
 
