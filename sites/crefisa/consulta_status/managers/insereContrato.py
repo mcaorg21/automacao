@@ -218,14 +218,25 @@ class InserirContrato(Manager):
                         for doc in documentos_pessoais:
                             if 'EXTRATO_DE_PAGAMENTOS_' in doc:
                                 try:
-                                    print('XXXXXXXXXXXXX 12 XXXXXXXXXXXXXX')
-                                    download(doc, self.path_documentos + 'carta.pdf')
-                                    reader = PdfReader(self.path_documentos + 'carta.pdf')
-                                    page = reader.pages[0]
-                                    texto = page.extract_text()
-                                    #pattern = re.compile(r"\((\d+)\)")
-                                    match = re.search(r"Espécie:\s*(\d{2})\s*-", texto)
-                                    numero_beneficio = match.group(1)
+                                    print('----------------- LENDO NUMERO DO BENEFICIO -----------------')
+                                    base64Arquivo = base64.b64encode(requests.get(doc).content)
+                                    prompt = 'informe somente o numero da especie de beneficio em formato json, no retorno retorne a key especie'
+                                    numero_beneficio_retorno = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
+
+                                    numero_beneficio = ""
+                                    try:
+                                        numero_beneficio = json.loads(numero_beneficio_retorno['retorno'].replace('```','').replace('\n','').replace('json',''))['especie']
+                                    except:
+                                        pass
+
+                                    # download(doc, self.path_documentos + 'carta.pdf')
+                                    # reader = PdfReader(self.path_documentos + 'carta.pdf')
+                                    # page = reader.pages[0]
+                                    # texto = page.extract_text()
+
+                                    # #pattern = re.compile(r"\((\d+)\)")
+                                    # match = re.search(r"Espécie:\s*(\d{2})\s*-", texto)
+                                    # numero_beneficio = match.group(1)
                                 
                                 except:
                                     if 'numeroBeneficio' in informacoes['contrato']['dadosProfissionais']:
