@@ -131,7 +131,7 @@ class Main:
         print('Aguardando minutos para reiniciar...')
         
         #self.driver.quit()
-        sleep(30)
+        sleep(180)
         self.driver.delete_all_cookies()
         self.driver.quit()
 
