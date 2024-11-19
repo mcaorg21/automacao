@@ -160,7 +160,7 @@ class ConsultaStatus(Manager):
                 if self.dados_consulta["statusPropostaBanco"] == 'PAGO' or self.dados_consulta['observacaoDetalhadaBanco'] == 'PENDENTE TRANSF. PIX' or ('Aprovada(Nova Proposta' not in texto_nova_proposta and self.dados_consulta["statusPropostaBanco"] == 'APROVADO'):
 
                     try:
-                        data_proposta = self.act.obter_texto(f'/html/body/div[8]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[3]/span', By.XPATH).split(' ')[1]
+                        data_proposta = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[3]/span', By.XPATH).split(' ')[1]
                             
                         data_proposta_sistema = datetime.strptime(data_proposta, '%d/%m/%Y')
                         data_proposta_crm = datetime.strptime(self.data_proposta, '%Y-%m-%d')
@@ -369,6 +369,19 @@ class ConsultaStatus(Manager):
             print(ade)
             linha_tr_ade = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH).strip()
             print(linha_tr_ade)
+
+            data_proposta = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[3]/span', By.XPATH).split(' ')[1]
+            data_proposta_sistema = datetime.strptime(data_proposta, '%d/%m/%Y')
+            data_proposta_crm = datetime.strptime(self.data_proposta, '%Y-%m-%d')
+
+            if(data_proposta_crm >= data_proposta_sistema):
+                statusPropostaBanco = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div//table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
+                observacaoDetalhadaBanco = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
+
+                if statusPropostaBanco == 'PAGO' or observacaoDetalhadaBanco == 'PENDENTE TRANSF. PIX':
+                    i += 2
+                    break
+
             if(ade != linha_tr_ade):
                 i += 2
 
