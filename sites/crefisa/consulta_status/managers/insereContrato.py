@@ -85,13 +85,13 @@ class InserirContrato(Manager):
 
         #testes
         # contratos = {}
-        # contratos['contratos'] = [{'codigo_con' : '706694', 'perfil' : 'Autônomo', 'observacao_emp' : "teste"}] 
+        # contratos['contratos'] = [{'codigo_con' : '712801', 'perfil' : 'Autônomo', 'observacao_emp' : "teste"}] 
 
         for contrato in contratos['contratos']:
-
+            
             dados_atualizacao = {}
 
-            if 'Inserir manual o robô já tentou por 5x e não conseguiu' in contrato['observacao_emp']:
+            if 'Inserir manual o robô já tentou por 5x e não conseguiu' in contrato['observacao_emp'] or '5 tentativas ou mais' in contrato['observacao_emp']:
                 dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                 dados_atualizacao['observacao_emp'] = "5 tentativas ou mais de inserção"
                 dados_atualizacao['observacao'] = "5 tentativas ou mais de inserção"
@@ -302,6 +302,7 @@ class InserirContrato(Manager):
                                     #     break;
 
                                     tentativaLeitura = 0
+                                    #pdb.set_trace()
                                     while 'tipo' in retorno_conta and retorno_conta['tipo'] == 'alert':
                                         print('Tentando ler comprovamte de conta novamente....')
                                         retorno_conta = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
@@ -314,25 +315,34 @@ class InserirContrato(Manager):
                                             mensagem_erro_leitura = "COMPROVANTE DE CONTA"                                        
                                             break;
 
-                                    retorno_conta_json = json.loads(retorno_conta['retorno'].replace('```','').replace('\n','').replace('json',''))
-                                    
-                                    key_conta = 'Conta'
-                                    if 'conta' in retorno_conta_json:
-                                        key_conta = 'conta'
+                                    #sem registro de matricula
+                                    if retorno_conta['retorno'].replace('```','') == "":
 
-                                    if 'account_number' in retorno_conta_json:
-                                        key_conta = 'account_number'
-
-                                    try:
-                                        informacoes['contrato']['numeroConta'] = retorno_conta_json[key_conta].split("-")[0]
-                                        informacoes['contrato']['digitoConta'] = retorno_conta_json[key_conta].split("-")[-1]
-                                    except:
                                         erro_leitura_ia = True
-                                        mensagem_erro_leitura = "COMPROVANTE DE CONTA"
-                                        break
-                                        pass
+                                        mensagem_erro_leitura = "COMPROVANTE DE CONTA"  
 
-                                    continue
+                                    else:
+
+                                        retorno_conta_json = json.loads(retorno_conta['retorno'].replace('```','').replace('\n','').replace('json',''))
+                                        
+                                        key_conta = 'Conta'
+
+                                        if 'conta' in retorno_conta_json:
+                                            key_conta = 'conta'
+
+                                        if 'account_number' in retorno_conta_json:
+                                            key_conta = 'account_number'
+
+                                        try:
+                                            informacoes['contrato']['numeroConta'] = retorno_conta_json[key_conta].split("-")[0]
+                                            informacoes['contrato']['digitoConta'] = retorno_conta_json[key_conta].split("-")[-1]
+                                        except:
+                                            erro_leitura_ia = True
+                                            mensagem_erro_leitura = "COMPROVANTE DE CONTA"
+                                            break
+                                            pass
+
+                                        continue
 
                                 elif('MEU_NIS' in doc_unico):
 
@@ -556,6 +566,7 @@ class InserirContrato(Manager):
                     pass
 
                 mensagem_refin = ""
+                #pdb.set_trace()
                 try:
                     mensagem_refin = self.act.obter_texto('//*[@id="appVue"]/div[3]/div/div[7]/div[1]/div/div/span', By.XPATH)
                     if 'apto à contratação de refin recorrente' in mensagem_refin:
@@ -902,7 +913,14 @@ class InserirContrato(Manager):
                 time.sleep(5)
                 #self.act.enviar_texto('//*[@id="txtNaturalidade"]',informacoes['contrato']['naturalidade'], By.XPATH) 
                 self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[3]/div[3]/div/button', By.XPATH)  
-                self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[3]/div/div/div/input', unidecode(informacoes['contrato']['naturalidade']), By.XPATH)
+
+                try:
+                    self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[3]/div/div/div/input', unidecode(informacoes['contrato']['naturalidade']), By.XPATH)
+                except:
+                    #ajuste de forcar naturalidade
+                    self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[3]/div/div/div/input', unidecode(informacoes['contrato']['cidade']), By.XPATH)
+                    pass
+
                 self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[3]/div/div/div/input', By.XPATH)
 
                 self.act.select_drop_down('//*[@id="txtSexo"]',informacoes['contrato']['sexo'][0], By.XPATH)
