@@ -564,12 +564,32 @@ class InserirContrato(Manager):
                                 time.sleep(2)
                                 self.remove_div()
                                 self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[7]/div[2]/div/label', By.XPATH)
+
+                            if 'Sua matrícula está inválida!' in retorno['mensagem']:
+                                print('-----------------------------FORÇANDO MATRICULA ORIGEM--------------------------------')
+                                time.sleep(2)
+                                self.remove_div()
+                                self.act.press_backspace('//*[@id="txtMatricula"]',30,By.XPATH,0, True)
+                                self.act.enviar_texto('//*[@id="txtMatricula"]', matricula_origem[0:-1], By.XPATH)
+                                self.act.enviar_texto('//*[@id="txtDigito"]', matricula_origem[-1], By.XPATH)
+                                self.act.press_backspace('//*[@id="txtDigito"]',3,By.XPATH,0, True)
+                                self.act.enviar_texto_intervalado('//*[@id="txtDigito"]', matricula_origem[-1], By.XPATH)
+
+                                print('--->Recalculando...')
+                                self.act.clicar_elemento('/html/body/div[6]/div/div[3]/div/div[10]/div/button', By.XPATH)
+                                retorno = self.verificar_loading()
+                                if(retorno['retorno'] == False):
+                                    if 'Não há contratos para refinanciar' in retorno['mensagem']:
+                                        novo_contrato = True
+                                        time.sleep(2)
+                                        self.remove_div()
+                                        self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[7]/div[2]/div/label', By.XPATH)
                                 
                 except:
                     pass
-
+                
                 print('----------------------------------------------------------------------------------------')
-
+                
                 print('Preenchendo calculo por parcela e valor da parcela')            
                 if(baixa_renda == True):
                     try:
