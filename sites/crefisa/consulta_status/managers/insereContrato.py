@@ -400,6 +400,18 @@ class InserirContrato(Manager):
                     else:
                         informacoes['contrato']['matricula'] = matricula_json
 
+
+                if(informacoes['contrato']['matricula'] == informacoes['contrato']['cpf'].replace('.','').replace('-','')):
+                    dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                    dados_atualizacao['observacao_emp'] = "Encontrada matricula igual CPF editar ou pedir para cliente enviar."
+                    dados_atualizacao['observacao'] = "Erro de matricula igual CPF"
+                    dados_atualizacao['status_con'] = "Aguardando Comercial"
+                    dados_atualizacao['erro'] = "Erro de matricula igual CPF"
+                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                    self.remove_div()
+                    continue
+
+
                 print(f"Continuando inserção contrato para o perfil ---------{contrato['perfil']}----------")
 
                 retorno = self.verificar_loading()
