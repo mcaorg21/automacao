@@ -108,10 +108,10 @@ class Main:
         definir_nome_robo(self.TITLE)
 
         self.load_cookies_crefisa_web_admin()
-
+        area_login = self.act.quantidade_elemento('//*[@id="logo"]', By.XPATH)     
         area_logada = self.act.quantidade_elemento('//*[@id="imgLogoEmpresa"]', By.XPATH)
 
-        if(area_logada == 0):
+        if(area_logada == 0 or area_login == 1):
             try:
                 self.driver.delete_all_cookies()
                 dados_login = query_login_pass_robo(self.id_robo, self.usuario)
@@ -119,6 +119,7 @@ class Main:
             except:
                 #self.driver.delete_all_cookies()
                 self.main()
+
 
         self.selenium_helper.save_cookies(self.cookies_path)
         self.escreve_json()
