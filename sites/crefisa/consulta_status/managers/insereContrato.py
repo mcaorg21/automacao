@@ -278,6 +278,7 @@ class InserirContrato(Manager):
 
 
                 erro_leitura_ia = False
+                matricula_json = ""
 
                 if(id_perfil in [9,10,11]):
                     mensagem_erro_leitura = "Não reconheceu nenhum arquivo anexado."
@@ -419,8 +420,8 @@ class InserirContrato(Manager):
                     if 'inserir' in contrato['observacao_emp']:
                         informacoes['contrato']['matricula'] = matricula_origem
                     else:
-                        informacoes['contrato']['matricula'] = matricula_json
-
+                        if(matricula_json != ""):
+                            informacoes['contrato']['matricula'] = matricula_json
 
                 if(informacoes['contrato']['matricula'] == informacoes['contrato']['cpf'].replace('.','').replace('-','')):
                     dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
