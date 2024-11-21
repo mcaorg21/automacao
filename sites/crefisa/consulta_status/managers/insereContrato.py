@@ -92,6 +92,7 @@ class InserirContrato(Manager):
             dados_atualizacao = {}
 
             if 'Inserir manual o robô já tentou por 5x e não conseguiu' in contrato['observacao_emp'] or '5 tentativas ou mais' in contrato['observacao_emp']:
+                print('-------------- MAIS DE 5 TENTATIVAS DE INSERCAO ----------------')
                 dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                 dados_atualizacao['observacao_emp'] = "5 tentativas ou mais de inserção"
                 dados_atualizacao['observacao'] = "5 tentativas ou mais de inserção"
@@ -404,6 +405,10 @@ class InserirContrato(Manager):
                                         matricula_json = retorno_matricula_json['matricula']
 
                                     continue
+
+                    #forca a insercao
+                    if('COMPROVANTE DE CONTA' in mensagem_erro_leitura):
+                        contrato['observacao_emp'] = 'inserir'
 
                     if erro_leitura_ia == True and 'inserir' not in contrato['observacao_emp']:
                         dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
