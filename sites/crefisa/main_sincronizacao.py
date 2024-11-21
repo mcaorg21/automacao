@@ -37,6 +37,7 @@ from dados.database.queries.query_dados_robos import query_login_pass_robo
 from sites.core.selenium_helper import SeleniumHelper
 
 from time import sleep
+import time
 
 import shutil
 import pickle, json, requests
@@ -107,11 +108,12 @@ class Main:
     def main(self):
         definir_nome_robo(self.TITLE)
 
-        self.load_cookies_crefisa_web_admin()
+        cookies_vencido = self.load_cookies_crefisa_web_admin()
+        
         area_login = self.act.quantidade_elemento('//*[@id="logo"]', By.XPATH)     
         area_logada = self.act.quantidade_elemento('//*[@id="imgLogoEmpresa"]', By.XPATH)
 
-        if(area_logada == 0 or area_login == 1):
+        if(area_logada == 0 or area_login == 1 or cookies_vencido == False):
             try:
                 self.driver.delete_all_cookies()
                 dados_login = query_login_pass_robo(self.id_robo, self.usuario)
@@ -131,17 +133,20 @@ class Main:
         print('Aguardando minutos para reiniciar...')
         
         #self.driver.quit()
-        sleep(180)
+        sleep(15)
         self.driver.delete_all_cookies()
-        self.driver.quit()
+        self.main()
+        #self.driver.quit()
 
     def load_cookies_crefisa_web_admin(self):
         
         url = "http://emprestimofacil.co/web_admin/api/v1/consulta/cookies/crefisa/?key={}".format(self.api_key)
         cookies = self.selenium_helper.load_cookies_robo_web_admin(url, self.id_robo)
 
-        self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/simuladorCrefisa.asp')
+        self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/')
         self.driver.delete_all_cookies()
+
+        return_cookie = True
 
         for cookie in cookies:
             try:
@@ -149,7 +154,15 @@ class Main:
             except Exception as e:
                 pass
 
-        self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/Dashboard.asp')
+        self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/EsteiraAnaliseContrato.asp')
+
+        if self.act.quantidade_elemento('/html/body/div[11]/div/div[3]/button[1]', By.XPATH) == 1:
+            self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/')
+            return False
+        else:
+            self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/Dashboard.asp')
+
+        return True
 
     def escreve_json(self):
         with open(self.cookies_path, 'rb') as fpkl, open(self.cookies_path_json, 'w') as fjson:
