@@ -230,6 +230,9 @@ class InserirContrato(Manager):
                                     except:
                                         pass
 
+                                    if 'numeroBeneficio' in informacoes['contrato']['dadosProfissionais']:
+                                        numero_beneficio = informacoes['contrato']['dadosProfissionais']['numeroBeneficio']
+
                                     # download(doc, self.path_documentos + 'carta.pdf')
                                     # reader = PdfReader(self.path_documentos + 'carta.pdf')
                                     # page = reader.pages[0]
