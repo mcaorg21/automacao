@@ -401,13 +401,19 @@ class InserirContrato(Manager):
                                         print('Tentando retirar matricula da imagem com outro prompt...')
                                         prompt = "qual a matricula nis na imagem,traga em formato json usando key matricula e essa matricula formatada sem caracteres especiais"
                                         retorno_matricula = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
-                                        retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
-                                        matricula_json = retorno_matricula_json['matricula']
+                                        
+                                        if retorno_matricula['retorno'].replace('```','') == "":
+                                            erro_leitura_ia = True
+                                            mensagem_erro_leitura = "MEU NIS"  
+                                        
+                                        else:
+                                            retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
+                                            matricula_json = retorno_matricula_json['matricula']
 
                                     continue
 
                     #forca a insercao
-                    if('COMPROVANTE DE CONTA' in mensagem_erro_leitura):
+                    if('COMPROVANTE DE CONTA' in mensagem_erro_leitura or "MEU NIS" in mensagem_erro_leitura):
                         contrato['observacao_emp'] = 'inserir'
 
                     if erro_leitura_ia == True and 'inserir' not in contrato['observacao_emp']:
