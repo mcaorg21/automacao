@@ -92,7 +92,6 @@ class InserirContrato(Manager):
             dados_atualizacao = {}
 
             if 'Inserir manual o robô já tentou por 5x e não conseguiu' in contrato['observacao_emp'] or '5 tentativas ou mais' in contrato['observacao_emp']:
-                print('-------------- MAIS DE 5 TENTATIVAS DE INSERCAO ----------------')
                 dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                 dados_atualizacao['observacao_emp'] = "5 tentativas ou mais de inserção"
                 dados_atualizacao['observacao'] = "5 tentativas ou mais de inserção"
@@ -230,9 +229,6 @@ class InserirContrato(Manager):
                                     except:
                                         pass
 
-                                    if 'numeroBeneficio' in informacoes['contrato']['dadosProfissionais']:
-                                        numero_beneficio = informacoes['contrato']['dadosProfissionais']['numeroBeneficio']
-
                                     # download(doc, self.path_documentos + 'carta.pdf')
                                     # reader = PdfReader(self.path_documentos + 'carta.pdf')
                                     # page = reader.pages[0]
@@ -282,7 +278,6 @@ class InserirContrato(Manager):
 
 
                 erro_leitura_ia = False
-                matricula_json = ""
 
                 if(id_perfil in [9,10,11]):
                     mensagem_erro_leitura = "Não reconheceu nenhum arquivo anexado."
@@ -404,20 +399,10 @@ class InserirContrato(Manager):
                                         print('Tentando retirar matricula da imagem com outro prompt...')
                                         prompt = "qual a matricula nis na imagem,traga em formato json usando key matricula e essa matricula formatada sem caracteres especiais"
                                         retorno_matricula = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
-                                        
-                                        if retorno_matricula['retorno'].replace('```','') == "":
-                                            erro_leitura_ia = True
-                                            mensagem_erro_leitura = "MEU NIS"  
-                                        
-                                        else:
-                                            retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
-                                            matricula_json = retorno_matricula_json['matricula']
+                                        retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
+                                        matricula_json = retorno_matricula_json['matricula']
 
                                     continue
-
-                    #forca a insercao
-                    if('COMPROVANTE DE CONTA' in mensagem_erro_leitura or "MEU NIS" in mensagem_erro_leitura):
-                        contrato['observacao_emp'] = 'inserir'
 
                     if erro_leitura_ia == True and 'inserir' not in contrato['observacao_emp']:
                         dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
@@ -434,8 +419,8 @@ class InserirContrato(Manager):
                     if 'inserir' in contrato['observacao_emp']:
                         informacoes['contrato']['matricula'] = matricula_origem
                     else:
-                        if(matricula_json != ""):
-                            informacoes['contrato']['matricula'] = matricula_json
+                        informacoes['contrato']['matricula'] = matricula_json
+
 
                 if(informacoes['contrato']['matricula'] == informacoes['contrato']['cpf'].replace('.','').replace('-','')):
                     dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
