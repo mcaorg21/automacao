@@ -63,10 +63,10 @@ class ConsultaStatus(Manager):
             return False
 
         #para testes
-        # status_a_consultar = [['508020149801', '16106507783', '703000','','','','2024-10-24']]
+        #status_a_consultar = [['508020147588', '04027651251  ', '705708','','','','2024-11-08']]
 
         self.chrome_driver.get(self.urls["consulta"])
-
+        
         for cnt, proposta in enumerate(status_a_consultar, 1):
             print(f"[{cnt}]Fila Consulta Status")
 
