@@ -138,7 +138,7 @@ class ConsultaStatus(Manager):
 
                 # for i in range(1,linhas_tr,2):  
 
-                i = self.verificar_tr_ade(ade)
+                i = self.verificar_tr_ade(ade, True)
 
                 texto_aprovada = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]/span', By.XPATH)
                 numero_contrato = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
@@ -178,6 +178,9 @@ class ConsultaStatus(Manager):
 
                     except:
                         pass
+
+                else:
+                    i = self.verificar_tr_ade(ade)
 
                 if contrato_aprovado == False:
                     #for i in range(1,linhas_tr,2):      
@@ -346,6 +349,7 @@ class ConsultaStatus(Manager):
                             print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX DESLOGANDO XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
                             self.driver.delete_all_cookies()
                             self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/FinalizaSecao.asp')
+                            self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/')
                             return
                         
                         print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ERRO DE FILTRO XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
@@ -362,24 +366,30 @@ class ConsultaStatus(Manager):
         #self.dados.data_source.atualizar_sincronizacao()
         #self.dados.api_registrar_log_robo(log="Sincronizado com sucesso.",status=2)
 
-    def verificar_tr_ade(self, ade):
+    def verificar_tr_ade(self, ade, procura_aprovado = False):
         i = 1
         linha_tr_ade = 0
+
         while ade != linha_tr_ade:
-            print(ade)
-            linha_tr_ade = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH).strip()
-            print(linha_tr_ade)
+
+            if(procura_aprovado == True):
+                linha_tr_ade = '0'
+            else:
+                linha_tr_ade = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH).strip()
+            
+            print(ade + " --> " + linha_tr_ade)
 
             data_proposta = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[3]/span', By.XPATH).split(' ')[1]
             data_proposta_sistema = datetime.strptime(data_proposta, '%d/%m/%Y')
             data_proposta_crm = datetime.strptime(self.data_proposta, '%Y-%m-%d')
-
-            if(data_proposta_crm >= data_proposta_sistema):
+            
+            if(data_proposta_sistema >= data_proposta_crm):
+                
                 statusPropostaBanco = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div//table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
                 observacaoDetalhadaBanco = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
 
                 if statusPropostaBanco == 'PAGO' or observacaoDetalhadaBanco == 'PENDENTE TRANSF. PIX':
-                    i += 2
+                    i += 0
                     break
 
             if(ade != linha_tr_ade):
