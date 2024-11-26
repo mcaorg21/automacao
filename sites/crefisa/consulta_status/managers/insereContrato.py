@@ -115,6 +115,9 @@ class InserirContrato(Manager):
                 cookies_name = ""
                 cookies_value = ""
 
+                numero_conta_origem = informacoes['contrato']['numeroConta']
+                digito_conta_origem = informacoes['contrato']['digitoConta']
+
                 #for i in self.driver.get_cookies():
                 #    if 'SESSION' in i['name']:
                 #        cookies_name = i['name']
@@ -429,6 +432,8 @@ class InserirContrato(Manager):
 
                     if 'inserir' in contrato['observacao_emp']:
                         informacoes['contrato']['matricula'] = matricula_origem
+                        informacoes['contrato']['numeroConta'] = numero_conta_origem
+                        informacoes['contrato']['digitoConta'] = digito_conta_origem
                     else:
                         informacoes['contrato']['matricula'] = matricula_json
 
