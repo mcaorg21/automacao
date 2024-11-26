@@ -117,6 +117,7 @@ class ConsultaStatus(Manager):
 
                 
                 contrato_aprovado = False
+                self.contrato_aprovado = False
 
                 if(linhas_tr > 4):
                     self.driver.execute_script("document.body.style.zoom='60%'")
@@ -143,64 +144,54 @@ class ConsultaStatus(Manager):
                 texto_aprovada = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]/span', By.XPATH)
                 numero_contrato = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
 
+                texto_nova_proposta = ""
                 try:
-                    self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div//table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
-                    self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
-                    
-                    texto_nova_proposta = ""
-                    try:
-                        texto_nova_proposta = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[2]/span', By.XPATH)
-                    except:
-                        pass
-
+                    texto_nova_proposta = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[2]/span', By.XPATH)
                 except:
-                    self.dados_consulta["statusPropostaBanco"] = None
-                pass
+                    pass
 
-                if self.dados_consulta["statusPropostaBanco"] == 'PAGO' or self.dados_consulta['observacaoDetalhadaBanco'] == 'PENDENTE TRANSF. PIX' or ('Aprovada(Nova Proposta' not in texto_nova_proposta and self.dados_consulta["statusPropostaBanco"] == 'APROVADO'):
+                if(self.contrato_aprovado == True):
 
                     try:
-                        data_proposta = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[3]/span', By.XPATH).split(' ')[1]
-                            
-                        data_proposta_sistema = datetime.strptime(data_proposta, '%d/%m/%Y')
-                        data_proposta_crm = datetime.strptime(self.data_proposta, '%Y-%m-%d')
-
-                        if data_proposta_sistema >= data_proposta_crm:
-                            atualiza_ade = True
-                            contrato_aprovado = True
-                            extrair_valor = lambda texto: float(re.search(r'Liberado: R\$ ([\d.,]+)', texto).group(1).replace('.', '').replace(',', '.')) 
-                            self.dados_consulta['valorContrato'] = extrair_valor(self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div', By.XPATH))
-                            self.dados_consulta['novaAde'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH)
-                            self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
-                            self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
-                            self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
-                            indice = i
+                        self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div//table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
+                        self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
 
                     except:
-                        pass
+                        self.dados_consulta["statusPropostaBanco"] = None
+                    pass
 
-                else:
+                    if self.dados_consulta["statusPropostaBanco"] == 'PAGO' or self.dados_consulta['observacaoDetalhadaBanco'] == 'PENDENTE TRANSF. PIX' or ('Aprovada(Nova Proposta' not in texto_nova_proposta and self.dados_consulta["statusPropostaBanco"] == 'APROVADO'):
+
+                        try:
+                            data_proposta = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[3]/span', By.XPATH).split(' ')[1]
+                                
+                            data_proposta_sistema = datetime.strptime(data_proposta, '%d/%m/%Y')
+                            data_proposta_crm = datetime.strptime(self.data_proposta, '%Y-%m-%d')
+
+                            if data_proposta_sistema >= data_proposta_crm:
+                                atualiza_ade = True
+                                contrato_aprovado = True
+                                extrair_valor = lambda texto: float(re.search(r'Liberado: R\$ ([\d.,]+)', texto).group(1).replace('.', '').replace(',', '.')) 
+                                self.dados_consulta['valorContrato'] = extrair_valor(self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div', By.XPATH))
+                                self.dados_consulta['novaAde'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH)
+                                self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
+                                self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
+                                self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
+                                indice = i
+
+                        except:
+                            pass
+
+                
+                elif self.contrato_aprovado == False:
+
                     i = self.verificar_tr_ade(ade)
-
-                if contrato_aprovado == False:
-                    #for i in range(1,linhas_tr,2):      
-
-                    #texto_aprovada = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]/span', By.XPATH)
-                    #numero_contrato = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
 
                     if 'Aprovada(Nova Proposta' in texto_nova_proposta:
                         self.dados_consulta['novaAde'] = re.findall(r'\d+', texto_nova_proposta)[0]
                         extrair_valor = lambda texto: float(re.search(r'Liberado: R\$ ([\d.,]+)', texto).group(1).replace('.', '').replace(',', '.')) 
                         self.dados_consulta['valorContrato'] = extrair_valor(self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div', By.XPATH))
                         atualiza_ade = True
-                        #continue
-
-                    # try:
-                    #     self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div//table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
-                    # except:
-                    #     self.dados_consulta["statusPropostaBanco"] = None
-                    #     pass
-
                     
                 if(atualiza_ade == False): 
                     
@@ -288,7 +279,6 @@ class ConsultaStatus(Manager):
                         self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
                         indice = i
                     
-
                 self.driver.execute_script("document.body.style.zoom='100%'")                
                 self.dados.post_dados_consultados(self.dados_consulta)    
 
@@ -370,6 +360,8 @@ class ConsultaStatus(Manager):
         i = 1
         linha_tr_ade = 0
 
+        self.contrato_aprovado = False
+
         while ade != linha_tr_ade:
 
             if(procura_aprovado == True):
@@ -379,7 +371,13 @@ class ConsultaStatus(Manager):
             
             print(ade + " --> " + linha_tr_ade)
 
-            data_proposta = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[3]/span', By.XPATH).split(' ')[1]
+            try:
+                data_proposta = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[3]/span', By.XPATH).split(' ')[1]
+            except:
+                i -= 2
+                return i
+
+
             data_proposta_sistema = datetime.strptime(data_proposta, '%d/%m/%Y')
             data_proposta_crm = datetime.strptime(self.data_proposta, '%Y-%m-%d')
             
@@ -389,11 +387,15 @@ class ConsultaStatus(Manager):
                 observacaoDetalhadaBanco = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
 
                 if statusPropostaBanco == 'PAGO' or observacaoDetalhadaBanco == 'PENDENTE TRANSF. PIX':
+                    self.contrato_aprovado = True
                     i += 0
                     break
 
             if(ade != linha_tr_ade):
                 i += 2
+
+            elif(ade == linha_tr_ade):
+                print(F'VVVVVVVVVVVV ADE IGUAL ENCONTRADA {ade} VVVVVVVVVVVV')
 
         return i
 
