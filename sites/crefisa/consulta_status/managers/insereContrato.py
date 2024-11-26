@@ -649,20 +649,22 @@ class InserirContrato(Manager):
                         self.act.select_drop_down('//*[@id="txtTipoValorContrato"]','1', By.XPATH)
                     except:
 
-                        self.act.select_drop_down("//select[@id='txtTipoSimulacao']",'1', By.XPATH)
-                        self.act.select_drop_down('//*[@id="txtTipoValorContrato"]', '1', By.XPATH)
-                    finally:
+                        try:
+                            self.act.select_drop_down("//select[@id='txtTipoSimulacao']",'1', By.XPATH)
+                            self.act.select_drop_down('//*[@id="txtTipoValorContrato"]', '1', By.XPATH)
+                        
+                        except:
 
-                        dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
-                        dados_atualizacao['observacao_emp'] = retorno['mensagem'] + " E não há como realizar novo contrato."
-                        dados_atualizacao['observacao'] = retorno['mensagem'] + " E não há como realizar novo contrato."
-                        dados_atualizacao['erro'] = retorno['mensagem'] + " E não há como realizar novo contrato."
-                        dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                            dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                            dados_atualizacao['observacao_emp'] = retorno['mensagem'] + " E não há como realizar novo contrato."
+                            dados_atualizacao['observacao'] = retorno['mensagem'] + " E não há como realizar novo contrato."
+                            dados_atualizacao['erro'] = retorno['mensagem'] + " E não há como realizar novo contrato."
+                            dados_atualizacao['status_con'] = "Reprovado a Conferir"
 
-                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
 
-                        print("XXXXXXXXXXXXXXX NÃO PODE REALIZAR NOVO OU REFIN XXXXXXXXXXXXXXXXX")
-                        continue
+                            print("XXXXXXXXXXXXXXX NÃO PODE REALIZAR NOVO OU REFIN XXXXXXXXXXXXXXXXX")
+                            continue
 
 
                     self.act.enviar_texto('//*[@id="txtValorSimulacao"]', informacoes['contrato']['valorParcela'], By.XPATH) 
