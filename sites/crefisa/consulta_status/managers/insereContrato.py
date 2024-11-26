@@ -312,9 +312,10 @@ class InserirContrato(Manager):
                                     #     erro_leitura_ia = True
                                     #     break;
 
+
                                     tentativaLeitura = 0                                    
                                     while 'tipo' in retorno_conta and retorno_conta['tipo'] == 'alert':
-                                        print('Tentando ler comprovamte de conta novamente....')
+                                        print('Tentando ler comprovante de conta novamente....')
                                         retorno_conta = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
                                         time.sleep(3)
 
@@ -350,8 +351,8 @@ class InserirContrato(Manager):
                                             key_conta = 'account_number'
 
                                         try:
-                                            informacoes['contrato']['numeroConta'] = retorno_conta_json[key_conta].split("-")[0]
-                                            informacoes['contrato']['digitoConta'] = retorno_conta_json[key_conta].split("-")[-1]
+                                            informacoes['contrato']['numeroConta'] = retorno_conta_json["conta"]
+                                            informacoes['contrato']['digitoConta'] = retorno_conta_json['digito_conta']
                                         except:
                                             erro_leitura_ia = True
                                             mensagem_erro_leitura = "COMPROVANTE DE CONTA"
@@ -1013,7 +1014,6 @@ class InserirContrato(Manager):
                         continue
 
                     self.act.enviar_texto('//*[@id="txtAgencia"]',informacoes['contrato']['agencia'], By.XPATH)
-
 
                 self.act.enviar_texto('//*[@id="txtContaCorrente"]',informacoes['contrato']['numeroConta'], By.XPATH)                
                 self.act.enviar_texto('//*[@id="txtDigitoConta"]',informacoes['contrato']['digitoConta'], By.XPATH)
