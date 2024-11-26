@@ -156,9 +156,18 @@ class Main:
 
         self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/EsteiraAnaliseContrato.asp')
 
-        if self.act.quantidade_elemento('/html/body/div[11]/div/div[3]/button[1]', By.XPATH) == 1:
+        if self.act.quantidade_elemento('/html/body/div[9]/div/div[3]/button[1]', By.XPATH) == 1:
             self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/')
             return False
+
+        elif self.act.quantidade_elemento('/html/body/div[10]/div/div[3]/button[1]', By.XPATH) == 1:
+            self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/')
+            return False
+
+        elif self.act.quantidade_elemento('/html/body/div[11]/div/div[3]/button[1]', By.XPATH) == 1:
+            self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/')
+            return False
+
         else:
             self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/Dashboard.asp')
 
