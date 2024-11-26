@@ -333,7 +333,13 @@ class InserirContrato(Manager):
 
                                     else:
 
-                                        retorno_conta_json = json.loads(retorno_conta['retorno'].replace('```','').replace('\n','').replace('json',''))
+                                        try:
+                                            retorno_conta_json = json.loads(retorno_conta['retorno'].replace('```','').replace('\n','').replace('json',''))
+                                        except:
+                                            erro_leitura_ia = True
+                                            mensagem_erro_leitura = "COMPROVANTE DE CONTA"
+                                            break
+                                            pass
                                         
                                         key_conta = 'Conta'
 
