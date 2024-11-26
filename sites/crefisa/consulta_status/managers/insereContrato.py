@@ -302,8 +302,8 @@ class InserirContrato(Manager):
                                     #             - Generate null for missing entities.
                                     #             """
                                     #prompt = 'quais os dados da imagem. JSON schema, {"banco":"","agencia":"","conta":"","digito_conta":""}'
-                                    #prompt = 'informe em formato JSON usando as keys banco, agencia, conta, digito_conta com os dados do arquivo'
-                                    prompt = 'informe o retorno dos dados da imagem em formato json'
+                                    prompt = 'informe o retorno dos dados da imagem em formato json usando as keys banco, agencia, conta, digito_conta com os dados do arquivo'
+                                    #prompt = 'informe o retorno dos dados da imagem em formato json'
                                     retorno_conta = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
                                     
                                     print('.... Lendo o comprovante de conta')
@@ -312,8 +312,7 @@ class InserirContrato(Manager):
                                     #     erro_leitura_ia = True
                                     #     break;
 
-                                    tentativaLeitura = 0
-                                    #pdb.set_trace()
+                                    tentativaLeitura = 0                                    
                                     while 'tipo' in retorno_conta and retorno_conta['tipo'] == 'alert':
                                         print('Tentando ler comprovamte de conta novamente....')
                                         retorno_conta = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
@@ -403,6 +402,11 @@ class InserirContrato(Manager):
                                         matricula_json = retorno_matricula_json['matricula']
 
                                     continue
+
+
+                    if("COMPROVANTE DE CONTA" in mensagem_erro_leitura):
+                        contrato['observacao_emp'] = "inserir"
+
 
                     if erro_leitura_ia == True and 'inserir' not in contrato['observacao_emp']:
                         dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
