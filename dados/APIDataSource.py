@@ -58,7 +58,7 @@ class APIDataSource:
 
     def post_request_v2(self, nome_endpoint: str, dados) -> Response:
         url: str = self.post(nome_endpoint)
-        print(dados)
+        #print(dados)
         result = requests.post(
             url=url,
             data=dados,
