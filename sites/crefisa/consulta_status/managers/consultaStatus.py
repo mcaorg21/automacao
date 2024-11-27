@@ -63,9 +63,14 @@ class ConsultaStatus(Manager):
             return False
 
         #para testes
-        #status_a_consultar = [['508020147588', '04027651251  ', '705708','','','','2024-11-08']]
+        #status_a_consultar = [['508020158898', '02829094271  ', '719774','','','','2024-11-25']]
 
         self.chrome_driver.get(self.urls["consulta"])
+
+        try:
+            self.act.clicar_elemento('/html/body/div[2]/div/a', By.XPATH)
+        except:
+            pass
         
         for cnt, proposta in enumerate(status_a_consultar, 1):
             print(f"[{cnt}]Fila Consulta Status")
@@ -202,6 +207,10 @@ class ConsultaStatus(Manager):
                         #for i in range(1,linhas_tr,2):
                         print('Contrato ainda em andamento...')
                         linha_tr_ade = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
+
+                        if(linha_tr_ade == ""):
+                            linha_tr_ade = self.act.obter_texto(f'/html/body/div[8]/div[2]/div[7]/div/div/table/tbody/tr[7]/td[4]/div/a[1]', By.XPATH).strip()
+
                         
                         if ade in linha_tr_ade:
                                 print('Achou Contrato de ade igual do sistema...')
@@ -216,10 +225,15 @@ class ConsultaStatus(Manager):
                                  
                                 if 'CANCELADO' in self.dados_consulta["statusPropostaBanco"] or 'PENDENTE' in self.dados_consulta["statusPropostaBanco"]:
                                     
-                                    elemento = str(int((i - 1) / 2))
+                                    #elemento = str(int((i - 1) / 2))
                                     #self.driver.execute_script(f""" document.querySelector("#linkSubStatus_{elemento}").click() """)
                                     
-                                    self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH)
+                                    try:
+                                        self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH)
+                                    except:
+                                        nova_div = str(int(div) - 1)
+                                        self.act.clicar_elemento(f'/html/body/div[{nova_div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH)
+                                        pass
                                     
                                     self.verificar_loading_pendente('modal_historico')
                                     self.act.trocar_frame_referencia("iframeHistorico")
@@ -279,7 +293,9 @@ class ConsultaStatus(Manager):
                         self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
                         indice = i
                     
-                self.driver.execute_script("document.body.style.zoom='100%'")                
+                self.driver.execute_script("document.body.style.zoom='100%'")      
+
+
                 self.dados.post_dados_consultados(self.dados_consulta)    
 
                 try:       
