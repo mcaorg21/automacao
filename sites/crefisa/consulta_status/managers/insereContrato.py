@@ -329,7 +329,7 @@ class InserirContrato(Manager):
                                             mensagem_erro_leitura = "COMPROVANTE DE CONTA"                                        
                                             break;
 
-                                    #sem registro de matricula
+                                    #sem registro de conta
                                     if retorno_conta['retorno'].replace('```','') == "":
 
                                         erro_leitura_ia = True
@@ -386,35 +386,43 @@ class InserirContrato(Manager):
                                     
                                     print('.... Lendo dados da matricula')
 
-                                    tentativaLeitura = 0
-                                    while 'tipo' in retorno_matricula and retorno_matricula['tipo'] == 'alert':
-                                        print('Tentando ler matricula novamente....')
-                                        retorno_matricula = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
-                                        time.sleep(3)
+                                    #sem registro de conta
+                                    if retorno_matricula['retorno'].replace('```','') == "":
 
-                                        tentativaLeitura += 1
+                                        erro_leitura_ia = True
+                                        mensagem_erro_leitura = "MEU NIS"  
 
-                                        if 'tipo' in retorno_matricula and retorno_matricula['tipo'] == 'alert' and tentativaLeitura > 7:
-                                            erro_leitura_ia = True
-                                            mensagem_erro_leitura = "MEU NIS"                                        
-                                            break;
+                                    else:
 
-                                    try:
+                                        tentativaLeitura = 0
+                                        while 'tipo' in retorno_matricula and retorno_matricula['tipo'] == 'alert':
+                                            print('Tentando ler matricula novamente....')
+                                            retorno_matricula = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
+                                            time.sleep(3)
 
-                                        retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
-                                        matricula_json = retorno_matricula_json['matricula']
+                                            tentativaLeitura += 1
 
-                                    except:
-                                        print('Tentando retirar matricula da imagem com outro prompt...')
-                                        prompt = "qual a matricula nis na imagem,traga em formato json usando key matricula e essa matricula formatada sem caracteres especiais"
-                                        retorno_matricula = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
-                                        retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
-                                        matricula_json = retorno_matricula_json['matricula']
+                                            if 'tipo' in retorno_matricula and retorno_matricula['tipo'] == 'alert' and tentativaLeitura > 7:
+                                                erro_leitura_ia = True
+                                                mensagem_erro_leitura = "MEU NIS"                                        
+                                                break;
 
-                                    continue
+                                        try:
+
+                                            retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
+                                            matricula_json = retorno_matricula_json['matricula']
+
+                                        except:
+                                            print('Tentando retirar matricula da imagem com outro prompt...')
+                                            prompt = "qual a matricula nis na imagem,traga em formato json usando key matricula e essa matricula formatada sem caracteres especiais"
+                                            retorno_matricula = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
+                                            retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
+                                            matricula_json = retorno_matricula_json['matricula']
+
+                                        continue
 
 
-                    if("COMPROVANTE DE CONTA" in mensagem_erro_leitura):
+                    if("COMPROVANTE DE CONTA" in mensagem_erro_leitura or "MEU NIS" in mensagem_erro_leitura):
                         contrato['observacao_emp'] = "inserir"
 
 
