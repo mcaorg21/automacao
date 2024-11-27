@@ -422,7 +422,7 @@ class InserirContrato(Manager):
                                         continue
 
 
-                    if("COMPROVANTE DE CONTA" in mensagem_erro_leitura or "MEU NIS" in mensagem_erro_leitura):
+                    if("COMPROVANTE DE CONTA" in mensagem_erro_leitura or "MEU NIS" in mensagem_erro_leitura or 'banco' in retorno_conta_json and retorno_conta_json['agencia'] is None):
                         contrato['observacao_emp'] = "inserir"
 
 
@@ -1071,8 +1071,12 @@ class InserirContrato(Manager):
                     self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[8]/div[3]/div/div/div/input', informacoes['contrato']['cidade'], By.XPATH)
                     self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[8]/div[3]/div/div/div/input', By.XPATH)
 
-                self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)  
-
+                try:
+                    self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)
+                except:
+                    self.driver.execute_script("document.body.style.zoom='80%'")
+                    self.act.clicar_elemento('/html/body/div[6]/div/div[2]/div/div[2]/div[10]/div/button', By.XPATH) 
+                    pass
 
                 retorno = self.verificar_loading()
                 
