@@ -259,7 +259,12 @@ class InserirContrato(Manager):
                 for doc_unico in documentos_pessoais:
                     for doc_exigido in array_docs_necessarios:
                         if doc_exigido in doc_unico:
-                            pontuacao += 1
+                            if 'documentoPessoal' in doc_unico:
+                                pontuacao += 0.5
+                            elif 'COMPROVANTE_ENDERECO' in doc_unico:
+                                continue
+                            else:
+                                pontuacao += 1
                 
                 ######################################################################################
                 counter = 1
@@ -281,6 +286,7 @@ class InserirContrato(Manager):
 
 
                 erro_leitura_ia = False
+                erro_leitura_ia_extrato = False
 
                 if(id_perfil in [9,10,11]):
                     mensagem_erro_leitura = "Não reconheceu nenhum arquivo anexado."
@@ -289,6 +295,7 @@ class InserirContrato(Manager):
                         for doc_exigido in array_docs_necessarios:
                             if doc_exigido in doc_unico:
                                 if('COMPROVANTE_DE_CONTA_DO_CAIXATEM' in doc_unico):
+                                    retorno_conta_json = ""
                                     base64Arquivo = base64.b64encode(requests.get(doc_unico).content)
                                     # prompt1 = """
                                     #             You are a document entity extraction specialist. Given a document, your task is to extract the text value of the following entities:
@@ -356,6 +363,7 @@ class InserirContrato(Manager):
                                         try:
                                             informacoes['contrato']['numeroConta'] = retorno_conta_json["conta"]
                                             informacoes['contrato']['digitoConta'] = retorno_conta_json['digito_conta']
+
                                         except:
                                             erro_leitura_ia = True
                                             mensagem_erro_leitura = "COMPROVANTE DE CONTA"
@@ -365,6 +373,8 @@ class InserirContrato(Manager):
                                         continue
 
                                 elif('MEU_NIS' in doc_unico):
+
+                                    retorno_matricula_json = ""
 
                                     # try:
                                     #     texto_cad = self.act.obter_texto('//*[@id="appVue"]/div[3]/div/div[7]/div/span', By.XPATH)  
@@ -420,6 +430,60 @@ class InserirContrato(Manager):
                                             matricula_json = retorno_matricula_json['matricula']
 
                                         continue
+
+                                # elif('ULTIMOS_30_DIAS' in doc_unico):
+
+                                #     print('.... Verificando se possui deposito do Bolsa Familia no extrato')
+
+                                #     retorno_extrato_json = ""
+                                #     base64Arquivo = base64.b64encode(requests.get(doc_unico).content)
+
+                                #     prompt = "Isso é um extrato do programa Bolsa Familia do aplicativo do CaixaTem. Me retorne em formato JSON usando a key possui_pagamento e sim ou nao caso tenha depositos do programa bolsa familia no extrato"
+                                #     retorno_extrato = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
+                                #     pdb.set_trace()
+                                #     #sem registro de DEPOSITO
+                                #     if retorno_extrato['retorno'].replace('```','') == "":
+                                #         print("XXXXXXXXXXXXXXXXXXXX ERRO AO LER O EXTRATO MAS INSERÇÃO CONTINUARA XXXXXXXXXXXXXXXXXXXXXX")
+                                #         erro_leitura_ia_extrato = False
+                                #         mensagem_erro_leitura = "" 
+                                #         retorno_extrato_json = "" 
+
+                                #     else:
+                                #         try:
+                                #             retorno_extrato_json = json.loads(retorno_extrato['retorno'].replace('```','').replace('\n','').replace('json',''))
+                                #             if(retorno_extrato_json['possui_pagamento'] == 'nao'):
+                                #                 erro_leitura_ia_extrato = True
+                                #                 mensagem_erro_leitura_extrato = "EXTRATO BOLSA FAMILIA"
+
+                                #         except:
+                                #             erro_leitura_ia_extrato = True
+                                #             mensagem_erro_leitura_extrato = "EXTRATO BOLSA FAMILIA"
+                                #             break
+                                #             pass
+
+                    # pdb.set_trace()
+                    # if(erro_leitura_ia_extrato == True):
+
+                    #     dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                    #     dados_atualizacao['observacao_emp'] = "Não foi possível ler o extrato"
+                    #     dados_atualizacao['observacao'] = "Não foi possível ler o extrato"
+                    #     dados_atualizacao['status_con'] = "Aguardando Comercial"
+                    #     dados_atualizacao['erro'] = "IA não reconheceu extrato de 30 dias enviado"
+                    #     self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                    #     self.remove_div()
+                    #     continue   
+
+                    # if('possui_pagamento' in retorno_extrato_json):
+
+                    #     if(retorno_extrato_json['possui_pagamento'] == 'nao'):
+                    #         dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                    #         dados_atualizacao['observacao_emp'] = "Não há depósito do bolsa família no extrato"
+                    #         dados_atualizacao['observacao'] = "Não há depósito do bolsa família no extrato"
+                    #         dados_atualizacao['status_con'] = "Aguardando Comercial"
+                    #         dados_atualizacao['erro'] = "IA não reconheceu depósito do Bolsa Família"
+                    #         self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                    #         self.remove_div()
+                    #         continue   
 
 
                     if("COMPROVANTE DE CONTA" in mensagem_erro_leitura or "MEU NIS" in mensagem_erro_leitura or 'banco' in retorno_conta_json and retorno_conta_json['agencia'] is None):
@@ -550,6 +614,7 @@ class InserirContrato(Manager):
                         pass
 
                 if(baixa_renda == False):
+
                     add_leading_zero = lambda x: f"0{x}" if len(x) < 2 else x
                     #self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[5]/div[1]/div/button', By.XPATH)
                     select_dia_salario = add_leading_zero(str(int(informacoes['contrato']['diaSalario'])))
@@ -601,7 +666,7 @@ class InserirContrato(Manager):
                     pass
 
                 mensagem_refin = ""
-                #pdb.set_trace()
+                
                 try:
                     mensagem_refin = self.act.obter_texto('//*[@id="appVue"]/div[3]/div/div[7]/div[1]/div/div/span', By.XPATH)
                     if 'apto à contratação de refin recorrente' in mensagem_refin:
