@@ -189,7 +189,7 @@ class InserirContrato(Manager):
                 if(id_perfil in [9,10,11]):
                     baixa_renda = True
                     preenche_dia_salario = False
-                    pontuacao_documentos = 6
+                    pontuacao_documentos = 4
                     array_docs_necessarios = ['documentoPessoal',
                                             'COMPROVANTE_ENDERECO',
                                             'MEU_NIS',
@@ -202,7 +202,7 @@ class InserirContrato(Manager):
                 else:
                     baixa_renda = False
                     preenche_dia_salario = True
-                    pontuacao_documentos = 5
+                    pontuacao_documentos = 4
                     array_docs_necessarios = ['documentoPessoal',
                                               'COMPROVANTE_ENDERECO',
                                               'CONTRA_CHEQUE',
@@ -210,7 +210,7 @@ class InserirContrato(Manager):
                                             ]
 
                     if(id_perfil in [4,5]):
-                        pontuacao_documentos = 6
+                        pontuacao_documentos = 5
                         array_docs_necessarios = ['documentoPessoal',
                                                   'COMPROVANTE_ENDERECO',
                                                   'EXTRATO_DE_PAGAMENTO',
@@ -256,20 +256,41 @@ class InserirContrato(Manager):
                                         continue
 
 
-                for doc_unico in documentos_pessoais:
-                    for doc_exigido in array_docs_necessarios:
-                        if doc_exigido in doc_unico:
-                            if 'documentoPessoal' in doc_unico:
-                                pontuacao += 0.5
-                            elif 'COMPROVANTE_ENDERECO' in doc_unico:
-                                continue
-                            else:
-                                pontuacao += 1
+                if(id_perfil in [9,10,11]):
+
+                    for doc_unico in documentos_pessoais:
+                        for doc_exigido in array_docs_necessarios:
+                            if doc_exigido in doc_unico:
+                                if 'documentoPessoal' in doc_unico:
+                                    pontuacao += 0.5
+                                elif 'MEU_NIS' in doc_unico or 'COMPROVANTE_DE_CONTA' in doc_unico or 'EXTRATO_BANCaRIO_ULTIMOS_30' in doc_unico:
+                                    pontuacao += 1
+                                else:
+                                    continue
+
+                                # print(pontuacao)
+                                # print(doc_exigido)
+                                # print('doc_exigido')
+
+                else:
+
+                    for doc_unico in documentos_pessoais:
+                        for doc_exigido in array_docs_necessarios:
+                            if doc_exigido in doc_unico:
+                                if 'documentoPessoal' in doc_unico:
+                                    pontuacao += 0.5
+                                else:
+                                    pontuacao += 1
+
+                                # print(pontuacao)
+                                # print(doc_exigido)
+                                # print('doc_exigido')
+
                 
                 ######################################################################################
                 counter = 1
                 conta_anexo_cpf = 1
-
+                #pdb.set_trace()
                 if pontuacao < pontuacao_documentos:
                     print('CPF aprovado, mas documentos estão incompletos...')
                     dados_atualizacao['mensagem'] = 'Pendente Documentacao'
