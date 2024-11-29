@@ -1280,14 +1280,14 @@ class InserirContrato(Manager):
 
                         ## SERA TRATADO FUTURAMENTE ##
 
-                        dados_atualizacao['status_con'] = "Aguardando Comercial"
-                        dados_atualizacao['mensagem'] = 'TRATAR NOVOS CAMPOS INPUT PRA OUTROS ORGAOS LINHA 1297'
-                        dados_atualizacao['observacao_emp'] = 'TRATAR NOVOS CAMPOS INPUT PRA OUTROS ORGAOS LINHA 1297'
-                        dados_atualizacao['observacao'] = 'TRATAR NOVOS CAMPOS INPUT PRA OUTROS ORGAOS LINHA 1297'
-                        dados_atualizacao['erro'] = 'TRATAR NOVOS CAMPOS INPUT PRA OUTROS ORGAOS LINHA 1297'
+                        # dados_atualizacao['status_con'] = "Aguardando Comercial"
+                        # dados_atualizacao['mensagem'] = 'TRATAR NOVOS CAMPOS INPUT PRA OUTROS ORGAOS LINHA 1297'
+                        # dados_atualizacao['observacao_emp'] = 'TRATAR NOVOS CAMPOS INPUT PRA OUTROS ORGAOS LINHA 1297'
+                        # dados_atualizacao['observacao'] = 'TRATAR NOVOS CAMPOS INPUT PRA OUTROS ORGAOS LINHA 1297'
+                        # dados_atualizacao['erro'] = 'TRATAR NOVOS CAMPOS INPUT PRA OUTROS ORGAOS LINHA 1297'
 
-                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
-                        continue
+                        # self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        # continue
 
 
 
