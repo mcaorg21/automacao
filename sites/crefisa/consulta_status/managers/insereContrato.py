@@ -1304,20 +1304,20 @@ class InserirContrato(Manager):
                             conta_anexo_cpf += 1     
 
                         elif 'CONTRA_CHEQUE' in doc or 'EXTRATO_DE_PAGAMENTOS' in doc:
-                            caminho_xpath = '//*[@id="ddlarquivosContracheque"]'    
+                            caminho_xpath = '//*[@id="ddlArquivocontracheque"]'    
 
                             #vai anexar em arquivo de extratos também
                             #upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosExtratoBancario"]')
                             #upload2.send_keys(arquivo)     
 
                         elif 'COMPROVANTE_ENDERECO' in doc:
-                            caminho_xpath = '//*[@id="ddlarquivosComprovanteResidencia"]' 
+                            caminho_xpath = '//*[@id="ddlarquivocomprovanteresidencia"]' 
 
                         elif 'EXTRATO_BANCaRIO' in doc or 'CARTA_DE_CONCESSaO' in doc:
-                            caminho_xpath = '//*[@id="ddlarquivosExtratoBancario"]' 
+                            caminho_xpath = '//*[@id="ddlArquivoextrato"]' 
 
                         else:
-                            caminho_xpath = '//*[@id="ddlarquivosOutros"]'
+                            caminho_xpath = '//*[@id="ddlArquivooutros"]'
 
 
                     counter += 1
@@ -1325,7 +1325,7 @@ class InserirContrato(Manager):
                     try:
                         upload = self.driver.find_element(By.XPATH, caminho_xpath)
                     except:
-                        upload = self.driver.find_element(By.XPATH, '//*[@id="ddlarquivosOutros"]')
+                        upload = self.driver.find_element(By.XPATH, '//*[@id="ddlArquivooutros"]')
                         pass
 
                     upload.send_keys(arquivo)
