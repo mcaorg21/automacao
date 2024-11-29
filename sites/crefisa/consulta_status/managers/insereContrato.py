@@ -148,8 +148,9 @@ class InserirContrato(Manager):
                         pass   
                     pass
 
-                if 'Confirma a seleção do convênio baixa renda?' in retorno_mensagem:
-                    self.act.press_enter('/html/body/div[8]/div/div[3]/button', By.XPATH)
+
+                if 'convênio baixa renda?' in retorno_mensagem.lower():
+                    self.act.press_enter(f'/html/body/div[8]/div/div[3]/button', By.XPATH)
                     retorno_mensagem = ""
 
                 if retorno_mensagem != "" and "Informe o dígito da matricula" not in retorno_mensagem:
