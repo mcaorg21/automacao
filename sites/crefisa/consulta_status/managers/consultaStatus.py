@@ -401,8 +401,8 @@ class ConsultaStatus(Manager):
                 
                 statusPropostaBanco = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div//table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
                 observacaoDetalhadaBanco = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
-
-                if statusPropostaBanco == 'PAGO' or observacaoDetalhadaBanco == 'PENDENTE TRANSF. PIX':
+                #se aprovado
+                if statusPropostaBanco == 'PAGO' or observacaoDetalhadaBanco == 'PENDENTE TRANSF. PIX' or (statusPropostaBanco == 'APROVADO' or observacaoDetalhadaBanco == 'PAGAMENTO PENDENTE'):
                     self.contrato_aprovado = True
                     i += 0
                     break
@@ -412,6 +412,9 @@ class ConsultaStatus(Manager):
 
             elif(ade == linha_tr_ade):
                 print(F'VVVVVVVVVVVV ADE IGUAL ENCONTRADA {ade} VVVVVVVVVVVV')
+
+                if(procura_aprovado == False):
+                    return i
 
         return i
 
