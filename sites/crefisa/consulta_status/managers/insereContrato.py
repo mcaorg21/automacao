@@ -1269,11 +1269,16 @@ class InserirContrato(Manager):
                         # elif 'COMPROVANTE_ENDERECO' in doc:
                         #     caminho_xpath = '//*[@id="ddlarquivosComprovanteResidencia"]' 
 
+                        elif 'COMPROVANTE_DE_PAGAMENTO_BOLSA' in doc:
+                            caminho_xpath = '//*[@id="ddlArquivoportal"]'  
+
+                        elif 'CAD_UNICO' in doc:
+                            caminho_xpath = '//*[@id="ddlArquivocad"]'  
+
                         elif 'EXTRATO_BANCaRIO' in doc:
                             caminho_xpath = '//*[@id="ddlArquivoextrato"]' 
 
                         else:
-                            
                             caminho_xpath = '//*[@id="ddlArquivooutros"]'
 
                     else:
@@ -1367,11 +1372,24 @@ class InserirContrato(Manager):
                 else:
                     #retorno = self.verificar_loading()
                     if retorno['retorno'] == False:
-                        print('XXXXXXXXXXXXXXXXXXXXX ERRO XXXXXXXXXXXXXXXXXXXXX')
-                        dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
-                        dados_atualizacao['observacao_emp'] = retorno['mensagem']
-                        dados_atualizacao['observacao'] = retorno['mensagem']
-                        dados_atualizacao['status_con'] = "Aguardando Comercial"
+
+                        if('adicione ao menos um arquivo de Portal Cidadão e Cad Único' in retorno['mensagem']):
+
+                            print('XXXXXXXXXXXXXXXXXXXXX NECESSARIO CAD UNICO e Portal Cidadao XXXXXXXXXXXXXXXXXXXXX')
+                            dados_atualizacao['tiposComprovantes'] = '75,76'
+                            dados_atualizacao['mensagem'] = 'Pendente Documentacao Adicional'
+                            dados_atualizacao['observacao_emp'] = retorno['mensagem']
+                            dados_atualizacao['observacao'] = retorno['mensagem']
+                            dados_atualizacao['textoMensagem'] = "Envie CAD Único e print do portal do Cidadão mostrando o crédito do benefício"
+
+                            #dados_atualizacao['status_con'] = "Aguardando Comercial"
+                        else:
+
+                            print('XXXXXXXXXXXXXXXXXXXXX ERRO XXXXXXXXXXXXXXXXXXXXX')
+                            dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                            dados_atualizacao['observacao_emp'] = retorno['mensagem']
+                            dados_atualizacao['observacao'] = retorno['mensagem']
+                            dados_atualizacao['status_con'] = "Aguardando Comercial"
                         
                         self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                         self.remove_div()
