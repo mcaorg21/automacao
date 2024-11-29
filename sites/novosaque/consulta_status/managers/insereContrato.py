@@ -254,11 +254,22 @@ class InserirContrato(Manager):
                         tipoChave = "cpf_cnpj"
                         pix_path_select = ""
 
-                    self.act.select_drop_down('//*[@id="kind_account"]', 'pix' , By.XPATH)
+                    try:
 
-                    self.act.select_drop_down('//*[@id="kind_pix"]',tipoChave, By.XPATH)
+                        self.act.select_drop_down('//*[@id="kind_account"]', 'pix' , By.XPATH)
+                        self.act.select_drop_down('//*[@id="kind_pix"]',tipoChave, By.XPATH)
+                        self.act.select_drop_down('//*[@id="gender_customer"]',informacoes['contrato']['sexo'].upper(), By.XPATH)
 
-                    self.act.select_drop_down('//*[@id="gender_customer"]',informacoes['contrato']['sexo'].upper(), By.XPATH)
+                    except:
+
+                        dados_atualizacao['mensagem'] = 'Pendente Dados'  
+                        dados_atualizacao['textoMensagem'] = 'Somente aceita chave PIX CPF. Confirme se podemos enviar nela.'    
+                        dados_atualizacao['pedidoDocumentacao'] = 3   
+                        dados_atualizacao['interacaoHumana'] = 1      
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        print('XXXXXXXXXXXXXXXXXXXX Pulando inserção tipo de PIX inválido XXXXXXXXXXXXXXXXXXXX')
+
+                        continue
 
                 else:
 
@@ -308,7 +319,7 @@ class InserirContrato(Manager):
                     except:
 
                         dados_atualizacao['mensagem'] = 'Pendente Dados'  
-                        dados_atualizacao['textoMensagem'] = 'Para receber nesse banco informe por favor a chave PIX CPF ou telefone.'    
+                        dados_atualizacao['textoMensagem'] = 'Somente aceita chave PIX CPF. Confirme se podemos enviar nela.'    
                         dados_atualizacao['pedidoDocumentacao'] = 3   
                         dados_atualizacao['interacaoHumana'] = 1      
                         self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
