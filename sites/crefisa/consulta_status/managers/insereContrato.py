@@ -1248,11 +1248,11 @@ class InserirContrato(Manager):
                     if(baixa_renda == True):
 
                         if 'documentoPessoal' in doc:                
-                            caminho_xpath = '//*[@id="ddlarquivosRg"]'
+                            caminho_xpath = '//*[@id="ddlArquivorg"]'
 
                             #vai anexar em arquivo de cpf também
                             if(conta_anexo_cpf == 2):
-                                caminho_xpath = '//*[@id="ddlarquivosCpf"]'
+                                caminho_xpath = '//*[@id="ddlArquivocpf"]'
                                 #upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosCpf"]')
                                 #upload2.send_keys(arquivo)
                                 #continue
@@ -1260,29 +1260,43 @@ class InserirContrato(Manager):
                             conta_anexo_cpf += 1     
 
                         elif 'COMPROVANTE_DE_CONTA' in doc:
-                            caminho_xpath = '//*[@id="ddlarquivosContracheque"]'    
+                            caminho_xpath = '//*[@id="ddlArquivotela"]'    
 
                             #vai anexar em arquivo de extratos também
                             #upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosExtratoBancario"]')
                             #upload2.send_keys(arquivo)     
 
-                        elif 'COMPROVANTE_ENDERECO' in doc:
-                            caminho_xpath = '//*[@id="ddlarquivosComprovanteResidencia"]' 
+                        # elif 'COMPROVANTE_ENDERECO' in doc:
+                        #     caminho_xpath = '//*[@id="ddlarquivosComprovanteResidencia"]' 
 
                         elif 'EXTRATO_BANCaRIO' in doc:
-                            caminho_xpath = '//*[@id="ddlarquivosExtratoBancario"]' 
+                            caminho_xpath = '//*[@id="ddlArquivoextrato"]' 
 
                         else:
-                            caminho_xpath = '//*[@id="ddlarquivosOutros"]'
+                            
+                            caminho_xpath = '//*[@id="ddlArquivooutros"]'
 
                     else:
 
+                        ## SERA TRATADO FUTURAMENTE ##
+
+                        dados_atualizacao['status_con'] = "Aguardando Comercial"
+                        dados_atualizacao['mensagem'] = 'TRATAR NOVOS CAMPOS INPUT PRA OUTROS ORGAOS LINHA 1297'
+                        dados_atualizacao['observacao_emp'] = 'TRATAR NOVOS CAMPOS INPUT PRA OUTROS ORGAOS LINHA 1297'
+                        dados_atualizacao['observacao'] = 'TRATAR NOVOS CAMPOS INPUT PRA OUTROS ORGAOS LINHA 1297'
+                        dados_atualizacao['erro'] = 'TRATAR NOVOS CAMPOS INPUT PRA OUTROS ORGAOS LINHA 1297'
+
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        continue
+
+
+
                         if 'documentoPessoal' in doc:                
-                            caminho_xpath = '//*[@id="ddlarquivosRg"]'
+                            caminho_xpath = '//*[@id="ddlArquivorg"]'
 
                             #vai anexar em arquivo de cpf também
                             if(conta_anexo_cpf == 2):
-                                caminho_xpath = '//*[@id="ddlarquivosCpf"]'
+                                caminho_xpath = '//*[@id="ddlArquivocpf"]'
                                 #upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosCpf"]')
                                 #upload2.send_keys(arquivo)
                                 #continue
