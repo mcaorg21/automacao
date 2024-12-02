@@ -402,10 +402,11 @@ class ConsultaStatus(Manager):
                 statusPropostaBanco = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div//table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
                 observacaoDetalhadaBanco = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
                 #se aprovado
+
                 if statusPropostaBanco == 'PAGO' or observacaoDetalhadaBanco == 'PENDENTE TRANSF. PIX' or (statusPropostaBanco == 'APROVADO' or observacaoDetalhadaBanco == 'PAGAMENTO PENDENTE'):
                     self.contrato_aprovado = True
                     i += 0
-                    break
+                    #break
 
             if(ade != linha_tr_ade):
                 i += 2
