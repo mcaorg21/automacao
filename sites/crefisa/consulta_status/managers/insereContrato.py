@@ -1380,7 +1380,7 @@ class InserirContrato(Manager):
                             dados_atualizacao['mensagem'] = 'Pendente Documentacao Adicional'
                             dados_atualizacao['observacao_emp'] = retorno['mensagem']
                             dados_atualizacao['observacao'] = retorno['mensagem']
-                            dados_atualizacao['textoMensagem'] = "Envie CAD Único e print do portal do Cidadão mostrando o crédito do benefício"
+                            dados_atualizacao['textoMensagem'] = "Envie CAD Único e print do portal do Cidadão mostrando o crédito do benefício. O CAD ÚNICO CAD UNICO atualizado é emitido no site: https://cadunico.dataprev.gov.br/#/consultaSimples "
 
                             #dados_atualizacao['status_con'] = "Aguardando Comercial"
                         else:
