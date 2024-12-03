@@ -402,16 +402,17 @@ class ConsultaStatus(Manager):
                 statusPropostaBanco = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div//table/tbody/tr[{i}]/td[6]/ul/li[2]/div/span[1]', By.XPATH).strip()
                 observacaoDetalhadaBanco = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
                 #se aprovado
+                #pdb.set_trace()
                 if statusPropostaBanco == 'PAGO' or observacaoDetalhadaBanco == 'PENDENTE TRANSF. PIX' or (statusPropostaBanco == 'APROVADO' or observacaoDetalhadaBanco == 'PAGAMENTO PENDENTE'):
                     self.contrato_aprovado = True
                     i += 0
+                    if(procura_aprovado == True):
+                        #linha_tr_ade = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH).strip()
+                        #if(ade == linha_tr_ade):
+                        return i
                     #break
 
-            if(ade != linha_tr_ade):
-                if(self.contrato_aprovado == True and procura_aprovado == True):
-                    linha_tr_ade = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH).strip()
-                    if(ade == linha_tr_ade):
-                        return i
+            if(ade != linha_tr_ade):                
                 i += 2
 
             elif(ade == linha_tr_ade):
@@ -419,6 +420,8 @@ class ConsultaStatus(Manager):
 
                 if(procura_aprovado == False):
                     return i
+
+            
 
         return i
 
@@ -447,7 +450,6 @@ class ConsultaStatus(Manager):
             self.act.enviar_texto('//*[@id="txtCpf"]', var, By.XPATH)
 
 
-        #pdb.set_trace()
         #self.act.enviar_texto('//*[@id="txtDataInicial"]', self.data_proposta, By.XPATH)
         #self.act.enviar_texto('//*[@id="txtDataFinal"]',  date.today().strftime("%m/%d/%Y"), By.XPATH)
         self.act.clicar_elemento('//*[@id="btnBuscaContratos"]', By.XPATH)
