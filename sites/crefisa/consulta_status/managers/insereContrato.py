@@ -343,7 +343,8 @@ class InserirContrato(Manager):
                                     # if 'tipo' in retorno_conta and retorno_conta['tipo'] == 'alert':
                                     #     erro_leitura_ia = True
                                     #     break;
-                                    pdb.set_trace()
+                                    #pdb.set_trace()
+                                    #teste
 
                                     tentativaLeitura = 0                                    
                                     while 'tipo' in retorno_conta and retorno_conta['tipo'] == 'alert':
