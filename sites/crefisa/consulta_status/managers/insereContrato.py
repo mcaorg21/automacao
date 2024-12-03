@@ -165,8 +165,8 @@ class InserirContrato(Manager):
                         dados_atualizacao['observacao'] = "Erro ao inserir: "+retorno['mensagem']
                         dados_atualizacao['erro'] = retorno['mensagem']
 
-                    if('Experimente fazer login novamente' in retorno_mensagem or 'Erro interno' in retorno_mensagem):
-                        print('XXXXXXXXXXX Sessão deslogada... Aguardando 180 s pra logar XXXXXXXXXXX')
+                    if('Experimente fazer login novamente' in retorno_mensagem or 'Erro interno' in retorno_mensagem or 'Ocorreu um erro ao processar a' in retorno_mensagem):
+                        print('XXXXXXXXXXX Sessão deslogada... Aguardando 180s pra logar XXXXXXXXXXX')
                         time.sleep(180)
                         self.driver.delete_all_cookies()
                         self.driver.quit()
