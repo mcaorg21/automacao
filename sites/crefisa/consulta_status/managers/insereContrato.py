@@ -334,7 +334,7 @@ class InserirContrato(Manager):
                                     #             - Generate null for missing entities.
                                     #             """
                                     #prompt = 'quais os dados da imagem. JSON schema, {"banco":"","agencia":"","conta":"","digito_conta":""}'
-                                    prompt = 'informe o retorno dos dados da imagem em formato json usando as keys banco, agencia, conta, digito_conta com os dados do arquivo'
+                                    prompt = 'informe o retorno dos dados da imagem em formato json usando as keys banco, agencia, conta e digito_conta que normalmente esta separa por hifen da conta com os dados do arquivo'
                                     #prompt = 'informe o retorno dos dados da imagem em formato json'
                                     retorno_conta = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
                                     
@@ -343,7 +343,7 @@ class InserirContrato(Manager):
                                     # if 'tipo' in retorno_conta and retorno_conta['tipo'] == 'alert':
                                     #     erro_leitura_ia = True
                                     #     break;
-
+                                    pdb.set_trace()
 
                                     tentativaLeitura = 0                                    
                                     while 'tipo' in retorno_conta and retorno_conta['tipo'] == 'alert':
@@ -483,7 +483,7 @@ class InserirContrato(Manager):
                                 #             break
                                 #             pass
 
-                    # pdb.set_trace()
+                    #pdb.set_trace()
                     # if(erro_leitura_ia_extrato == True):
 
                     #     dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
