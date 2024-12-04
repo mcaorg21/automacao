@@ -733,9 +733,24 @@ class InserirContrato(Manager):
                                 
                 except:
                     pass
+
+                retorno = self.verificar_loading()
+
+                if(retorno['retorno'] == False):
+
+                    if 'Sua matrícula está inválida' in retorno['mensagem']:
+                        
+                        dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                        dados_atualizacao['observacao_emp'] = "Tentativas de matricula incorretas, trocar matricula e colocar observacao empresa a palavra inserir para forcar a insercao"
+                        dados_atualizacao['observacao'] = "Tentativas de matricula incorretas, trocar matricula e colocar observacao empresa a palavra inserir para forcar a insercao"
+                        dados_atualizacao['status_con'] = "Aguardando Comercial"
+                        dados_atualizacao['erro'] = "Tentativas de matricula incorretas, trocar matricula e colocar observacao empresa a palavra inserir para forcar a insercao"
+
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        self.remove_div()
+                        continue
                 
                 print('----------------------------------------------------------------------------------------')
-                
                 print('Preenchendo calculo por parcela e valor da parcela')            
                 if(baixa_renda == True):
                     try:
