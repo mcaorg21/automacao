@@ -1381,9 +1381,29 @@ class InserirContrato(Manager):
                             dados_atualizacao['mensagem'] = 'Pendente Documentacao Adicional'
                             dados_atualizacao['observacao_emp'] = retorno['mensagem']
                             dados_atualizacao['observacao'] = retorno['mensagem']
-                            dados_atualizacao['textoMensagem'] = "Envie CAD Único e print do portal do Cidadão mostrando o crédito do benefício. O CAD ÚNICO CAD UNICO atualizado é emitido no site: https://cadunico.dataprev.gov.br/#/consultaSimples "
+                            dados_atualizacao['textoMensagem'] = "Envie CAD Único e print do portal do Cidadão mostrando o crédito do benefício. O CAD ÚNICO CAD UNICO atualizado é emitido no site: https://cadunico.dataprev.gov.br/#/consultaSimples"
 
                             #dados_atualizacao['status_con'] = "Aguardando Comercial"
+
+                        elif('adicione ao menos um arquivo de Portal Cidadão' in retorno['mensagem'])::
+
+                            print('XXXXXXXXXXXXXXXXXXXXX NECESSARIO Portal Cidadao XXXXXXXXXXXXXXXXXXXXX')
+                            dados_atualizacao['tiposComprovantes'] = '76'
+                            dados_atualizacao['mensagem'] = 'Pendente Documentacao Adicional'
+                            dados_atualizacao['observacao_emp'] = retorno['mensagem']
+                            dados_atualizacao['observacao'] = retorno['mensagem']
+                            dados_atualizacao['textoMensagem'] = "Envie o print do portal do Cidadão mostrando o crédito do benefício."
+
+                        elif('adicione ao menos um arquivo de Cad Único' in retorno['mensagem'])::
+
+                            print('XXXXXXXXXXXXXXXXXXXXX NECESSARIO Cad Único XXXXXXXXXXXXXXXXXXXXX')
+                            dados_atualizacao['tiposComprovantes'] = '75'
+                            dados_atualizacao['mensagem'] = 'Pendente Documentacao Adicional'
+                            dados_atualizacao['observacao_emp'] = retorno['mensagem']
+                            dados_atualizacao['observacao'] = retorno['mensagem']
+                            dados_atualizacao['textoMensagem'] = "Envio CAD ÚNICO CAD UNICO atualizado. Você pode emitir no site: https://cadunico.dataprev.gov.br/#/consultaSimples"
+
+
                         else:
 
                             print('XXXXXXXXXXXXXXXXXXXXX ERRO XXXXXXXXXXXXXXXXXXXXX')
