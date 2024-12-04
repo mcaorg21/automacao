@@ -1385,7 +1385,7 @@ class InserirContrato(Manager):
 
                             #dados_atualizacao['status_con'] = "Aguardando Comercial"
 
-                        elif('adicione ao menos um arquivo de Portal Cidadão' in retorno['mensagem'])::
+                        elif('adicione ao menos um arquivo de Portal Cidadão' in retorno['mensagem']):
 
                             print('XXXXXXXXXXXXXXXXXXXXX NECESSARIO Portal Cidadao XXXXXXXXXXXXXXXXXXXXX')
                             dados_atualizacao['tiposComprovantes'] = '76'
@@ -1394,7 +1394,7 @@ class InserirContrato(Manager):
                             dados_atualizacao['observacao'] = retorno['mensagem']
                             dados_atualizacao['textoMensagem'] = "Envie o print do portal do Cidadão mostrando o crédito do benefício."
 
-                        elif('adicione ao menos um arquivo de Cad Único' in retorno['mensagem'])::
+                        elif('adicione ao menos um arquivo de Cad Único' in retorno['mensagem']):
 
                             print('XXXXXXXXXXXXXXXXXXXXX NECESSARIO Cad Único XXXXXXXXXXXXXXXXXXXXX')
                             dados_atualizacao['tiposComprovantes'] = '75'
@@ -1406,7 +1406,7 @@ class InserirContrato(Manager):
 
                         else:
 
-                            print('XXXXXXXXXXXXXXXXXXXXX ERRO XXXXXXXXXXXXXXXXXXXXX')
+                            print('XXXXXXXXXXXXXXXXXXXXX ERRO ANEXOS XXXXXXXXXXXXXXXXXXXXX')
                             dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                             dados_atualizacao['observacao_emp'] = retorno['mensagem']
                             dados_atualizacao['observacao'] = retorno['mensagem']
