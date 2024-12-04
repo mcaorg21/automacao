@@ -412,7 +412,7 @@ class ConsultaStatus(Manager):
                 observacaoDetalhadaBanco = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
                 #se aprovado
                 #pdb.set_trace()
-                if statusPropostaBanco == 'PAGO' or observacaoDetalhadaBanco == 'PENDENTE TRANSF. PIX' or (statusPropostaBanco == 'APROVADO' and observacaoDetalhadaBanco == 'PAGAMENTO PENDENTE'):
+                if statusPropostaBanco == 'PAGO' or observacaoDetalhadaBanco == 'PENDENTE TRANSF. PIX' or (statusPropostaBanco == 'APROVADO' and observacaoDetalhadaBanco == 'PAGAMENTO PENDENTE') or (statusPropostaBanco == 'APROVADO' and observacaoDetalhadaBanco == 'APROVADA'):
                     self.contrato_aprovado = True
 
                     print('VVVVVVVVVVVVVVVVV CONTRATO APROVADO VVVVVVVVVVVVVVVVV')                
