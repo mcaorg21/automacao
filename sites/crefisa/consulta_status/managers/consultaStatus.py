@@ -146,6 +146,13 @@ class ConsultaStatus(Manager):
 
                 i = self.verificar_tr_ade(ade, True)
 
+                if(self.retornar_consulta_aprovado == True):
+                    i = self.verificar_tr_ade(ade, True)
+
+                    if(self.retornar_consulta_aprovado == True):
+                        print('Atualizando pela segunda vez...')
+                        i = self.verificar_tr_ade(ade, True)
+
                 texto_aprovada = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]/span', By.XPATH)
                 numero_contrato = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
 
@@ -206,13 +213,13 @@ class ConsultaStatus(Manager):
 
                         #for i in range(1,linhas_tr,2):
                         print('Contrato ainda em andamento...')
-                        linha_tr_ade = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
+                        # linha_tr_ade = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[2]', By.XPATH).strip()
 
-                        if(linha_tr_ade == ""):
-                            linha_tr_ade = self.act.obter_texto(f'/html/body/div[8]/div[2]/div[7]/div/div/table/tbody/tr[7]/td[4]/div/a[1]', By.XPATH).strip()
+                        # if(linha_tr_ade == ""):
+                        #     linha_tr_ade = self.act.obter_texto(f'/html/body/div[8]/div[2]/div[7]/div/div/table/tbody/tr[7]/td[4]/div/a[1]', By.XPATH).strip()
 
                         
-                        if ade in linha_tr_ade:
+                        if self.ade_encontrada == True:
                                 print('Achou Contrato de ade igual do sistema...')
                                     
                                 self.atualizar_contrato(div,i)
@@ -377,6 +384,8 @@ class ConsultaStatus(Manager):
         linha_tr_ade = 0
 
         self.contrato_aprovado = False
+        self.ade_encontrada = False
+        self.retornar_consulta_aprovado = False
 
         while ade != linha_tr_ade:
 
@@ -403,8 +412,15 @@ class ConsultaStatus(Manager):
                 observacaoDetalhadaBanco = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[1]', By.XPATH).strip()
                 #se aprovado
                 #pdb.set_trace()
-                if statusPropostaBanco == 'PAGO' or observacaoDetalhadaBanco == 'PENDENTE TRANSF. PIX' or (statusPropostaBanco == 'APROVADO' or observacaoDetalhadaBanco == 'PAGAMENTO PENDENTE'):
+                if statusPropostaBanco == 'PAGO' or observacaoDetalhadaBanco == 'PENDENTE TRANSF. PIX' or (statusPropostaBanco == 'APROVADO' and observacaoDetalhadaBanco == 'PAGAMENTO PENDENTE'):
                     self.contrato_aprovado = True
+
+                    print('VVVVVVVVVVVVVVVVV CONTRATO APROVADO VVVVVVVVVVVVVVVVV')                
+                    if(observacaoDetalhadaBanco == 'PAGAMENTO PENDENTE'):
+                        self.atualizar_contrato(self.div,i)
+                        self.retornar_consulta_aprovado = True
+                        return i
+
                     i += 0
                     if(procura_aprovado == True):
                         #linha_tr_ade = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH).strip()
@@ -417,6 +433,7 @@ class ConsultaStatus(Manager):
 
             elif(ade == linha_tr_ade):
                 print(F'VVVVVVVVVVVV ADE IGUAL ENCONTRADA {ade} VVVVVVVVVVVV')
+                self.ade_encontrada = True
 
                 if(procura_aprovado == False):
                     return i
