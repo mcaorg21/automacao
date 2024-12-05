@@ -422,11 +422,11 @@ class ConsultaStatus(Manager):
                         return i
 
                     i += 0
-                    if(procura_aprovado == True):
+                    if(procura_aprovado == True and 'PAGAMENTO PENDENTE' not in self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table', By.XPATH)):
                         #linha_tr_ade = self.act.obter_texto(f'/html/body/div[{self.div}]/div[2]/div[{self.div_segunda}]/div/div/table/tbody/tr[{i}]/td[4]/div/a[1]', By.XPATH).strip()
                         #if(ade == linha_tr_ade):
                         return i
-                    #break
+                    #break 
 
             if(ade != linha_tr_ade):                
                 i += 2
