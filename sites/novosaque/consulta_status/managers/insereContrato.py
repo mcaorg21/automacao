@@ -120,6 +120,15 @@ class InserirContrato(Manager):
                     print('XXXXXXXXXXXXXXXXXXXX Pulando inserção por erro no CPF XXXXXXXXXXXXXXXXXXXX')
                     continue
 
+                if('tentou por 5x e não conseguiu' in informacoes['contrato']['observacao']):
+                    dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                    dados_atualizacao['observacao_emp'] = "5 tentativas ou mais de inserção"
+                    dados_atualizacao['observacao'] = "5 tentativas ou mais de inserção"
+                    dados_atualizacao['status_con'] = "Aguardando Comercial"
+                    dados_atualizacao['erro'] = "5 tentativas ou mais de inserção"
+                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                    continue
+
 
                 self.act.enviar_texto('//*[@id="cpf"]',contrato['cpf_cli'],By.XPATH)
 
