@@ -1068,6 +1068,13 @@ class InserirContrato(Manager):
                 #self.act.enviar_texto('//*[@id="txtNaturalidade"]',informacoes['contrato']['naturalidade'], By.XPATH) 
                 self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[3]/div[3]/div/button', By.XPATH)  
 
+
+                if(len(informacoes['contrato']['naturalidade'].replace('-','').split(' ')[0]) > 4):
+                    informacoes['contrato']['naturalidade'] = informacoes['contrato']['naturalidade'].replace('-','').split(' ')[0]
+
+                if(len(informacoes['contrato']['cidade'].replace('-','').split(' ')[0]) > 4):
+                    informacoes['contrato']['cidade'] = informacoes['contrato']['cidade'].replace('-','').split(' ')[0]
+
                 try:
                     self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[3]/div/div/div/input', unidecode(informacoes['contrato']['naturalidade']), By.XPATH)
                 except:
