@@ -673,8 +673,12 @@ class InserirContrato(Manager):
 
                 print('----------------------------------------------------------------------------------------')
                 print('Preenchendo renda')
+
                 if(atualiza_dado == True):
-                    self.act.enviar_texto('//*[@id="txtValorRendaLiquida"]', informacoes['contrato']['renda'], By.XPATH)
+                    try:
+                        self.act.enviar_texto('//*[@id="txtValorRendaLiquida"]', informacoes['contrato']['renda'], By.XPATH)
+                    except:
+                        pass
 
                 print('----------------------------------------------------------------------------------------')
 
