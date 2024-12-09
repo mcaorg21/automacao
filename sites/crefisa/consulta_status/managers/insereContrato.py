@@ -957,8 +957,7 @@ class InserirContrato(Manager):
                 retorno = self.verificar_loading()
 
                 if retorno['retorno'] == False and novo_contrato == False:
-                    if 'parcela máxima de R$ 159,00 simule novamente utilizando esse valor de parcela' in retorno['mensagem'] or
-                       'parcela máxima de R$ 159,00. Simule novamente utilizando esse valor de parcela' in retorno['mensagem'] :
+                    if 'parcela máxima de R$ 159,00 simule novamente utilizando esse valor de parcela' in retorno['mensagem'] or 'parcela máxima de R$ 159,00. Simule novamente utilizando esse valor de parcela' in retorno['mensagem'] :
                         dados_atualizacao['status_con'] = "Reprovado a Conferir"
                         dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
                         dados_atualizacao['observacao_emp'] = retorno['mensagem']
