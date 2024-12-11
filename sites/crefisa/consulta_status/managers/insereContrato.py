@@ -910,6 +910,14 @@ class InserirContrato(Manager):
                             dados_atualizacao['erro'] = retorno['mensagem']
                             dados_atualizacao['status_con'] = "Reprovado a Conferir"
 
+                        if('erro no processamento' in retorno['mensagem']):
+
+                            dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                            # dados_atualizacao['observacao_emp'] = "Matrícula incorreta"
+                            # dados_atualizacao['observacao'] = "Matrícula incorreta"
+                            # dados_atualizacao['erro'] = retorno['mensagem']
+                            # dados_atualizacao['status_con'] = "Aguardando Comercial"
+
                         self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                         self.remove_div()
                         continue
