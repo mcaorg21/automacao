@@ -24,6 +24,7 @@ from sites.baseRobos.data_handler import DataHandler
 from selenium.webdriver.common.by import By
 from multiprocessing.dummy import Pool
 
+#testando adicionar comentarios
 
 class PromoBank:
 
