@@ -336,15 +336,18 @@ class InserirContrato(Manager):
                                     #prompt = 'quais os dados da imagem. JSON schema, {"banco":"","agencia":"","conta":"","digito_conta":""}'
                                     prompt = 'informe o retorno dos dados da imagem em formato json usando as keys banco, agencia, conta e digito_conta que normalmente esta separa por hifen da conta com os dados do arquivo'
                                     #prompt = 'informe o retorno dos dados da imagem em formato json'
-                                    retorno_conta = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
                                     
                                     print('.... Lendo o comprovante de conta')
 
-                                    # if 'tipo' in retorno_conta and retorno_conta['tipo'] == 'alert':
-                                    #     erro_leitura_ia = True
-                                    #     break;
-                                    #pdb.set_trace()
-                                    #teste
+                                    try:
+                                        retorno_conta = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
+                                    
+                                    except:
+                                        print('XXXXXXXXXXXXX Arquivo grande para leitura XXXXXXXXXXXXX')
+                                        contrato['observacao_emp'] = "inserir"
+                                        pass
+                                        break
+
 
                                     tentativaLeitura = 0                                    
                                     while 'tipo' in retorno_conta and retorno_conta['tipo'] == 'alert':
@@ -415,8 +418,17 @@ class InserirContrato(Manager):
 
                                     #prompt = 'a imagem é um comprovante de matricula meu nis nela contem a matricula que é formada por 11 numeros retorne essa informacao em formato json usando a key com nome matricula com os dados contidos no arquivo e com o regex \\d{11}'
                                     prompt = "retire o numero NIS/PIS do arquivo enviado e traga em formato json usando key matricula e essa matricula formatada sem caracteres especiais"
-                                    retorno_matricula = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
+
+                                    try:
+                                        retorno_matricula = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
                                     
+                                    except:
+                                        print('XXXXXXXXXXXXX Arquivo grande para leitura XXXXXXXXXXXXX')
+                                        contrato['observacao_emp'] = "inserir"
+                                        pass
+                                        break
+
+
                                     print('.... Lendo dados da matricula')
 
                                     #sem registro de conta
