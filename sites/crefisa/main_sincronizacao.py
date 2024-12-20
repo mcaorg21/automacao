@@ -108,7 +108,11 @@ class Main:
     def main(self):
         definir_nome_robo(self.TITLE)
 
-        cookies_vencido = self.load_cookies_crefisa_web_admin()
+        try:
+            cookies_vencido = self.load_cookies_crefisa_web_admin()
+        except: 
+            cookies_vencido = False
+            pass
         
         area_login = self.act.quantidade_elemento('//*[@id="logo"]', By.XPATH)     
         area_logada = self.act.quantidade_elemento('//*[@id="imgLogoEmpresa"]', By.XPATH)
