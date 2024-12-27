@@ -139,10 +139,10 @@ class InserirContrato(Manager):
                
                 retorno_mensagem = ""
                 try:
-                    retorno_mensagem = self.act.obter_texto('/html/body/div[6]/div/div[2]/div[2]/div[2]/div/div/span', By.XPATH)
+                    retorno_mensagem = self.act.obter_texto('/html/body/div[5]/div/div[2]/div[2]/div[2]/div/div/span', By.XPATH)
                 except:
                     try:
-                        retorno_mensagem = self.act.obter_texto('/html/body/div[8]/div/div[2]/div[1]', By.XPATH)
+                        retorno_mensagem = self.act.obter_texto('/html/body/div[6]/div/div[2]/div[2]/div[2]/div/div/span', By.XPATH)                        
                     except:
                         retorno_mensagem = ""
                         pass   
