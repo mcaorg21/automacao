@@ -81,7 +81,7 @@ class InserirContrato(Manager):
 
         # if(fila == '1'):
 
-        contratos = self.dados.get_contratos_inserir('asc')  
+        contratos = self.dados.get_contratos_inserir()  
 
         if contratos['tipo'] == 'alert':
             print('Sem contratos para inserir...')
