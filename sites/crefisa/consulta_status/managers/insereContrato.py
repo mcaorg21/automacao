@@ -77,17 +77,44 @@ class InserirContrato(Manager):
         self.verificar_loading()       
         print('Iniciando inserção de contrato...')
 
-        contratos = self.dados.get_contratos_inserir()  
+        # fila = input('Informe: 1- para fila ou 2- para contrato teste \n')
+
+        # if(fila == '1'):
+
+        contratos = self.dados.get_contratos_inserir('asc')  
 
         if contratos['tipo'] == 'alert':
             print('Sem contratos para inserir...')
             return False
 
-        #testes
-        # contratos = {}
-        # contratos['contratos'] = [{'codigo_con' : '712801', 'perfil' : 'Autônomo', 'observacao_emp' : "teste"}] 
+        # else:
+
+        #     contrato = input('Informe número contrato: \n')
+
+        #     while contrato == "":
+        #         contrato = input('Informe número contrato: \n')
+
+        #     perfil = input('Baixa Renda? 1- sim 2- nao: \n')
+
+        #     while perfil == "":
+        #         perfil = input('Baixa Renda? 1- sim 2- nao: \n')
+
+        #     if(perfil != '1'):
+        #         perfil = input('Qual perfil? Copie do Web admin: \n')
+
+        #         while perfil == "":
+        #             perfil = input('Qual perfil? Copie do Web admin: \n')
+        #     else:
+        #         perfil ='Autônomo'
+
+        #     #testes
+        #     contratos = {}
+        #     contratos['contratos'] = [{'codigo_con' : contrato, 'perfil': perfil, 'observacao_emp' : "teste"}] 
 
         for contrato in contratos['contratos']:
+
+            self.div_principal = '5'
+            self.div_principal_overlay = '7'
             
             dados_atualizacao = {}
 
@@ -137,21 +164,33 @@ class InserirContrato(Manager):
                 self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div[2]/div[2]/div/button', By.XPATH)
                 self.verificar_loading(2)
                
-                retorno_mensagem = ""
+                
+                # try:
+                #     retorno_mensagem = self.act.obter_texto('/html/body/div[5]/div/div[2]/div[2]/div[2]/div/div/span', By.XPATH)
+                # except:
+                #     try:
+                #         retorno_mensagem = self.act.obter_texto('/html/body/div[6]/div/div[2]/div[2]/div[2]/div/div/span', By.XPATH)                        
+                #     except:
+                #         retorno_mensagem = ""
+                #         pass   
+                #     pass
+
+                retorno_mensagem = self.verificar_loading()
+
                 try:
-                    retorno_mensagem = self.act.obter_texto('/html/body/div[5]/div/div[2]/div[2]/div[2]/div/div/span', By.XPATH)
+                    retorno_mensagem = retorno_mensagem['mensagem']
                 except:
-                    try:
-                        retorno_mensagem = self.act.obter_texto('/html/body/div[6]/div/div[2]/div[2]/div[2]/div/div/span', By.XPATH)                        
-                    except:
-                        retorno_mensagem = ""
-                        pass   
                     pass
 
-
                 if 'convênio baixa renda?' in retorno_mensagem.lower():
-                    self.act.press_enter(f'/html/body/div[8]/div/div[3]/button', By.XPATH)
+                    self.act.press_enter(f'/html/body/div[7]/div/div[3]/button[1]', By.XPATH)
                     retorno_mensagem = ""
+
+                try:
+                    retorno_mensagem = self.act.obter_texto(f'/html/body/div[{self.div_principal}]/div/div[2]/div[2]/div[2]/div/div/span', By.XPATH)
+                except:
+                    retorno_mensagem = ""
+                    pass
 
                 if retorno_mensagem != "" and "Informe o dígito da matricula" not in retorno_mensagem:
 
@@ -567,7 +606,7 @@ class InserirContrato(Manager):
                     self.act.enviar_texto("//input[@id='txtEmail']", informacoes['contrato']['email'], By.XPATH)
 
                     self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[2]/div[2]/div/div[1]/div/button', By.XPATH)
-                    elementos_ddd = '/html/body/div[6]/div/div[3]/div/div[2]/div[2]/div/div[1]/div/div/ul/li'
+                    elementos_ddd = f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[2]/div[2]/div/div[1]/div/div/ul/li'
                     ddd_lista = self.act.retornar_elementos(elementos_ddd, By.XPATH)
 
                     for i in ddd_lista:
@@ -583,11 +622,15 @@ class InserirContrato(Manager):
                 print("Preenchendo o convenio")
                 self.act.select_drop_down("//select[@id='ddlConvenio']",tipo_produto_crefisa, By.XPATH)
                 print('----------------------------------------------------------------------------------------')
-
+                
                 if(baixa_renda == True):
                     try:
                         self.verificar_loading()
-                        self.act.press_enter('/html/body/div[8]/div/div[3]/button', By.XPATH)
+                        try:
+                            self.act.press_enter('/html/body/div[8]/div/div[3]/button', By.XPATH)
+                        except:
+                            self.act.press_enter(f'/html/body/div[7]/div/div[3]/button[1]', By.XPATH)
+                            pass
                     except:
                         pass
 
@@ -660,8 +703,8 @@ class InserirContrato(Manager):
 
                         try:
                             self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[5]/div[2]/div/button', By.XPATH)  
-                            self.act.enviar_texto('/html/body/div[6]/div/div[3]/div/div[5]/div[2]/div/div/div/input', numero_beneficio, By.XPATH)
-                            self.act.press_enter('/html/body/div[6]/div/div[3]/div/div[5]/div[2]/div/div/div/input', By.XPATH)
+                            self.act.enviar_texto(f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[5]/div[2]/div/div/div/input', numero_beneficio, By.XPATH)
+                            self.act.press_enter(f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[5]/div[2]/div/div/div/input', By.XPATH)
 
                         except:
 
@@ -707,6 +750,7 @@ class InserirContrato(Manager):
                 mensagem_refin = ""
                 
                 try:
+                    
                     mensagem_refin = self.act.obter_texto('//*[@id="appVue"]/div[3]/div/div[7]/div[1]/div/div/span', By.XPATH)
                     if 'apto à contratação de refin recorrente' in mensagem_refin:
                         novo_contrato = False
@@ -714,9 +758,9 @@ class InserirContrato(Manager):
                         self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[7]/div[2]/div/label', By.XPATH)
 
                         try:
-                            self.act.clicar_elemento('/html/body/div[6]/div/div[3]/div/div[10]/div/button', By.XPATH)
+                            self.act.clicar_elemento(f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[10]/div/button', By.XPATH)
                         except:
-                            self.act.clicar_elemento('/html/body/div[6]/div/div[3]/div/div[8]/div/button[1]', By.XPATH)  
+                            self.act.clicar_elemento(f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[8]/div/button[1]', By.XPATH)  
 
                         retorno = self.verificar_loading()
 
@@ -738,7 +782,7 @@ class InserirContrato(Manager):
                                 self.act.enviar_texto_intervalado('//*[@id="txtDigito"]', matricula_origem[-1], By.XPATH)
 
                                 print('--->Recalculando...')
-                                self.act.clicar_elemento('/html/body/div[6]/div/div[3]/div/div[10]/div/button', By.XPATH)
+                                self.act.clicar_elemento(f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[10]/div/button', By.XPATH)
                                 retorno = self.verificar_loading()
                                 if(retorno['retorno'] == False):
                                     if 'Não há contratos para refinanciar' in retorno['mensagem']:
@@ -767,7 +811,8 @@ class InserirContrato(Manager):
                         continue
                 
                 print('----------------------------------------------------------------------------------------')
-                print('Preenchendo calculo por parcela e valor da parcela')            
+                print('Preenchendo calculo por parcela e valor da parcela')   
+                        
                 if(baixa_renda == True):
                     try:
                         self.act.clicar_elemento('/html/body/div[8]/div/div[3]/button[1]', By.XPATH)
@@ -775,11 +820,10 @@ class InserirContrato(Manager):
                     except:
                         pass
 
-
                 if(novo_contrato == True):
                     try:
-
-                        self.act.select_drop_down('//*[@id="txtTipoValorContrato"]','1', By.XPATH)
+                        self.act.select_drop_down('//*[@id="txtTipoSimulacao"]','1', By.XPATH)
+                        self.act.select_drop_down('//*[@id="txtTipoValorContrato"]', '1', By.XPATH)
                     except:
 
                         try:
@@ -811,7 +855,7 @@ class InserirContrato(Manager):
                         pass
 
                     retorno = self.verificar_loading()
-                
+
                 self.driver.execute_script("document.body.style.zoom='80%'")
 
                 if retorno['retorno'] == False:
@@ -894,13 +938,13 @@ class InserirContrato(Manager):
                     try:
                         self.act.select_drop_down('//*[@id="txtTipoSimulacao"]', "1", By.XPATH)
                         self.act.enviar_texto('//*[@id="txtValorSimulacao"]', informacoes['contrato']['valorParcela'], By.XPATH)
-                        self.act.clicar_elemento('/html/body/div[6]/div/div[4]/div[2]/div/div[2]/div/div/button', By.XPATH)
+                        self.act.clicar_elemento(f'/html/body/div[{self.div_principal}]/div/div[4]/div[2]/div/div[2]/div/div/button', By.XPATH)
                     except:
                         self.act.select_drop_down('//*[@id="txtTipoValorContratoNovaSimulacao"]', "1", By.XPATH)
                         #self.act.select_drop_down('//*[@id="txtTipoValorContrato"]','1', By.XPATH)
                         self.act.enviar_texto('//*[@id="txtValorSimulacaoNovaSimulacao"]', informacoes['contrato']['valorParcela'], By.XPATH)
-                        self.act.press_enter('/html/body/div[6]/div/div[4]/div[2]/div/div[2]/div/div/button', By.XPATH)
-                        #self.act.clicar_elemento('/html/body/div[6]/div/div[3]/div/div[10]/div/button', By.XPATH)
+                        self.act.press_enter(f'/html/body/div[{self.div_principal}]/div/div[4]/div[2]/div/div[2]/div/div/button', By.XPATH)
+                       
                     finally:
                         pass
 
@@ -970,7 +1014,7 @@ class InserirContrato(Manager):
 
                 print('----------------------------------------------------------------------------------------')
 
-                print('Clicando em finalizar simulacao')                
+                print('Clicando em finalizar simulacao')            
 
                 try:
                     self.act.clicar_elemento('//*[@id="appVue"]/div[4]/div[2]/div/div[3]/button', By.XPATH)
@@ -1064,23 +1108,24 @@ class InserirContrato(Manager):
 
                 try:
                     self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[2]/div[6]/div/button', By.XPATH)  
-                    self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[2]/div[6]/div/div/div/input', informacoes['contrato']['estadoEmissor'], By.XPATH)
+                    self.act.enviar_texto(f'/html/body/div[{self.div_principal}]/div/div[2]/div/div[2]/div[2]/div[6]/div/div/div/input', informacoes['contrato']['estadoEmissor'], By.XPATH)
                 except:
                     self.driver.quit()
 
                 if informacoes['contrato']['estadoEmissor'] == 'SE':
-                    self.act.press_DOWN('/html/body/div[6]/div/div[2]/div/div[2]/div[2]/div[6]/div/div/ul/li[1]/a',By.XPATH)
-                self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[2]/div[6]/div/div/div/input', By.XPATH)
+                    self.act.press_DOWN(f'/html/body/div[{self.div_principal}]/div/div[2]/div/div[2]/div[2]/div[6]/div/div/ul/li[1]/a',By.XPATH)
+                self.act.press_enter(f'/html/body/div[{self.div_principal}]/div/div[2]/div/div[2]/div[2]/div[6]/div/div/div/input', By.XPATH)
 
                 
-                #self.act.select_drop_down('//*[@id="ddlUfNascimento"]',informacoes['contrato']['estadoNaturalidade'], By.XPATH) n
+                #self.act.select_drop_down('//*[@id="ddlUfNascimento"]',informacoes['contrato']['estadoNaturalidade'], By.XPATH) 
+                
                 self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[3]/div[2]/div/button', By.XPATH)  
-                self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[2]/div/div/div/input', informacoes['contrato']['estadoNaturalidade'], By.XPATH)
+                self.act.enviar_texto(f'/html/body/div[{self.div_principal}]/div/div[2]/div/div[2]/div[3]/div[2]/div/div/div/input', informacoes['contrato']['estadoNaturalidade'], By.XPATH)
                 
                 if informacoes['contrato']['estadoNaturalidade'] == 'SE':
-                    self.act.press_DOWN('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[2]/div/div/ul/li[1]/a',By.XPATH)
+                    self.act.press_DOWN(f'/html/body/div[{self.div_principal}]/div/div[2]/div/div[2]/div[3]/div[2]/div/div/ul/li[1]/a',By.XPATH)
 
-                self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[2]/div/div/div/input', By.XPATH)
+                self.act.press_enter(f'/html/body/div[{self.div_principal}]/div/div[2]/div/div[2]/div[3]/div[2]/div/div/div/input', By.XPATH)
 
                 # pdb.set_trace()
 
@@ -1093,20 +1138,20 @@ class InserirContrato(Manager):
                 self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[3]/div[3]/div/button', By.XPATH)  
 
 
-                if(len(informacoes['contrato']['naturalidade'].replace('-','').split(' ')[0]) > 4):
-                    informacoes['contrato']['naturalidade'] = informacoes['contrato']['naturalidade'].replace('-','').split(' ')[0]
+                if(len(informacoes['contrato']['naturalidade'].replace('-',' ').split(' ')[0]) > 4):
+                    informacoes['contrato']['naturalidade'] = informacoes['contrato']['naturalidade'].replace('-',' ').split(' ')[0]
 
-                if(len(informacoes['contrato']['cidade'].replace('-','').split(' ')[0]) > 4):
-                    informacoes['contrato']['cidade'] = informacoes['contrato']['cidade'].replace('-','').split(' ')[0]
+                if(len(informacoes['contrato']['cidade'].replace('-',' ').split(' ')[0]) > 4):
+                    informacoes['contrato']['cidade'] = informacoes['contrato']['cidade'].replace('-',' ').split(' ')[0]
 
                 try:
-                    self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[3]/div/div/div/input', unidecode(informacoes['contrato']['naturalidade']), By.XPATH)
+                    self.act.enviar_texto(f'/html/body/div[{self.div_principal}]/div/div[2]/div/div[2]/div[3]/div[3]/div/div/div/input', unidecode(informacoes['contrato']['naturalidade']), By.XPATH)
                 except:
                     #ajuste de forcar naturalidade
-                    self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[3]/div/div/div/input', unidecode(informacoes['contrato']['cidade']), By.XPATH)
+                    self.act.enviar_texto(f'/html/body/div[{self.div_principal}]/div/div[2]/div/div[2]/div[3]/div[3]/div/div/div/input', unidecode(informacoes['contrato']['cidade']), By.XPATH)
                     pass
 
-                self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[3]/div[3]/div/div/div/input', By.XPATH)
+                self.act.press_enter(f'/html/body/div[{self.div_principal}]/div/div[2]/div/div[2]/div[3]/div[3]/div/div/div/input', By.XPATH)
 
                 self.act.select_drop_down('//*[@id="txtSexo"]',informacoes['contrato']['sexo'][0], By.XPATH)
                 
@@ -1142,7 +1187,7 @@ class InserirContrato(Manager):
                     pass
 
                 print('----------------------------------------------------------------------------------------')
-
+                #pdb.set_trace()
                 print('Preenchendo dados conta bancária')
                 if(baixa_renda == False):
                     if informacoes['contrato']['numeroBanco'] == '955':
@@ -1192,24 +1237,24 @@ class InserirContrato(Manager):
                 #    self.act.enviar_texto('//*[@id="txtBairro"]',informacoes['contrato']['uf'], By.XPATH)
 
                 self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[8]/div[2]/div/button', By.XPATH)  
-                self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[8]/div[2]/div/div/div/input', informacoes['contrato']['uf'], By.XPATH)
+                self.act.enviar_texto(f'/html/body/div[{self.div_principal}]/div/div[2]/div/div[2]/div[8]/div[2]/div/div/div/input', informacoes['contrato']['uf'], By.XPATH)
                 if informacoes['contrato']['uf'] == 'SE':
-                    self.act.press_DOWN('/html/body/div[6]/div/div[2]/div/div[2]/div[8]/div[2]/div/div/ul/li[1]/a',By.XPATH)
-                self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[8]/div[2]/div/div/div/input', By.XPATH)
+                    self.act.press_DOWN(f'/html/body/div[{self.div_principal}]/div/div[2]/div/div[2]/div[8]/div[2]/div/div/ul/li[1]/a',By.XPATH)
+                self.act.press_enter(f'/html/body/div[{self.div_principal}]/div/div[2]/div/div[2]/div[8]/div[2]/div/div/div/input', By.XPATH)
 
                 texto_cidade = self.act.obter_texto('//*[@id="appVue"]/div[2]/div/div[2]/div[8]/div[3]/div/button', By.XPATH)
                 if( texto_cidade == "" or texto_cidade == "Selecione"):
                     #self.act.enviar_texto('//*[@id="txtCidade"]',informacoes['contrato']['cidade'], By.XPATH)
                     time.sleep(5)
                     self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[8]/div[3]/div/button', By.XPATH)  
-                    self.act.enviar_texto('/html/body/div[6]/div/div[2]/div/div[2]/div[8]/div[3]/div/div/div/input', informacoes['contrato']['cidade'], By.XPATH)
-                    self.act.press_enter('/html/body/div[6]/div/div[2]/div/div[2]/div[8]/div[3]/div/div/div/input', By.XPATH)
+                    self.act.enviar_texto(f'/html/body/div[{self.div_principal}]/div/div[2]/div/div[2]/div[8]/div[3]/div/div/div/input', informacoes['contrato']['cidade'], By.XPATH)
+                    self.act.press_enter(f'/html/body/div[{self.div_principal}]/div/div[2]/div/div[2]/div[8]/div[3]/div/div/div/input', By.XPATH)
 
                 try:
                     self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)
                 except:
                     self.driver.execute_script("document.body.style.zoom='80%'")
-                    self.act.clicar_elemento('/html/body/div[6]/div/div[2]/div/div[2]/div[10]/div/button', By.XPATH) 
+                    self.act.clicar_elemento(f'/html/body/div[{self.div_principal}]/div/div[2]/div/div[2]/div[10]/div/button', By.XPATH) 
                     pass
 
                 retorno = self.verificar_loading()
@@ -1503,7 +1548,7 @@ class InserirContrato(Manager):
 
     def remove_div(self):
         try:
-            if self.act.quantidade_elemento('/html/body/div[9]/div/div[3]/button[1]', By.XPATH) == 1 or self.act.quantidade_elemento('/html/body/div[8]/div/div[3]/button[1]', By.XPATH) == 1:                
+            if self.act.quantidade_elemento(f'/html/body/div[{self.div_principal_overlay}]/div/div[3]/button[1]', By.XPATH) == 1 or self.act.quantidade_elemento('/html/body/div[9]/div/div[3]/button[1]', By.XPATH) == 1 or self.act.quantidade_elemento('/html/body/div[8]/div/div[3]/button[1]', By.XPATH) == 1:                
                 self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown").remove()""")
                 return True
             else:

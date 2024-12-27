@@ -108,7 +108,7 @@ class Main:
         
 
         self.load_cookies_crefisa_web_admin()
-
+        
         #fila de insercao de contrato
         definir_nome_robo(self.TITLE)   
         InserirContrato.iniciar_horario_comercial(self.driver)
@@ -126,7 +126,7 @@ class Main:
 
     def load_cookies_crefisa_web_admin(self):
         
-        url = "http://emprestimofacil.co/web_admin/api/v1/consulta/cookies/crefisa/?key={}".format(self.api_key)
+        url = "https://emprestimofacil.co/web_admin/api/v1/consulta/cookies/crefisa/?key={}".format(self.api_key)
         cookies = self.selenium_helper.load_cookies_robo_web_admin(url, self.id_robo)
 
         self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/simuladorCrefisa.asp')
