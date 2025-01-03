@@ -97,7 +97,8 @@ class ConsultaStatus(Manager):
                 self.driver.get(f'https://sistema.novosaque.com.br/admin/contracts')
                 self.verificar_loading()
 
-                self.act.enviar_texto('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[1]/input',ade, By.XPATH)
+                #self.act.enviar_texto('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[1]/input',ade, By.XPATH)
+                self.act.enviar_texto('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[1]/input',cpf_bd, By.XPATH)
                 self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/button', By.XPATH)
                 self.verificar_loading(2)
                 
