@@ -126,11 +126,16 @@ class ConsultaStatus(Manager):
 
                 #ajuste 
                 for i in range(1,quantidade_propostas+1):
-                    
+                    #pdb.set_trace()
                     try:
                         
-                        print('Procurando ade pelo link')                    
-                        link_ade = self.act.obter_atributo(f'/html/body/div[1]/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[{i}]/td[1]/div/div/a','href',By.XPATH)
+                        print('Procurando ade pelo link')   
+                        try:               
+                            link_ade = self.act.obter_atributo(f'/html/body/div[1]/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[{i}]/td[1]/div/div/a','href',By.XPATH)
+                        except:
+                            self.act.clicar_elemento(f'/html/body/div/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[{i}]/td[1]/div/a', By.XPATH)
+                            link_ade = self.act.obter_atributo(f'/html/body/div/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[{i}]/td[1]/div/div/a','href',By.XPATH)
+                            pass
                         ade_sistema = re.findall('\\d+',link_ade)[0]
  
                     except:                        
