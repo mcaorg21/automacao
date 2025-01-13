@@ -440,6 +440,7 @@ class InserirContrato(Manager):
                                 elif('MEU_NIS' in doc_unico):
 
                                     retorno_matricula_json = ""
+                                    extrair_matricula = lambda texto: re.search(r'\d{3}\.\d{5}\.\d{2}-\d', texto).group() if re.search(r'\d{3}\.\d{5}\.\d{2}-\d', texto) else None
 
                                     # try:
                                     #     texto_cad = self.act.obter_texto('//*[@id="appVue"]/div[3]/div/div[7]/div/span', By.XPATH)  
@@ -456,17 +457,16 @@ class InserirContrato(Manager):
                                     base64Arquivo = base64.b64encode(requests.get(doc_unico).content)
 
                                     #prompt = 'a imagem é um comprovante de matricula meu nis nela contem a matricula que é formada por 11 numeros retorne essa informacao em formato json usando a key com nome matricula com os dados contidos no arquivo e com o regex \\d{11}'
-                                    prompt = "retire o numero NIS/PIS do arquivo enviado e traga em formato json usando key matricula e essa matricula formatada sem caracteres especiais"
+                                    #prompt = "retire o numero NIS/PIS do arquivo enviado e traga em formato json usando key matricula e essa matricula formatada sem caracteres especiais"
+                                    prompt = r"traga os dados da imagem, o NIS/PIS é o seguinte formato regex d{3}.d{5}.d{2}-d{1}, retorne em texto"
 
                                     try:
-                                        retorno_matricula = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
-                                    
+                                        retorno_matricula = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()      
                                     except:
                                         print('XXXXXXXXXXXXX Arquivo grande para leitura XXXXXXXXXXXXX')
                                         contrato['observacao_emp'] = "inserir"
                                         pass
                                         break
-
 
                                     print('.... Lendo dados da matricula')
 
@@ -493,15 +493,21 @@ class InserirContrato(Manager):
 
                                         try:
 
-                                            retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
-                                            matricula_json = retorno_matricula_json['matricula']
+                                            #retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
+                                            retorno_matricula_json = extrair_matricula(retorno_matricula['retorno']).replace('.','').replace('-','')
+                                            #matricula_json = retorno_matricula_json['matricula']
+                                            matricula_json = retorno_matricula_json
 
                                         except:
-                                            print('Tentando retirar matricula da imagem com outro prompt...')
-                                            prompt = "qual a matricula nis na imagem,traga em formato json usando key matricula e essa matricula formatada sem caracteres especiais"
-                                            retorno_matricula = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
-                                            retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
-                                            matricula_json = retorno_matricula_json['matricula']
+                                            # print('Tentando retirar matricula da imagem com outro prompt...')
+                                            # prompt = "qual a matricula nis na imagem,traga em formato json usando key matricula e essa matricula formatada sem caracteres especiais"
+                                            # retorno_matricula = self.request_get.post_request_v2('ia-vertex-arquivo', {'key':'f689f1e12a0399fba803cb2365fc362f' ,'base64' : base64Arquivo, 'prompt': prompt}).json()
+                                            # retorno_matricula_json = json.loads(retorno_matricula['retorno'].replace('```','').replace('\n','').replace('json',''))
+                                            # matricula_json = retorno_matricula_json['matricula']
+
+                                            print('XXXXXXXXXXXXX Arquivo grande para leitura XXXXXXXXXXXXX')
+                                            contrato['observacao_emp'] = "inserir"
+                                            pass  
 
                                         continue
 
@@ -582,7 +588,6 @@ class InserirContrato(Manager):
                         informacoes['contrato']['digitoConta'] = digito_conta_origem
                     else:
                         informacoes['contrato']['matricula'] = matricula_json
-
 
                 if(informacoes['contrato']['matricula'] == informacoes['contrato']['cpf'].replace('.','').replace('-','')):
                     dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
