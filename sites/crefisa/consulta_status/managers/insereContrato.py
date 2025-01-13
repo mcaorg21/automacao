@@ -396,7 +396,7 @@ class InserirContrato(Manager):
 
                                         tentativaLeitura += 1
 
-                                        if 'tipo' in retorno_conta and retorno_conta['tipo'] == 'alert' and tentativaLeitura > 7:
+                                        if 'tipo' in retorno_conta and retorno_conta['tipo'] == 'alert' and tentativaLeitura > 2:
                                             erro_leitura_ia = True
                                             mensagem_erro_leitura = "COMPROVANTE DE CONTA"                                        
                                             break;
