@@ -1423,14 +1423,19 @@ class InserirContrato(Manager):
 
 
                     counter += 1
-
+                    #pdb.set_trace()
                     try:
-                        upload = self.driver.find_element(By.XPATH, caminho_xpath)
+                        upload = self.driver.find_element(By.XPATH, caminho_xpath)   
                     except:
                         upload = self.driver.find_element(By.XPATH, '//*[@id="ddlArquivooutros"]')
                         pass
 
                     upload.send_keys(arquivo)
+
+                    if novo_contrato == False and baixa_renda == True and 'EXTRATO_BANCaRIO' in doc:
+                        print('Anexando documento extra de refinanciamento')
+                        upload = self.driver.find_element(By.XPATH, '//*[@id="ddlArquivocontracheque"]')
+                        upload.send_keys(arquivo)
 
                 print('----------------------------------------------------------------------------------------')
 
