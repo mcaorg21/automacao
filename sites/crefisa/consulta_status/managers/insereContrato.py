@@ -373,8 +373,9 @@ class InserirContrato(Manager):
                                     #             - Generate null for missing entities.
                                     #             """
                                     #prompt = 'quais os dados da imagem. JSON schema, {"banco":"","agencia":"","conta":"","digito_conta":""}'
-                                    prompt = 'informe o retorno dos dados da imagem em formato json usando as keys banco, agencia, conta e digito_conta que normalmente esta separa por hifen da conta com os dados do arquivo'
+                                    #prompt = 'informe o retorno dos dados da imagem em formato json usando as keys banco, agencia, conta e digito_conta que normalmente esta separa por hifen da conta com os dados do arquivo'
                                     #prompt = 'informe o retorno dos dados da imagem em formato json'
+                                    prompt = r'traga o texto da imagem e me retorne o numero que respeita o regex d{7,12}-d{1}'
                                     
                                     print('.... Lendo o comprovante de conta')
 
@@ -409,31 +410,45 @@ class InserirContrato(Manager):
 
                                     else:
 
+                                        extrair_numero = lambda texto: re.search(r'\d{7,12}-\d{1}', texto).group() if re.search(r'\d{7,12}-\d{1}', texto) else None
+                                        numero = extrair_numero(retorno_conta['retorno'])
+
                                         try:
-                                            retorno_conta_json = json.loads(retorno_conta['retorno'].replace('```','').replace('\n','').replace('json',''))
+                                            retorno_conta_json = numero.split('-')
+                                            informacoes['contrato']['numeroConta'] = retorno_conta_json[0]
+                                            informacoes['contrato']['digitoConta'] = retorno_conta_json[1]
+
                                         except:
                                             erro_leitura_ia = True
                                             mensagem_erro_leitura = "COMPROVANTE DE CONTA"
                                             break
                                             pass
                                         
-                                        key_conta = 'Conta'
+                                        # try:
+                                        #     retorno_conta_json = json.loads(retorno_conta['retorno'].replace('```','').replace('\n','').replace('json',''))
+                                        # except:
+                                        #     erro_leitura_ia = True
+                                        #     mensagem_erro_leitura = "COMPROVANTE DE CONTA"
+                                        #     break
+                                        #     pass
+                                        
+                                        # key_conta = 'Conta'
 
-                                        if 'conta' in retorno_conta_json:
-                                            key_conta = 'conta'
+                                        # if 'conta' in retorno_conta_json:
+                                        #     key_conta = 'conta'
 
-                                        if 'account_number' in retorno_conta_json:
-                                            key_conta = 'account_number'
+                                        # if 'account_number' in retorno_conta_json:
+                                        #     key_conta = 'account_number'
 
-                                        try:
-                                            informacoes['contrato']['numeroConta'] = retorno_conta_json["conta"]
-                                            informacoes['contrato']['digitoConta'] = retorno_conta_json['digito_conta']
+                                        # try:
+                                        #     informacoes['contrato']['numeroConta'] = retorno_conta_json["conta"]
+                                        #     informacoes['contrato']['digitoConta'] = retorno_conta_json['digito_conta']
 
-                                        except:
-                                            erro_leitura_ia = True
-                                            mensagem_erro_leitura = "COMPROVANTE DE CONTA"
-                                            break
-                                            pass
+                                        # except:
+                                        #     erro_leitura_ia = True
+                                        #     mensagem_erro_leitura = "COMPROVANTE DE CONTA"
+                                        #     break
+                                        #     pass
 
                                         continue
 
