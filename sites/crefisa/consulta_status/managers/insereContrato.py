@@ -1463,10 +1463,11 @@ class InserirContrato(Manager):
                     self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[2]/div[3]/div/button[2]', By.XPATH)  
                 except:
                     self.driver.execute_script("""$('#appVue > div:nth-child(3) > div > div.card-body > div.row.mt-4 > div > button.btn.btn-primary').click()""")
-                     
+                 
+                sleep(5)   
                 retorno = self.verificar_loading(30)
                 self.driver.execute_script("document.body.style.zoom='80%'")
-                
+
                 if retorno['retorno'] == True  and retorno['ade'] != "":
                     deleta_todos_arquivos(self.path_documentos)
                     self.driver.execute_script("""document.querySelector("body > div.swal2-container.swal2-center.swal2-fade.swal2-shown > div > div.swal2-actions > button.swal2-confirm.swal2-styled").click()""")
