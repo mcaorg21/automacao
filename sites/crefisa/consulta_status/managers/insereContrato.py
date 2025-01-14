@@ -1464,7 +1464,7 @@ class InserirContrato(Manager):
                 except:
                     self.driver.execute_script("""$('#appVue > div:nth-child(3) > div > div.card-body > div.row.mt-4 > div > button.btn.btn-primary').click()""")
                  
-                sleep(5)   
+                time.sleep(5)   
                 retorno = self.verificar_loading(30)
                 self.driver.execute_script("document.body.style.zoom='80%'")
 
