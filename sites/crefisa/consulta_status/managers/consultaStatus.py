@@ -251,13 +251,25 @@ class ConsultaStatus(Manager):
                                     if('PENDENTE' in self.dados_consulta["statusPropostaBanco"]):  
 
                                         regex = r"(\d{2}/\d{2}/\d{4} às \d{2}:\d{2}:\d{2} PENDENTE)" 
-                                        for observacao in historico_atuacao.split('Pendente |'):
+
+                                        partes = re.split(r'\d{2}/\d{2}/\d{4} às \d{2}:\d{2}:\d{2}', historico_atuacao)
+                                        partes = [parte.strip() for parte in partes if parte.strip()]
+
+                                        for observacao in partes:
+
+                                            if('SUPORTE 2 TECH' not in observacao):
+                                                continue
 
                                             obs_sanit = observacao.replace('SUPORTE 2 TECH',"").strip()
-                                            array_obs_split = list(filter(lambda x: x != '',re.split(regex, obs_sanit)))
 
-                                            if len(array_obs_split) == 1:
-                                                continue
+                                            # array_obs_split = list(filter(lambda x: x != '',re.split(regex, obs_sanit)))
+
+                                            # print(obs_sanit)
+                                            # print('--------------------')
+                                            # pdb.set_trace()
+                                            # if len(array_obs_split) == 1:
+                                            #     continue
+
 
                                             self.dados_consulta['statusSecundario'] += "\n\n"+ obs_sanit 
                                    
