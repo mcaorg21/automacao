@@ -1448,9 +1448,13 @@ class InserirContrato(Manager):
                     upload.send_keys(arquivo)
 
                     if novo_contrato == False and baixa_renda == True and 'EXTRATO_BANCaRIO' in doc:
-                        print('Anexando documento extra de refinanciamento')
-                        upload = self.driver.find_element(By.XPATH, '//*[@id="ddlArquivocontracheque"]')
-                        upload.send_keys(arquivo)
+
+                        try:
+                            print('Anexando documento extra de refinanciamento')
+                            upload = self.driver.find_element(By.XPATH, '//*[@id="ddlArquivocontracheque"]')
+                            upload.send_keys(arquivo)
+                        except: 
+                            pass
 
                 print('----------------------------------------------------------------------------------------')
 
