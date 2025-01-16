@@ -779,8 +779,8 @@ class PromoBank:
 		# - NO AUMENTO TROCAR OS 2 RESULTADOS NOS 2 IFS DE PARCELA AUMENTO
 
 		array = ['87','88']
-		porcentagem_aumento = 0.04
-		porcentagem_aumento_salario = 0.04
+		porcentagem_aumento = 0.0475
+		porcentagem_aumento_salario = 0.0475
 		porcentagem_margem = 0.35
 
 		if especie_beneficio in array:

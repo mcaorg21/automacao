@@ -229,6 +229,8 @@ class ConsultaStatus(Manager):
                                 self.dados_consulta['observacaoDetalhadaBanco'] += "\n\n"+self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[5]/span[2]/span', By.XPATH).strip()
                                 self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
                                 indice = i
+
+                                #pdb.set_trace()
                                 
                                 if ('CANCELADO' in self.dados_consulta["statusPropostaBanco"] or 'PENDENTE' in self.dados_consulta["statusPropostaBanco"]) and ('AGUARDANDO FORMALIZAÇÃO CLIENTE' not in self.dados_consulta["statusSecundario"] and 'NOVA SOLICITAÇÃO' not in self.dados_consulta["statusSecundario"]):
                                     
@@ -236,59 +238,62 @@ class ConsultaStatus(Manager):
                                     #self.driver.execute_script(f""" document.querySelector("#linkSubStatus_{elemento}").click() """)
                                     
                                     try:
-                                        self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH)
-                                    except:
-                                        nova_div = str(int(div) - 1)
-                                        self.act.clicar_elemento(f'/html/body/div[{nova_div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH)
-                                        pass
-                                    
-                                    self.verificar_loading_pendente('modal_historico')
-                                    self.act.trocar_frame_referencia("iframeHistorico")
-                                    self.verificar_loading_pendente('tabela_historico')
-
-                                    historico_atuacao = "\n\n"+self.act.obter_texto('/html/body/div[3]/div/div[2]/div[2]/table/tbody', By.XPATH)
-
-                                    if('PENDENTE' in self.dados_consulta["statusPropostaBanco"]):  
-
-                                        regex = r"(\d{2}/\d{2}/\d{4} às \d{2}:\d{2}:\d{2} PENDENTE)" 
-
-                                        partes = re.split(r'\d{2}/\d{2}/\d{4} às \d{2}:\d{2}:\d{2}', historico_atuacao)
-                                        partes = [parte.strip() for parte in partes if parte.strip()]
-
-                                        for observacao in partes:
-
-                                            if('SUPORTE 2 TECH' not in observacao):
-                                                continue
-
-                                            obs_sanit = observacao.replace('SUPORTE 2 TECH',"").strip()
-
-                                            # array_obs_split = list(filter(lambda x: x != '',re.split(regex, obs_sanit)))
-
-                                            # print(obs_sanit)
-                                            # print('--------------------')
-                                            # pdb.set_trace()
-                                            # if len(array_obs_split) == 1:
-                                            #     continue
-
-
-                                            self.dados_consulta['statusSecundario'] += "\n\n"+ obs_sanit 
-                                   
-                                    else:
-                                        self.dados_consulta['statusSecundario'] += "\n\n"+historico_atuacao
-
-
-                                    #self.dados_consulta['statusSecundario'] += "\n\n"+self.act.obter_texto('//*[@id="modalSubStatus"]/div/div/div[2]/div/div[2]/table/tbody/tr[1]', By.XPATH)
-                                    try:
-                                        self.act.trocar_frame_referencia("default")
-                                        self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
-
-                                    except:
                                         try:
-                                            #self.act.quantidade_elemento(f'/html/body/div[{div}]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
-                                            self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/div[1]/button/span', By.XPATH)
+                                            self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH)
                                         except:
+                                            nova_div = str(int(div) - 1)
+                                            self.act.clicar_elemento(f'/html/body/div[{nova_div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH)
                                             pass
-                                        pass           
+                                        
+                                        self.verificar_loading_pendente('modal_historico')
+                                        self.act.trocar_frame_referencia("iframeHistorico")
+                                        self.verificar_loading_pendente('tabela_historico')
+
+                                        historico_atuacao = "\n\n"+self.act.obter_texto('/html/body/div[3]/div/div[2]/div[2]/table/tbody', By.XPATH)
+
+                                        if('PENDENTE' in self.dados_consulta["statusPropostaBanco"]):  
+
+                                            regex = r"(\d{2}/\d{2}/\d{4} às \d{2}:\d{2}:\d{2} PENDENTE)" 
+
+                                            partes = re.split(r'\d{2}/\d{2}/\d{4} às \d{2}:\d{2}:\d{2}', historico_atuacao)
+                                            partes = [parte.strip() for parte in partes if parte.strip()]
+
+                                            for observacao in partes:
+
+                                                if('SUPORTE 2 TECH' not in observacao):
+                                                    continue
+
+                                                obs_sanit = observacao.replace('SUPORTE 2 TECH',"").strip()
+
+                                                # array_obs_split = list(filter(lambda x: x != '',re.split(regex, obs_sanit)))
+
+                                                # print(obs_sanit)
+                                                # print('--------------------')
+                                                # pdb.set_trace()
+                                                # if len(array_obs_split) == 1:
+                                                #     continue
+
+
+                                                self.dados_consulta['statusSecundario'] += "\n\n"+ obs_sanit 
+                                       
+                                        else:
+                                            self.dados_consulta['statusSecundario'] += "\n\n"+historico_atuacao
+
+
+                                        #self.dados_consulta['statusSecundario'] += "\n\n"+self.act.obter_texto('//*[@id="modalSubStatus"]/div/div/div[2]/div/div[2]/table/tbody/tr[1]', By.XPATH)
+                                        try:
+                                            self.act.trocar_frame_referencia("default")
+                                            self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
+
+                                        except:
+                                            try:
+                                                #self.act.quantidade_elemento(f'/html/body/div[{div}]/div[2]/div[9]/div/div/div[1]/button/span', By.XPATH)
+                                                self.act.clicar_elemento(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/div[1]/button/span', By.XPATH)
+                                            except:
+                                                pass
+                                            pass           
+                                    except:
+                                        pass
 
                     if ('PAGO' in self.dados_consulta["statusPropostaBanco"] or 'APROVADO' in self.dados_consulta["statusPropostaBanco"]) and 'EM ANDAMENTO' in self.dados_consulta["statusSecundario"]:
                         self.dados_consulta['statusSecundario'] += " "+self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/table/tbody/tr[{indice}]/td[4]', By.XPATH).replace('\n',"").split("Liberado")[1]
