@@ -124,8 +124,8 @@ class ConsultaStatus(Manager):
                 contrato_aprovado = False
                 self.contrato_aprovado = False
 
-                if(linhas_tr > 4):
-                    self.driver.execute_script("document.body.style.zoom='60%'")
+                if(linhas_tr > 1):
+                    self.driver.execute_script("document.body.style.zoom='50%'")
 
                 if self.act.quantidade_elemento('//*[@id="divMsgErro"]', By.XPATH) == 1:
 
