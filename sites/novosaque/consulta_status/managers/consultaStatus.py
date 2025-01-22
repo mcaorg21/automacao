@@ -72,6 +72,7 @@ class ConsultaStatus(Manager):
                 tempo_atualizacao = int(proposta[3]) 
                 observacao = proposta[4]
                 linkAssinaturaDigital = proposta[5] 
+                nome_cliente = proposta[6] 
                 busca_reiniciada = False
                 dados_consulta = {}
 
@@ -101,7 +102,6 @@ class ConsultaStatus(Manager):
                 self.act.enviar_texto('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[1]/input',cpf_bd, By.XPATH)
                 self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/button', By.XPATH)
                 self.verificar_loading(2)
-                
 
                 while self.act.quantidade_elemento('//*[@id="table-responsive-custom"]/tbody/tr', By.XPATH) == 1 and busca_reiniciada == False:
                     
@@ -124,9 +124,23 @@ class ConsultaStatus(Manager):
 
                 quantidade_propostas = self.act.quantidade_elemento('//*[@id="table-responsive-custom"]/tbody/tr', By.XPATH)
 
+                if(quantidade_propostas == 0):                    
+                    self.driver.get('https://sistema.novosaque.com.br/admin/contracts')
+                    self.act.clicar_elemento('/html/body/div/div[1]/div[2]/div/div/div/div[1]/div/div[2]/div/button[2]', By.XPATH)
+                    self.act.enviar_texto('/html/body/div[2]/div/div[1]/div/div/div[2]/div/div/div/div[3]/input', nome_cliente.split(' ')[0], By.XPATH)
+                    self.act.clicar_elemento('/html/body/div[2]/div/div[1]/div/div/div[3]/button[3]', By.XPATH)
+                    self.verificar_loading()
+
+                    self.act.clicar_elemento('//*[@id="table-responsive-custom"]/tbody/tr[1]/td[1]/div/a', By.XPATH)
+
+                    link_ade = self.act.obter_atributo('/html/body/div[1]/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[1]/td[1]/div/div/a','href',By.XPATH)
+                    ade_primeira = re.findall('\\d+',link_ade)[0]
+
+                    quantidade_propostas = self.act.quantidade_elemento('//*[@id="table-responsive-custom"]/tbody/tr', By.XPATH)
+
                 #ajuste 
                 for i in range(1,quantidade_propostas+1):
-                    #pdb.set_trace()
+                    
                     try:
                         
                         print('Procurando ade pelo link')   
