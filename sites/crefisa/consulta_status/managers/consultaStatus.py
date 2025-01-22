@@ -251,9 +251,13 @@ class ConsultaStatus(Manager):
 
                                         historico_atuacao = "\n\n"+self.act.obter_texto('/html/body/div[3]/div/div[2]/div[2]/table/tbody', By.XPATH)
 
-                                        if('PENDENTE' in self.dados_consulta["statusPropostaBanco"]):  
+                                        if('PENDENTE' in self.dados_consulta["statusPropostaBanco"] or 'CANCELADO' in self.dados_consulta["statusPropostaBanco"]):  
 
-                                            regex = r"(\d{2}/\d{2}/\d{4} às \d{2}:\d{2}:\d{2} PENDENTE)" 
+                                            if('PENDENTE' in self.dados_consulta["statusPropostaBanco"]):
+                                                regex = r"(\d{2}/\d{2}/\d{4} às \d{2}:\d{2}:\d{2} PENDENTE)" 
+
+                                            elif('CANCELADO' in self.dados_consulta["statusPropostaBanco"]):
+                                                regex = r"(\d{2}/\d{2}/\d{4} às \d{2}:\d{2}:\d{2} CANCELADA)" 
 
                                             partes = re.split(r'\d{2}/\d{2}/\d{4} às \d{2}:\d{2}:\d{2}', historico_atuacao)
                                             partes = [parte.strip() for parte in partes if parte.strip()]
