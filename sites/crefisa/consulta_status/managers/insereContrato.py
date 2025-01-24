@@ -1185,6 +1185,10 @@ class InserirContrato(Manager):
                 self.act.select_drop_down('//*[@id="ddlEstadoCivil"]', codigoEstadoCivil, By.XPATH)
                 self.act.select_drop_down('//*[@id="txtEscolaridade"]','2', By.XPATH)
                 self.act.enviar_texto('//*[@id="txtNomeMae"]',informacoes['contrato']['nomeMae'], By.XPATH)
+                try:
+                    self.act.enviar_texto('//*[@id="txtNomePai"]',informacoes['contrato']['nomePai'], By.XPATH)
+                except:
+                    pass
                 self.act.select_drop_down('//*[@id="txtCanalDivulgacao"]','419', By.XPATH)
                 print('----------------------------------------------------------------------------------------')
 
