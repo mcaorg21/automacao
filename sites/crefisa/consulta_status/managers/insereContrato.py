@@ -1123,6 +1123,16 @@ class InserirContrato(Manager):
                     self.act.enviar_texto('//*[@id="txtDataNascimento"]', "", By.XPATH)
                     self.act.enviar_texto('//*[@id="txtDataNascimento"]', data_nascimento, By.XPATH)
 
+                    retorno = self.verificar_loading()
+
+                    if retorno['retorno'] == False:
+                        if 'deve ser maior ou igual a data de emissão do RG' in retorno['mensagem']:
+                            self.remove_div()
+                            self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', "", By.XPATH)
+                            self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', data_nascimento, By.XPATH)
+                            self.act.enviar_texto('//*[@id="txtDataNascimento"]', data_nascimento, By.XPATH)
+
+
 
 
                 identidade_numero = re.sub('[^0-9]', '', informacoes['contrato']['identidade'])
