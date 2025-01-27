@@ -1069,30 +1069,61 @@ class InserirContrato(Manager):
                 
                 # self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', 'XX/XX/XXXX', By.XPATH)
                 # self.act.enviar_texto('//*[@id="txtDataNascimento"]', 'XX/XX/XXXX', By.XPATH)
-                data_nascimento = self.act.obter_valor('//*[@id="txtDataNascimento"]', By.XPATH)
-                data_emissao_rg = self.act.obter_valor('//*[@id="txtDataEmissaoRg"]', By.XPATH)
 
-                if(data_nascimento == "" and data_emissao_rg == ""):
-                    self.act.enviar_texto('//*[@id="txtDataNascimento"]', informacoes['contrato']['dataNascimento'], By.XPATH)
-                    self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
 
-                #verifica erros ao registrar a data de nasicmento
-                retorno = self.verificar_loading()
+                chrome_portugues = False
 
-                if retorno['retorno'] == False:
-                    if 'Informe uma data de nascimento válida.' in retorno['mensagem']:
-                        dados_atualizacao['status_con'] = "Reprovado a Conferir"
-                        dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
-                        dados_atualizacao['observacao_emp'] = retorno['mensagem']
-                        dados_atualizacao['observacao'] = retorno['mensagem']
-                        dados_atualizacao['erro'] = retorno['mensagem']
+                if(chrome_portugues == True):
 
-                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
-                        self.remove_div()
-                        continue
+                    data_nascimento = self.act.obter_valor('//*[@id="txtDataNascimento"]', By.XPATH)
+                    data_emissao_rg = self.act.obter_valor('//*[@id="txtDataEmissaoRg"]', By.XPATH)
 
-                if(data_emissao_rg == '1900-01-01'):
-                    self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
+                    if(data_nascimento == "" and data_emissao_rg == ""):
+                        self.act.enviar_texto('//*[@id="txtDataNascimento"]', informacoes['contrato']['dataNascimento'], By.XPATH)
+                        self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
+
+                    #verifica erros ao registrar a data de nasicmento
+                    retorno = self.verificar_loading()
+
+                    if retorno['retorno'] == False:
+                        if 'Informe uma data de nascimento válida.' in retorno['mensagem']:
+                            dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                            dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                            dados_atualizacao['observacao_emp'] = retorno['mensagem']
+                            dados_atualizacao['observacao'] = retorno['mensagem']
+                            dados_atualizacao['erro'] = retorno['mensagem']
+
+                            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                            self.remove_div()
+                            continue
+
+                    if(data_emissao_rg == '1900-01-01'):
+                        self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', informacoes['contrato']['dataEmissao'], By.XPATH)
+
+                else:
+
+                    data_nascimento = informacoes['contrato']['dataNascimento'].split('/')
+                    data_nascimento = data_nascimento[1]+'/'+data_nascimento[0]+'/'+data_nascimento[2] 
+
+                    data_emissao = informacoes['contrato']['dataEmissao'].split('/')
+                    data_emissao = data_emissao[1]+'/'+data_emissao[0]+'/'+data_emissao[2]
+                    
+                    data_input = self.driver.find_element(By.XPATH,'//*[@id="txtDataNascimento"]')
+                    self.driver.execute_script("arguments[0].type = 'text';", data_input)
+
+                    data_emissao_input = self.driver.find_element(By.XPATH,'//*[@id="txtDataEmissaoRg"]')
+                    self.driver.execute_script("arguments[0].type = 'text';", data_emissao_input)
+
+
+                    self.act.enviar_texto('//*[@id="txtDataNascimento"]', "", By.XPATH)
+                    self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', "", By.XPATH)
+
+
+                    self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', data_emissao, By.XPATH)
+                    self.act.enviar_texto('//*[@id="txtDataNascimento"]', "", By.XPATH)
+                    self.act.enviar_texto('//*[@id="txtDataNascimento"]', data_nascimento, By.XPATH)
+
+
 
                 identidade_numero = re.sub('[^0-9]', '', informacoes['contrato']['identidade'])
                 self.act.enviar_texto('//*[@id="txtRg"]', identidade_numero[0:-1], By.XPATH)
