@@ -1135,7 +1135,7 @@ class InserirContrato(Manager):
                             self.remove_div()
                             self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', data_nascimento, By.XPATH)
                             self.act.enviar_texto('//*[@id="txtDataNascimento"]', data_nascimento, By.XPATH)
-
+                            time.sleep(4)
 
 
 
