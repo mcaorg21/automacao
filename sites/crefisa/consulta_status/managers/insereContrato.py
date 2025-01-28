@@ -621,6 +621,13 @@ class InserirContrato(Manager):
 
                 print("Preenchendo segundo fomulario de simulacao...")
 
+                retorno = self.verificar_loading(300)
+
+                if(retorno['retorno'] == False):
+                    print(f'XXXXXXXXXXXXXXXXXXXXX Erro de loading na página - Aguardando 240 segundos XXXXXXXXXXXXXXXXXXXXX')
+                    time.sleep(240)
+                    self.driver.quit()
+
                 try:
                     self.act.enviar_texto("//input[@id='txtNomeCompleto']", informacoes['contrato']['nome'], By.XPATH)
                     self.act.enviar_texto("//input[@id='txtEmail']", informacoes['contrato']['email'], By.XPATH)
