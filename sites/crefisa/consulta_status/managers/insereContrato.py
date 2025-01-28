@@ -1641,7 +1641,7 @@ class InserirContrato(Manager):
 
         while (self.act.quantidade_elemento('/html/body/div[8]', By.XPATH) == 1 or self.act.quantidade_elemento('//*[@id="swal2-content"]', By.XPATH) == 1):
             print('Aguardando Loading...' + str(interacoes))
-            time.sleep(0.5)
+            time.sleep(1)
             interacoes -= 1
 
             if(self.act.quantidade_elemento('//*[@id="swal2-content"]', By.XPATH) == 1):
