@@ -1058,7 +1058,7 @@ class InserirContrato(Manager):
 
                 print('----------------------------------------------------------------------------------------')
 
-                print('Preenchendo dados pessoais')
+                print('Preenchendo dados pessoais e de documentos')
                 
                 #data_nascimento = informacoes['contrato']['dataNascimento'].split('/')
                 #data_nascimento = data_nascimento[2]+'-'+data_nascimento[1]+'-'+data_nascimento[0] 
@@ -1127,8 +1127,12 @@ class InserirContrato(Manager):
 
                     if retorno['retorno'] == False:
                         if 'deve ser maior ou igual a data de emissão do RG' in retorno['mensagem']:
+                            
                             self.remove_div()
+                            time.sleep(4)
                             self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', "", By.XPATH)
+                            
+                            self.remove_div()
                             self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', data_nascimento, By.XPATH)
                             self.act.enviar_texto('//*[@id="txtDataNascimento"]', data_nascimento, By.XPATH)
 
