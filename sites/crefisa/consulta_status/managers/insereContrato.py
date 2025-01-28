@@ -1130,9 +1130,16 @@ class InserirContrato(Manager):
                             
                             self.remove_div()
                             time.sleep(4)
+                            self.act.enviar_texto('//*[@id="txtDataNascimento"]', "", By.XPATH)
                             self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', "", By.XPATH)
                             
                             self.remove_div()
+                            data_nascimento = informacoes['contrato']['dataNascimento'].split('/')
+                            data_nascimento = data_nascimento[2]+'-'+data_nascimento[1]+'-'+data_nascimento[0] 
+
+                            data_emissao = informacoes['contrato']['dataEmissao'].split('/')
+                            data_emissao = data_emissao[2]+'-'+data_emissao[1]+'-'+data_emissao[0]
+
                             self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', data_nascimento, By.XPATH)
                             self.act.enviar_texto('//*[@id="txtDataNascimento"]', data_nascimento, By.XPATH)
                             time.sleep(4)
