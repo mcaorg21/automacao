@@ -20,7 +20,7 @@ from sites.crefisa.libs.FormLogin import FormLogin
 from dados.database.queries.query_dados_robos import query_login_pass_robo
 
 
-HORARIO_COMERCIAL = 8, 20
+HORARIO_COMERCIAL = 8, 22
 
 
 class ConsultaStatus(Manager):
