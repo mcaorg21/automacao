@@ -1453,6 +1453,14 @@ class InserirContrato(Manager):
                         elif 'EXTRATO_BANCaRIO' in doc:
                             caminho_xpath = '//*[@id="ddlArquivoextrato"]' 
 
+                            try:
+                                #vai anexar em arquivo de extratos também
+                                upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlArquivocontracheque"]')
+                                upload2.send_keys(arquivo)
+
+                            except: 
+                                pass
+
                         else:
                             caminho_xpath = '//*[@id="ddlArquivooutros"]'
 
@@ -1653,7 +1661,7 @@ class InserirContrato(Manager):
     def verificar_loading(self, interacoes=300, aguardar = False):
         time.sleep(1)
 
-        while (self.act.quantidade_elemento('/html/body/div[8]', By.XPATH) == 1 or self.act.quantidade_elemento('//*[@id="swal2-content"]', By.XPATH) == 1):
+        while (self.act.quantidade_elemento('/html/body/div[7]', By.XPATH) == 1 or self.act.quantidade_elemento('/html/body/div[8]', By.XPATH) == 1 or self.act.quantidade_elemento('//*[@id="swal2-content"]', By.XPATH) == 1):
             print('Aguardando Loading...' + str(interacoes))
             time.sleep(1)
             interacoes -= 1
