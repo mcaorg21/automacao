@@ -1441,8 +1441,8 @@ class InserirContrato(Manager):
                             #upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosExtratoBancario"]')
                             #upload2.send_keys(arquivo)     
 
-                        # elif 'COMPROVANTE_ENDERECO' in doc:
-                        #     caminho_xpath = '//*[@id="ddlarquivosComprovanteResidencia"]' 
+                        elif 'COMPROVANTE_ENDERECO' in doc:
+                            caminho_xpath = '//*[@id="ddlarquivosComprovanteResidencia"]' 
 
                         elif 'COMPROVANTE_DE_PAGAMENTO_BOLSA' in doc:
                             caminho_xpath = '//*[@id="ddlArquivoportal"]'  
