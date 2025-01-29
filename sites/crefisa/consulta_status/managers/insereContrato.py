@@ -1272,6 +1272,8 @@ class InserirContrato(Manager):
                 print('----------------------------------------------------------------------------------------')
                 #pdb.set_trace()
                 print('Preenchendo dados conta bancária')
+
+                #pdb.set_trace()
                 if(baixa_renda == False):
                     if informacoes['contrato']['numeroBanco'] == '955':
                         informacoes['contrato']['numeroBanco'] = '033'
