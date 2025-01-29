@@ -623,11 +623,11 @@ class InserirContrato(Manager):
 
                 retorno = self.verificar_loading(300)
 
-                if(retorno['retorno'] == False):
-                    if 'req' in retorno['mensagem']:
-                        print(f'XXXXXXXXXXXXXXXXXXXXX Erro de loading na página - Aguardando 240 segundos XXXXXXXXXXXXXXXXXXXXX')
-                        time.sleep(240)
-                        self.driver.quit()
+                # if(retorno['retorno'] == False):
+                #     if 'req' in retorno['mensagem']:
+                #         print(f'XXXXXXXXXXXXXXXXXXXXX Erro de loading na página - Aguardando 240 segundos XXXXXXXXXXXXXXXXXXXXX')
+                #         time.sleep(240)
+                #         self.driver.quit()
 
                 try:
                     self.act.enviar_texto("//input[@id='txtNomeCompleto']", informacoes['contrato']['nome'], By.XPATH)
@@ -648,6 +648,7 @@ class InserirContrato(Manager):
                     self.driver.delete_all_cookies()
 
                 print("Preenchendo o convenio")
+
                 self.act.select_drop_down("//select[@id='ddlConvenio']",tipo_produto_crefisa, By.XPATH)
                 print('----------------------------------------------------------------------------------------')
                 
