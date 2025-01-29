@@ -624,9 +624,10 @@ class InserirContrato(Manager):
                 retorno = self.verificar_loading(300)
 
                 if(retorno['retorno'] == False):
-                    print(f'XXXXXXXXXXXXXXXXXXXXX Erro de loading na página - Aguardando 240 segundos XXXXXXXXXXXXXXXXXXXXX')
-                    time.sleep(240)
-                    self.driver.quit()
+                    if 'req' in retorno['mensagem']:
+                        print(f'XXXXXXXXXXXXXXXXXXXXX Erro de loading na página - Aguardando 240 segundos XXXXXXXXXXXXXXXXXXXXX')
+                        time.sleep(240)
+                        self.driver.quit()
 
                 try:
                     self.act.enviar_texto("//input[@id='txtNomeCompleto']", informacoes['contrato']['nome'], By.XPATH)
@@ -839,6 +840,13 @@ class InserirContrato(Manager):
                 
                 print('----------------------------------------------------------------------------------------')
                 print('Preenchendo calculo por parcela e valor da parcela')   
+
+                #retorno = self.verificar_loading(300)
+
+                # if(retorno['retorno'] == False):
+                #     print(f'XXXXXXXXXXXXXXXXXXXXX Erro de loading na página - Aguardando 300 segundos XXXXXXXXXXXXXXXXXXXXX')
+                #     time.sleep(120)
+                #     self.driver.quit()
                         
                 if(baixa_renda == True):
                     try:
