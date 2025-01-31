@@ -126,7 +126,7 @@ class ConsultaStatus(Manager):
 
                 if(quantidade_propostas == 0):                    
                     self.driver.get('https://sistema.novosaque.com.br/admin/contracts')
-                    self.act.clicar_elemento('/html/body/div/div[1]/div[2]/div/div/div/div[1]/div/div[2]/div/button[2]', By.XPATH)
+                    self.act.clicar_elemento('/html/body/div/div[1]/div[2]/div/div/div/div[1]/div/div[2]/div/button[3]', By.XPATH)
                     self.act.enviar_texto('/html/body/div[2]/div/div[1]/div/div/div[2]/div/div/div/div[3]/input', nome_cliente.split(' ')[0], By.XPATH)
                     self.act.clicar_elemento('/html/body/div[2]/div/div[1]/div/div/div[3]/button[3]', By.XPATH)
                     self.verificar_loading()
