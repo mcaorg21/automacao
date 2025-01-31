@@ -346,7 +346,11 @@ class ConsultaStatus(Manager):
 
                 if self.act.quantidade_elemento('//*[@id="txtUsuario"]', By.XPATH) == 1:
                     print("XX DESLOGADO XX")
-                    dados_login = query_login_pass_robo(self.id_robo, self.usuario)
+                    #dados_login = query_login_pass_robo(self.id_robo, self.usuario)
+                    dados_login = {}
+                    dados_login['login'] = '50801.06050694680'
+                    dados_login['senha'] = '@Etus2033'
+                    dados_login['link'] = 'https://app1.gerencialcredito.com.br/CREFISA/default.asp'
                     login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'])
                     self.chrome_driver.get(self.urls["consulta"])
                     self.limpar_busca()
