@@ -124,6 +124,8 @@ class Main:
             popup_login = True
         except:
             popup_login = False
+            pass
+
 
         if(area_logada == 0 or area_login == 1 or cookies_vencido == False or popup_login == True):
 

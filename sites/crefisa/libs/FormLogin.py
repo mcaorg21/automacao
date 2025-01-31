@@ -25,11 +25,12 @@ class FormLogin:
         #self.act = 
 
     @staticmethod
-    def realizar_login(driver: Chrome, login: str, senha: str, link: str = "", link_home = "https://app1.gerencialcredito.com.br/CREFISA/Dashboard.asp", popup_login = False) -> bool:
-        
+    def realizar_login(driver: Chrome, login: str, senha: str, link = "https://app1.gerencialcredito.com.br/CREFISA/Dashboard.asp", popup_login = False) -> bool:
+
         login: FormLogin = FormLogin(driver, login, senha)
 
         if(popup_login == False):
+
             driver.get(link_home)
 
             if login.esta_logado():
@@ -59,7 +60,7 @@ class FormLogin:
                 login.verificar_loading()
                 #sleep(10)
 
-            return login.esta_logado()
+            
 
         else:
 
@@ -74,6 +75,8 @@ class FormLogin:
             login.clicar_btn_acessar()
             print('Tentando logar')
             login.verificar_loading()
+
+        return login.esta_logado()
 
 
 
