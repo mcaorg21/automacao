@@ -62,8 +62,13 @@ class ConsultaStatus(Manager):
             print('Sem atualizações para realizar...')
             return False
 
-        #para testes
-        #status_a_consultar = [['508020158898', '02829094271  ', '719774','','','','2024-11-25']]
+        # para testes
+        # status_a_consultar = [['508020245425', '75498278268  ', '791535','','','','2025-01-25'],
+        #                         # ['508020237553', '01969721243  ', '784907','','','','2025-01-21'],
+        #                         # ['508020236554', '26257881862  ', '783404','','','','2025-01-20']
+        #                         ]
+
+        #status_a_consultar = [['508020248794', '12418925803  ', '792482','','','','2024-01-27']]
 
         self.chrome_driver.get(self.urls["consulta"])
 
