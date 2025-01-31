@@ -125,7 +125,7 @@ class Main:
         except:
             popup_login = False
 
-        if(area_logada == 0 or area_login == 1 or cookies_vencido == False popup_login == True):
+        if(area_logada == 0 or area_login == 1 or cookies_vencido == False or popup_login == True):
 
 
             try:
