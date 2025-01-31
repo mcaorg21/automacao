@@ -25,11 +25,12 @@ class FormLogin:
         #self.act = 
 
     @staticmethod
-    def realizar_login(driver: Chrome, login: str, senha: str, link: str = "", link_home = "https://app1.gerencialcredito.com.br/CREFISA/Dashboard.asp") -> bool:
+    def realizar_login(driver: Chrome, login: str, senha: str, link: str = "", link_home = "https://app1.gerencialcredito.com.br/CREFISA/Dashboard.asp", popup_login = False) -> bool:
         
         login: FormLogin = FormLogin(driver, login, senha)
 
-        driver.get(link_home)
+        if(popup_login == False):
+            driver.get(link_home)
 
         if login.esta_logado():
             driver.refresh()

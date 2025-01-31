@@ -121,10 +121,11 @@ class Main:
             popup_login = self.act.obter_texto('/html/body/div[2]/div', By.XPATH)
             self.act.clicar_elemento('/html/body/div[2]/div/div[3]/button[1]', By.XPATH)
             #self.act.press_enter(f'/html/body/div[2]/div/div[3]/button[1]', By.XPATH)
+            popup_login = True
         except:
-            popup_login = ""
+            popup_login = False
 
-        if(area_logada == 0 or area_login == 1 or cookies_vencido == False or 'login novamente' in popup_login):
+        if(area_logada == 0 or area_login == 1 or cookies_vencido == False popup_login == True):
 
 
             try:
@@ -134,7 +135,7 @@ class Main:
                 dados_login['login'] = '50801.06050694680'
                 dados_login['senha'] = '@Etus2033'
                 dados_login['link'] = 'https://app1.gerencialcredito.com.br/CREFISA/default.asp'
-                login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'])
+                login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'], popup_login)
             except:
                 #self.driver.delete_all_cookies()
                 self.main()
