@@ -32,19 +32,36 @@ class FormLogin:
         if(popup_login == False):
             driver.get(link_home)
 
-        if login.esta_logado():
-            driver.refresh()
-            return True
-
-        driver.get(link)
-
-        for i in range(1, 20):
             if login.esta_logado():
+                driver.refresh()
                 return True
-            else:
-                driver.get(link)
 
-            print(f"Login tentativa {i}")
+            driver.get(link)
+
+            for i in range(1, 20):
+                if login.esta_logado():
+                    return True
+                else:
+                    driver.get(link)
+
+                print(f"Login tentativa {i}")
+
+                login.preencher_login()
+                login.preencher_senha()    
+                captcha_presente = SeleniumActions(driver).quantidade_elemento('//*[@id="recaptcha"]', By.XPATH)
+
+                if(captcha_presente == 1):
+                    print('Resolvendo Captcha')
+                    retorno = SeleniumActions(driver).reCaptcha_v2('6Lf-1q0pAAAAAJCrjBOtEvZLrrFlL50mkWpwvSTN')    
+
+                login.clicar_btn_acessar()
+                print('Tentando logar')
+                login.verificar_loading()
+                #sleep(10)
+
+            return login.esta_logado()
+
+        else:
 
             login.preencher_login()
             login.preencher_senha()    
@@ -57,9 +74,8 @@ class FormLogin:
             login.clicar_btn_acessar()
             print('Tentando logar')
             login.verificar_loading()
-            #sleep(10)
 
-        return login.esta_logado()
+
 
     def esta_logado(self) -> bool:
         seletor: str = '//*[@id="txtUsuario"]'
