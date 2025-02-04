@@ -304,7 +304,10 @@ class ConsultaStatus(Manager):
                                         pass
 
                     if ('PAGO' in self.dados_consulta["statusPropostaBanco"] or 'APROVADO' in self.dados_consulta["statusPropostaBanco"]) and 'EM ANDAMENTO' in self.dados_consulta["statusSecundario"]:
-                        self.dados_consulta['statusSecundario'] += " "+self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/table/tbody/tr[{indice}]/td[4]', By.XPATH).replace('\n',"").split("Liberado")[1]
+                        
+                        self.dados_consulta['observacaoDetalhadaBanco'] = self.dados_consulta['observacaoDetalhadaBanco'].replace('\n',' ').upper().replace('  ',' ')
+                        #self.dados_consulta['statusSecundario'] += " "+self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/table/tbody/tr[{indice}]/td[4]', By.XPATH).replace('\n',"").split("Liberado")[1]
+
 
                     if numero_contrato == "" and 'CANCELADO' not in self.dados_consulta["statusPropostaBanco"]:
                         self.atualizar_contrato(div,i)
@@ -343,6 +346,7 @@ class ConsultaStatus(Manager):
 
                 except:
                     print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ERRO DE FILTRO XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+                    self.driver.quit()
                     time.sleep(30)
                     pass
                 
