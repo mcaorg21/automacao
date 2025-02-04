@@ -235,8 +235,7 @@ class ConsultaStatus(Manager):
                                 self.dados_consulta['statusSecundario'] = self.act.obter_texto(f'/html/body/div[{div}]/div[2]/div[{div_segunda}]/div/div/table/tbody/tr[{i}]/td[6]/ul/li[6]/a', By.XPATH).strip()
                                 indice = i
 
-
-                                if ('CANCELADO' in self.dados_consulta["statusPropostaBanco"] or'CANCELADO' in self.dados_consulta["statusPropostaBanco"] or 'PENDENTE' in self.dados_consulta["statusPropostaBanco"]) and ('AGUARDANDO FORMALIZAÇÃO CLIENTE' not in self.dados_consulta["statusSecundario"] and 'NOVA SOLICITAÇÃO' not in self.dados_consulta["statusSecundario"]):
+                                if ('CANCELADO' in self.dados_consulta["statusPropostaBanco"] or'CANCELADO' in self.dados_consulta["statusPropostaBanco"] or 'PENDENTE' in self.dados_consulta["statusPropostaBanco"]) and ('AGUARDANDO FORMALIZAÇÃO CLIENTE' not in self.dados_consulta["statusSecundario"] and 'NOVA SOLICITAÇÃO' not in self.dados_consulta["statusSecundario"] and 'EM ANDAMENTO' not in self.dados_consulta["statusSecundario"]):
                                     
                                     #elemento = str(int((i - 1) / 2))
                                     #self.driver.execute_script(f""" document.querySelector("#linkSubStatus_{elemento}").click() """)
