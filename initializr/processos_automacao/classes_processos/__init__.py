@@ -29,6 +29,6 @@ from initializr.processos_automacao.classes_processos.ProcessosOle import (
     OleRefinAnexLibSMS, OleSincInsercao, OleConsultaRefin, OleConsigInssCem
 )
 from initializr.processos_automacao.classes_processos.ProcessoNovoSaque import NovoSaque
-from initializr.processos_automacao.classes_processos.ProcessoCrefisa import Crefisa, CrefisaSincronizacao
+from initializr.processos_automacao.classes_processos.ProcessoCrefisa import Crefisa, CrefisaSincronizacao,CrefisaAnaliseContrato
 from initializr.processos_automacao.classes_processos.ProcessoWhatsappWU import WhatsappWU
 from initializr.processos_automacao.classes_processos.ProcessoCora import Cora,CoraLogin

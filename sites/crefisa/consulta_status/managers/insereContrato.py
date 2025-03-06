@@ -81,7 +81,7 @@ class InserirContrato(Manager):
 
         # if(fila == '1'):
 
-        contratos = self.dados.get_contratos_inserir()  
+        contratos = self.dados.get_contratos_inserir('asc')  
 
         if contratos['tipo'] == 'alert':
             print('Sem contratos para inserir...')
@@ -117,6 +117,11 @@ class InserirContrato(Manager):
             self.div_principal_overlay = '7'
             
             dados_atualizacao = {}
+
+            if 'Pre aprovado' not in contrato['observacao_emp']:
+                print(contrato['observacao_emp'])
+                print ('XXXXXXXXXXXXXXXXX AINDA NAO ANALISADO PELO ROBO XXXXXXXXXXXXXXXXX')
+                continue
 
             if 'Inserir manual o robô já tentou por 5x e não conseguiu' in contrato['observacao_emp'] or '5 tentativas ou mais' in contrato['observacao_emp']:
                 dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
@@ -175,22 +180,22 @@ class InserirContrato(Manager):
                 #         pass   
                 #     pass
 
-                retorno_mensagem = self.verificar_loading()
+                # retorno_mensagem = self.verificar_loading()
 
-                try:
-                    retorno_mensagem = retorno_mensagem['mensagem']
-                except:
-                    pass
-
-                if 'convênio baixa renda?' in retorno_mensagem.lower():
-                    self.act.press_enter(f'/html/body/div[7]/div/div[3]/button[1]', By.XPATH)
-                    retorno_mensagem = ""
+                # try:
+                #     retorno_mensagem = retorno_mensagem['mensagem']
+                # except:
+                #     pass
 
                 try:
                     retorno_mensagem = self.act.obter_texto(f'/html/body/div[{self.div_principal}]/div/div[2]/div[2]/div[2]/div/div/span', By.XPATH)
                 except:
                     retorno_mensagem = ""
                     pass
+
+                if 'convênio baixa renda?' in retorno_mensagem.lower():
+                    self.act.press_enter(f'/html/body/div[7]/div/div[3]/button[1]', By.XPATH)
+                    retorno_mensagem = ""
 
                 if retorno_mensagem != "" and "Informe o dígito da matricula" not in retorno_mensagem:
 
@@ -632,16 +637,31 @@ class InserirContrato(Manager):
                 try:
                     self.act.enviar_texto("//input[@id='txtNomeCompleto']", informacoes['contrato']['nome'], By.XPATH)
                     self.act.enviar_texto("//input[@id='txtEmail']", informacoes['contrato']['email'], By.XPATH)
+                    
+                    try:
+                        self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[2]/div[2]/div/div[1]/div/button', By.XPATH)
+                    except:
+                        self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[3]/div[2]/div/div[1]/div/button', By.XPATH)
+                        pass
 
-                    self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[2]/div[2]/div/div[1]/div/button', By.XPATH)
-                    elementos_ddd = f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[2]/div[2]/div/div[1]/div/div/ul/li'
-                    ddd_lista = self.act.retornar_elementos(elementos_ddd, By.XPATH)
+
+                    try: 
+                        elementos_ddd = f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[2]/div[2]/div/div[1]/div/div/ul/li'
+                        ddd_lista = self.act.retornar_elementos(elementos_ddd, By.XPATH)
+                    except:
+                        elementos_ddd = f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[3]/div[2]/div/div[1]/div/div/ul/li'
+                        ddd_lista = self.act.retornar_elementos(elementos_ddd, By.XPATH)
 
                     for i in ddd_lista:
                         if i.text == informacoes['contrato']['dddCelular']:
                             print('Achou o DDD...')
-                            i.click()
-                            
+                            try:
+                                i.click()
+                            except:
+                                i.click()
+                    
+
+
                     self.act.enviar_texto("//input[@id='txtTelefone']", informacoes['contrato']['celular'], By.XPATH)
                     print('----------------------------------------------------------------------------------------')
                 except:
@@ -649,7 +669,10 @@ class InserirContrato(Manager):
 
                 print("Preenchendo o convenio")
 
-                self.act.select_drop_down("//select[@id='ddlConvenio']",tipo_produto_crefisa, By.XPATH)
+                try:
+                    self.act.select_drop_down("//select[@id='ddlConvenio']",tipo_produto_crefisa, By.XPATH)
+                except:
+                    return False
                 print('----------------------------------------------------------------------------------------')
                 
                 if(baixa_renda == True):
@@ -720,6 +743,19 @@ class InserirContrato(Manager):
                         atualiza_dado = False
                         pass
 
+                if(baixa_renda == True):
+                    if len(informacoes['contrato']['matricula']) < 8:
+                        dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                        dados_atualizacao['observacao_emp'] = "Matrícula incorreta"
+                        dados_atualizacao['observacao'] = "Matrícula incorreta"
+                        dados_atualizacao['status_con'] = "Aguardando Comercial"
+                        dados_atualizacao['erro'] = "Matrícula incorreta"
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        self.remove_div()
+                        continue
+
+
+
                 if(baixa_renda == False):
 
                     add_leading_zero = lambda x: f"0{x}" if len(x) < 2 else x
@@ -727,13 +763,13 @@ class InserirContrato(Manager):
                     select_dia_salario = add_leading_zero(str(int(informacoes['contrato']['diaSalario'])))
 
                     if id_perfil in [4,5]:
-
+                        
                         self.act.select_drop_down('//*[@id="ddlDataPagamento"]','18711', By.XPATH)
 
-                        try:
-                            self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[5]/div[2]/div/button', By.XPATH)  
-                            self.act.enviar_texto(f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[5]/div[2]/div/div/div/input', numero_beneficio, By.XPATH)
-                            self.act.press_enter(f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[5]/div[2]/div/div/div/input', By.XPATH)
+                        try:                        
+                            self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[6]/div[2]/div/button', By.XPATH)  
+                            self.act.enviar_texto(f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[6]/div[2]/div/div/div/input', numero_beneficio, By.XPATH)
+                            self.act.press_enter(f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[6]/div[2]/div/div/div/input', By.XPATH)
 
                         except:
 
@@ -767,6 +803,8 @@ class InserirContrato(Manager):
                 print('----------------------------------------------------------------------------------------')
 
                 print("Preenchendo o tipo de simulação")
+
+                self.driver.execute_script("document.body.style.zoom='80%'")
 
                 try:
                     self.act.select_drop_down("//select[@id='txtTipoSimulacao']",'1', By.XPATH)
@@ -842,7 +880,7 @@ class InserirContrato(Manager):
                 print('----------------------------------------------------------------------------------------')
                 print('Preenchendo calculo por parcela e valor da parcela')   
 
-                #retorno = self.verificar_loading(300)
+                retorno = self.verificar_loading(300)
 
                 # if(retorno['retorno'] == False):
                 #     print(f'XXXXXXXXXXXXXXXXXXXXX Erro de loading na página - Aguardando 300 segundos XXXXXXXXXXXXXXXXXXXXX')
@@ -884,10 +922,37 @@ class InserirContrato(Manager):
                     print('----------------------------------------------------------------------------------------')
                     
                     print('Clicando em simular')
+                    #pdb.set_trace()
                     try: 
-                        self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[10]/div/button[1]', By.XPATH)
+                        self.act.clicar_elemento('//*[@id="btnSimularOfertas"]', By.XPATH)
+
                     except:
-                        self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[9]/div/button', By.XPATH)
+                        try:
+                            self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[9]/div/button', By.XPATH)
+                        except:
+                            try:
+                                self.act.clicar_elemento(f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[11]/div/button[1]', By.XPATH)
+                            except:
+                                self.act.clicar_elemento(f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[11]/div/div/button[1]', By.XPATH)
+                                if(baixa_renda == False):
+                                    self.act.clicar_elemento(f'/html/body/div[{self.div_principal}]/div/div[6]/div/div/div[2]/div[3]/div/div/div[1]/input', By.XPATH)
+                                    try:
+                                        self.act.select_drop_down('//*[@id="dllInstituicaoFinanceira"]',informacoes['contrato']['numeroBanco'],By.XPATH)
+                                        self.act.clicar_elemento('//*[@id="btnEnvioLinkOpenFinance"]', By.XPATH)
+                                        self.act.clicar_elemento(f'/html/body/div[{self.div_principal}]/div/div[6]/div/div/div[1]/button/span',By.XPATH)
+                                        self.act.clicar_elemento('//*[@id="btnSimularOfertas"]', By.XPATH)
+                                    except:
+                                        dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                                        dados_atualizacao['observacao_emp'] = 'Banco informado não possui convênio com desconto em conta.'
+                                        dados_atualizacao['observacao'] = "Banco informado não possui convênio com desconto em conta."
+                                        dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                                        
+                                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                                        self.remove_div()
+                                        continue
+
+                                pass
+                            pass
                         pass
 
                     retorno = self.verificar_loading()
@@ -913,7 +978,11 @@ class InserirContrato(Manager):
                         try: 
                             self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[10]/div/button[1]', By.XPATH)
                         except:
-                            self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[9]/div/button', By.XPATH)
+                            try:
+                                self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[9]/div/button', By.XPATH)
+                            except:
+                                self.act.clicar_elemento(f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[11]/div/button[1]', By.XPATH)
+                                pass
                             pass
 
                         retorno = self.verificar_loading()
@@ -964,7 +1033,6 @@ class InserirContrato(Manager):
                         except:
                             self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[9]/div/button', By.XPATH)
                             pass
-
 
                 print('----------------------------------------------------------------------------------------')
 
@@ -1087,7 +1155,7 @@ class InserirContrato(Manager):
                 # self.act.enviar_texto('//*[@id="txtDataNascimento"]', 'XX/XX/XXXX', By.XPATH)
 
 
-                chrome_portugues = False
+                chrome_portugues = True
 
                 if(chrome_portugues == True):
 
@@ -1118,11 +1186,17 @@ class InserirContrato(Manager):
 
                 else:
 
+                    # data_nascimento = informacoes['contrato']['dataNascimento'].split('/')
+                    # data_nascimento = data_nascimento[1]+'/'+data_nascimento[0]+'/'+data_nascimento[2] 
+
+                    # data_emissao = informacoes['contrato']['dataEmissao'].split('/')
+                    # data_emissao = data_emissao[1]+'/'+data_emissao[0]+'/'+data_emissao[2]
+
                     data_nascimento = informacoes['contrato']['dataNascimento'].split('/')
-                    data_nascimento = data_nascimento[1]+'/'+data_nascimento[0]+'/'+data_nascimento[2] 
+                    data_nascimento = data_nascimento[2]+'-'+data_nascimento[1]+'-'+data_nascimento[0] 
 
                     data_emissao = informacoes['contrato']['dataEmissao'].split('/')
-                    data_emissao = data_emissao[1]+'/'+data_emissao[0]+'/'+data_emissao[2]
+                    data_emissao = data_emissao[2]+'-'+data_emissao[1]+'-'+data_emissao[0]
                     
                     data_input = self.driver.find_element(By.XPATH,'//*[@id="txtDataNascimento"]')
                     self.driver.execute_script("arguments[0].type = 'text';", data_input)
@@ -1164,6 +1238,25 @@ class InserirContrato(Manager):
 
                 identidade_numero = re.sub('[^0-9]', '', informacoes['contrato']['identidade'])
                 self.act.enviar_texto('//*[@id="txtRg"]', identidade_numero[0:-1], By.XPATH)
+
+                if retorno['retorno'] == False:
+                    if 'deve ser maior ou igual a data de emissão do RG' in retorno['mensagem']:
+                            
+                        self.remove_div()
+                        time.sleep(4)
+                        self.act.enviar_texto('//*[@id="txtDataNascimento"]', "", By.XPATH)
+                        self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', "", By.XPATH)
+                            
+                        self.remove_div()
+                        data_nascimento = informacoes['contrato']['dataNascimento'].split('/')
+                        data_nascimento = data_nascimento[2]+'-'+data_nascimento[1]+'-'+data_nascimento[0] 
+
+                        data_emissao = informacoes['contrato']['dataEmissao'].split('/')
+                        data_emissao = data_emissao[2]+'-'+data_emissao[1]+'-'+data_emissao[0]
+
+                        self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', data_nascimento, By.XPATH)
+                        self.act.enviar_texto('//*[@id="txtDataNascimento"]', data_nascimento, By.XPATH)
+                        time.sleep(4)
 
                 # erro_data = False
                 # try:
@@ -1242,6 +1335,16 @@ class InserirContrato(Manager):
                 self.act.press_enter(f'/html/body/div[{self.div_principal}]/div/div[2]/div/div[2]/div[3]/div[3]/div/div/div/input', By.XPATH)
 
                 self.act.select_drop_down('//*[@id="txtSexo"]',informacoes['contrato']['sexo'][0], By.XPATH)
+
+                print('----------------------------------------------------------------------------------------')
+
+                print('Preenchendo dados escolaridade')
+
+                self.act.select_drop_down('//*[@id="txtEscolaridade"]','2', By.XPATH)
+
+                print('----------------------------------------------------------------------------------------')
+
+                print('Preenchendo dados RG, Estado Civil e outros dados')
                 
                 if self.remove_div() == True:
                     self.act.enviar_texto('//*[@id="txtDataEmissaoRg"]', '10/10/2020', By.XPATH)
@@ -1304,7 +1407,7 @@ class InserirContrato(Manager):
                 self.act.enviar_texto('//*[@id="txtContaCorrente"]',informacoes['contrato']['numeroConta'], By.XPATH)                
                 self.act.enviar_texto('//*[@id="txtDigitoConta"]',informacoes['contrato']['digitoConta'], By.XPATH)
                 print('----------------------------------------------------------------------------------------')    
-
+                
                 retorno = self.verificar_loading()
 
                 if retorno['retorno'] == False:
@@ -1344,6 +1447,7 @@ class InserirContrato(Manager):
                     self.act.enviar_texto(f'/html/body/div[{self.div_principal}]/div/div[2]/div/div[2]/div[8]/div[3]/div/div/div/input', informacoes['contrato']['cidade'], By.XPATH)
                     self.act.press_enter(f'/html/body/div[{self.div_principal}]/div/div[2]/div/div[2]/div[8]/div[3]/div/div/div/input', By.XPATH)
 
+                #pdb.set_trace()
                 try:
                     self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)
                 except:
@@ -1417,6 +1521,9 @@ class InserirContrato(Manager):
                     if 'COMPROVANTE_ENDERECO' in doc and baixa_renda == True or 'CONTRA_CHEQUE' in doc and baixa_renda == True:
                         continue
 
+                    if 'SELFIE' in doc:
+                        continue
+
                     arquivo = self.path_documentos + f'{counter}_arquivo.pdf'
 
                     extensao = doc.split('?')[0].split('.')[-1]
@@ -1438,22 +1545,19 @@ class InserirContrato(Manager):
 
                             #vai anexar em arquivo de cpf também
                             if(conta_anexo_cpf == 2):
-                                caminho_xpath = '//*[@id="ddlArquivocpf"]'
-                                #upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosCpf"]')
-                                #upload2.send_keys(arquivo)
+                                #caminho_xpath = '//*[@id="ddlArquivocpf"]'
+                                upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlArquivocpf"]')
+                                upload2.send_keys(arquivo)
                                 #continue
 
-                            conta_anexo_cpf += 1     
+                            conta_anexo_cpf += 1  
+ 
 
                         elif 'COMPROVANTE_DE_CONTA' in doc:
                             caminho_xpath = '//*[@id="ddlArquivotela"]'    
 
-                            #vai anexar em arquivo de extratos também
-                            #upload2 = self.driver.find_element(By.XPATH,'//*[@id="ddlarquivosExtratoBancario"]')
-                            #upload2.send_keys(arquivo)     
-
-                        elif 'COMPROVANTE_ENDERECO' in doc:
-                            caminho_xpath = '//*[@id="ddlarquivosComprovanteResidencia"]' 
+                        # elif 'COMPROVANTE_ENDERECO' in doc:
+                        #     caminho_xpath = '//*[@id="ddlarquivosComprovanteResidencia"]' 
 
                         elif 'COMPROVANTE_DE_PAGAMENTO_BOLSA' in doc:
                             caminho_xpath = '//*[@id="ddlArquivoportal"]'  
@@ -1520,14 +1624,20 @@ class InserirContrato(Manager):
 
 
                     counter += 1
-                    #pdb.set_trace()
+                    
                     try:
                         upload = self.driver.find_element(By.XPATH, caminho_xpath)   
                     except:
-                        upload = self.driver.find_element(By.XPATH, '//*[@id="ddlArquivooutros"]')
+                        try:
+                            upload = self.driver.find_element(By.XPATH, '//*[@id="ddlArquivooutros"]')
+                        except:
+                            pass
                         pass
 
-                    upload.send_keys(arquivo)
+                    try:
+                        upload.send_keys(arquivo)
+                    except:
+                        pass
 
                     if novo_contrato == False and baixa_renda == True and 'EXTRATO_BANCaRIO' in doc:
 

@@ -1,4 +1,7 @@
 from selenium import webdriver
+import sys,pdb
+
+sys.path.append('../')
 
 from selenium.webdriver.chrome.options import Options
 import time
@@ -380,6 +383,89 @@ class PromoBank:
 			except:
 				self.act.enviar_texto_intervalado('#passField', 'Tim_909176')
 				pass
+
+			time.sleep(random.randrange(1,7))
+
+			self.driver.execute_script(""" 
+
+				var dados = $('#fLogar').serialize();
+
+				$.ajax({
+							type: "POST",
+							url: '/autentica/processador.php',
+							data: dados,
+							dataType: 'json',
+							beforeSend: function ()
+							{
+								$('#submitButton').addClass("disabled");
+								$('#submitButton').prop("disabled", true);
+								$('#submitButton').html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Logando...`);
+							},
+							success: function (data)
+							{
+								if (data.status == 2 || data.status == 3)
+								{
+
+									$('#msg').removeClass('notice');
+									$('#msg').addClass('success');
+									$('#msg span').html('Sucesso: ');
+
+									setTimeout(function ()
+									{
+										document.location = '../sistema/';
+									}, 250);
+
+									$('#msg,.lnkExternos').addClass('fadeOut');
+									$('.buttonAcessar').addClass('tinRightOut');
+
+									setTimeout(function ()
+									{
+										$('#msg').removeClass(`alert-warning`);
+										$('#msg').addClass(`alert-success`);
+										$('#msg').html(`Seja bem-vindo!`);
+										$('#msg').removeClass(`d-none`);
+									}, 600);
+								}
+								else
+								{
+									typeof reloadResponse === "function" && reloadResponse();
+									$('#submitButton').removeClass("disabled");
+									$('#submitButton').removeAttr("disabled");
+									$('#submitButton').html(`Entrar`);
+									$('#msg').addClass(`alert-warning`);
+									$('#msg').html('<strong>Atenção! </strong>' + data.msg);
+									$('#msg txt').html(data.msg);
+									$('#msg').removeClass(`d-none`);
+								}
+							},
+							error: function (data)
+							{
+								typeof reloadResponse === "function" && reloadResponse();
+								$('#submitButton').attr('logando', 'false');
+								$('#msg').addClass(`alert-warning`);
+								$('#msg').html("<strong>Atenção! </strong>Falha na autenticação, tentando novamente...");
+								$('#msg').removeClass(`d-none`);
+								if (tentativas < 3 && false)
+								{
+									setTimeout(function ()
+									{
+										tentativas++;
+
+										$('#passField').change();
+									}, 12 * 1000);
+								}
+								else
+								{
+									$('#msg').html("<strong>Atenção! </strong>Falha na autenticação, tentando novamente...");
+									$('#msg').removeClass(`d-none`);
+								}
+								$('#submitButton').removeClass("disabled");
+								$('#submitButton').removeAttr("disabled");
+								$('#submitButton').html(`Entrar`);
+							}
+						});
+
+				""")
 
 		except Exception:
 

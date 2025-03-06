@@ -46,7 +46,7 @@ class Main():
     id_banco: int = '069'
     id_robo: int = 'x'
 
-    TITLE = "Crefisa - Insercao"
+    TITLE = "Crefisa - Analise ASC"
 
     def __init__(self):
 

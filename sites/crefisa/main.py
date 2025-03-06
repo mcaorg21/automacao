@@ -31,6 +31,8 @@ from sites.baseRobos.core.decorators import AguardarHorarioComercial
 
 from sites.crefisa.consulta_status.managers.consultaStatus import ConsultaStatus
 from sites.crefisa.consulta_status.managers.insereContrato import InserirContrato
+from sites.crefisa.consulta_status.managers.analisaContrato import AnalisaContrato
+
 from sites.crefisa.libs.FormLogin import FormLogin
 
 from dados.database.queries.query_dados_robos import query_login_pass_robo
@@ -39,9 +41,9 @@ from time import sleep
 
 import shutil,json
 
-HORARIO_COMERCIAL = 8, 22
+HORARIO_COMERCIAL = 7, 22
 
-class Main:
+class Main():
 
     id_banco: int = '069'
     id_robo: int = 'x'

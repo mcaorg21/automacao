@@ -76,6 +76,7 @@ INSTANCIAS: Dict[str, ProcessWrapper] = {
 
     #Crefisa
     'Crefisa': Crefisa(),
+    'CrefisaAnaliseContrato': CrefisaAnaliseContrato(),
     'CrefisaSincronizacao': CrefisaSincronizacao(),
 
     #Crefisa
