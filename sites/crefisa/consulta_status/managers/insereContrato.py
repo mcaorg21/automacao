@@ -109,7 +109,7 @@ class InserirContrato(Manager):
 
         #     #testes
         #     contratos = {}
-        #     contratos['contratos'] = [{'codigo_con' : contrato, 'perfil': perfil, 'observacao_emp' : "teste"}] 
+        #     contratos['contratos'] = [{'codigo_con' : contrato, 'perfil': perfil, 'observacao_emp' : "Pre aprovado"}] 
 
         for contrato in contratos['contratos']:
 
@@ -139,7 +139,18 @@ class InserirContrato(Manager):
 
                 print(f"Inserindo contrato para o perfil ---------{contrato['perfil']}----------")
 
-                informacoes = self.dados.get_informacoes_contrato(contrato['codigo_con']) 
+                try:
+                    informacoes = self.dados.get_informacoes_contrato(contrato['codigo_con'])
+                except:
+                    print('XXXXXXXXXXXXXXX ERRO AO BUSCAR DADOS DE PROPOSTA XXXXXXXXXXXXXXX')
+                    dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                    dados_atualizacao['observacao_emp'] = "Erro ao buscar dados de proposta, verificar dados completos"
+                    dados_atualizacao['observacao'] = "Erro ao buscar dados de proposta, verificar dados completos"
+                    dados_atualizacao['status_con'] = "Aguardando Comercial"
+                    dados_atualizacao['erro'] = "Erro ao buscar dados de proposta, verificar dados completos"
+                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                    continue
+
                 self.chrome_driver.get(self.urls["insercao"]) 
                 #pdb.set_trace()
                 #verifica se cpf está habilitado para realizar
@@ -672,7 +683,8 @@ class InserirContrato(Manager):
                 try:
                     self.act.select_drop_down("//select[@id='ddlConvenio']",tipo_produto_crefisa, By.XPATH)
                 except:
-                    return False
+                    print("Consultas por minutos atingida")
+                    continue
                 print('----------------------------------------------------------------------------------------')
                 
                 if(baixa_renda == True):
@@ -935,6 +947,7 @@ class InserirContrato(Manager):
                             except:
                                 self.act.clicar_elemento(f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[11]/div/div/button[1]', By.XPATH)
                                 if(baixa_renda == False):
+                                    ###########TRATAR###########
                                     self.act.clicar_elemento(f'/html/body/div[{self.div_principal}]/div/div[6]/div/div/div[2]/div[3]/div/div/div[1]/input', By.XPATH)
                                     try:
                                         self.act.select_drop_down('//*[@id="dllInstituicaoFinanceira"]',informacoes['contrato']['numeroBanco'],By.XPATH)
@@ -976,7 +989,8 @@ class InserirContrato(Manager):
 
                         print('Clicando novamente em simular')
                         try: 
-                            self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[10]/div/button[1]', By.XPATH)
+                            self.act.clicar_elemento('//*[@id="btnSimularOfertas"]', By.XPATH)
+                            #self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[10]/div/button[1]', By.XPATH)
                         except:
                             try:
                                 self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[9]/div/button', By.XPATH)
@@ -1123,7 +1137,10 @@ class InserirContrato(Manager):
                 try:
                     self.act.clicar_elemento('//*[@id="appVue"]/div[4]/div[2]/div/div[3]/button', By.XPATH)
                 except:
-                    self.act.press_enter('//*[@id="appVue"]/div[4]/div[2]/div/div[3]/button', By.XPATH)
+                    try:
+                        self.act.press_enter('//*[@id="appVue"]/div[4]/div[2]/div/div[3]/button', By.XPATH)
+                    except:
+                        self.act.press_enter(f'/html/body/div[{self.div_principal}]/div/div[4]/div[2]/div/div[4]/button', By.XPATH)    
                     pass 
 
                 retorno = self.verificar_loading()

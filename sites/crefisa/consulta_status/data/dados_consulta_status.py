@@ -20,8 +20,8 @@ class DadosConsultaStatus(DataHandler):
     def get_ades(self):
         return self.data_source.consulta_status_parceiro()
 
-    def get_contratos_inserir(self):
-        return self.data_source.fila_contratos_inserir()
+    def get_contratos_inserir(self, ordem):
+        return self.data_source.fila_contratos_inserir(ordem)
 
     def get_informacoes_contrato(self, codigo_contrato):
         self.data_source.codigo_dados = codigo_contrato
@@ -32,12 +32,7 @@ class DadosConsultaStatus(DataHandler):
 
         dados_post = {'key': self.api_keys['GERAL'], **dados}
 
-        atualizado = self.dh.make_request(
-            method='POST',
-            url=self.api_urls["POST_CONSULTA"],
-            params_data=dados_post,
-            msg="Em POST DADOS CONSULTA"
-        )
+        atualizado = self.dh.make_request(method='POST',url=self.api_urls["POST_CONSULTA"], params_data=dados_post, msg="Em POST DADOS CONSULTA")
 
         if not atualizado:
             raise Exception("Não foi possível atualizar os dados da proposta.")
