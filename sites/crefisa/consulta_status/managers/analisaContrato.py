@@ -212,7 +212,6 @@ class AnalisaContrato(Manager):
 
                 else:
                     retorno_mensagem = self.verificar_loading()
-                    pdb.set_trace()
                     self.remove_div()
 
 
