@@ -916,15 +916,12 @@ class PromoBank:
 			pass
 
 		try:
-			conta = self.act.obter_texto('/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div/div/div[2]/div[3]/div[2]', By.XPATH)
+			conta = self.act.obter_texto('/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div/div/div[2]/div[3]/div[2]', By.XPATH)[0:-1]
+			digito_conta = self.act.obter_texto('/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div/div/div[2]/div[3]/div[2]', By.XPATH)[-1]
 		except:
 			conta = ""
-			pass
-
-		if conta != '':
-			digito_conta = conta[-1]
-		else:
 			digito_conta = ""
+			pass
 		
 		# if(dib!=''):
 		# 	dib = datetime.datetime.strptime(dib, r'%d/%m/%Y').strftime(r'%Y-%m-%d')
