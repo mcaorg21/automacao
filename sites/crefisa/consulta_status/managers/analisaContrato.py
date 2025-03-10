@@ -175,6 +175,14 @@ class AnalisaContrato(Manager):
                     retorno_mensagem = ""
 
                 try:
+                    print('Tela ofertas')
+                    self.act.select_drop_down('//*[@id="ddlDddTelefoneSimulacaoPreAprovada"]', informacoes['contrato']['dddCelular'], By.XPATH)
+                    self.act.enviar_texto('/html/body/div[5]/div/div[5]/div/div/div[2]/div[2]/div/div/div[2]/input', informacoes['contrato']['celular'], By.XPATH)
+                    self.act.clicar_elemento('/html/body/div[5]/div/div[5]/div/div/div[2]/div[3]/div/div/button[1]', By.XPATH)
+                except:
+                    pass
+
+                try:
                     retorno_mensagem = self.act.obter_texto(f'/html/body/div[{self.div_principal}]/div/div[2]/div[2]/div[2]/div/div/span', By.XPATH)
                 except:
                     retorno_mensagem = ""
@@ -203,6 +211,8 @@ class AnalisaContrato(Manager):
                     continue
 
                 else:
+                    retorno_mensagem = self.verificar_loading()
+                    pdb.set_trace()
                     self.remove_div()
 
 
@@ -320,6 +330,7 @@ class AnalisaContrato(Manager):
                 conta_anexo_cpf = 1
 
                 if pontuacao < pontuacao_documentos:
+                    retorno_mensagem = self.verificar_loading()
                     print('CPF aprovado, mas documentos estão incompletos...')
                     dados_atualizacao['mensagem'] = 'Pendente Documentacao'
                     self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)

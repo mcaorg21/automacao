@@ -208,6 +208,14 @@ class InserirContrato(Manager):
                     self.act.press_enter(f'/html/body/div[7]/div/div[3]/button[1]', By.XPATH)
                     retorno_mensagem = ""
 
+                try:
+                    print('Tela ofertas')
+                    self.act.select_drop_down('//*[@id="ddlDddTelefoneSimulacaoPreAprovada"]', informacoes['contrato']['dddCelular'], By.XPATH)
+                    self.act.enviar_texto('/html/body/div[5]/div/div[5]/div/div/div[2]/div[2]/div/div/div[2]/input', informacoes['contrato']['celular'], By.XPATH)
+                    self.act.clicar_elemento('/html/body/div[5]/div/div[5]/div/div/div[2]/div[3]/div/div/button[1]', By.XPATH)
+                except:
+                    pass
+
                 if retorno_mensagem != "" and "Informe o dígito da matricula" not in retorno_mensagem:
 
                     dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
