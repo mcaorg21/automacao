@@ -555,10 +555,10 @@ class PromoBank:
 				# 	status=2
 				# )
 			except Exception as e:
-				# self.log.api_registrar_log_robo(
-				# 	log=f"ERRO: {e}",
-				# 	status=0
-				# )
+				self.log.api_registrar_log_robo(
+					log=f"ERRO: {e}",
+					status=0
+				)
 				self.driver.quit()
 
 	def selecionar_aba_consulta(self,modo='manual'):
@@ -571,10 +571,11 @@ class PromoBank:
 			else:
 				self.driver.get('https://www.promobank.online/sistema')
 		except Exception:
+			pass
 			#pdb.set_trace()
-			self.driver.quit()
-			PromoBank().main()
-			self.main()
+			#self.driver.quit()
+			#PromoBank().main()
+			#self.main()
 
 
 		# time.sleep(3)
@@ -623,8 +624,12 @@ class PromoBank:
 
 	def consultar_matricula(self, matricula, fila = 'comum'):
 		try:
-			
-			self.driver.switch_to.frame(self.act.retornar_elemento('//*[@id="bodyLayout"]/iframe[2]', By.XPATH))
+
+			try:
+				self.driver.switch_to.frame(self.act.retornar_elemento('//*[@id="bodyLayout"]/iframe[2]', By.XPATH))
+			except:
+				pass
+
 			time.sleep(2)
 			self.act.enviar_texto('/html/body/div[1]/div/div[1]/div[2]/div/div/div/div/div/input', matricula, By.XPATH)
 			time.sleep(2)
@@ -799,8 +804,6 @@ class PromoBank:
 	def extrair_dados_consulta(self):
 
 		print('EXTRAINDO DADOS DA CONSULTA')
-
-		pdb.set_trace()
 		
 		try:	
 			# credito_total = formatar_moeda(
@@ -921,16 +924,14 @@ class PromoBank:
 		if conta != '':
 			digito_conta = conta[-1]
 		else:
-			digito_conta = 0
+			digito_conta = ""
 		
-		if(dib!=''):
-			dib = datetime.datetime.strptime(dib, r'%d/%m/%Y').strftime(r'%Y-%m-%d')
+		# if(dib!=''):
+		# 	dib = datetime.datetime.strptime(dib, r'%d/%m/%Y').strftime(r'%Y-%m-%d')
 
 		#uf = self.selenium_helper.verificar_valor_campo_driver('[name=con_uf]')
 		uf = ""
 
-		
-		
 		#competencia_detalhamento = self.selenium_helper.verificar_valor_campo_driver('#competenciaDetalhamento').split('/') 
 		competencia_detalhamento = ""
 		
