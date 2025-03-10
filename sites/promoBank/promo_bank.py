@@ -27,6 +27,9 @@ from sites.baseRobos.data_handler import DataHandler
 from selenium.webdriver.common.by import By
 from multiprocessing.dummy import Pool
 
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+
 #testando adicionar comentarios
 
 class PromoBank:
@@ -128,6 +131,7 @@ class PromoBank:
 				self.load_cookies_pasta()
 			except:
 				pass
+
 			time.sleep(random.randrange(1,3))
 
 			try:
@@ -135,27 +139,7 @@ class PromoBank:
 					self.act.clicar_elemento('/html/body/div[1]/div/div/form[1]/button[1]', By.XPATH)
 
 				try:
-					# try:				
-					# 	self.act.clicar_elemento('/html/body/div[1]/div[4]/div/div/div/div/div[1]/div/div/div/div[2]/div/div/div[4]/a/span', By.XPATH)
-					# except:
-					# 	pass
-					# time.sleep(2)
-					
-					# try:				
-					# 	self.act.clicar_elemento('/html/body/div[1]/div[4]/div/div/div/div/div[1]/div/div/div/div[2]/div/div/div[4]/a/span', By.XPATH)
-					# except:
-					# 	pass
-					# time.sleep(2)
 
-					# try:
-					# 	print('entra')
-					# 	self.act.clicar_elemento('/html/body/div[1]/div[4]/div/div/div/div/div[1]/div/div/div/div[2]/div/div/div[4]/a/span', By.XPATH)
-					# except:
-					# 	pass
-
-					time.sleep(1)
-					
-					#self.act.clicar_elemento('/html/body/section/div/div/div[3]/div/div[2]/button', By.XPATH)
 					time.sleep(1)
 				except:
 					pass
@@ -171,11 +155,11 @@ class PromoBank:
 			except:
 				self.driver.get("https://www.promobank.online/")
 				while not self.login():
-						print("Tentativa de Login...")
+					print("Tentativa de Login...")
 
 			try:
 				
-				time.sleep(15)
+				#time.sleep(15)
 				self.driver.find_element_by_css_selector('.containerSenha')
 				try:
 					loc_sair= '/html/body/div/div/div/form[1]/button[2]'
@@ -190,10 +174,12 @@ class PromoBank:
 					#pdb.set_trace()
 					time.sleep(180)
 					self.selecionar_aba_consulta_tentativa()
+
 			except:
+
 				print('Logado')
 				time.sleep(random.randrange(1,3))
-				self.selecionar_aba_consulta()
+				#self.selecionar_aba_consulta()
 				pass
 
 			while True:
@@ -344,7 +330,7 @@ class PromoBank:
 		self.driver.quit()
 		
 	def validar_horario(self):
-		data_hora = datetime.datetime.now()
+		data_hora = datetime.now()
 		if (data_hora.hour > 22 or data_hora.hour < 6):
 			countdown(10000, 1, "Aguardando horário comercial...")
 			#data_hora = datetime.datetime.now()			
@@ -353,7 +339,7 @@ class PromoBank:
 			self.main()
 
 	def validar_horario_api(self):
-		data_hora = datetime.datetime.now()
+		data_hora = datetime.now()
 
 		if (data_hora.hour > 22 or data_hora.hour < 6):
 			return {'status':'fora_horario'}
@@ -536,7 +522,7 @@ class PromoBank:
 				# 	idRobo=id_fila,
 				# 	idSolicitacao=solicitacao['idSolicitacao']
 				# )
-
+				
 				retorno = self.consultar_matricula(solicitacao['matricula'])
 				retorno = json.dumps(retorno)
 
@@ -578,7 +564,9 @@ class PromoBank:
 	def selecionar_aba_consulta(self,modo='manual'):
 		print("Recarregando a página!")
 		try:
-			if(self.selenium_helper.buscar_quantidade_elemento('.logoCRM')==0 and self.selenium_helper.buscar_quantidade_elemento('.panel-body')==0):
+			self.driver.switch_to.frame(self.act.retornar_elemento('//*[@id="bodyLayout"]/iframe[2]', By.XPATH))
+			input_pesquisa = self.act.quantidade_elemento('/html/body/div[1]/div/div[1]/div[2]/div/div/div/div/div/input', By.XPATH)
+			if(input_pesquisa == 1):
 				self.main()
 			else:
 				self.driver.get('https://www.promobank.online/sistema')
@@ -588,29 +576,26 @@ class PromoBank:
 			PromoBank().main()
 			self.main()
 
-		# try:
-		# 	self.driver.get("https://promobank.com.br/sistema/")
+
+		# time.sleep(3)
+
+		# try:	
+		# 	loc_consulta = '/html/body/div[4]/div[2]/div[1]/div/span[3]/div[1]'
+
+		# 	try:
+		# 		self.act.clicar_elemento(loc_consulta, By.XPATH)
+		# 	except:
+		# 		self.act.clicar_elemento('//*[@id="navbar-container"]/div[2]/ul/li[5]/a/i[2]', By.XPATH)
+		# 		self.act.clicar_elemento(loc_consulta, By.XPATH)
+		# 		pass
+		# 	#pdb.set_trace()
+		# 	loc_frame_consulta = '//iframe[@src="corpo.php?src=consulta/index.php"]'
+		# 	iframe_consulta = self.act.retornar_elemento(loc_frame_consulta, By.XPATH)
+
+		# 	self.driver.switch_to.frame(iframe_consulta)
 		# except Exception:
-		# 	return self.selecionar_aba_consulta()
-		time.sleep(3)
-
-		try:	
-			loc_consulta = '/html/body/div[4]/div[2]/div[1]/div/span[3]/div[1]'
-
-			try:
-				self.act.clicar_elemento(loc_consulta, By.XPATH)
-			except:
-				self.act.clicar_elemento('//*[@id="navbar-container"]/div[2]/ul/li[5]/a/i[2]', By.XPATH)
-				self.act.clicar_elemento(loc_consulta, By.XPATH)
-				pass
-			#pdb.set_trace()
-			loc_frame_consulta = '//iframe[@src="corpo.php?src=consulta/index.php"]'
-			iframe_consulta = self.act.retornar_elemento(loc_frame_consulta, By.XPATH)
-
-			self.driver.switch_to.frame(iframe_consulta)
-		except Exception:
-			time.sleep(random.randrange(60,120))
-			return self.login()
+		# 	time.sleep(random.randrange(60,120))
+		# 	return self.login()
 	
 	def selecionar_aba_consulta_api(self):
 
@@ -638,34 +623,41 @@ class PromoBank:
 
 	def consultar_matricula(self, matricula, fila = 'comum'):
 		try:
-			self.selenium_helper.atribuir_valor_campo_driver('[name=value]', matricula)
-			self.selenium_helper.clicar_elemento_driver('#buttonConsultarInss')
+			
+			self.driver.switch_to.frame(self.act.retornar_elemento('//*[@id="bodyLayout"]/iframe[2]', By.XPATH))
+			time.sleep(2)
+			self.act.enviar_texto('/html/body/div[1]/div/div[1]/div[2]/div/div/div/div/div/input', matricula, By.XPATH)
+			time.sleep(2)
+			self.act.clicar_elemento('//*[@id="consultarCliente"]', By.XPATH)
 
-			while(self.act.quantidade_elemento('/html/body/div[2]/div[2]/div[2]/div[5]/img', By.XPATH) == 1):
-				print('Aguardando loading...')
-				time.sleep(1)
+			#self.selenium_helper.atribuir_valor_campo_driver('[name=value]', matricula)
+			#self.selenium_helper.clicar_elemento_driver('#buttonConsultarInss')
 
-			time.sleep(1)
+			# while(self.act.quantidade_elemento('/html/body/div[2]/div[2]/div[2]/div[5]/img', By.XPATH) == 1):
+			# 	print('Aguardando loading...')
+			# 	time.sleep(1)
+
+			time.sleep(3)
 			#pdb.set_trace()
 
-			try:
-				self.selenium_helper.clicar_elemento_driver('.fancybox-close')
-			except:
-				pass
+			# try:
+			# 	self.selenium_helper.clicar_elemento_driver('.fancybox-close')
+			# except:
+			# 	pass
 
-			try:
-				text_pagina_expirou = self.selenium_helper.verificar_texto_campo_jquery('#DivRule')
-				if('Esta página expirou' in text_pagina_expirou):
-					print('Logando novamente e reiniciando a busca.')
-					self.main()
-			except:
-				pass
+			# try:
+			# 	text_pagina_expirou = self.selenium_helper.verificar_texto_campo_jquery('#DivRule')
+			# 	if('Esta página expirou' in text_pagina_expirou):
+			# 		print('Logando novamente e reiniciando a busca.')
+			# 		self.main()
+			# except:
+			# 	pass
 		except:
 			self.driver.quit()
 			PromoBank().main()
 			return {'retorno': 11, 'mensagem': 'Erro na consulta...'}
 
-		self.aguardar_loading_botao()
+		#self.aguardar_loading_botao()
 		try:
 			if (len(matricula.strip()) > 10 or len(matricula.strip()) == 0 or len(matricula.strip()) < 8):
 				raise IncorrectInfoException(
@@ -676,9 +668,10 @@ class PromoBank:
 
 			self.retorno = {"retorno": 1,"mensagem": '--Consulta realizada com sucesso! Funcao 7'}
 
-			self.consultar_detalhamento()
+			#self.consultar_detalhamento()
 			if(fila != 'reprovado_conferir'):
 				self.extrair_refinanciamentos()
+
 			self.extrair_dados_consulta()
 
 			return self.retorno
@@ -804,63 +797,142 @@ class PromoBank:
 			self.selenium_helper.clicar_elemento_driver(".fancybox-close")
 
 	def extrair_dados_consulta(self):
+
+		print('EXTRAINDO DADOS DA CONSULTA')
+
+		pdb.set_trace()
 		
 		try:	
-			credito_total = formatar_moeda(
-				self.selenium_helper.verificar_valor_campo_driver('[name=con_valor_beneficio]')
-			)
+			# credito_total = formatar_moeda(
+			# 	self.selenium_helper.verificar_valor_campo_driver('[name=con_valor_beneficio]')
+			# )
+			self.act.clicar_elemento('/html/body/div[1]/div/div[2]/div[1]/div[1]/button[2]/span', By.XPATH)
+			credito_total = formatar_moeda(self.act.obter_texto('/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div/div/div[1]/div[1]/div[2]', By.XPATH))
 		except:
 			print('Cookies vencidos...')
-			mensagem = self.selenium_helper.verificar_texto_campo_jquery(".alert-danger span:visible")
+			#mensagem = self.selenium_helper.verificar_texto_campo_jquery(".alert-danger span:visible")
 			#pdb.set_trace()
-			if mensagem == '':
-				self.driver.delete_all_cookies()
-				self.driver.quit()
-				PromoBank().main()
+			#if mensagem == '':
+			self.driver.delete_all_cookies()
+			self.driver.quit()
+			PromoBank().main()
 
-		credito_total_liquido = formatar_moeda(
-			self.selenium_helper.verificar_valor_campo_driver('[name=con_liquido]')
-		)
-		margem_disponivel = formatar_moeda(self.selenium_helper.verificar_valor_campo_driver('[name=con_margem_disponivel]'))
+		# credito_total_liquido = formatar_moeda(
+		# 	self.selenium_helper.verificar_valor_campo_driver('[name=con_liquido]')
+		# )
+
+		credito_total_liquido = formatar_moeda(self.act.obter_texto('/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div/div/div[1]/div[3]/div[2]', By.XPATH))
+
+		#margem_disponivel = formatar_moeda(self.selenium_helper.verificar_valor_campo_driver('[name=con_margem_disponivel]'))
+
+		self.act.clicar_elemento('/html/body/div[1]/div/div[2]/div[1]/div[1]/button[1]', By.XPATH)
+
+		padrao_margem = r'(-?)R\$ ([\d\.]+,\d{2})'  # Captura valores positivos e negativos
+		correspondencia = re.search(padrao_margem, self.act.obter_texto('/html/body/div[1]/div/div[3]/div/div[2]/div/div[2]/div[3]', By.XPATH))
+		margem_disponivel = formatar_moeda(correspondencia.group(1) + correspondencia.group(2))
+
+		correspondencia = re.search(padrao_margem, self.act.obter_texto('/html/body/div[1]/div/div[3]/div/div[3]/div/div[2]/div[3]', By.XPATH))
+		margem_disponivel_cartao = formatar_moeda(correspondencia.group(1) + correspondencia.group(2))
+
 		
-		if self.selenium_helper.buscar_quantidade_elemento('[name=parcela_rmc]') == 1:
-			margem_disponivel_cartao = formatar_moeda(self.selenium_helper.verificar_valor_campo_driver('[name=parcela_rmc]'))
-		else:
-			try:
-				margens = self.driver.execute_script("""return $('span:contains(\"Margem Disponível\")')""")
-				margem_disponivel_cartao = formatar_moeda(margens[1].find_element_by_css_selector('input').get_attribute('value'))
-			except:	
-				margem_disponivel_cartao = 0
+		# if self.selenium_helper.buscar_quantidade_elemento('[name=parcela_rmc]') == 1:
+		# 	margem_disponivel_cartao = formatar_moeda(self.selenium_helper.verificar_valor_campo_driver('[name=parcela_rmc]'))
+		# else:
+		# 	try:
+		# 		margens = self.driver.execute_script("""return $('span:contains(\"Margem Disponível\")')""")
+		# 		margem_disponivel_cartao = formatar_moeda(margens[1].find_element_by_css_selector('input').get_attribute('value'))
+		# 	except:	
+		# 		margem_disponivel_cartao = 0
 
-		cpf = self.selenium_helper.verificar_valor_campo_driver('[name=con_cpf]')
-		especie_beneficio = self.selenium_helper.verificar_valor_campo_driver('[name=con_esp_beneficio]')
+		#cpf = self.selenium_helper.verificar_valor_campo_driver('[name=con_cpf]')
+		#cpf = self.act.obter_texto('/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div/div/div[1]/div[2]/div/div[2]', By.XPATH)
 
-		data_nascimento = self.selenium_helper.verificar_valor_campo_driver(
-			'[name=con_datanascimento]')
-		data_nascimento = data_nascimento.split(' ')[0]
-		data_nascimento = datetime.datetime.strptime(data_nascimento, r'%d/%m/%Y').strftime(r'%Y-%m-%d')
+		try:
+			cpf = self.act.obter_texto('/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div/div/div[1]/div[2]/div/div[2]', By.XPATH)
+		except:
+			cpf = ""
+			pass
 
-		banco = self.selenium_helper.verificar_valor_campo_driver(
-			'[name=con_banco]')
-		agencia = self.selenium_helper.verificar_valor_campo_driver(
-			'[name=con_agencia]')
-		tipo_conta = self.selenium_helper.verificar_valor_campo_driver(
-			'[name=con_meio_pagamento]')
-		conta = self.selenium_helper.verificar_valor_campo_driver(
-			'[name=con_conta]')
-		dib = self.selenium_helper.verificar_valor_campo_driver('[name=con_DIB]')
+		#especie_beneficio = self.selenium_helper.verificar_valor_campo_driver('[name=con_esp_beneficio]')
+
+		try:
+			especie_beneficio = self.act.obter_texto('/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div/div/div[2]/div[2]/div/div[2]/div/div[2]' , By.XPATH).split('-')[0].strip()
+		except:
+			especie_beneficio = ""
+			pass
+
+		# data_nascimento = self.selenium_helper.verificar_valor_campo_driver('[name=con_datanascimento]')
+		# data_nascimento = data_nascimento.split(' ')[0]
+		# data_nascimento = datetime.datetime.strptime(data_nascimento, r'%d/%m/%Y').strftime(r'%Y-%m-%d')
+
+		try:
+			data_nascimento = self.act.obter_texto('/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div/div/div[1]/div[4]/div/div[2]/span/span' , By.XPATH).split('-')[0].strip()
+			data_nascimento = datetime.strptime(data_nascimento, r'%d/%m/%Y').strftime(r'%Y-%m-%d')
+		except:
+			data_nascimento = ""
+			pass
+
+		try:
+			dib = self.act.obter_texto('/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div/div/div[2]/div[1]/div/div[1]/span/div/div[3]' , By.XPATH).strip()
+			dib = datetime.strptime(dib, r'%d/%m/%Y').strftime(r'%Y-%m-%d')
+		except:
+			dib = ""
+			pass	
 		
-		if(dib!=''):
-			dib = datetime.datetime.strptime(dib, r'%d/%m/%Y').strftime(r'%Y-%m-%d')
 
-		uf = self.selenium_helper.verificar_valor_campo_driver('[name=con_uf]')
+
+		# banco = self.selenium_helper.verificar_valor_campo_driver(
+		# 	'[name=con_banco]')
+		# agencia = self.selenium_helper.verificar_valor_campo_driver(
+		# 	'[name=con_agencia]')
+		# tipo_conta = self.selenium_helper.verificar_valor_campo_driver(
+		# 	'[name=con_meio_pagamento]')
+		# conta = self.selenium_helper.verificar_valor_campo_driver(
+		# 	'[name=con_conta]')
+		# dib = self.selenium_helper.verificar_valor_campo_driver('[name=con_DIB]')
+
+		self.act.clicar_elemento('/html/body/div[1]/div/div[2]/div[1]/div[1]/button[2]/span', By.XPATH)
+
+		try:
+			tipo_conta = self.act.obter_texto('/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div/div/div[2]/div[4]/div[2]', By.XPATH)
+
+		except:
+			tipo_conta = ""
+			pass
+
+		try:
+			banco = self.act.obter_texto('/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div/div/div[2]/div[1]/div[2]', By.XPATH)
+		except:
+			banco = ""
+			pass
+
+		try:
+			agencia = self.act.obter_texto('/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div/div/div[2]/div[2]/div[2]', By.XPATH)
+		except:
+			agencia = ""
+			pass
+
+		try:
+			conta = self.act.obter_texto('/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div/div/div[2]/div[3]/div[2]', By.XPATH)
+		except:
+			conta = ""
+			pass
 
 		if conta != '':
 			digito_conta = conta[-1]
 		else:
 			digito_conta = 0
 		
-		competencia_detalhamento = self.selenium_helper.verificar_valor_campo_driver('#competenciaDetalhamento').split('/') 
+		if(dib!=''):
+			dib = datetime.datetime.strptime(dib, r'%d/%m/%Y').strftime(r'%Y-%m-%d')
+
+		#uf = self.selenium_helper.verificar_valor_campo_driver('[name=con_uf]')
+		uf = ""
+
+		
+		
+		#competencia_detalhamento = self.selenium_helper.verificar_valor_campo_driver('#competenciaDetalhamento').split('/') 
+		competencia_detalhamento = ""
 		
 		# - NO AUMENTO TROCAR OS 2 RESULTADOS NOS 2 IFS DE PARCELA AUMENTO
 
@@ -872,82 +944,83 @@ class PromoBank:
 		if especie_beneficio in array:
 			porcentagem_margem = 0.30
 
-		if('ADQUIRIR' in competencia_detalhamento[0]): 
+		# if('ADQUIRIR' in competencia_detalhamento[0]): 
 			
-			try:
-				credito_liquido = formatar_moeda(self.selenium_helper.verificar_valor_campo_driver('[name=con_liquido]'))
-				parcela_aumento = credito_total_liquido * porcentagem_aumento * porcentagem_margem
-			except:
-				parcela_aumento = (credito_total * porcentagem_margem) - self.debito_total 			
+		# 	try:
+		# 		credito_liquido = formatar_moeda(self.selenium_helper.verificar_valor_campo_driver('[name=con_liquido]'))
+		# 		parcela_aumento = credito_total_liquido * porcentagem_aumento * porcentagem_margem
+		# 	except:
+		# 		parcela_aumento = (credito_total * porcentagem_margem) - self.debito_total 			
 
-			self.retorno.update({
-				'retorno':1,
-				'especieBeneficio': especie_beneficio,
-				'cpf': cpf,
-				'dataNascimento': data_nascimento,
-				'banco': banco,
-				'agencia': agencia,
-				'tipoConta': tipo_conta,
-				'conta': conta,
-				'digitoConta': digito_conta,
-				'creditoTotal': credito_total,
-				'margemDisponivel': margem_disponivel,
-				'margemDisponivelCartao': margem_disponivel_cartao,
-				'dib':dib,
-				'uf': uf,
-				'parcelaAumento': parcela_aumento,
-				'margemDisponivelReal': margem_disponivel,
-			})
-		else:
-			try:
-				ano_competencia = int(competencia_detalhamento[1])
-				mes_competencia = int(competencia_detalhamento[0])
-			except:
-				ano_competencia = 2023
-				mes_competencia = 12
-				pass
+		# 	self.retorno.update({
+		# 		'retorno':1,
+		# 		'especieBeneficio': especie_beneficio,
+		# 		'cpf': cpf,
+		# 		'dataNascimento': data_nascimento,
+		# 		'banco': banco,
+		# 		'agencia': agencia,
+		# 		'tipoConta': tipo_conta,
+		# 		'conta': conta,
+		# 		'digitoConta': digito_conta,
+		# 		'creditoTotal': credito_total,
+		# 		'margemDisponivel': margem_disponivel,
+		# 		'margemDisponivelCartao': margem_disponivel_cartao,
+		# 		'dib':dib,
+		# 		'uf': uf,
+		# 		'parcelaAumento': parcela_aumento,
+		# 		'margemDisponivelReal': margem_disponivel,
+		# 	})
+		# else:
+		try:
+			ano_competencia = int(competencia_detalhamento[1])
+			mes_competencia = int(competencia_detalhamento[0])
+		except:
+			ano_competencia = 2023
+			mes_competencia = 12
+			pass
 
-			parcela_aumento = 0
+		parcela_aumento = 0
 			
-			try:
-				credito_liquido = formatar_moeda(self.selenium_helper.verificar_valor_campo_driver('[name=con_liquido]'))
-				if(ano_competencia == 2025 and mes_competencia <= 3):
-					#parcela_aumento = margem_disponivel
-					if(credito_total <= 1413):
-						parcela_aumento = credito_total_liquido * porcentagem_aumento * porcentagem_margem
-						#credito_total = credito_total * (1+porcentagem_aumento)
-					else:
-						parcela_aumento = credito_total_liquido * porcentagem_aumento_salario * porcentagem_margem
-						#credito_total = credito_total * (1+porcentagem_aumento_salario)
+		try:
+			#credito_liquido = formatar_moeda(self.selenium_helper.verificar_valor_campo_driver('[name=con_liquido]'))
+			credito_liquido = credito_total_liquido
+			if(ano_competencia == 2025 and mes_competencia <= 3):
+				#parcela_aumento = margem_disponivel
+				if(credito_total <= 1413):
+					parcela_aumento = credito_total_liquido * porcentagem_aumento * porcentagem_margem
+					#credito_total = credito_total * (1+porcentagem_aumento)
+				else:
+					parcela_aumento = credito_total_liquido * porcentagem_aumento_salario * porcentagem_margem
+					#credito_total = credito_total * (1+porcentagem_aumento_salario)
 
-				elif(ano_competencia == 2024 and mes_competencia <= 12):
-					if(credito_total <= 1412):
-						parcela_aumento = credito_total_liquido * porcentagem_aumento * porcentagem_margem
-						credito_total = credito_total * (1+porcentagem_aumento)
-					else:
-						parcela_aumento = credito_total_liquido * porcentagem_aumento_salario * porcentagem_margem
-						credito_total = credito_total * (1+porcentagem_aumento_salario)
+			elif(ano_competencia == 2024 and mes_competencia <= 12):
+				if(credito_total <= 1412):
+					parcela_aumento = credito_total_liquido * porcentagem_aumento * porcentagem_margem
+					credito_total = credito_total * (1+porcentagem_aumento)
+				else:
+					parcela_aumento = credito_total_liquido * porcentagem_aumento_salario * porcentagem_margem
+					credito_total = credito_total * (1+porcentagem_aumento_salario)
 
-			except:
-				if (ano_competencia == 2024 and mes_competencia <= 12):
-					if(credito_total <= 1412):
-						parcela_aumento = credito_total * porcentagem_aumento * porcentagem_margem
-						credito_total = credito_total * (1+porcentagem_aumento)
-					else:
-						parcela_aumento = credito_total * porcentagem_aumento_salario * porcentagem_margem
-						credito_total = credito_total * (1+porcentagem_aumento_salario)
+		except:
+			if (ano_competencia == 2024 and mes_competencia <= 12):
+				if(credito_total <= 1412):
+					parcela_aumento = credito_total * porcentagem_aumento * porcentagem_margem
+					credito_total = credito_total * (1+porcentagem_aumento)
+				else:
+					parcela_aumento = credito_total * porcentagem_aumento_salario * porcentagem_margem
+					credito_total = credito_total * (1+porcentagem_aumento_salario)
 
-				elif(ano_competencia == 2025 and mes_competencia <= 3):
-					#parcela_aumento = margem_disponivel 
-					if(credito_total <= 1413):
-						parcela_aumento = credito_total * porcentagem_aumento * porcentagem_margem
-						#credito_total = credito_total * (1+porcentagem_aumento)
-					else:
-						parcela_aumento = credito_total * porcentagem_aumento_salario * porcentagem_margem
-						#credito_total = credito_total * (1+porcentagem_aumento_salario)
+			elif(ano_competencia == 2025 and mes_competencia <= 3):
+				#parcela_aumento = margem_disponivel 
+				if(credito_total <= 1413):
+					parcela_aumento = credito_total * porcentagem_aumento * porcentagem_margem
+					#credito_total = credito_total * (1+porcentagem_aumento)
+				else:
+					parcela_aumento = credito_total * porcentagem_aumento_salario * porcentagem_margem
+					#credito_total = credito_total * (1+porcentagem_aumento_salario)
 
 
-			dados = {
+		dados = {
 				'especieBeneficio': especie_beneficio,
 				'cpf': cpf,
 				'dataNascimento': data_nascimento,
@@ -965,100 +1038,173 @@ class PromoBank:
 				'margemDisponivelReal': margem_disponivel,
 			}
 			
-			self.retorno.update(dados)
+		self.retorno.update(dados)
 
 	def extrair_refinanciamentos(self):
 		refinanciamentos = []
 		self.debito_total = 0
+		self.linhas_refinanciamento_texto = True
 
-		#antigo
-		#linhas_refinanciamento = self.driver.find_elements_by_css_selector('.gridContratos tbody tr')
-		linhas_refinanciamento = self.driver.find_element(By.ID,'gridContratos').find_elements(By.TAG_NAME, "tr")
-		
 		try:
-			for linha_refinanciamento in linhas_refinanciamento:
-				
-				#antigo
-				#colunas = linha_refinanciamento.find_elements_by_css_selector('td')
-				
-				colunas = linha_refinanciamento.text.split('\n')
-				
-				if len(colunas) != 13:
-					continue
+			self.linhas_refinanciamento_texto = self.act.obter_texto('/html/body/div[1]/div/div[4]/div/div/div[2]/div/span', By.XPATH)
+			if('Nenhum Contrato' in self.linhas_refinanciamento_texto):
+				self.linhas_refinanciamento_texto = False
 
-				#tipo_contrato = colunas[0].get_attribute("innerHTML").strip()
-				#tipo_contrato += colunas[1].get_attribute("innerHTML").strip()
-
-				#if 'EMPRÉSTIMO CONSIGNADO' in tipo_contrato or 'PARCELA OCULTA' in tipo_contrato:
-					
-				banco = colunas[0]
-
-				banco = re.split(r"\-", banco)
-
-				numero_banco = banco[0].strip()
-				nome_banco = banco[1].strip()
-				
-				data_inicio = formatar_data_banco_anomenor(colunas[2])
-				data_fim= formatar_data_banco_anomenor(colunas[3])
-
-				valor_total = formatar_moeda(colunas[4])
-				saldo_devedor = formatar_moeda(colunas[5])
-
-				valor_parcela = formatar_moeda(colunas[6])
-				taxa_juros = formatar_porcentagem(colunas[7])
-				
-				parcelas_pag = colunas[8]
-				parcelas_pagas = parcelas_pag.split('/')[0]
-				prazo = int(colunas[9]) + int(parcelas_pagas)
-				numero_contrato = colunas[10]
-
-				refinanciamentos.append({
-						'nomeBanco': nome_banco,
-						'numeroBanco': numero_banco,
-						'parcela': valor_parcela,
-						'parcelasTotais': prazo,
-						'parcelasPagas': parcelas_pagas,
-						'taxaJurosFina': taxa_juros,
-						'dataInicioContrato': data_inicio,
-						'dataFimContrato': data_fim,
-						'statusContrato': '',
-						'parcelaEstimadaFinal': '',
-						'valorPresenteInicial': valor_total,
-						'saldoDevedorFinal': saldo_devedor,
-						'numeroContrato': numero_contrato
-					})
-
-				print(refinanciamentos)
-				
-				print('----------------------')
-
-				self.debito_total += valor_parcela
 		except:
-			pass
+			self.linhas_refinanciamento_texto = True
+
+		if self.linhas_refinanciamento_texto == True:
+			#linhas_refinanciamento = self.driver.find_elements_by_css_selector('.gridContratos tbody tr')
+			#linhas_refinanciamento = self.driver.find_element(By.CLASS_NAME,"p-datatable-tbody").find_elements(By.TAG_NAME, "tr")
+
+			# Captura todos os `tbody` da página
+			todos_tbody = self.driver.find_elements(By.CLASS_NAME, "p-datatable-tbody")
+
+			# Itera sobre cada `tbody` e extrai as linhas (`tr`)
+			todas_linhas = []
+			for tbody in todos_tbody:
+			    linhas = tbody.find_elements(By.TAG_NAME, "tr")
+			    todas_linhas.extend(linhas)
+
+			for i, linha in enumerate(todas_linhas):
+
+				try:
+					rubrica = linha.text.split('/')
+
+					if 'RMC' in rubrica[0] or 'RCC' in rubrica[0]:
+						continue
+
+					prazo = rubrica[-1].split('\n')[0]
+					# Dados de entrada
+					prazo_meses = int(prazo)  # Convertendo para inteiro
+					data_inicio = rubrica[1]+'/'+rubrica[2].split('\n')[0] # Data no formato MM/AAAA
+
+					# Convertendo para um objeto datetime (usando o primeiro dia do mês)
+					data_inicio_dt = datetime.strptime(data_inicio, "%m/%Y")
+
+					# Somando os meses
+					data_fim_dt = data_inicio_dt + relativedelta(months=prazo_meses)
+
+					# Formatando a data final no mesmo formato MM/AAAA
+					data_fim = data_fim_dt.strftime("%m/%Y")
+
+					parcela = formatar_moeda(self.act.obter_valor(f'/html/body/div[1]/div/div[4]/div/div/div[2]/div/div[{i+1}]/div/div/div/div[1]/table/tbody/tr/td[4]/div/input', By.XPATH))
+
+					self.act.clicar_elemento(f'/html/body/div[1]/div/div[4]/div/div/div[2]/div/div[{i+1}]/div/div/div/div[1]/table/tbody/tr/td[6]/button', By.XPATH)
+					time.sleep(0.2)
+					numero_contrato = self.act.obter_texto('/html/body/div[2]', By.XPATH).split('\n')[1]
+					self.act.clicar_elemento('/html/body/div[2]/div/div/div/div[2]/button', By.XPATH)
+
+					refinanciamentos.append({
+								'nomeBanco': rubrica[0].split('\n')[0].split(' ')[-1],
+								'numeroBanco': rubrica[0].split('\n')[0].split(' ')[0],
+								'parcela': parcela,
+								'parcelasTotais': rubrica[-1].split('\n')[0],
+								'parcelasPagas': rubrica[2].split('\n')[1],
+								'taxaJurosFina': rubrica[-1].split('\n')[1].split('%')[0].replace(',','.'),
+								'dataInicioContrato': data_inicio,
+								'dataFimContrato': data_fim,
+								'statusContrato': '',
+								'parcelaEstimadaFinal': '',
+								'valorPresenteInicial': formatar_moeda(rubrica[-1].split(' ')[-1]),
+								'saldoDevedorFinal': formatar_moeda(rubrica[-1].split(' ')[-3]),
+								'numeroContrato': numero_contrato
+							})
+
+					print(refinanciamentos)
+
+				except Exception as e:					
+					break
+					pass
+			
+			# try:
+			# 	for linha_refinanciamento in linhas_refinanciamento:
+					
+			# 		#antigo
+			# 		#colunas = linha_refinanciamento.find_elements_by_css_selector('td')
+					
+			# 		colunas = linha_refinanciamento.text.split('\n')
+					
+			# 		if len(colunas) != 13:
+			# 			continue
+
+			# 		#tipo_contrato = colunas[0].get_attribute("innerHTML").strip()
+			# 		#tipo_contrato += colunas[1].get_attribute("innerHTML").strip()
+
+			# 		#if 'EMPRÉSTIMO CONSIGNADO' in tipo_contrato or 'PARCELA OCULTA' in tipo_contrato:
+						
+			# 		banco = colunas[0]
+
+			# 		banco = re.split(r"\-", banco)
+
+			# 		numero_banco = banco[0].strip()
+			# 		nome_banco = banco[1].strip()
+					
+			# 		data_inicio = formatar_data_banco_anomenor(colunas[2])
+			# 		data_fim= formatar_data_banco_anomenor(colunas[3])
+
+			# 		valor_total = formatar_moeda(colunas[4])
+			# 		saldo_devedor = formatar_moeda(colunas[5])
+
+			# 		valor_parcela = formatar_moeda(colunas[6])
+			# 		taxa_juros = formatar_porcentagem(colunas[7])
+					
+			# 		parcelas_pag = colunas[8]
+			# 		parcelas_pagas = parcelas_pag.split('/')[0]
+			# 		prazo = int(colunas[9]) + int(parcelas_pagas)
+			# 		numero_contrato = colunas[10]
+
+			# 		refinanciamentos.append({
+			# 				'nomeBanco': nome_banco,
+			# 				'numeroBanco': numero_banco,
+			# 				'parcela': valor_parcela,
+			# 				'parcelasTotais': prazo,
+			# 				'parcelasPagas': parcelas_pagas,
+			# 				'taxaJurosFina': taxa_juros,
+			# 				'dataInicioContrato': data_inicio,
+			# 				'dataFimContrato': data_fim,
+			# 				'statusContrato': '',
+			# 				'parcelaEstimadaFinal': '',
+			# 				'valorPresenteInicial': valor_total,
+			# 				'saldoDevedorFinal': saldo_devedor,
+			# 				'numeroContrato': numero_contrato
+			# 			})
+
+			# 		print(refinanciamentos)
+					
+			# 		print('----------------------')
+
+			# 		self.debito_total += valor_parcela
+			# except:
+			# 	pass
 
 		self.retorno.update({
 			'arrayParcelasRefin': refinanciamentos,
 			'numeroEmprestimos': len(refinanciamentos)
 		})
 
-		#pdb.set_trace()
-
 	def tratar_erros_consulta(self):
-		mensagem_erro = self.selenium_helper.verificar_texto_campo_jquery(".alert-danger span:visible")
-		self.mensagem_erro = mensagem_erro.strip()
-		if mensagem_erro == "":
-			try:
-				#1751342260 exemplo
-				time.sleep(2)
-				if "DETECTADO UMA CONTRIBUIÇÃO SINDICAL" in self.selenium_helper.verificar_texto_campo_jquery(".alert-warning"):
-					print("Detectada contribuicao sindical... Clicando na guia Contratos...")
-					loc_consulta = '//*[@id="myTab4"]/li[1]'
-					self.act.clicar_elemento(loc_consulta, By.XPATH)
-					time.sleep(3)
-					mensagem_erro = ""
+		#mensagem_erro = self.selenium_helper.verificar_texto_campo_jquery(".alert-danger span:visible")
+		try:
+			mensagem_erro = self.act.obter_texto('/html/body/div[2]/div/div[1]/div/div[1]/span', By.XPATH)
+		except:
+			mensagem_erro = ""
+			return
 
-			except:
-				pass
+		self.mensagem_erro = mensagem_erro.strip()
+		# if mensagem_erro == "":
+		# 	try:
+		# 		#1751342260 exemplo
+		# 		time.sleep(2)
+		# 		if "DETECTADO UMA CONTRIBUIÇÃO SINDICAL" in self.selenium_helper.verificar_texto_campo_jquery(".alert-warning"):
+		# 			print("Detectada contribuicao sindical... Clicando na guia Contratos...")
+		# 			loc_consulta = '//*[@id="myTab4"]/li[1]'
+		# 			self.act.clicar_elemento(loc_consulta, By.XPATH)
+		# 			time.sleep(3)
+		# 			mensagem_erro = ""
+
+		# 	except:
+		# 		pass
 		
 		# if mensagem_erro == '':
 		# 	try:
@@ -1108,7 +1254,10 @@ class PromoBank:
 			},{
 				'erro': r"Não foi possível retornar a informação",
 				'ConsultError': True
-			}
+			}, {
+				'erro': r"é inválido",
+				'IncorrectInfo': True
+			},
 
 		]
 
