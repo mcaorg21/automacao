@@ -496,7 +496,7 @@ class PromoBank:
 			input("Não foi possível buscar as solicitações")
 
 		solicitacoes = request_solicitacoes.json()['solicitacoes']
-		self.uconecte.atualizar_status_robo(self.id_robo)
+		#self.uconecte.atualizar_status_robo(self.id_robo)
 		return solicitacoes
 
 	def processar_filas_uconecte(self, tipo_consulta):
@@ -1328,7 +1328,7 @@ class PromoBank:
 
 		contratos = request_contratos.json()[1:]
 
-		self.uconecte.atualizar_status_robo(self.id_robo)
+		#self.uconecte.atualizar_status_robo(self.id_robo)
 
 		for contrato in contratos:
 			try:
