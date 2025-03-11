@@ -184,7 +184,7 @@ class PromoBank:
 
 			while True:
 				try:
-					definir_nome_robo('Fila Consulta simulaçãoINSS')
+					definir_nome_robo('Promobank - Consulta INSS')
 					self.validar_horario()
 					print('Iniciando função de consulta...')
 					
