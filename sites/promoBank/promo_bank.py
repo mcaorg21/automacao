@@ -555,11 +555,12 @@ class PromoBank:
 				# 	status=2
 				# )
 			except Exception as e:
-				self.log.api_registrar_log_robo(
-					log=f"ERRO: {e}",
-					status=0
-				)
-				self.driver.quit()
+				# self.log.api_registrar_log_robo(
+				# 	log=f"ERRO: {e}",
+				# 	status=0
+				# )
+				#self.driver.quit()
+				continue
 
 	def selecionar_aba_consulta(self,modo='manual'):
 		print("Recarregando a página!")
@@ -1035,6 +1036,8 @@ class PromoBank:
 				'parcelaAumento': parcela_aumento,
 				'margemDisponivelReal': margem_disponivel,
 			}
+
+		#pdb.set_trace()
 			
 		self.retorno.update(dados)
 
@@ -1076,15 +1079,16 @@ class PromoBank:
 					# Dados de entrada
 					prazo_meses = int(prazo)  # Convertendo para inteiro
 					data_inicio = rubrica[1]+'/'+rubrica[2].split('\n')[0] # Data no formato MM/AAAA
+					data_inicio_post = datetime.strptime(data_inicio, "%m/%Y").strftime("%Y-%m-01")
 
 					# Convertendo para um objeto datetime (usando o primeiro dia do mês)
 					data_inicio_dt = datetime.strptime(data_inicio, "%m/%Y")
 
 					# Somando os meses
 					data_fim_dt = data_inicio_dt + relativedelta(months=prazo_meses)
-
 					# Formatando a data final no mesmo formato MM/AAAA
 					data_fim = data_fim_dt.strftime("%m/%Y")
+					data_fim_post = datetime.strptime(data_fim, "%m/%Y").strftime("%Y-%m-01")
 
 					parcela = formatar_moeda(self.act.obter_valor(f'/html/body/div[1]/div/div[4]/div/div/div[2]/div/div[{i+1}]/div/div/div/div[1]/table/tbody/tr/td[4]/div/input', By.XPATH))
 
@@ -1100,8 +1104,8 @@ class PromoBank:
 								'parcelasTotais': rubrica[-1].split('\n')[0],
 								'parcelasPagas': rubrica[2].split('\n')[1],
 								'taxaJurosFina': rubrica[-1].split('\n')[1].split('%')[0].replace(',','.'),
-								'dataInicioContrato': data_inicio,
-								'dataFimContrato': data_fim,
+								'dataInicioContrato': data_inicio_post,
+								'dataFimContrato': data_fim_post,
 								'statusContrato': '',
 								'parcelaEstimadaFinal': '',
 								'valorPresenteInicial': formatar_moeda(rubrica[-1].split(' ')[-1]),
@@ -1227,7 +1231,7 @@ class PromoBank:
 				'IncorrectInfo': True
 			}, {
 				'erro': r"NÚMERO DA MATRICULA INSS NÃO ENCONTRADO",
-				'InfoNotFound': True
+				'IncorrectInfo': True
 			}, {
 				'erro': r"NÚMERO DA MATRICULA INCORRETA",
 				'IncorrectInfo': True
