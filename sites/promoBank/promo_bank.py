@@ -1217,10 +1217,9 @@ class PromoBank:
 		if mensagem_erro == "":
 			return
 
-
 		print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<MENSAGEM ERRO >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 		print(mensagem_erro)
-		print(self.matricula_consultar)
+		#print(self.matricula_consultar)
 
 		erros_regex = [
 			{
@@ -1270,11 +1269,11 @@ class PromoBank:
 			if not erro_encontrado:
 				continue
 
-			self.fechar_mensagem_erro()
+			#self.fechar_mensagem_erro()
 
 			if 'InfoNotFound' in erro_regex:
 				raise InfoNotFoundException(message="O Benefício não foi encontrado.")
-			elif 'IncorrectInfo' in erro_regex:
+			elif 'IncorrectInfo' in erro_regex:				
 				raise IncorrectInfoException(message="Número do benefício informado está incorreto.")
 			elif 'BeneficioCancelado' in erro_regex:
 				raise BeneficioCancelado(message="Benefício não pode realizar empréstimo.")
