@@ -152,7 +152,6 @@ class AnalisaContrato(Manager):
                 self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div[2]/div[2]/div/button', By.XPATH)
                 self.verificar_loading(2)
                
-                
                 # try:
                 #     retorno_mensagem = self.act.obter_texto('/html/body/div[5]/div/div[2]/div[2]/div[2]/div/div/span', By.XPATH)
                 # except:
@@ -185,7 +184,11 @@ class AnalisaContrato(Manager):
                 try:
                     retorno_mensagem = self.act.obter_texto(f'/html/body/div[{self.div_principal}]/div/div[2]/div[2]/div[2]/div/div/span', By.XPATH)
                 except:
-                    retorno_mensagem = ""
+                    try:
+                        retorno_mensagem = self.act.obter_texto(f'/html/body/div[{self.div_principal}]/div/div[2]/div[2]/div[3]/div/div/span', By.XPATH)
+                    except:
+                         retorno_mensagem = ""
+                         pass
                     pass
 
                 if retorno_mensagem != "" and "Informe o dígito da matricula" not in retorno_mensagem:
