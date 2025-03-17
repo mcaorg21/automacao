@@ -76,7 +76,7 @@ class ConsultaStatus(Manager):
                 busca_reiniciada = False
                 dados_consulta = {}
 
-                if((ade is None)):
+                if((ade is None or ade == 0 or ade == '0')):
                     dados_consulta['ade'] = ade
                     dados_consulta["codigoCon"] = cod_con
                     dados_consulta['statusPropostaBanco'] = "ERRO SINCRONIZACAO"
@@ -99,35 +99,37 @@ class ConsultaStatus(Manager):
                 self.verificar_loading()
 
                 #self.act.enviar_texto('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[1]/input',ade, By.XPATH)
-                self.act.enviar_texto('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[1]/input',cpf_bd, By.XPATH)
-                self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/button', By.XPATH)
-                self.verificar_loading(2)
+                
+                #self.act.enviar_texto('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[1]/input',cpf_bd, By.XPATH)
+                #self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/button', By.XPATH)
+                #self.verificar_loading(2)
 
-                while self.act.quantidade_elemento('//*[@id="table-responsive-custom"]/tbody/tr', By.XPATH) == 1 and busca_reiniciada == False:
+                # while self.act.quantidade_elemento('//*[@id="table-responsive-custom"]/tbody/tr', By.XPATH) == 1 and busca_reiniciada == False:
                     
-                    try:
-                        ade_primeira = self.act.obter_texto(f'//*[@id="table-responsive-custom"]/tbody/tr[1]/th/div/div/span', By.XPATH)
-                    except:
-                        print('Procurando ade pelo link')
-                        self.act.clicar_elemento('//*[@id="table-responsive-custom"]/tbody/tr[1]/td[1]/div/a', By.XPATH)
+                #     try:
+                #         ade_primeira = self.act.obter_texto(f'//*[@id="table-responsive-custom"]/tbody/tr[1]/th/div/div/span', By.XPATH)
+                #     except:
+                #         print('Procurando ade pelo link')
+                #         self.act.clicar_elemento('//*[@id="table-responsive-custom"]/tbody/tr[1]/td[1]/div/a', By.XPATH)
 
-                        link_ade = self.act.obter_atributo('/html/body/div[1]/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[1]/td[1]/div/div/a','href',By.XPATH)
-                        ade_primeira = re.findall('\\d+',link_ade)[0]
+                #         link_ade = self.act.obter_atributo('/html/body/div[1]/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[1]/td[1]/div/div/a','href',By.XPATH)
+                #         ade_primeira = re.findall('\\d+',link_ade)[0]
 
-                    if(ade_primeira == ade):
-                        busca_reiniciada = True
-                    else:
-                        busca_reiniciada = False
-                        print('Busca ANTERIOR ainda não reinciada. Aguardando...')
-                        self.aguardar_consulta(10)
-                        self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/button', By.XPATH)  
+                #     if(ade_primeira == ade):
+                #         busca_reiniciada = True
+                #     else:
+                #         busca_reiniciada = False
+                #         print('Busca ANTERIOR ainda não reinciada. Aguardando...')
+                #         self.aguardar_consulta(10)
+                #         self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div[2]/button', By.XPATH)  
 
-                quantidade_propostas = self.act.quantidade_elemento('//*[@id="table-responsive-custom"]/tbody/tr', By.XPATH)
-
+                #quantidade_propostas = self.act.quantidade_elemento('//*[@id="table-responsive-custom"]/tbody/tr', By.XPATH)
+                quantidade_propostas = 0
                 if(quantidade_propostas == 0):                    
-                    self.driver.get('https://sistema.novosaque.com.br/admin/contracts')
+                    #self.driver.get('https://sistema.novosaque.com.br/admin/contracts')
                     self.act.clicar_elemento('/html/body/div/div[1]/div[2]/div/div/div/div[1]/div/div[2]/div/button[3]', By.XPATH)
-                    self.act.enviar_texto('/html/body/div[2]/div/div[1]/div/div/div[2]/div/div/div/div[3]/input', nome_cliente.split(' ')[0], By.XPATH)
+                    #self.act.enviar_texto('/html/body/div[2]/div/div[1]/div/div/div[2]/div/div/div/div[3]/input', nome_cliente.split(' ')[0], By.XPATH)
+                    self.act.enviar_texto('//*[@id="id"]', ade, By.XPATH)
                     self.act.clicar_elemento('/html/body/div[2]/div/div[1]/div/div/div[3]/button[3]', By.XPATH)
                     self.verificar_loading()
 
