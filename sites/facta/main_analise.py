@@ -29,8 +29,6 @@ import PATHS
 from sites.baseRobos.core.helpers import definir_nome_robo,deleta_todos_arquivos
 from sites.baseRobos.core.decorators import AguardarHorarioComercial
 
-from sites.crefisa.consulta_status.managers.consultaStatus import ConsultaStatus
-from sites.crefisa.consulta_status.managers.insereContrato import InserirContrato
 from sites.crefisa.consulta_status.managers.analisaContrato import AnalisaContrato
 
 from sites.crefisa.libs.FormLogin import FormLogin
@@ -48,7 +46,7 @@ class Main():
     id_banco: int = '069'
     id_robo: int = 'x'
 
-    TITLE = "Crefisa - Insercao"
+    TITLE = "Crefisa - Analise ASC"
 
     def __init__(self):
 
@@ -60,7 +58,7 @@ class Main():
 
         self.base_path: str = PATHS.project_path()
 
-        self.chrome_user: str = PATHS.chrome_user('Crefisa Insercao')
+        self.chrome_user: str = PATHS.chrome_user('Crefisa Analise')
         self.driver_path: str = PATHS.driver_path()
 
         self.api_key = "f689f1e12a0399fba803cb2365fc362f"
@@ -98,33 +96,9 @@ class Main():
         self.cookies_path = self.caminho_base+"\\crefisa\\cookies\\" + "usuario_crefisa.pkl"
         self.cookies_path_json = self.caminho_base+"\\crefisa\\cookies\\" + "usuario_crefisa.json"
 
+
     @AguardarHorarioComercial(*HORARIO_COMERCIAL)
     def main(self):
-
-        self.load_cookies_crefisa_web_admin()
-        
-        #fila de insercao de contrato
-        definir_nome_robo(self.TITLE)   
-        insercao = InserirContrato.iniciar_horario_comercial(self.driver)
-
-        if(insercao == False):
-            print('entrou............')
-            pdb.set_trace()
-            self.main()
-          
-        #fila de sincronizacao
-        definir_nome_robo(self.TITLE)
-        #ConsultaStatus.iniciar_horario_comercial(self.driver)
-
-        print('Aguardando minutos para reiniciar...')
-        #self.driver.delete_all_cookies()
-        #self.driver.quit()
-        sleep(1)
-        #Main().main()
-        self.main()
-
-    @AguardarHorarioComercial(*HORARIO_COMERCIAL)
-    def main2(self):
         definir_nome_robo('Crefisa - Analisa Contrato')        
 
         self.load_cookies_crefisa_web_admin()
@@ -193,7 +167,6 @@ class Main():
                 pass
 
         self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/EsteiraAnaliseContrato.asp')
-
 
     def verificar_tempo_execucao(self):
         time_between_updates = (datetime.now() - self.ultima_atualizacao).seconds

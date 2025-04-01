@@ -4,7 +4,7 @@
 | file: /sites/crefisa/main.py
 
 | projeto: automacao-python
-| data: 2021-11-25
+| data: 2025-03-25
 | autor: Marcelo Amancio
 """
 import pdb,sys, os
@@ -18,6 +18,7 @@ from time import sleep
 from selenium import webdriver
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 
 from sites.baseRobos.core.selenium_actions import SeleniumActions
 from sites.baseRobos.core.selenium_helper import SeleniumHelper
@@ -29,11 +30,8 @@ import PATHS
 from sites.baseRobos.core.helpers import definir_nome_robo,deleta_todos_arquivos
 from sites.baseRobos.core.decorators import AguardarHorarioComercial
 
-from sites.crefisa.consulta_status.managers.consultaStatus import ConsultaStatus
-from sites.crefisa.consulta_status.managers.insereContrato import InserirContrato
-from sites.crefisa.consulta_status.managers.analisaContrato import AnalisaContrato
-
-from sites.crefisa.libs.FormLogin import FormLogin
+from sites.facta.consulta_status.managers.insereContrato import InserirContrato
+from sites.facta.libs.FormLogin import FormLogin
 
 from dados.database.queries.query_dados_robos import query_login_pass_robo
 
@@ -45,24 +43,17 @@ HORARIO_COMERCIAL = 7, 22
 
 class Main():
 
-    id_banco: int = '069'
-    id_robo: int = 'x'
+    id_banco: int = '149'
+    id_robo: int = '1491'
 
-    TITLE = "Crefisa - Insercao"
+    TITLE = "Facta - Insercao"
 
     def __init__(self):
-
-        self.id_robo = '691'
-        self.usuario = '50801.06050694680'
-
-        # self.id_robo = '692'
-        # self.usuario = '50801.03507179660'
-
+        
         self.base_path: str = PATHS.project_path()
-
-        self.chrome_user: str = PATHS.chrome_user('Crefisa Insercao')
+        self.chrome_user: str = PATHS.chrome_user('Facta Insercao')
         self.driver_path: str = PATHS.driver_path()
-
+    
         self.api_key = "f689f1e12a0399fba803cb2365fc362f"
 
         options = Options()
@@ -81,8 +72,6 @@ class Main():
             pasta_user = self.chrome_user.replace("--user-data-dir=","")
             print("Erro de criacao de usuario, deletando a pasta...")
             shutil.rmtree(pasta_user)
-            #deleta_todos_arquivos(pasta_user)
-            #os.rmdir(pasta_user)
             exit()
 
         self.timer: int = 60
@@ -95,13 +84,21 @@ class Main():
 
         self.caminho_base = PATHS.project_path()
 
-        self.cookies_path = self.caminho_base+"\\crefisa\\cookies\\" + "usuario_crefisa.pkl"
-        self.cookies_path_json = self.caminho_base+"\\crefisa\\cookies\\" + "usuario_crefisa.json"
+        self.cookies_path = self.caminho_base+"\\facta\\cookies\\" + "usuario_facta.pkl"
+        self.cookies_path_json = self.caminho_base+"\\facta\\cookies\\" + "usuario_facta.json"
 
     @AguardarHorarioComercial(*HORARIO_COMERCIAL)
     def main(self):
 
-        self.load_cookies_crefisa_web_admin()
+        # try:
+        #     cookies_vencido = self.load_cookies_facta_web_admin()
+        # except: 
+        #     cookies_vencido = False
+        #     pass
+
+        while self.load_cookies_facta_web_admin() == False:
+            print('Cookies vencidos, aguardando atualização...')
+            sleep(5)
         
         #fila de insercao de contrato
         definir_nome_robo(self.TITLE)   
@@ -111,47 +108,20 @@ class Main():
             print('entrou............')
             pdb.set_trace()
             self.main()
-          
-        #fila de sincronizacao
-        definir_nome_robo(self.TITLE)
-        #ConsultaStatus.iniciar_horario_comercial(self.driver)
 
         print('Aguardando minutos para reiniciar...')
-        #self.driver.delete_all_cookies()
-        #self.driver.quit()
-        sleep(1)
-        #Main().main()
         self.main()
 
-    @AguardarHorarioComercial(*HORARIO_COMERCIAL)
-    def main2(self):
-        definir_nome_robo('Crefisa - Analisa Contrato')        
 
-        self.load_cookies_crefisa_web_admin()
+    def load_cookies_facta_web_admin(self):
         
-        #fila de insercao de contrato
-        definir_nome_robo(self.TITLE)   
-        insercao = AnalisaContrato.iniciar_horario_comercial(self.driver)
-
-        if(insercao == False):
-            print('entrou............')
-            pdb.set_trace()
-            self.main()
-
-        print('Aguardando minutos para reiniciar...')
-        #self.driver.delete_all_cookies()
-        #self.driver.quit()
-        sleep(1)
-        #Main().main()
-        self.main()
-
-    def load_cookies_crefisa_web_admin(self):
-        
-        url = "https://emprestimofacil.co/web_admin/api/v1/consulta/cookies/crefisa/?key={}".format(self.api_key)
+        url = "http://emprestimofacil.co/web_admin/api/v1/consulta/cookies/facta/?key={}".format(self.api_key)
         cookies = self.selenium_helper.load_cookies_robo_web_admin(url, self.id_robo)
 
-        self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/simuladorCrefisa.asp')
+        self.driver.get('https://desenv.facta.com.br/sistemaNovo/login.php')
         self.driver.delete_all_cookies()
+
+        return_cookie = True
 
         for cookie in cookies:
             try:
@@ -159,27 +129,19 @@ class Main():
             except Exception as e:
                 pass
 
-        self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/Dashboard.asp')
-
-    def load_cookies_crefisa_web_admin(self):
+        self.driver.get('https://desenv.facta.com.br/sistemaNovo/dashboard.php')
         
-        url = "https://emprestimofacil.co/web_admin/api/v1/consulta/cookies/crefisa/?key={}".format(self.api_key)
-        cookies = self.selenium_helper.load_cookies_robo_web_admin(url, self.id_robo)
+        area_login = self.act.quantidade_elemento('//*[@id="login"]', By.XPATH)
+        
+        if(area_login == 1):
+            return_cookie = False
 
-        self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/simuladorCrefisa.asp')
-        self.driver.delete_all_cookies()
+        return return_cookie
 
-        for cookie in cookies:
-            try:
-                self.driver.add_cookie(cookie)
-            except Exception as e:
-                pass
-
-        self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/Dashboard.asp')
 
     def load_cookies_pasta(self):
 
-        self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/simuladorCrefisa.asp')
+        self.driver.get('https://desenv.facta.com.br/sistemaNovo/login.php')
         self.driver.delete_all_cookies()
 
         file = open(self.cookies_path_json)
@@ -192,8 +154,7 @@ class Main():
             except Exception as e:
                 pass
 
-        self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/EsteiraAnaliseContrato.asp')
-
+        self.driver.get('https://desenv.facta.com.br/sistemaNovo/propostaSimulador.php')
 
     def verificar_tempo_execucao(self):
         time_between_updates = (datetime.now() - self.ultima_atualizacao).seconds
