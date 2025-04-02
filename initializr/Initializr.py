@@ -17,8 +17,11 @@
 """
 from typing import List
 
-import os,sys
+import os,sys,pdb
 sys.path.append('../')
+#sys.path.insert(1, '/home/gustavo/Desktop/automacao-python/')
+
+
 
 from initializr.processos_automacao.classes_processos.InstanciasProcessos import INSTANCIAS
 # Imports configuracoes
@@ -93,10 +96,10 @@ class Initializr:
         # forma de um dict na variável de classe <activate>
         import json
         from pathlib import Path
-        if(dt.today().weekday() !=  6):
-            path = str(Path(os.path.dirname(__file__), "ativacao.json"))
-        else:
-            path = str(Path(os.path.dirname(__file__), "ativacao_weekend.json"))
+        # if(dt.today().weekday() !=  6):
+        #     path = str(Path(os.path.dirname(__file__), "ativacao.json"))
+        # else:
+        path = str(Path(os.path.dirname(__file__), "ativacao_weekend.json"))
         try:
             with open(path) as fObj:
                 self.activate = json.loads(fObj.read())
