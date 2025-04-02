@@ -42,7 +42,7 @@ import time
 import shutil
 import pickle, json, requests
 
-HORARIO_COMERCIAL = 8, 22
+HORARIO_COMERCIAL = 7, 22
 
 class Main:
 
@@ -66,15 +66,16 @@ class Main:
 
         self.api_key = "f689f1e12a0399fba803cb2365fc362f"
 
-        options = Options()
+        #options = Options()
         Manager().criar_pasta_usuario_chrome(self.chrome_user)
-        options.add_argument('--ignore-ssl-errors')
+        #options.add_argument('--ignore-ssl-errors')
         
-        options.add_argument('--window-size=1150,600"')
-        options.add_argument(self.chrome_user)
-        options.add_experimental_option("w3c", False)
-        opts = ('--disable-blink-features=AutomationControlled','--ignore-ssl-errors', self.chrome_user, 'log-level=3',"--no-sandbox","--window-size=1150,1000","--ignore-autocomplete-off-autofill","disable-infobars")
-
+        #options.add_argument('--window-size=1150,600"')
+        #options.add_argument(self.chrome_user)
+        #options.add_experimental_option("w3c", False)
+        #options.add_experimental_option("prefs", {"intl.accept_languages": "pt-BR"})
+        opts = ( "--lang=pt-BR", '--disable-blink-features=AutomationControlled','--ignore-ssl-errors', self.chrome_user, 'log-level=3',"--no-sandbox","--window-size=1150,1000","--ignore-autocomplete-off-autofill","disable-infobars")
+        #kwargs = {"intl.accept_languages": "pt-BR"}
 
         try:
             self.driver = Manager.driver_factory(*opts)
@@ -114,6 +115,8 @@ class Main:
             cookies_vencido = False
             pass
         
+
+
         area_login = self.act.quantidade_elemento('//*[@id="logo"]', By.XPATH)     
         area_logada = self.act.quantidade_elemento('//*[@id="imgLogoEmpresa"]', By.XPATH)
 
@@ -130,18 +133,14 @@ class Main:
             self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/')
             area_login = 1
 
-
-
         if(area_logada == 0 or area_login == 1 or cookies_vencido == False):
-
-
             try:
                 self.driver.delete_all_cookies()
                 #dados_login = query_login_pass_robo(self.id_robo, self.usuario)
                 dados_login = {}
                 dados_login['login'] = '50801.06050694680'
-                dados_login['senha'] = '@Etus2033'
-                dados_login['link'] = 'https://app1.gerencialcredito.com.br/CREFISA/default.asp'
+                dados_login['senha'] = '@Etus2034'
+                dados_login['link'] = 'https://app1.gerencialcredito.com.br/CREFISA/'
                 login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'])
             except:
                 #self.driver.delete_all_cookies()
@@ -179,7 +178,12 @@ class Main:
             except Exception as e:
                 pass
 
+
         self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/EsteiraAnaliseContrato.asp')
+
+        if self.act.quantidade_elemento('//*[@id="swal2-content"]', By.XPATH) == 1:
+            self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/')
+            return False
 
         if self.act.quantidade_elemento('/html/body/div[9]/div/div[3]/button[1]', By.XPATH) == 1:
             self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/')
