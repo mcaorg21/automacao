@@ -161,18 +161,26 @@ class ConsultaStatus(Manager):
                     if(ade_sistema == ade):
                         
                         self.act.clicar_elemento(f'/html/body/div/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[1]/td[3]', By.XPATH)
-
                         print('Consultando ade:' + ade)
-
                         self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr[{i}]/td[1]/div/a', By.XPATH)
+                        
                         try:
-                            self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr[{i}]/td[1]/div/div/button[3]', By.XPATH)
+                            id = self.act.obter_texto(f'//*[@id="table-responsive-custom"]/tbody/tr/td[2]', By.XPATH)
+                        except:
+                            id = ""
+                            pass
+                        
+                        try:
+                            if(id == "-" or id == ""):
+                                self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr[{i}]/td[1]/div/div/button[3]', By.XPATH)
+                            else:
+                                self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr/td[1]/div/div/button[4]', By.XPATH) 
                         except:
                             self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr[{i}]/td[1]/div/div/button[2]', By.XPATH)
                             pass
  
                         self.aguardar_consulta(2)
-
+                        
                         try:
                             dados_consulta['statusPropostaBanco'] = self.act.obter_texto('/html/body/div[3]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr/td[2]', By.XPATH)
                             dados_consulta['observacaoDetalhadaBanco']  = self.act.obter_texto('/html/body/div[3]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr/td[4]', By.XPATH)

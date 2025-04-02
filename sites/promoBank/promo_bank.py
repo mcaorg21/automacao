@@ -1,6 +1,7 @@
 from selenium import webdriver
 import sys,pdb
 
+#no linux é sys.path.append('../') tambem no xterm é ./
 sys.path.append('../')
 
 from selenium.webdriver.chrome.options import Options

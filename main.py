@@ -32,6 +32,18 @@ def robo_crefisa_sincronizacao():
     run = Main()
     run.main()
 
+def robo_facta():
+    from sites.facta.main import Main
+    system("title Robô - Facta Insercao")
+    run = Main()
+    run.main()
+
+def robo_facta_sincronizacao():
+    from sites.facta.main_sincronizacao import Main
+    system("title Robô - Facta Sincronizacao")
+    run = Main()
+    run.main()
+
 def robo_waw():
     from sites.whatsappwu.main import Main
     system("title Robô - Whatsapp Warmup")
@@ -533,7 +545,15 @@ def main(site=False):
                         'name': 'Whatsapp Warmup',
                         'value': 'whatsapp'
                     },
-
+                    Separator(),
+                    {
+                        'name': 'Facta Insercao',
+                        'value': 'facta'
+                    },
+                    {
+                        'name': 'Facta Sincronizacao',
+                        'value': 'facta_sinc'
+                    },
 
                 ]
             }
@@ -635,6 +655,10 @@ def main(site=False):
         robo_crefisa_analise_contrato()
     elif site == 'crefisa_sinc':
         robo_crefisa_sincronizacao()
+    elif site == 'facta':
+        robo_facta()
+    elif site == 'facta_sinc':
+        robo_facta_sincronizacao()
     elif site == 'whatsapp':
         robo_waw()
     else:

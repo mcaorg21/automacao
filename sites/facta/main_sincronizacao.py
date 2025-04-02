@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-| file: /sites/crefisa/main.py
+| file: /sites/facta/main.py
 
 | projeto: automacao-python
 | data: 2021-11-25
@@ -29,9 +29,9 @@ import PATHS
 from sites.baseRobos.core.helpers import definir_nome_robo,deleta_todos_arquivos
 from sites.baseRobos.core.decorators import AguardarHorarioComercial
 
-from sites.crefisa.consulta_status.managers.consultaStatus import ConsultaStatus
-from sites.crefisa.consulta_status.managers.insereContrato import InserirContrato
-from sites.crefisa.libs.FormLogin import FormLogin
+from sites.facta.consulta_status.managers.consultaStatus import ConsultaStatus
+from sites.facta.consulta_status.managers.insereContrato import InserirContrato
+from sites.facta.libs.FormLogin import FormLogin
 
 from dados.database.queries.query_dados_robos import query_login_pass_robo
 from sites.core.selenium_helper import SeleniumHelper
@@ -49,19 +49,16 @@ class Main:
     id_banco: int = '069'
     id_robo: int = 'x'
 
-    TITLE = "Crefisa - Sincronizacao"
+    TITLE = "Facta - Sincronizacao"
 
     def __init__(self):
 
-        self.id_robo = '691'
-        self.usuario = '50801.06050694680'
-
-        # self.id_robo = '692'
-        # self.usuario = '50801.03507179660'
+        self.id_robo = '1491'
+        self.usuario = '94485_06050694680'
 
         self.base_path: str = PATHS.project_path()
 
-        self.chrome_user: str = PATHS.chrome_user('Crefisa')
+        self.chrome_user: str = PATHS.chrome_user('facta')
         self.driver_path: str = PATHS.driver_path()
 
         self.api_key = "f689f1e12a0399fba803cb2365fc362f"
@@ -74,7 +71,6 @@ class Main:
         options.add_argument(self.chrome_user)
         options.add_experimental_option("w3c", False)
         opts = ('--disable-blink-features=AutomationControlled','--ignore-ssl-errors', self.chrome_user, 'log-level=3',"--no-sandbox","--window-size=1150,1000","--ignore-autocomplete-off-autofill","disable-infobars")
-
 
         try:
             self.driver = Manager.driver_factory(*opts)
@@ -95,65 +91,58 @@ class Main:
 
         self.caminho_base = PATHS.project_path()
 
-        self.cookies_path = self.caminho_base+"\\crefisa\\cookies\\" + "usuario_crefisa.pkl"
-        self.cookies_path_json = self.caminho_base+"\\crefisa\\cookies\\" + "usuario_crefisa.json"
+        self.cookies_path = self.caminho_base+"\\facta\\cookies\\" + "usuario_facta.pkl"
+        self.cookies_path_json = self.caminho_base+"\\facta\\cookies\\" + "usuario_facta.json"
 
         self.selenium_helper = SeleniumHelper(self.driver)
+        
+        
 
-        self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/')
+        self.driver.get('https://desenv.facta.com.br/sistemaNovo/dashboard.php')
 
-        self.driver.delete_all_cookies()
+        #self.driver.delete_all_cookies()
 
     @AguardarHorarioComercial(*HORARIO_COMERCIAL)
     def main(self):
         definir_nome_robo(self.TITLE)
 
         try:
-            cookies_vencido = self.load_cookies_crefisa_web_admin()
+            cookies_vencido = self.load_cookies_facta_web_admin()
         except: 
             cookies_vencido = False
             pass
         
-        area_login = self.act.quantidade_elemento('//*[@id="logo"]', By.XPATH)     
-        area_logada = self.act.quantidade_elemento('//*[@id="imgLogoEmpresa"]', By.XPATH)
+        area_login = self.act.quantidade_elemento('//*[@id="login"]', By.XPATH)     
 
-        try:
-            popup_login = self.act.obter_texto('/html/body/div[2]/div', By.XPATH)
-            self.act.clicar_elemento('/html/body/div[2]/div/div[3]/button[1]', By.XPATH)
-            popup_login = True
-        except:
-            popup_login = False
-            pass
-
-        if(popup_login == True):
+        if(area_login == 1 or cookies_vencido == False):
             self.driver.delete_all_cookies()
-            self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/')
-            area_login = 1
-
-
-
-        if(area_logada == 0 or area_login == 1 or cookies_vencido == False):
-
+            self.driver.get('https://desenv.facta.com.br/sistemaNovo/login.php')
 
             try:
                 self.driver.delete_all_cookies()
                 #dados_login = query_login_pass_robo(self.id_robo, self.usuario)
                 dados_login = {}
-                dados_login['login'] = '50801.06050694680'
-                dados_login['senha'] = '@Etus2033'
-                dados_login['link'] = 'https://app1.gerencialcredito.com.br/CREFISA/default.asp'
+                dados_login['login'] = '94485_06050694680'
+                dados_login['senha'] = 'Glm@8724*'
+                dados_login['link'] = 'https://desenv.facta.com.br/sistemaNovo/login.php'
                 login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'])
             except:
-                #self.driver.delete_all_cookies()
                 self.main()
 
+        try:
+            self.act.clicar_elemento('/html/body/div[4]/div/div[1]/button', By.XPATH)
+            sleep(5)
+        except:
+            pass
 
         self.selenium_helper.save_cookies(self.cookies_path)
         self.escreve_json()
 
         #fila de sincronizacao
         definir_nome_robo(self.TITLE)
-        ConsultaStatus.iniciar_horario_comercial(self.driver)
+        #ConsultaStatus.iniciar_horario_comercial(self.driver)
+        
+        pdb.set_trace()
 
         print('Aguardando minutos para reiniciar...')
         
@@ -163,12 +152,12 @@ class Main:
         self.main()
         #self.driver.quit()
 
-    def load_cookies_crefisa_web_admin(self):
+    def load_cookies_facta_web_admin(self):
         
-        url = "http://emprestimofacil.co/web_admin/api/v1/consulta/cookies/crefisa/?key={}".format(self.api_key)
+        url = "http://emprestimofacil.co/web_admin/api/v1/consulta/cookies/facta/?key={}".format(self.api_key)
         cookies = self.selenium_helper.load_cookies_robo_web_admin(url, self.id_robo)
 
-        self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/')
+        self.driver.get('https://desenv.facta.com.br/sistemaNovo/login.php')
         self.driver.delete_all_cookies()
 
         return_cookie = True
@@ -179,22 +168,7 @@ class Main:
             except Exception as e:
                 pass
 
-        self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/EsteiraAnaliseContrato.asp')
-
-        if self.act.quantidade_elemento('/html/body/div[9]/div/div[3]/button[1]', By.XPATH) == 1:
-            self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/')
-            return False
-
-        elif self.act.quantidade_elemento('/html/body/div[10]/div/div[3]/button[1]', By.XPATH) == 1:
-            self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/')
-            return False
-
-        elif self.act.quantidade_elemento('/html/body/div[11]/div/div[3]/button[1]', By.XPATH) == 1:
-            self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/')
-            return False
-
-        else:
-            self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/Dashboard.asp')
+        self.driver.get('https://desenv.facta.com.br/sistemaNovo/dashboard.php')
 
         return True
 
@@ -211,8 +185,8 @@ class Main:
                     'id_robo' : self.id_robo,
                     'cookies_json': json.dumps(cookies)
                 }
-        
-        req = requests.post("https://emprestimofacil.co/web_admin/api/v1/atualiza-dados/atualiza-cookies/crefisa/?key={}".format(self.api_key), data=dados)
+
+        req = requests.post("https://emprestimofacil.co/web_admin/api/v1/atualiza-dados/atualiza-cookies/facta/?key={}".format(self.api_key), data=dados)
 
         # for cookie in cookies:
         #     try:

@@ -115,6 +115,8 @@ class InserirContrato(Manager):
 
             self.div_principal = '5'
             self.div_principal_overlay = '7'
+
+            open_finance = False
             
             dados_atualizacao = {}
 
@@ -133,6 +135,7 @@ class InserirContrato(Manager):
                 continue
 
             try:
+
                 
                 dados_atualizacao['mensagem'] = 'Inserir contrato'
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
@@ -177,9 +180,10 @@ class InserirContrato(Manager):
                 #print(response.text)
                
                 self.act.enviar_texto('//*[@id="txtCpfSimulacao"]', informacoes["contrato"]["cpf"], By.XPATH)
-                self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div[2]/div[2]/div/button', By.XPATH)
+                #self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div[2]/div[2]/div/button', By.XPATH)
+                self.act.press_enter('//*[@id="txtCpfSimulacao"]', By.XPATH)
                 self.verificar_loading(2)
-               
+                
                 
                 # try:
                 #     retorno_mensagem = self.act.obter_texto('/html/body/div[5]/div/div[2]/div[2]/div[2]/div/div/span', By.XPATH)
@@ -284,6 +288,12 @@ class InserirContrato(Manager):
 
                         for doc in documentos_pessoais:
                             if 'EXTRATO_DE_PAGAMENTOS_' in doc:
+                                
+                                if 'numeroBeneficio' in informacoes['contrato']['dadosProfissionais']:
+                                    numero_beneficio = informacoes['contrato']['dadosProfissionais']['numeroBeneficio']
+                                    
+                                continue
+                            
                                 try:
                                     print('----------------- LENDO NUMERO DO BENEFICIO -----------------')
                                     base64Arquivo = base64.b64encode(requests.get(doc).content)
@@ -956,21 +966,60 @@ class InserirContrato(Manager):
                                 self.act.clicar_elemento(f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[11]/div/div/button[1]', By.XPATH)
                                 if(baixa_renda == False):
                                     ###########TRATAR###########
+                                    #pdb.set_trace()
                                     self.act.clicar_elemento(f'/html/body/div[{self.div_principal}]/div/div[6]/div/div/div[2]/div[3]/div/div/div[1]/input', By.XPATH)
                                     try:
-                                        self.act.select_drop_down('//*[@id="dllInstituicaoFinanceira"]',informacoes['contrato']['numeroBanco'],By.XPATH)
-                                        self.act.clicar_elemento('//*[@id="btnEnvioLinkOpenFinance"]', By.XPATH)
-                                        self.act.clicar_elemento(f'/html/body/div[{self.div_principal}]/div/div[6]/div/div/div[1]/button/span',By.XPATH)
-                                        self.act.clicar_elemento('//*[@id="btnSimularOfertas"]', By.XPATH)
-                                    except:
-                                        dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
-                                        dados_atualizacao['observacao_emp'] = 'Banco informado não possui convênio com desconto em conta.'
-                                        dados_atualizacao['observacao'] = "Banco informado não possui convênio com desconto em conta."
-                                        dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                                        try:
+                                            self.act.select_drop_down('//*[@id="dllInstituicaoFinanceira"]',informacoes['contrato']['numeroBanco'],By.XPATH)
+                                        except:
+                                            dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                                            dados_atualizacao['observacao_emp'] = 'Banco informado não possui convênio com desconto em conta.'
+                                            dados_atualizacao['observacao'] = "Banco informado não possui convênio com desconto em conta."
+                                            dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                                            
+                                            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                                            self.remove_div()
+                                            continue
+
+                                        try:
+                                            self.act.clicar_elemento('//*[@id="btnEnvioLinkOpenFinance"]', By.XPATH)
+                                            self.act.clicar_elemento(f'/html/body/div[{self.div_principal}]/div/div[6]/div/div/div[1]/button/span',By.XPATH)
+                                            
                                         
-                                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
-                                        self.remove_div()
+                                        except:
+                                            open_finance = True
+                                            self.act.clicar_elemento('/html/body/div[5]/div/div[6]/div/div/div[2]/div[3]/div[2]/div/div/button', By.XPATH)
+                                            pass
+
+                                        
+                                        if(id_perfil in [4,5]):
+                                            try:                        
+                                                self.act.clicar_elemento('//*[@id="appVue"]/div[3]/div/div[6]/div[2]/div/button', By.XPATH)  
+                                                self.act.enviar_texto(f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[6]/div[2]/div/div/div/input', numero_beneficio, By.XPATH)
+                                                self.act.press_enter(f'/html/body/div[{self.div_principal}]/div/div[3]/div/div[6]/div[2]/div/div/div/input', By.XPATH)
+
+                                            except:
+
+                                                if 'numeroBeneficio' in informacoes['contrato']['dadosProfissionais']:
+                                                    numero_beneficio = informacoes['contrato']['dadosProfissionais']['numeroBeneficio']
+
+                                                else:
+
+                                                    dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                                                    dados_atualizacao['observacao_emp'] = "Contrato de inss para colocar o beneficio"
+                                                    dados_atualizacao['observacao'] = "Contrato de inss para colocar o beneficio"
+                                                    dados_atualizacao['status_con'] = "Aguardando Comercial"
+                                                    dados_atualizacao['erro'] = "Contrato teste de inss para colocar o beneficio"
+                                                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                                                    self.remove_div()
+                                                    continue
+                                                pass
+
+                                        self.act.clicar_elemento('//*[@id="btnSimularOfertas"]', By.XPATH)
+
+                                    except:
                                         continue
+                                        
 
                                 pass
                             pass
@@ -1343,11 +1392,10 @@ class InserirContrato(Manager):
                 #self.act.enviar_texto('//*[@id="txtNaturalidade"]',informacoes['contrato']['naturalidade'], By.XPATH) 
                 self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[3]/div[3]/div/button', By.XPATH)  
 
-
-                if(len(informacoes['contrato']['naturalidade'].replace('-',' ').split(' ')[0]) > 4):
+                if(len(informacoes['contrato']['naturalidade'].replace('-',' ').split(' ')[0]) > 2):
                     informacoes['contrato']['naturalidade'] = informacoes['contrato']['naturalidade'].replace('-',' ').split(' ')[0]
 
-                if(len(informacoes['contrato']['cidade'].replace('-',' ').split(' ')[0]) > 4):
+                if(len(informacoes['contrato']['cidade'].replace('-',' ').split(' ')[0]) > 2):
                     informacoes['contrato']['cidade'] = informacoes['contrato']['cidade'].replace('-',' ').split(' ')[0]
 
                 try:
@@ -1416,7 +1464,11 @@ class InserirContrato(Manager):
                         informacoes['contrato']['numeroBanco'] = '033'
 
                     try:
-                        self.act.select_drop_down('//*[@id="ddlBanco"]', informacoes['contrato']['numeroBanco'], By.XPATH)
+                        if open_finance == True:
+                            self.act.select_drop_down('/html/body/div[5]/div/div[2]/div/div[2]/div[9]/div/select', '[object Object]', By.XPATH)
+                            #pdb.set_trace()
+                        else:
+                            self.act.select_drop_down('//*[@id="ddlBanco"]', informacoes['contrato']['numeroBanco'], By.XPATH)
                     except:
                         dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
                         dados_atualizacao['observacao_emp'] = 'Banco informado não possui convênio com desconto em conta.'
@@ -1429,8 +1481,12 @@ class InserirContrato(Manager):
 
                     self.act.enviar_texto('//*[@id="txtAgencia"]',informacoes['contrato']['agencia'], By.XPATH)
 
-                self.act.enviar_texto('//*[@id="txtContaCorrente"]',informacoes['contrato']['numeroConta'], By.XPATH)                
-                self.act.enviar_texto('//*[@id="txtDigitoConta"]',informacoes['contrato']['digitoConta'], By.XPATH)
+                if open_finance == False:
+
+                    self.act.enviar_texto('//*[@id="txtContaCorrente"]',informacoes['contrato']['numeroConta'], By.XPATH)                
+                    self.act.enviar_texto('//*[@id="txtDigitoConta"]',informacoes['contrato']['digitoConta'], By.XPATH)
+
+
                 print('----------------------------------------------------------------------------------------')    
                 
                 retorno = self.verificar_loading()
