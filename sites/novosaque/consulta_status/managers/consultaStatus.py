@@ -75,7 +75,7 @@ class ConsultaStatus(Manager):
                 nome_cliente = proposta[6] 
                 busca_reiniciada = False
                 dados_consulta = {}
-
+            
                 if((ade is None or ade == 0 or ade == '0')):
                     dados_consulta['ade'] = ade
                     dados_consulta["codigoCon"] = cod_con
@@ -83,7 +83,7 @@ class ConsultaStatus(Manager):
                     dados_consulta['observacaoDetalhadaBanco']  = "PROPOSTA NAO POSSUI ADE"
                     self.dados.post_dados_consultados(dados_consulta)   
                     continue 
-
+                
                 #ade="9842"
                 #cpf="04763519603"
                 #cod_con = "521329"
@@ -163,7 +163,6 @@ class ConsultaStatus(Manager):
                         self.act.clicar_elemento(f'/html/body/div/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[1]/td[3]', By.XPATH)
                         print('Consultando ade:' + ade)
                         self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr[{i}]/td[1]/div/a', By.XPATH)
-                        
                         try:
                             id = self.act.obter_texto(f'//*[@id="table-responsive-custom"]/tbody/tr/td[2]', By.XPATH)
                         except:
@@ -194,6 +193,16 @@ class ConsultaStatus(Manager):
                         except:
                             self.act.clicar_elemento('/html/body/div[2]/div/div[1]/div/div/div[1]/button/span', By.XPATH)
                             pass
+                        
+                        #adicao de condicao para retornar pago
+                        if(id != "-" or id != ""):
+                            try:
+                                dados_consulta['statusPropostaBanco'] = self.act.obter_texto('/html/body/div/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr/td[7]/div/div', By.XPATH)
+                                if('Comissão\nPaga' in dados_consulta['statusPropostaBanco']):
+                                    dados_consulta['statusPropostaBanco'] = 'Pago'
+                                    dados_consulta['observacaoDetalhadaBanco']  = 'Comissão Paga'
+                            except:
+                                pass
 
                         #dados_consulta['observacaoDetalhadaBanco'] = ''
                         dados_consulta['linkAssinaturaDigital'] = linkAssinaturaDigital
