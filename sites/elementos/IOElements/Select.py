@@ -1,4 +1,8 @@
-from collections import Callable
+try:
+    from collections import Callable
+except:
+    # Python 3
+    from collections.abc import Callable
 
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import select as sel
