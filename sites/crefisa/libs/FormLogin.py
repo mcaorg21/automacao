@@ -25,7 +25,7 @@ class FormLogin:
         #self.act = 
 
     @staticmethod
-    def realizar_login(driver: Chrome, login: str, senha: str, link = "https://app1.gerencialcredito.com.br/CREFISA/Dashboard.asp") -> bool:
+    def realizar_login(driver: Chrome, login: str, senha: str, link = "https://app1.gerencialcredito.com.br/CREFISA/Dashboard.asp", popup_login = False) -> bool:
 
         login: FormLogin = FormLogin(driver, login, senha)
 
