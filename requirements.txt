@@ -49,3 +49,7 @@ selenium
 flask
 pyautogui
 pypdf<3
+Pillow
+click
+fuzzywuzzy
+pymysql
