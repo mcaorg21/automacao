@@ -114,8 +114,6 @@ class Main:
         except: 
             cookies_vencido = False
             pass
-        
-
 
         area_login = self.act.quantidade_elemento('//*[@id="logo"]', By.XPATH)     
         area_logada = self.act.quantidade_elemento('//*[@id="imgLogoEmpresa"]', By.XPATH)
@@ -141,7 +139,7 @@ class Main:
                 dados_login['login'] = '50801.06050694680'
                 dados_login['senha'] = '@Etus2034'
                 dados_login['link'] = 'https://app1.gerencialcredito.com.br/CREFISA/'
-                login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'])
+                login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'], popup_login)
             except:
                 #self.driver.delete_all_cookies()
                 self.main()
