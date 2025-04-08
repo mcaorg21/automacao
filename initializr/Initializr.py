@@ -99,7 +99,7 @@ class Initializr:
         # if(dt.today().weekday() !=  6):
         #     path = str(Path(os.path.dirname(__file__), "ativacao.json"))
         # else:
-        path = str(Path(os.path.dirname(__file__), "ativacao_weekend.json"))
+        path = str(Path(os.path.dirname(__file__), "ativacao.json"))
         try:
             with open(path) as fObj:
                 self.activate = json.loads(fObj.read())

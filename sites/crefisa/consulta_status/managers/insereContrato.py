@@ -952,7 +952,6 @@ class InserirContrato(Manager):
                     print('----------------------------------------------------------------------------------------')
                     
                     print('Clicando em simular')
-                    #pdb.set_trace()
                     try: 
                         self.act.clicar_elemento('//*[@id="btnSimularOfertas"]', By.XPATH)
 
@@ -984,9 +983,9 @@ class InserirContrato(Manager):
                                         try:
                                             self.act.clicar_elemento('//*[@id="btnEnvioLinkOpenFinance"]', By.XPATH)
                                             self.act.clicar_elemento(f'/html/body/div[{self.div_principal}]/div/div[6]/div/div/div[1]/button/span',By.XPATH)
-                                            
-                                        
+
                                         except:
+                                            time.sleep(5)
                                             open_finance = True
                                             self.act.clicar_elemento('/html/body/div[5]/div/div[6]/div/div/div[2]/div[3]/div[2]/div/div/button', By.XPATH)
                                             pass
@@ -1019,13 +1018,11 @@ class InserirContrato(Manager):
 
                                     except:
                                         continue
-                                        
-
                                 pass
                             pass
                         pass
 
-                    retorno = self.verificar_loading()
+                retorno = self.verificar_loading()
 
                 self.driver.execute_script("document.body.style.zoom='80%'")
 
@@ -1458,13 +1455,13 @@ class InserirContrato(Manager):
                 #pdb.set_trace()
                 print('Preenchendo dados conta bancária')
 
-                #pdb.set_trace()
                 if(baixa_renda == False):
                     if informacoes['contrato']['numeroBanco'] == '955':
                         informacoes['contrato']['numeroBanco'] = '033'
 
                     try:
                         if open_finance == True:
+                            time.sleep(10)
                             self.act.select_drop_down('/html/body/div[5]/div/div[2]/div/div[2]/div[9]/div/select', '[object Object]', By.XPATH)
                             #pdb.set_trace()
                         else:
@@ -1479,8 +1476,11 @@ class InserirContrato(Manager):
                         self.remove_div()
                         continue
 
-                    self.act.enviar_texto('//*[@id="txtAgencia"]',informacoes['contrato']['agencia'], By.XPATH)
-
+                    try:
+                        self.act.enviar_texto('//*[@id="txtAgencia"]',informacoes['contrato']['agencia'], By.XPATH)
+                    except:
+                        pass
+                    
                 if open_finance == False:
 
                     self.act.enviar_texto('//*[@id="txtContaCorrente"]',informacoes['contrato']['numeroConta'], By.XPATH)                
