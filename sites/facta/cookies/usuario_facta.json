@@ -6,31 +6,31 @@
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
-        "value": "F468C7BBAD9388FF7DE04FCD45"
+        "value": "19006AE057C9B2A3949987F069"
     },
     {
         "domain": ".facta.com.br",
-        "expiry": 1777984325,
+        "expiry": 1778268506,
         "httpOnly": false,
         "name": "_ga_VNTS8HTZGH",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
-        "value": "GS1.3.1743424325.1.0.1743424325.0.0.0"
+        "value": "GS1.3.1743708506.1.0.1743708506.0.0.0"
     },
     {
         "domain": ".facta.com.br",
-        "expiry": 1743510724,
+        "expiry": 1743794906,
         "httpOnly": false,
         "name": "_gid",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
-        "value": "GA1.3.180066590.1743424324"
+        "value": "GA1.3.46263457.1743708506"
     },
     {
         "domain": ".facta.com.br",
-        "expiry": 1743424384,
+        "expiry": 1743708566,
         "httpOnly": false,
         "name": "_gat",
         "path": "/",
@@ -45,17 +45,17 @@
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
-        "value": "263000053988"
+        "value": "637000295939"
     },
     {
         "domain": ".facta.com.br",
-        "expiry": 1777984324,
+        "expiry": 1778268506,
         "httpOnly": false,
         "name": "_ga",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
-        "value": "GA1.3.1448986115.1743424324"
+        "value": "GA1.3.1879815234.1743708506"
     },
     {
         "domain": "desenv.facta.com.br",
@@ -64,7 +64,7 @@
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
-        "value": "0s0ai51dhgs19dmhaemfkai7b6"
+        "value": "ipno308oapo7gtubmc425550a8"
     },
     {
         "domain": "desenv.facta.com.br",
@@ -73,6 +73,6 @@
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
-        "value": "6d98ab77a3ed37fcfd7d9f8310a3caaa"
+        "value": "bb8850fc7ed4017b5474b248ff889733"
     }
 ]

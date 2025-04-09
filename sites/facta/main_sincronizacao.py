@@ -123,7 +123,7 @@ class Main:
                 #dados_login = query_login_pass_robo(self.id_robo, self.usuario)
                 dados_login = {}
                 dados_login['login'] = '94485_06050694680'
-                dados_login['senha'] = 'Glm@8724*'
+                dados_login['senha'] = 'Glm@8726*'
                 dados_login['link'] = 'https://desenv.facta.com.br/sistemaNovo/login.php'
                 login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'])
             except:
