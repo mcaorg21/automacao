@@ -62,6 +62,8 @@ class ConsultaStatus(Manager):
 
         for cnt, proposta in enumerate(status_a_consultar, 1):
             print(f"[{cnt}]Fila Consulta Status")
+            
+            #proposta = ['399873', '14643745703', '834995', 90, 'Link Enviado', 'http://sistema.novosaque.com.br/payment/2f5d018a2b3ff2899a43ff2a11932a57003b84c0', 'Leonardo Ferreira']
 
             try:
                 
@@ -159,7 +161,6 @@ class ConsultaStatus(Manager):
                     
 
                     if(ade_sistema == ade):
-                        
                         self.act.clicar_elemento(f'/html/body/div/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[1]/td[3]', By.XPATH)
                         print('Consultando ade:' + ade)
                         self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr[{i}]/td[1]/div/a', By.XPATH)
@@ -181,24 +182,26 @@ class ConsultaStatus(Manager):
                         self.aguardar_consulta(2)
                         
                         try:
-                            dados_consulta['statusPropostaBanco'] = self.act.obter_texto('/html/body/div[3]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr/td[2]', By.XPATH)
-                            dados_consulta['observacaoDetalhadaBanco']  = self.act.obter_texto('/html/body/div[3]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr/td[4]', By.XPATH)
-                        except:
-                            dados_consulta['statusPropostaBanco'] = self.act.obter_texto('/html/body/div[2]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr[1]/td[2]', By.XPATH)
+                            dados_consulta['statusPropostaBanco'] = self.act.obter_texto('/html/body/div[2]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr[1]/td[2]', By.XPATH).replace('\n',' ')
                             dados_consulta['observacaoDetalhadaBanco']  = self.act.obter_texto('/html/body/div[2]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr[1]/td[4]', By.XPATH)
+                            
+                        except:
+                            dados_consulta['statusPropostaBanco'] = self.act.obter_texto('/html/body/div[3]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr/td[2]', By.XPATH).replace('\n',' ')
+                            dados_consulta['observacaoDetalhadaBanco']  = self.act.obter_texto('/html/body/div[3]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr/td[4]', By.XPATH)
                             pass
 
-                        try:
-                            self.act.clicar_elemento('/html/body/div[3]/div/div[1]/div/div/div[3]/button', By.XPATH)
-                        except:
-                            self.act.clicar_elemento('/html/body/div[2]/div/div[1]/div/div/div[1]/button/span', By.XPATH)
-                            pass
                         
+                        try:
+                            self.act.clicar_elemento('/html/body/div[2]/div/div[1]/div/div/div[1]/button/span', By.XPATH)      
+                        except:
+                            self.act.clicar_elemento('/html/body/div[3]/div/div[1]/div/div/div[3]/button', By.XPATH)
+                            pass
+
                         #adicao de condicao para retornar pago
                         if(id != "-" or id != ""):
                             try:
-                                dados_consulta['statusPropostaBanco'] = self.act.obter_texto('/html/body/div/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr/td[7]/div/div', By.XPATH)
-                                if('Comissão\nPaga' in dados_consulta['statusPropostaBanco']):
+                                dados_consulta['statusPropostaBanco'] = self.act.obter_texto('/html/body/div/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr/td[7]/div/div', By.XPATH).replace('\n',' ')
+                                if('Comissão Paga' in dados_consulta['statusPropostaBanco']):
                                     dados_consulta['statusPropostaBanco'] = 'Pago'
                                     dados_consulta['observacaoDetalhadaBanco']  = 'Comissão Paga'
                             except:
@@ -271,8 +274,8 @@ class ConsultaStatus(Manager):
                                 #busca pelas informacoes no modal  
                                 #pega dados secundarios
                                 self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr/td[1]/div/div/button[3]', By.XPATH)
-                                dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto('/html/body/div[2]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr/td[7]', By.XPATH) 
-                                dados_consulta['observacaoDetalhadaBanco'] += ' - ' + self.act.obter_texto('/html/body/div[2]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr/td[8]',By.XPATH)                 
+                                #dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto('/html/body/div[2]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr/td[7]', By.XPATH) 
+                                #dados_consulta['observacaoDetalhadaBanco'] += ' - ' + self.act.obter_texto('/html/body/div[2]/div/div[1]/div/div/div[2]/div/div[2]/div/div/div/table/tbody/tr/td[8]',By.XPATH)                 
                                 self.aguardar_consulta()
                             elif(dados_consulta['statusPropostaBanco'] == 'Contratos Assinados - Aguardando Pagamento'):
                                 self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr/td[1]/div/div/button[4]', By.XPATH)
@@ -315,7 +318,7 @@ class ConsultaStatus(Manager):
 
                     if(ade_sistema == ade):
                         break
-
+                
                 if(ade_sistema == ade and 'statusPropostaBanco' in dados_consulta):
                     dados_consulta['ade'] = ade
                     dados_consulta["codigoCon"] = cod_con

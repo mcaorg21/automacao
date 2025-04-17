@@ -21,11 +21,7 @@ from sites.facta.consulta_status.data.dados_consulta_status import DadosConsulta
 
 from dados.APIGetSource import APIDataSource
 
-
-
-
 HORARIO_COMERCIAL = 7, 22
-
 
 class InserirContrato(Manager):
 
@@ -112,15 +108,24 @@ class InserirContrato(Manager):
                 "numero": '//*[@id="numero"]',
                 "complemento": '//*[@id="complemento"]',
                 "bairro": '//*[@id="bairro"]',
+                "select_cidade": '//*[@id="cidade"]',
                 "option_cidade": '/html/body/div[1]/section/div[2]/div/div/div/div/div[1]/form/div/fieldset[2]/div[2]/div[5]/select/option',
                 "celular": '//*[@id="celular"]',
-                
-                
+                "proxima_etapa": '/html/body/div[1]/section/div[2]/div/div/div/div/div[1]/form/div/div[4]/button',
             },
+            
+            "liberacao_dados_profissionais": {
+                "forma_pagamento": '//*[@id="forma_pagamento"]',
+                "tipo_credito": '//*[@id="tipoCredito"]',
+                "banco_liberacao": '//*[@id="bancoLiberacao"]',
+                "agencia_iberacao": '//*[@id="agenciaLiberacao"]',
+                "conta_liberacao": '//*[@id="contaLiberacao"]',
+                "tipo_profissao": '//*[@id="id_tipo_profissao"]',
+                "proxima_etapa": '/html/body/div[1]/section/div/div/div/div/div/div/form/div/div/button',
+            }, 
+            
               
         }
-
-        
 
         #     "dados_complementares": {
         #         "icone": "/html/body/div[1]/div/div/div[2]/header/div/div/div/div/span/div/div[1]/div[3]/div"
@@ -147,11 +152,11 @@ class InserirContrato(Manager):
 
         # if(fila == '1'):
 
-        #     contratos = self.dados.get_contratos_inserir('asc')  
+        contratos = self.dados.get_contratos_inserir('asc')  
 
-        #     if contratos['tipo'] == 'alert':
-        #         print('Sem contratos para inserir...')
-        #         return False
+        if contratos['tipo'] == 'alert':
+            print('Sem contratos para inserir...')
+            return False
 
         # else:
 
@@ -162,15 +167,14 @@ class InserirContrato(Manager):
 
         #     #testes
         #     contratos = {}
-        contratos = {}
-        contratos['contratos'] = [{'codigo_con' : '830987', 'observacao_emp' : "Pre aprovado"}] 
+        # contratos = {}
+        # contratos['contratos'] = [{'codigo_con' : '835696', 'observacao_emp' : "Pre aprovado"}] 
 
         for contrato in contratos['contratos']:
             self.driver.get(self.urls['insercao'])
             dados_atualizacao = {}
             try:
                 informacoes = self.dados.get_informacoes_contrato(contrato['codigo_con'])
-                
                 pprint(informacoes)
                 
                 print('----------------- Configurando o produto -----------------')
@@ -201,16 +205,11 @@ class InserirContrato(Manager):
                     pass
                 
                 self.act.enviar_texto(self.xpath['cadastro_proposta']['nome_social'], informacoes['contrato']['nome'].split(' ')[0], By.XPATH)
-                
-                #TODO REMOVER OU MOCKUP
-                self.act.enviar_texto('//*[@id="ct_data_admissao"]', '05/04/2000', By.XPATH)
+                self.act.enviar_texto('//*[@id="ct_data_admissao"]', informacoes['contrato']['dadosProfissionais']['admissao'], By.XPATH)
                 
                 print('-----------------------------------------------------------------')
                 
                 print('----------------- Configurando dados do contato -----------------')
-                #TODO REMOVER OU MOCKUP
-                informacoes['contrato']['dddCelular'] = '31'
-                informacoes['contrato']['celular'] = '993448917'
                 self.act.enviar_texto(self.xpath['cadastro_proposta']['celular'],'('+informacoes['contrato']['dddCelular']+') '+informacoes['contrato']['celular'][0:5]+'-'+informacoes['contrato']['celular'][5:9], By.XPATH)
                 self.act.select_drop_down(self.xpath['cadastro_proposta']['forma_envio'], 'WHATSAPP', By.XPATH)
                 self.act.clicar_elemento(self.xpath['cadastro_proposta']['botao_enviar'], By.XPATH)
@@ -233,6 +232,24 @@ class InserirContrato(Manager):
                 print('-----------------------------------------------------------------')
                 
                 print('----------------- Escolhendo o plano  -----------------')
+                pesquisar_novamente = False
+                remover_popup = self.act.quantidade_elemento('//*[@id="corpo"]/div[7]', By.XPATH)
+                while remover_popup == 1:
+                    try:
+                        print('>>>>> Removendo tela...')
+                        remover_popup = self.act.quantidade_elemento('//*[@id="corpo"]/div[7]', By.XPATH)
+                        self.act.clicar_elemento('/html/body/div[7]/div/div/div[3]/button', By.XPATH)
+                        pesquisar_novamente = True
+                    except:
+                        remover_popup = 0
+                        pass
+                
+                if pesquisar_novamente == True:
+                    print('>>>>> Preenchendo data de nasicmento...')
+                    self.act.enviar_texto(self.xpath['cadastro_proposta']['data_nascimento'], informacoes['contrato']['dataNascimento'], By.XPATH)
+                    print('>>>>> Pesquisando novamente...')
+                    self.act.clicar_elemento(self.xpath['cadastro_proposta']['botao_pesquisar'], By.XPATH)
+                    time.sleep(4)
                 
                 self.driver.execute_script("document.body.style.zoom='60%'")
                 resultado = ""
@@ -241,16 +258,21 @@ class InserirContrato(Manager):
                     resultado = self.act.obter_texto(self.xpath['cadastro_proposta']['div_resultado'], By.XPATH)      
                     if('não é possível cobrir o saldo devedor em nenhuma das tabelas disponíveis' in resultado):
                         
-                        print('XXXXXXXXXXXXXXXXXXXXX ERRO DE ESCOLHA DE PLANO XXXXXXXXXXXXXXXXXXXXX')
+                        print('XXXXXXXXXXXXXXXXXXXXX Erro de calculo XXXXXXXXXXXXXXXXXXXXX')
                         
-                        dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
-                        dados_atualizacao['observacao_emp'] = "Valor pedido acima do saldo devedor"
-                        dados_atualizacao['observacao'] = "Valor pedido acima do saldo devedor"
-                        dados_atualizacao['status_con'] = "Aguardando Comercial"
-                        
+                        if('não é possível cobrir o saldo devedor em nenhuma das tabelas disponíveis' in resultado):
+
+                            dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                            dados_atualizacao['observacao_emp'] = 'Para as condições informadas nesta simulação, não é possível cobrir o saldo devedor em nenhuma das tabelas disponíveis'
+                            dados_atualizacao['observacao'] = ''
+                            dados_atualizacao['erro'] = 'Para as condições informadas nesta simulação, não é possível cobrir o saldo devedor em nenhuma das tabelas disponíveis'
+                            dados_atualizacao['status_con'] = "Reprovado a Conferir"
+
                         self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        self.remove_div()
                         
-                        continue
+                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)  
+                    continue
                         
                 except:
                     pass    
@@ -258,6 +280,12 @@ class InserirContrato(Manager):
 
                 self.act.clicar_elemento(self.xpath['cadastro_proposta']['escolha_plano'], By.XPATH)
                 
+                print('----------------- TODO atualizar valor do contrato  -----------------')
+                pdb.set_trace()
+                #TODO atualizar valor do contrato
+                #pdb.set_trace()
+                #valor_contrato = self.act.obter_texto('/html/body/div[2]/section/div[1]/div/div/div/div/div/form/div[1]/fieldset[3]/div/div', By.XPATH)
+
                 try:
                     self.act.clicar_elemento(self.xpath['cadastro_proposta']['fechar_chat'], By.XPATH)
                 except:
@@ -315,20 +343,11 @@ class InserirContrato(Manager):
                 print('>>>Preenchendo dados de nacionalidade e naturalidade')
                 self.act.select_drop_down(self.xpath['cadastro_dados_pessoais']['nacionalidade'], '1', By.XPATH)
                 self.act.select_drop_down(self.xpath['cadastro_dados_pessoais']['uf_naturalidade'], informacoes['contrato']['estadoNaturalidade'], By.XPATH)
-                
-                cidades = self.act.retornar_elementos(self.xpath['cadastro_dados_pessoais']['option_naturalidade'], By.XPATH)
-                while len(cidades) == 1:
-                    print('Aguardando cidades...')
-                    time.sleep(1)
-                    cidades = self.act.retornar_elementos(self.xpath['cadastro_dados_pessoais']['option_naturalidade'], By.XPATH)   
                     
-                naturalidade = unidecode.unidecode(informacoes['contrato']['naturalidade']).upper()
-                
                 print('>>>Preenchendo cidade de naturalidade')
-                for i in cidades:
-                    if naturalidade in i.text.upper():
-                        i.click()
-                        
+                naturalidade = unidecode.unidecode(informacoes['contrato']['naturalidade']).upper()
+                self.act.obter_elemento_enviar_texto_clicar(self.xpath['cadastro_dados_pessoais']['cidade_naturalidade'], naturalidade, By.XPATH)
+        
                 print('>>>Preenchendo nome da mãe e do pai')
                 self.act.enviar_texto(self.xpath['cadastro_dados_pessoais']['nome_mae'], informacoes['contrato']['nomeMae'], By.XPATH)
                 self.act.enviar_texto(self.xpath['cadastro_dados_pessoais']['nome_pai'], (lambda nome: nome if nome != "" else "não declarado")(informacoes['contrato']['nomePai']), By.XPATH)
@@ -351,7 +370,7 @@ class InserirContrato(Manager):
                 #TODO REMOVER OU MOCKUP
                 campo_data = self.driver.find_element(By.ID, 'ct_data_admissao')
                 self.act.press_backspace(self.xpath['cadastro_dados_pessoais']['data_admissao'], 20, By.XPATH)
-                campo_data.send_keys('25/04/2000')
+                campo_data.send_keys(informacoes['contrato']['dadosProfissionais']['admissao'])
                 
                 print('>>>Preenchendo endereço')                
                 campo_cep = self.driver.find_element(By.ID, 'cep')
@@ -364,27 +383,38 @@ class InserirContrato(Manager):
                 self.act.enviar_texto(self.xpath['cadastro_dados_pessoais']['complemento'], informacoes['contrato']['complemento'], By.XPATH)
                 self.act.enviar_texto(self.xpath['cadastro_dados_pessoais']['bairro'], informacoes['contrato']['bairro'], By.XPATH)
                 
-                cidades = self.act.retornar_elementos(self.xpath['cadastro_dados_pessoais']['option_cidade'], By.XPATH)
-                while len(cidades) == 1:
-                    print('Aguardando cidades...')
-                    time.sleep(1)
-                    cidades = self.act.retornar_elementos(self.xpath['cadastro_dados_pessoais']['option_cidade'], By.XPATH)   
-                    
-                cidade_endereco = unidecode.unidecode(informacoes['contrato']['cidade']).upper()
-                
                 print('>>>Preenchendo cidade')
-                for i in cidades:
-                    if cidade_endereco == i.text.upper():
-                        i.click()
-                
-                pdb .set_trace()
-                self.act.enviar_texto(self.xpath['cadastro_dados_pessoais']['celular'], '('+informacoes['contrato']['dddCelular']+') '+informacoes['contrato']['celular'][0:5]+'-'+informacoes['contrato']['celular'][5:9], By.XPATH)
-                
-                #TODO atualizar valor do contrato
-                #valor_contrato = self.act.obter_texto('/html/body/div[2]/section/div[1]/div/div/div/div/div/form/div[1]/fieldset[3]/div/div', By.XPATH)
-                print('-----------------------------------------------------------------')
-                pdb.set_trace()
+                cidade_endereco = unidecode.unidecode(informacoes['contrato']['cidade']).upper()
+                self.act.obter_elemento_enviar_texto_clicar('//*[@id="cidade"]', cidade_endereco, By.XPATH)
 
+                print('>>>Preenchendo celular')
+                campo_celular = self.driver.find_element(By.ID, 'celular')
+                self.act.press_backspace(self.xpath['cadastro_dados_pessoais']['celular'], 20, By.XPATH)
+                #self.act.enviar_texto(self.xpath['cadastro_dados_pessoais']['celular'], '('+informacoes['contrato']['dddCelular']+') '+informacoes['contrato']['celular'][0:5]+'-'+informacoes['contrato']['celular'][5:9], By.XPATH)
+                campo_celular.send_keys(informacoes['contrato']['dddCelular']+informacoes['contrato']['celular'][0:5]+'-'+informacoes['contrato']['celular'][5:9])
+                
+                print('>>>Clicando em próxima etapa')
+                self.act.clicar_elemento(self.xpath['cadastro_dados_pessoais']['proxima_etapa'], By.XPATH)
+                self.verificar_loading_cadastro()
+
+                print('----------------- Preechendo Pix e Dados Bancários-----------------')
+                self.act.select_drop_down(self.xpath['liberacao_dados_profissionais']['forma_pagamento'], '6', By.XPATH)
+                self.act.select_drop_down(self.xpath['liberacao_dados_profissionais']['tipo_credito'], 'C', By.XPATH)
+                self.act.select_drop_down(self.xpath['liberacao_dados_profissionais']['banco_liberacao'], informacoes['contrato']['numeroBanco'], By.XPATH)
+                self.act.enviar_texto(self.xpath['liberacao_dados_profissionais']['agencia_iberacao'], informacoes['contrato']['agencia'], By.XPATH)
+                self.act.enviar_texto(self.xpath['liberacao_dados_profissionais']['conta_liberacao'], informacoes['contrato']['numeroConta']+informacoes['contrato']['digitoConta'], By.XPATH)
+                
+                pdb.set_trace()
+                self.act.obter_elemento_enviar_texto_clicar(self.xpath['liberacao_dados_profissionais']['tipo_profissao'], informacoes['contrato']['dadosProfissionais']['profissao'], By.XPATH)
+
+                print('----------------- CLicando em finalizar -----------------')
+                #self.driver.execute_script("document.body.style.zoom='50%'")
+                self.driver.find_element(By.ID, 'observacao').send_keys(Keys.END)
+                self.act.clicar_elemento(self.xpath['liberacao_dados_profissionais']['proxima_etapa'], By.XPATH)
+                
+                pdb.set_trace()
+                
+                
             except Exception as e:
                 print(e)
                 if 'localhost' in e:

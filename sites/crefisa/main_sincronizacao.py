@@ -137,7 +137,7 @@ class Main:
                 #dados_login = query_login_pass_robo(self.id_robo, self.usuario)
                 dados_login = {}
                 dados_login['login'] = '50801.06050694680'
-                dados_login['senha'] = '@Etus2034'
+                dados_login['senha'] = '@Etus20345'
                 dados_login['link'] = 'https://app1.gerencialcredito.com.br/CREFISA/'
                 login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'], popup_login)
             except:

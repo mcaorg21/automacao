@@ -1072,3 +1072,12 @@ class SeleniumActions:
             return By.XPATH
         elif re.match(r"\w+\[|\*\[|#\w+|\.\w+|\[\w+", seletor):
             return By.CSS_SELECTOR
+        
+    def obter_elemento_enviar_texto_clicar(self, seletor, texto: str, metodo=By.XPATH):
+        input_element = WebDriverWait(self.driver, self.__time_out).until(
+            EC.visibility_of_element_located((metodo, seletor)),
+            message=self.message
+        )
+        input_element.click()
+        input_element.send_keys(texto)
+        input_element.send_keys(Keys.ENTER)

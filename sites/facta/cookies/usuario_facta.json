@@ -6,31 +6,31 @@
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
-        "value": "19006AE057C9B2A3949987F069"
+        "value": "B8A28CFD68D6423F393F272A"
     },
     {
         "domain": ".facta.com.br",
-        "expiry": 1778268506,
+        "expiry": 1779300284,
         "httpOnly": false,
         "name": "_ga_VNTS8HTZGH",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
-        "value": "GS1.3.1743708506.1.0.1743708506.0.0.0"
+        "value": "GS1.3.1744740284.1.0.1744740284.0.0.0"
     },
     {
         "domain": ".facta.com.br",
-        "expiry": 1743794906,
+        "expiry": 1744826684,
         "httpOnly": false,
         "name": "_gid",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
-        "value": "GA1.3.46263457.1743708506"
+        "value": "GA1.3.1630153618.1744740284"
     },
     {
         "domain": ".facta.com.br",
-        "expiry": 1743708566,
+        "expiry": 1744740344,
         "httpOnly": false,
         "name": "_gat",
         "path": "/",
@@ -45,17 +45,17 @@
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
-        "value": "637000295939"
+        "value": "53000262639"
     },
     {
         "domain": ".facta.com.br",
-        "expiry": 1778268506,
+        "expiry": 1779300284,
         "httpOnly": false,
         "name": "_ga",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
-        "value": "GA1.3.1879815234.1743708506"
+        "value": "GA1.3.1836657555.1744740284"
     },
     {
         "domain": "desenv.facta.com.br",
@@ -64,7 +64,7 @@
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
-        "value": "ipno308oapo7gtubmc425550a8"
+        "value": "f8inodfq0m5skagoi3hgkumu7k"
     },
     {
         "domain": "desenv.facta.com.br",
@@ -73,6 +73,6 @@
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
-        "value": "bb8850fc7ed4017b5474b248ff889733"
+        "value": "3f4eb38050e8c2f7cd724e111122e9d7"
     }
 ]
