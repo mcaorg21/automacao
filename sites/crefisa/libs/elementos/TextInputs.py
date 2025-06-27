@@ -18,6 +18,10 @@ def input_senha_fact(driver: Chrome, time_out=5):
     label = "Senha"
     return TextInput(driver, seletor=sel, label=label, time_out=time_out)
 
+def input_tfa_fact(driver: Chrome, time_out=5):
+    sel = '#txt2FACode'
+    label = "2FA"
+    return TextInput(driver, seletor=sel, label=label, time_out=time_out)
 
 def input_data_nascimento(driver: Chrome, time_out=5):
     sel = '#DataNascimento'

@@ -1,0 +1,22 @@
+[
+    {
+        "domain": ".uy3.com.br",
+        "expiry": 1781116801,
+        "httpOnly": false,
+        "name": "_hjSessionUser_3875804",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "value": "eyJpZCI6ImIzMWU5ODZhLTNiNWYtNTZiNC1iNmExLWQ1YmY4Njk0Njg4ZiIsImNyZWF0ZWQiOjE3NDg4OTYyMzkzNzYsImV4aXN0aW5nIjp0cnVlfQ=="
+    },
+    {
+        "domain": ".uy3.com.br",
+        "expiry": 1749582500,
+        "httpOnly": false,
+        "name": "_hjSession_3875804",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "value": "eyJpZCI6IjVlMzk2ZTIzLWE0N2UtNGQ0My05YjVlLTE0YmZjN2Y0Y2Q2MSIsImMiOjE3NDk1ODA3MDAwMTcsInMiOjAsInIiOjAsInNiIjowLCJzciI6MCwic2UiOjAsImZzIjowLCJzcCI6MX0="
+    }
+]

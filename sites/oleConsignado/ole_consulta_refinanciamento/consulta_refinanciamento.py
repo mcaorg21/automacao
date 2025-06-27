@@ -5,14 +5,18 @@
 """
 
 #PARA RODAR NO WINDOWS
-# import sys
+import sys
 # sys.path.append('../../../')
+
+sys.path.insert(1, '/home/gustavo/Desktop/automacao-python/')
 
 import random
 import re
 import time
 import requests,pdb,shutil
 from typing import List
+
+#pdb.set_trace()
 
 from selenium.webdriver import Chrome
 from selenium import webdriver
@@ -48,10 +52,11 @@ class ConsultaRefinanciamento(OleConsignado):
         super().__init__(driver)
         self.base_path = PATHS.project_path()
         self.path_db = self.base_path + "/oleConsignado/database/refinanciamento.json"
+
         self.solicitacao = None
         self.refinanciamentos = None
-        self.driver: Chrome = driver
-        #self.driver = webdriver.Chrome()
+        #self.driver: Chrome = driver
+        self.driver = webdriver.Chrome()
         self.selenium = SeleniumHelper(self.driver)
         self.act = SeleniumActions(self.driver)
         self.db_info = TinyDB(self.path_db).table("identificador_orgao")
@@ -261,7 +266,7 @@ class ConsultaRefinanciamento(OleConsignado):
 
     def buscar_solicitacoes_refinanciamento(self):
         request_solicitacoes = requests.get(
-            f"https://uconecte.me/api/v1/solicitacoes/refinanciamento?key={self.api_key}&banco={self.id_banco}")
+            f"https://app.emprestimofacil.com/api/v1/solicitacoes/refinanciamento?key={self.api_key}&banco={self.id_banco}")
 
         if request_solicitacoes.status_code != 200:
             print(request_solicitacoes.text)
@@ -909,36 +914,36 @@ class RestricaoException(Exception):
         super().__init__()
         self.message = message
 
-# from sites.baseRobos.manager import Manager
-# from sites.baseRobos.core.helpers import aguardar_n_segundos, definir_nome_robo
-# from selenium import webdriver
-# from selenium.webdriver.chrome.options import Options
+from sites.baseRobos.manager import Manager
+from sites.baseRobos.core.helpers import aguardar_n_segundos, definir_nome_robo
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
-# definir_nome_robo("Ole - Consulta Refin")
+definir_nome_robo("Ole - Consulta Refin")
 
-# chrome_user = PATHS.chrome_user("OleRefin")
+chrome_user = PATHS.chrome_user("OleRefin")
 
-# try:
-#     shutil.rmtree(PATHS.project_path()+'/chrome_user_dir/OleRefin')
-# except:
-#     pass
+try:
+    shutil.rmtree(PATHS.project_path()+'/chrome_user_dir/OleRefin')
+except:
+    pass
 
-# options = Options()
-# options.add_argument('--ignore-ssl-errors')
-# options.add_argument('log-level=3')
-# options.add_argument(chrome_user)
-# Manager.criar_pasta_usuario_chrome(chrome_user)
+options = Options()
+options.add_argument('--ignore-ssl-errors')
+options.add_argument('log-level=3')
+options.add_argument(chrome_user)
+Manager.criar_pasta_usuario_chrome(chrome_user)
 
-# driver = webdriver.Chrome(
-#             #executable_path=PATHS.driver_path(),
-#             options=options)
-# driver.get('https://ola.oleconsignado.com.br/Home')
+driver = webdriver.Chrome(
+            #executable_path=PATHS.driver_path(),
+            options=options)
+driver.get('https://ola.oleconsignado.com.br/Home')
 
-# for i in range(10):
-#     ConsultaRefinanciamento.iniciar_horario_comercial(driver=driver)
-#     aguardar_n_segundos(60)
+for i in range(10):
+    ConsultaRefinanciamento.iniciar_horario_comercial(driver=driver)
+    aguardar_n_segundos(60)
     
-#manager.driver.quit()
+manager.driver.quit()
 
 
 

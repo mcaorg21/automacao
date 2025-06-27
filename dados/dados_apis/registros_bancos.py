@@ -7,10 +7,12 @@ def filtrar_bancos_nome(nome_banco: str) -> str:
         "bmg": "bmg",
         "pan": "pan",
         "novo-saque": "novo-saque",
-        "crefisa": "crefisa"
+        "crefisa": "crefisa",
+        "facta": "facta",
+        "phtech": "phtech"
 
     }
-    return bancos.get(nome_banco.lower())
+    return bancos.get(nome_banco.lower(),"Classificar o banco na funcao filtrar_bancos_nome em dados_apis/registros_bancos.py")
 
 
 def filtrar_bancos_id(nome_banco: str) -> int:

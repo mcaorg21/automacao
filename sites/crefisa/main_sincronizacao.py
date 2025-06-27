@@ -8,8 +8,11 @@
 | autor: Marcelo Amancio
 """
 import pdb,sys, os
-sys.path.append('../')
-#sys.path.insert(1, '/home/gustavo/Desktop/automacao-python/')
+#sys.path.append('../')
+if "linux" in sys.platform:
+    sys.path.insert(1, '/home/gustavo/Desktop/automacao-python/')
+else:
+    sys.path.append('../')
 
 
 from datetime import datetime
@@ -101,6 +104,8 @@ class Main:
 
         self.selenium_helper = SeleniumHelper(self.driver)
 
+        self.driver.set_window_position(1250, 0)
+
         self.driver.get('https://app1.gerencialcredito.com.br/CREFISA/')
 
         self.driver.delete_all_cookies()
@@ -137,13 +142,18 @@ class Main:
                 #dados_login = query_login_pass_robo(self.id_robo, self.usuario)
                 dados_login = {}
                 dados_login['login'] = '50801.06050694680'
-                dados_login['senha'] = '@Etus20345'
+                dados_login['senha'] = '@123Mudar983'
                 dados_login['link'] = 'https://app1.gerencialcredito.com.br/CREFISA/'
                 login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'], popup_login)
             except:
                 #self.driver.delete_all_cookies()
                 self.main()
-
+        try:
+            texto = self.act.obter_texto('//h4[contains(text(),"Atualização de senha")]', By.XPATH)
+            if texto == 'Atualização de senha':
+                input('>>>>>> Troque a senha no arquivo...')
+        except:
+            pass
 
         self.selenium_helper.save_cookies(self.cookies_path)
         self.escreve_json()

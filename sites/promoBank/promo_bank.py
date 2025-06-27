@@ -2,7 +2,11 @@ from selenium import webdriver
 import sys,pdb
 
 #no linux é sys.path.append('../') tambem no xterm é ./
-sys.path.append('../')
+#sys.path.append('../')
+if "linux" in sys.platform:
+    sys.path.insert(1, '/home/gustavo/Desktop/automacao-python/')
+else:
+    sys.path.append('../')
 
 from selenium.webdriver.chrome.options import Options
 import time
@@ -67,7 +71,7 @@ class PromoBank:
 		
 		try:
 			self.driver = webdriver.Chrome(
-					executable_path=self.driver_path,
+					#executable_path=self.driver_path,
 					chrome_options=options)
 		except:
 			options = Options()
@@ -84,6 +88,8 @@ class PromoBank:
 		self.selenium_helper = SeleniumHelper(self.driver)
 		self.act = SeleniumActions(self.driver)
 		self.contar_inicio = 0
+
+		self.driver.set_window_position(1350, 0)
 
 	def main(self,retorno='N'):
 		self.driver.get('https://www.promobank.online/sistema')
@@ -1367,15 +1373,16 @@ class PromoBank:
 				if (request_contratos.status_code == 200):
 					print('Contrato reprovado a conferir atualizado:'+contrato['codigo_con'])
 
-				self.log.api_registrar_log_robo(
-					log=f"Consulta finalizada com retorno: {retorno['retorno']}",
-					status=2
-				)
+				# self.log.api_registrar_log_robo(
+				# 	log=f"Consulta finalizada com retorno: {retorno['retorno']}",
+				# 	status=2
+				# )
 			except Exception as e:
-				self.log.api_registrar_log_robo(
-					log=f"ERRO: {e}",
-					status=0
-				)
+				pass
+				# self.log.api_registrar_log_robo(
+				# 	log=f"ERRO: {e}",
+				# 	status=0
+				# )
 
 	def verifica_se_consignavel(self,especie_beneficio):
 	    switcher = {

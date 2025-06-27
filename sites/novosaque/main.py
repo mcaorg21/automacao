@@ -8,8 +8,11 @@
 | autor: Marcelo Amancio
 """
 import pdb,sys, os
-sys.path.append('../')
-
+#sys.path.append('../')
+if "linux" in sys.platform:
+    sys.path.insert(1, '/home/gustavo/Desktop/automacao-python/')
+else:
+    sys.path.append('../')
 
 from datetime import datetime
 from time import sleep
@@ -36,7 +39,7 @@ from time import sleep
 
 import shutil
 
-HORARIO_COMERCIAL = 8, 20
+HORARIO_COMERCIAL = 8, 22
 
 class Main:
 
@@ -81,6 +84,8 @@ class Main:
         self.act: SeleniumActions = SeleniumActions(self.driver)
         self.sh: SeleniumHelper = SeleniumHelper(self.driver)
 
+        self.driver.set_window_position(1250, 0)
+
     @AguardarHorarioComercial(*HORARIO_COMERCIAL)
     def main(self):
         definir_nome_robo(self.TITLE)
@@ -89,17 +94,17 @@ class Main:
 
         #fila de insercao de contrato
         definir_nome_robo(self.TITLE)
-        #InserirContrato.iniciar_horario_comercial(self.driver)
+        InserirContrato.iniciar_horario_comercial(self.driver)
           
         #fila de sincronizacao
         definir_nome_robo(self.TITLE)
         ConsultaStatus.iniciar_horario_comercial(self.driver)
 
         print('Aguardando 10 minutos para reiniciar...')
-        self.driver.quit()
+        #self.driver.quit()
         sleep(600)
-        Main().main()
-        #self.main()
+        #Main().main()
+        self.main()
 
 
     def verificar_tempo_execucao(self):

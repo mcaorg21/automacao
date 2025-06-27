@@ -84,6 +84,10 @@ main_paths: dict = {
     "Cora": "/cora/main.py",
 
     #Cora Sincroniza
-    "CoraLogin": "/cora/login.py"
+    "CoraLogin": "/cora/login.py",
+    
+    #Facta
+    "FactaSincronizacao": "/facta/main_sincronizacao.py", 
+    "FactaInsercao": "/facta/main.py",
 }
 

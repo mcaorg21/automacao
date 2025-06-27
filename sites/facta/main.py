@@ -8,8 +8,11 @@
 | autor: Marcelo Amancio
 """
 import pdb,sys, os
-sys.path.append('../')
-#sys.path.insert(1, '/home/gustavo/Desktop/automacao-python/')
+
+if "linux" in sys.platform:
+    sys.path.insert(1, '/home/gustavo/Desktop/automacao-python/')
+else:
+    sys.path.append('../')
 
 
 from datetime import datetime
@@ -37,7 +40,7 @@ from dados.database.queries.query_dados_robos import query_login_pass_robo
 
 from time import sleep
 
-import shutil,json
+import shutil,json,random
 
 HORARIO_COMERCIAL = 7, 22
 
@@ -49,30 +52,47 @@ class Main():
     TITLE = "Facta - Insercao"
 
     def __init__(self):
-        
+
+        nome = f'Facta Insercao {random.randint(1, 1000)}'
         self.base_path: str = PATHS.project_path()
-        self.chrome_user: str = PATHS.chrome_user('Facta Insercao')
+        self.chrome_user: str = PATHS.chrome_user(nome)
         self.driver_path: str = PATHS.driver_path()
-    
+        self.ordem = 'desc' 
+        
         self.api_key = "f689f1e12a0399fba803cb2365fc362f"
 
         options = Options()
-        Manager().criar_pasta_usuario_chrome(self.chrome_user)
-        options.add_argument('--ignore-ssl-errors')
-        
-        options.add_argument('--window-size=1150,600"')
-        options.add_argument(self.chrome_user)
-        options.add_experimental_option("w3c", False)
-        opts = ('--disable-blink-features=AutomationControlled','--ignore-ssl-errors', self.chrome_user, 'log-level=3',"--no-sandbox","--window-size=1150,1000","--ignore-autocomplete-off-autofill","disable-infobars")
-
-
         try:
+            Manager().criar_pasta_usuario_chrome(self.chrome_user)
+   
+            options.add_argument('--ignore-ssl-errors')
+            
+            options.add_argument('--window-size=1150,600"')
+            options.add_argument(self.chrome_user)
+            options.add_experimental_option("w3c", False)
+            opts = ('--disable-blink-features=AutomationControlled','--ignore-ssl-errors', self.chrome_user, 'log-level=3',"--no-sandbox","--window-size=1150,1000","--ignore-autocomplete-off-autofill","disable-infobars")
+
+            # try:
             self.driver = Manager.driver_factory(*opts)
+            # except:
+            #     pasta_user = self.chrome_user.replace("--user-data-dir=","")
+            #     print("Erro de criacao de usuario, deletando a pasta...")
+            #     shutil.rmtree(pasta_user)
+            #     exit()
+            
         except:
-            pasta_user = self.chrome_user.replace("--user-data-dir=","")
-            print("Erro de criacao de usuario, deletando a pasta...")
-            shutil.rmtree(pasta_user)
-            exit()
+            self.ordem = 'asc' 
+            self.chrome_user = str = PATHS.chrome_user('Facta Insercao DESC')
+            Manager().criar_pasta_usuario_chrome(self.chrome_user)
+            
+            options.add_argument('--ignore-ssl-errors')
+            
+            options.add_argument('--window-size=1150,600"')
+            options.add_argument(self.chrome_user)
+            options.add_experimental_option("w3c", False)
+            opts = ('--disable-blink-features=AutomationControlled','--ignore-ssl-errors', self.chrome_user, 'log-level=3',"--no-sandbox","--window-size=1150,1000","--ignore-autocomplete-off-autofill","disable-infobars")
+
+            self.driver = Manager.driver_factory(*opts)
 
         self.timer: int = 60
         self.ultima_atualizacao: datetime = datetime.now()
@@ -86,6 +106,8 @@ class Main():
 
         self.cookies_path = self.caminho_base+"\\facta\\cookies\\" + "usuario_facta.pkl"
         self.cookies_path_json = self.caminho_base+"\\facta\\cookies\\" + "usuario_facta.json"
+
+        self.driver.set_window_position(300, 0)
 
     @AguardarHorarioComercial(*HORARIO_COMERCIAL)
     def main(self):
@@ -101,12 +123,11 @@ class Main():
             sleep(5)
         
         #fila de insercao de contrato
-        definir_nome_robo(self.TITLE)   
-        insercao = InserirContrato.iniciar_horario_comercial(self.driver)
+        definir_nome_robo(self.TITLE + ' - ' + self.ordem)   
+        insercao = InserirContrato.iniciar_horario_comercial(self.driver, self.ordem)
 
         if(insercao == False):
             print('entrou............')
-            pdb.set_trace()
             self.main()
 
         print('Aguardando minutos para reiniciar...')
@@ -118,7 +139,7 @@ class Main():
         url = "http://emprestimofacil.co/web_admin/api/v1/consulta/cookies/facta/?key={}".format(self.api_key)
         cookies = self.selenium_helper.load_cookies_robo_web_admin(url, self.id_robo)
 
-        self.driver.get('https://desenv.facta.com.br/sistemaNovo/login.php')
+        self.driver.get('https://desenv.facta.com.br/sistemaNovo/dashboard.php')
         self.driver.delete_all_cookies()
 
         return_cookie = True
@@ -141,7 +162,7 @@ class Main():
 
     def load_cookies_pasta(self):
 
-        self.driver.get('https://desenv.facta.com.br/sistemaNovo/login.php')
+        self.driver.get('https://desenv.facta.com.br/sistemaNovo/dashboard.php')
         self.driver.delete_all_cookies()
 
         file = open(self.cookies_path_json)

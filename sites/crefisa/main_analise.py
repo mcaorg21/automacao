@@ -8,8 +8,11 @@
 | autor: Marcelo Amancio
 """
 import pdb,sys, os
-sys.path.append('../')
-#sys.path.insert(1, '/home/gustavo/Desktop/automacao-python/')
+#sys.path.append('../')
+if "linux" in sys.platform:
+    sys.path.insert(1, '/home/gustavo/Desktop/automacao-python/')
+else:
+    sys.path.append('../')
 
 
 from datetime import datetime
@@ -57,6 +60,7 @@ class Main():
         # self.usuario = '50801.03507179660'
 
         self.base_path: str = PATHS.project_path()
+        self.ordem_analise = 'desc'
 
         self.chrome_user: str = PATHS.chrome_user('Crefisa Analise')
         self.driver_path: str = PATHS.driver_path()
@@ -72,16 +76,28 @@ class Main():
         options.add_experimental_option("w3c", False)
         opts = ('--disable-blink-features=AutomationControlled','--ignore-ssl-errors', self.chrome_user, 'log-level=3',"--no-sandbox","--window-size=1150,1000","--ignore-autocomplete-off-autofill","disable-infobars")
 
-
         try:
             self.driver = Manager.driver_factory(*opts)
+            
         except:
-            pasta_user = self.chrome_user.replace("--user-data-dir=","")
-            print("Erro de criacao de usuario, deletando a pasta...")
-            shutil.rmtree(pasta_user)
-            #deleta_todos_arquivos(pasta_user)
-            #os.rmdir(pasta_user)
-            exit()
+
+            self.ordem_analise = 'asc'
+            self.chrome_user: str = PATHS.chrome_user('Crefisa Analise ' + self.ordem_analise.upper())
+            options = Options()
+            Manager().criar_pasta_usuario_chrome(self.chrome_user)
+            options.add_argument('--ignore-ssl-errors')
+            
+            options.add_argument('--window-size=1150,600"')
+            options.add_argument(self.chrome_user)
+            options.add_experimental_option("w3c", False)
+            opts = ('--disable-blink-features=AutomationControlled','--ignore-ssl-errors', self.chrome_user, 'log-level=3',"--no-sandbox","--window-size=1150,1000","--ignore-autocomplete-off-autofill","disable-infobars")
+
+            self.driver = Manager.driver_factory(*opts)
+            # pasta_user = self.chrome_user.replace("--user-data-dir=","")
+            # print("Erro de criacao de usuario, deletando a pasta...")
+            # shutil.rmtree(pasta_user)
+
+            # exit()
 
         self.timer: int = 60
         self.ultima_atualizacao: datetime = datetime.now()
@@ -96,16 +112,15 @@ class Main():
         self.cookies_path = self.caminho_base+"\\crefisa\\cookies\\" + "usuario_crefisa.pkl"
         self.cookies_path_json = self.caminho_base+"\\crefisa\\cookies\\" + "usuario_crefisa.json"
 
+        self.driver.set_window_position(1250, 0)
+
 
     @AguardarHorarioComercial(*HORARIO_COMERCIAL)
     def main(self):
-        definir_nome_robo('Crefisa - Analisa Contrato')        
+        definir_nome_robo('Crefisa - Analisa ' + self.ordem_analise.upper())        
 
-        self.load_cookies_crefisa_web_admin()
-        
-        #fila de insercao de contrato
-        definir_nome_robo(self.TITLE)   
-        insercao = AnalisaContrato.iniciar_horario_comercial(self.driver)
+        self.load_cookies_crefisa_web_admin() 
+        insercao = AnalisaContrato.iniciar_horario_comercial(self.driver, self.ordem_analise)
 
         if(insercao == False):
             print('entrou............')
@@ -115,7 +130,10 @@ class Main():
         print('Aguardando minutos para reiniciar...')
         #self.driver.delete_all_cookies()
         #self.driver.quit()
-        sleep(1)
+        if(self.ordem_analise == 'asc'):
+            sleep(300)
+        else:
+            sleep(1)
         #Main().main()
         self.main()
 

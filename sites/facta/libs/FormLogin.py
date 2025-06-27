@@ -21,7 +21,7 @@ class FormLogin:
         self.login: str = login
         self.senha: str = senha
         self.driver: Chrome = driver
-        #self.site_key_captcha = '6Lf-1q0pAAAAAJCrjBOtEvZLrrFlL50mkWpwvSTN'
+        self.site_key_captcha = '6Lf-1q0pAAAAAJCrjBOtEvZLrrFlL50mkWpwvSTN'
         #self.act = 
 
     @staticmethod

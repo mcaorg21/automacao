@@ -18,8 +18,11 @@
 from typing import List
 
 import os,sys,pdb
-sys.path.append('../')
-#sys.path.insert(1, '/home/gustavo/Desktop/automacao-python/')
+#sys.path.append('../')
+if "linux" in sys.platform:
+    sys.path.insert(1, '/home/gustavo/Desktop/automacao-python/')
+else:
+    sys.path.append('../')
 
 
 

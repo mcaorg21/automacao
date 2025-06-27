@@ -8,8 +8,11 @@
 | autor: Marcelo Amancio
 """
 import pdb,sys, os
-sys.path.append('../')
-#sys.path.insert(1, '/home/gustavo/Desktop/automacao-python/')
+#sys.path.append('../')
+if "linux" in sys.platform:
+    sys.path.insert(1, '/home/gustavo/Desktop/automacao-python/')
+else:
+    sys.path.append('../')
 
 
 from datetime import datetime
@@ -97,6 +100,8 @@ class Main():
 
         self.cookies_path = self.caminho_base+"\\crefisa\\cookies\\" + "usuario_crefisa.pkl"
         self.cookies_path_json = self.caminho_base+"\\crefisa\\cookies\\" + "usuario_crefisa.json"
+
+        self.driver.set_window_position(1250, 0)
 
     @AguardarHorarioComercial(*HORARIO_COMERCIAL)
     def main(self):

@@ -7,6 +7,22 @@ from pathlib import Path
 file = str(Path(f"{INITIALIZR_ROOT}/ativacao.json"))
 bp = Blueprint("ativacao", __name__, template_folder=templates)
 
+@bp.route('/codigo', methods=["GET", "POST"])
+def salvar_codigo():
+    codigo = request.args.get("codigo") or request.form.get("codigo")
+
+    if not codigo:
+        return "Código não informado", 400
+
+    caminho_arquivo = "/home/gustavo/Desktop/automacao-python/sites/crefisa/libs/codigo.txt"
+
+    try:
+        with open(caminho_arquivo, "w") as f:
+            f.write(codigo.strip())
+        return "Código salvo com sucesso", 200
+    except Exception as e:
+        return f"Erro ao salvar: {str(e)}", 500
+        
 
 @bp.route('/consulta-portal-inss', methods=["GET", "POST"])
 def ativacao_post():

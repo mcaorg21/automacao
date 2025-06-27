@@ -25,9 +25,16 @@
             </p>
         </div>
         {% for key, val in procs.items() %}
-             <div class="shadow rounded m-4 p-3 bg-light card">
+            <div class="shadow rounded m-4 p-3 bg-light card">
                 <h3>Processo {{ key }}</h3>
                 <form method="post" action="{{ url_for("ativacao.ativacao") }}">
+
+                    {% if key == "CrefisaSincronizacao" %}
+                        <div class="form-group">
+                            <label for="2fa_{{ key }}">2FA</label>
+                            <input type="text" id="codigo2fa" name="codigo2fa" maxlength="6" pattern="\d{6}" class="form-control" placeholder="Código 2FA">
+                        </div>
+                    {% endif %}
 
                     {% if val == True %}
                         <div class="d-inline-flex">
@@ -45,8 +52,37 @@
                         <input class="btn btn-success" type="submit" name="{{ key }}" value="Ativar">
                     {% endif %}
                 </form>
-             </div>
+            </div>
         {% endfor %}
+
     </div>
+    <script>
+        document.getElementById('codigo2fa').addEventListener('input', function() {
+            
+            var codigo = this.value;
+            var baseUrl = window.location.origin;
+
+            // Quando atingir 6 dígitos
+            if (codigo.length === 6) {
+                fetch(baseUrl + '/codigo?codigo=' + codigo, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ codigo: codigo })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Código 2FA enviado com sucesso!');
+                    } else {
+                        alert('Erro ao enviar o código 2FA.');
+                    }
+                })
+                .catch(error => {
+                    alert('Erro na requisição: ' + error);
+                });
+            }
+        });
+    </script>
 </body>
 </html>

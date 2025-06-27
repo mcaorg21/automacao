@@ -17,7 +17,7 @@ import PATHS
 
 from sites.oleConsignado.ole_insercao.managers.ole_consig_insercao import OleConsigInsercao
 from sites.oleConsignado.gerar_refin.ole_consignado import OleConsignado as GerarContrato
-from sites.oleConsignado.ole_consulta_refinanciamento.consulta_refinanciamento import ConsultaRefinanciamento
+#rom sites.oleConsignado.ole_consulta_refinanciamento.consulta_refinanciamento import ConsultaRefinanciamento
 
 from dados.database.LoginDBDataSource import LoginDBDataSource
 from sites.baseRobos.core.helpers import definir_nome_robo
@@ -89,7 +89,8 @@ class Main:
         raise KeyboardInterrupt
 
     def main_loop(self):
-        tarefas: List[object] = [ConsultaStatusOle, AnexarDocumentos, ExecutaLiberacaoOle, ReenvioSMS,ConsultaRefinanciamento]
+        #ConsultaRefinanciamento
+        tarefas: List[object] = [ConsultaStatusOle, AnexarDocumentos, ExecutaLiberacaoOle, ReenvioSMS]
         try:
             for tarefa in tarefas:
                 print(f"\nIniciando Tarefa {tarefa.__class__.__name__}")

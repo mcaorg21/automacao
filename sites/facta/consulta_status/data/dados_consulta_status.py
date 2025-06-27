@@ -19,6 +19,9 @@ class DadosConsultaStatus(DataHandler):
 
     def get_ades(self):
         return self.data_source.consulta_status_parceiro()
+    
+    def get_pendentes(self):
+        return self.data_source.consulta_pendentes()
 
     def get_contratos_inserir(self, ordem):
         return self.data_source.fila_contratos_inserir(ordem)

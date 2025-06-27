@@ -24,6 +24,7 @@ from sites.core.uconecte import Uconecte
 
 from sites.oleConsignado.gerar_refin.ole_consignado import OleConsignado
 from sites.oleConsignado.ole_insercao.managers.ole_consig_insercao import OleConsigInsercao
+#from sites.oleConsignado.ole_consulta_refinanciamento.consulta_refinanciamento import ConsultaRefinanciamento
 from sites.oleConsignado.robos.auxiliares import ErroSessaoOle
 
 import PATHS
@@ -86,6 +87,8 @@ class Main:
 
         while True:
             try:
+                #ConsultaRefinanciamento.iniciar_horario_comercial(self.driver)
+
                 definir_nome_robo(self.TITLE)
                 OleConsignado.iniciar_horario_comercial(self.driver)
             except:

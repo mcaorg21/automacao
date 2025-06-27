@@ -333,10 +333,10 @@ class ConsultaStatus(Manager):
             except Exception as e:
                 print(e)
 
-                self.dados.api_registrar_log_robo(
-                    log=f"ERRO: {e}",
-                    status=0
-                )
+                # self.dados.api_registrar_log_robo(
+                #     log=f"ERRO: {e}",
+                #     status=0
+                # )
 
                 dados_consulta['ade'] = ade
                 dados_consulta["codigoCon"] = cod_con
@@ -349,7 +349,7 @@ class ConsultaStatus(Manager):
                 continue
 
         #self.dados.data_source.atualizar_sincronizacao()
-        self.dados.api_registrar_log_robo(log="Sincronizado com sucesso.",status=2)
+        #self.dados.api_registrar_log_robo(log="Sincronizado com sucesso.",status=2)
 
 
     def aguardar_consulta(self,segundos = 3):

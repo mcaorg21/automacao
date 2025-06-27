@@ -15,7 +15,7 @@ from sites.novosaque.consulta_status.data.dados_consulta_status import DadosCons
 
 from selenium.webdriver.common.by import By
 
-HORARIO_COMERCIAL = 8, 20
+HORARIO_COMERCIAL = 7, 22
 
 
 class InserirContrato(Manager):
@@ -55,7 +55,7 @@ class InserirContrato(Manager):
         self.verificar_loading()       
         print('Iniciando inserção de contrato...')
 
-        contratos = self.dados.get_contratos_inserir()        
+        contratos = self.dados.get_contratos_inserir('asc')        
 
         #self.chrome_driver.get(self.urls["consulta"])
 
@@ -159,7 +159,7 @@ class InserirContrato(Manager):
                 while(self.act.quantidade_elemento(loc_radio_tipo_calculo, By.XPATH) == 0):
                     print('Aguardando radio button abrir...')
                     tentativa += 1
-                    self.aguardar_consulta(2)
+                    self.aguardar_consulta(1)
                     if(tentativa > 30):
                         continue
 
@@ -172,7 +172,8 @@ class InserirContrato(Manager):
                 self.aguardar_consulta(1)
                 self.act.enviar_texto('//*[@id="value_installment"]',informacoes['contrato']['valorParcela'],By.XPATH)
                 self.aguardar_consulta(2)
-
+                self.act.enviar_texto_intervalado('//*[@id="value_installment"]',informacoes['contrato']['valorParcela'],By.XPATH)
+                
                 taxa = ''
                 for i in range(1,30):
                     self.act.press_DOWN('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[2]/div[3]/div[1]/div[2]/div/div/div',By.XPATH)
@@ -207,7 +208,7 @@ class InserirContrato(Manager):
                 self.act.press_backspace('//*[@id="email"]', metodo = By.XPATH, end = True, loop = loop_apagar, delay = 0)
 
                 self.act.enviar_texto('//*[@id="name"]',informacoes['contrato']['nome'],By.XPATH)
-
+                
                 if "yahoo.com" in informacoes['contrato']['email']:
                     self.act.enviar_texto('//*[@id="email"]',"empfacil@outlook.com",By.XPATH)
                 else:
@@ -223,8 +224,8 @@ class InserirContrato(Manager):
                 data_nascimento = formatar_data_banco_dados(informacoes['contrato']['dataNascimento'])              
                 self.driver.execute_script(f""" document.getElementById('birth_date').value = '{data_nascimento}'; """)
                 self.act.clicar_elemento('//*[@id="birth_date"]', By.XPATH)
-                self.act.press_UP('//*[@id="birth_date"]', By.XPATH);
-                self.act.press_DOWN('//*[@id="birth_date"]', By.XPATH);
+                self.act.press_UP('//*[@id="birth_date"]', By.XPATH)
+                self.act.press_DOWN('//*[@id="birth_date"]', By.XPATH)
 
                 self.act.enviar_texto('//*[@id="rg"]',informacoes['contrato']['identidade']['numero'],By.XPATH)
                 
@@ -248,7 +249,7 @@ class InserirContrato(Manager):
                     print('XXXXXXXXXXXXXXXXXXXX Pulando inserção por erro no CEP XXXXXXXXXXXXXXXXXXXX')
                     continue
 
-
+                
                 self.act.enviar_texto('//*[@id="street"]',informacoes['contrato']['endereco']['logradouro'],By.XPATH)
                 self.aguardar_consulta(2)
                 self.act.enviar_texto('//*[@id="number"]',informacoes['contrato']['endereco']['numero'],By.XPATH)
@@ -338,35 +339,35 @@ class InserirContrato(Manager):
                 
                 self.verificar_loading() 
                 
+                self.act.select_drop_down('//*[@id="gender_customer"]',informacoes['contrato']['sexo'].upper(), By.XPATH)
+                
                 #self.act.select_drop_down('//*[@id="kind_account"]','ted', By.XPATH)
                 #self.act.select_drop_down('//*[@id="kind_account"]','cpf_cnpj', By.XPATH)
                 #self.act.enviar_texto('//*[@id="pix"]',formatar_cpf_sem_caracteres(contrato['cpf_cli']),By.XPATH)
                 self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[6]/button', By.XPATH)
                 #self.verificar_loading()
-
+                
                 print('Finalizando ficha do contrato...')
-
-
 
                 email_invalido = self.act.quantidade_elemento('/html/body/div[3]/div/div/div',By.XPATH)
                 tentativa = 0
                 texto_email_invalido = ""
 
                 self.verificar_loading() 
-
+            
                 try:
                     while email_invalido == 0:
                         print('Tentando pegar email inválido')
                         email_invalido = self.act.quantidade_elemento('/html/body/div[3]/div/div/div',By.XPATH)
                         texto_email_invalido = self.act.obter_texto('/html/body/div[3]/div/div/div',By.XPATH)
                         tentativa += 1
-                        if(tentativa > 30):
+                        if(tentativa > 5):
                             break
                 except:
                     pass
-
-                time.sleep(5)
-  
+                
+                time.sleep(2)
+                
                 self.aguardar_consulta(2)
                 self.verificar_loading()  
                 
@@ -381,16 +382,21 @@ class InserirContrato(Manager):
                     self.aguardar_consulta(3)
                     if(informacoes['contrato']['email'][-2:] == 'br'):
                         self.act.enviar_texto('//*[@id="email"]',informacoes['contrato']['email'][:-3],By.XPATH)
-                    else:
-                        self.act.enviar_texto('//*[@id="email"]','empfacil@outlook.com',By.XPATH)
+                    # else:
+                    #     self.act.enviar_texto('//*[@id="email"]','empfacil@outlook.com',By.XPATH)
 
                     self.aguardar_consulta(3)
-                    self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[4]/button', By.XPATH)
+                    try:
+                        self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[4]/button', By.XPATH)
+                    except:
+                        self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[2]/form/div[4]/button', By.XPATH)
+                        pass
+                    
                     self.aguardar_consulta(3)
                     self.act.clicar_elemento('/html/body/div[2]/div/div[4]/div[2]/button', By.XPATH)
 
                 self.aguardar_consulta(5)
-
+                
                 try:
                     self.act.select_drop_down('//*[@id="payment_method"]','credit_card', By.XPATH)
                 except:
@@ -462,12 +468,45 @@ class InserirContrato(Manager):
 
                 print('Pesquisando a ade gerada...')
                 cpf_formatado = formatar_cpf_sem_caracteres(contrato['cpf_cli'])
-
-                nome = self.act.obter_texto('/html/body/div/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[1]/td[3]', By.XPATH)
-
+                
+                self.driver.get(self.urls['consulta_status']+cpf_formatado)
+                tr = 1
+                try:
+                    nome = self.act.obter_texto(f'/html/body/div/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[{tr}]/td[3]', By.XPATH)
+                except:
+                    self.act.clicar_elemento('//button[contains(text(), "Buscar todos os Contratos")]', By.XPATH)
+                    time.sleep(2)
+                    self.act.clicar_elemento('//button[contains(text(), " Filtrar")]', By.XPATH)
+                    time.sleep(1)
+                    self.act.enviar_texto('//*[@id="filterCpf"]',cpf_formatado, By.XPATH)
+                    time.sleep(1)
+                    self.act.clicar_elemento('/html/body/div[2]/div/div[1]/div/div/div[3]/button[3]', By.XPATH)
+                    time.sleep(2)
+                    
+                    
+                    try:
+                        nome = self.act.obter_texto(f'/html/body/div/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[{tr}]/td[3]', By.XPATH)
+                    except:
+                        dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                        dados_atualizacao['observacao_emp'] = "[CONFIRMAR] Não achou nome na consulta, gere manualmente a proposta"
+                        dados_atualizacao['observacao'] = "[CONFIRMAR] Não achou nome na consulta, gere manualmente a proposta"
+                        dados_atualizacao['status_con'] = "Aguardando Comercial"
+                        dados_atualizacao['erro'] = "[CONFIRMAR] Não achou nome na consulta, gere manualmente a proposta"
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        continue
+                    
+                
                 if(similaridade(nome,informacoes['contrato']['nome']) < 50):
-                    print("XXXXXXXXXXXXXXXXXXXXXXXX TRATAR ERRO DA BUSCA DE ADE xxxxxxxxxxxxxxxxxxxxxxxxxx")
-                    pdb.set_trace()
+                    
+                    while similaridade(nome,informacoes['contrato']['nome']) < 50:
+                        tr += 1
+                        print(f'Nome {nome} não bateu, tentando novamente...')
+                        self.aguardar_consulta(2)
+                        nome = self.act.obter_texto(f'/html/body/div/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[{tr}]/td[3]', By.XPATH)
+
+                    if(similaridade(nome,informacoes['contrato']['nome']) < 50):
+                        print("XXXXXXXXXXXXXXXXXXXXXXXX TRATAR ERRO DA BUSCA DE ADE xxxxxxxxxxxxxxxxxxxxxxxxxx")
+                        pdb.set_trace()
 
                 # self.act.clicar_elemento('//*[@id="root"]/div[1]/div[2]/div/div/div/div[1]/div/div[2]/div/button[1]', By.XPATH)
                 # self.aguardar_consulta(2)
@@ -494,14 +533,15 @@ class InserirContrato(Manager):
                 ade = ''
                 rec = 0
                 pular_insercao = False
+                
                 while ade == '':
                     try:
                         try:
                             ade = self.act.obter_texto('/html/body/div/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr/th/div/div/span',By.XPATH)
                         except:
                             print('Procurando ade pelo link')
-                            self.act.clicar_elemento('//*[@id="table-responsive-custom"]/tbody/tr[1]/td[1]/div/a', By.XPATH)
-                            link_ade = self.act.obter_atributo('/html/body/div[1]/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[1]/td[1]/div/div/a','href',By.XPATH)
+                            self.act.clicar_elemento(f'//*[@id="table-responsive-custom"]/tbody/tr[{tr}]/td[1]/div/a', By.XPATH)
+                            link_ade = self.act.obter_atributo(f'/html/body/div[1]/div[1]/div[2]/div/div/div/div[3]/table/tbody/tr[{tr}]/td[1]/div/div/a','href',By.XPATH)
                             ade = re.findall('\\d+',link_ade)[0]
 
                         print(ade)
@@ -527,10 +567,10 @@ class InserirContrato(Manager):
             except Exception as e:
                 print(e)
 
-                self.dados.api_registrar_log_robo(
-                    log=f"ERRO: {e}",
-                    status=0
-                )
+                # self.dados.api_registrar_log_robo(
+                #     log=f"ERRO: {e}",
+                #     status=0
+                # )
 
                 continue
 

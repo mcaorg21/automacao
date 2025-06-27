@@ -935,6 +935,41 @@ class SeleniumActions:
             self.driver.execute_script(f'{callback}();')
             return True
 
+    def turnstilecaptcha(self, data_sitekey, callback=''):
+        """
+           :param data_sitekey: Key do reCaptcha do site
+           :param callback: Nome da função callback
+           """
+        in_data = {
+            "key": "6c2a0fc387a4d92fae18d23ca833130f",
+            "method": "turnstile",
+            "sitekey": data_sitekey,
+            "pageurl": self.driver.current_url,
+            "json": 1
+        }
+        
+        
+        resultado = make_request("GET", "https://2captcha.com/in.php",
+                                 params_data=in_data, msg="Em <turnstilecaptcha>")
+
+        print("Id Captcha: ", resultado.json()['request'])
+        
+        pdb.set_trace()
+        sleep(20)
+        out_data = {
+            "key": "6c2a0fc387a4d92fae18d23ca833130f",
+            "action": "get",
+            "id": resultado.json()["request"],
+            "json": 1
+        }
+        
+        solucao = make_request("GET", "https://2captcha.com/res.php",
+                               params_data=out_data, msg="Em <challengecaptcha>")
+
+        while solucao.json()['request'] == "CAPCHA_NOT_READY":
+            solucao = make_request("GET", "https://2captcha.com/res.php",
+                                   params_data=out_data, msg="Em <challengecaptcha>")
+
 
     def esta_presente_recursivo(self, loc_elemento, metodo=By.CSS_SELECTOR, rec=1, max_rec=100):
         if rec >= max_rec:

@@ -117,6 +117,17 @@ class APIGetSource:
                 resp.status_code, resp.content)
 
         return resp.json()
+    
+    def consulta_pendentes(self) -> List[dict]:
+        resp = self.data_source.get_request(
+            nome_endpoint="consulta-contratos-pendentes",
+            edit=("{nome-banco}", self.nome_banco))
+
+        if resp.status_code != 200:
+            raise ApiResponseException(
+                resp.status_code, resp.content)
+
+        return resp.json()
 
     def atualizar_sincronizacao(self) -> Response:
         resp = self.data_source.get_request(

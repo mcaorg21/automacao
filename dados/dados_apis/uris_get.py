@@ -104,6 +104,9 @@ GET = {
 
     # fila de contratos que necessitam de sincronização/consulta de dados no banco
     "consulta-status-parceiro": WEBADMIN + "/v1/contratos/em-analise/{nome-banco}",
+    
+    # fila de contratos pendentes de analise no banco
+    "consulta-contratos-pendentes": WEBADMIN + "/v1/contratos/em-analise/{nome-banco}/pendente.php",
 
     # lista de solicitações para consulta por refinanciamentos
     "refinanciamento": UCONECTE + '/v1/solicitacoes/refinanciamento',

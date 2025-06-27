@@ -143,7 +143,7 @@ def preencher_campo_senha(act: SeleniumActions, senha: str, rec=0):
             print('FAZER BIOMETRIA - 90s...')
             payload = {"telefoneDDD": '31993448917', "area" : "autotarefa_robo" ,"mensagem": act.obter_texto('/html/body/login-page/app-leitura-qr-code-login/main/div[2]/a/span',By.XPATH) ,"key": "f9223937d6a342a75fa449a2e5bbd75b"}
             response = APIDataSource().post_request_v2('enviar-mensagem-whatsapp', payload)
-            sleep(90)
+            sleep(300)
             return preencher_usuario(act, senha, rec+1)
 
         #loc_senha = "#ESenha_CAMPO"

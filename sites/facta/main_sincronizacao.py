@@ -8,9 +8,11 @@
 | autor: Marcelo Amancio
 """
 import pdb,sys, os
-sys.path.append('../')
-#sys.path.insert(1, '/home/gustavo/Desktop/automacao-python/')
 
+if "linux" in sys.platform:
+    sys.path.insert(1, '/home/gustavo/Desktop/automacao-python/')
+else:
+    sys.path.append('../')
 
 from datetime import datetime
 from time import sleep
@@ -70,8 +72,9 @@ class Main:
         options.add_argument('--window-size=1150,600"')
         options.add_argument(self.chrome_user)
         options.add_experimental_option("w3c", False)
-        opts = ('--disable-blink-features=AutomationControlled','--ignore-ssl-errors', self.chrome_user, 'log-level=3',"--no-sandbox","--window-size=1150,1000","--ignore-autocomplete-off-autofill","disable-infobars")
-
+        opts = ('--disable-blink-features=AutomationControlled','--ignore-ssl-errors', 
+            self.chrome_user, 'log-level=3',"--no-sandbox","--window-size=1150,1000",
+            "--ignore-autocomplete-off-autofill","disable-infobars")
         try:
             self.driver = Manager.driver_factory(*opts)
         except:
@@ -96,8 +99,6 @@ class Main:
 
         self.selenium_helper = SeleniumHelper(self.driver)
         
-        
-
         self.driver.get('https://desenv.facta.com.br/sistemaNovo/dashboard.php')
 
         #self.driver.delete_all_cookies()
@@ -116,16 +117,25 @@ class Main:
 
         if(area_login == 1 or cookies_vencido == False):
             self.driver.delete_all_cookies()
-            self.driver.get('https://desenv.facta.com.br/sistemaNovo/login.php')
+            self.driver.get('https://desenv.facta.com.br/sistemaNovo/andamentoPropostas.php')
 
             try:
                 self.driver.delete_all_cookies()
                 #dados_login = query_login_pass_robo(self.id_robo, self.usuario)
                 dados_login = {}
                 dados_login['login'] = '94485_06050694680'
-                dados_login['senha'] = 'Glm@8727@'
+                dados_login['senha'] = 'Marcelo@24'
                 dados_login['link'] = 'https://desenv.facta.com.br/sistemaNovo/login.php'
                 login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'])
+                
+                try:
+                    texto_login = self.act.obter_texto('//*[@id="divAlertaMsg"]', By.XPATH)
+                    if('SENHA PRECISA SER ALTERADA' in texto_login):
+                        input('A senha precisa ser alterada. Pressione Enter para continuar...')
+                        
+                except:
+                    pass
+
             except:
                 self.main()
 
@@ -142,22 +152,20 @@ class Main:
         definir_nome_robo(self.TITLE)
         #ConsultaStatus.iniciar_horario_comercial(self.driver)
         
-        pdb.set_trace()
-
-        print('Aguardando minutos para reiniciar...')
+        #fila de sincronizacao
+        definir_nome_robo('Facta Insercao DESC')
+        InserirContrato.iniciar_horario_comercial(self.driver, 'desc')
         
-        #self.driver.quit()
-        sleep(15)
-        self.driver.delete_all_cookies()
+        print('Aguardando minutos para reiniciar...')
+        sleep(300)
         self.main()
-        #self.driver.quit()
 
     def load_cookies_facta_web_admin(self):
         
         url = "http://emprestimofacil.co/web_admin/api/v1/consulta/cookies/facta/?key={}".format(self.api_key)
         cookies = self.selenium_helper.load_cookies_robo_web_admin(url, self.id_robo)
 
-        self.driver.get('https://desenv.facta.com.br/sistemaNovo/login.php')
+        self.driver.get('https://desenv.facta.com.br/sistemaNovo/dashboard.php')
         self.driver.delete_all_cookies()
 
         return_cookie = True

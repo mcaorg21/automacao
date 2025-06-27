@@ -36,9 +36,9 @@ HORARIO_COMERCIAL = 7, 22
 
 class AnalisaContrato(Manager):
 
-    def __init__(self, driver: Chrome = False):
+    def __init__(self, driver: Chrome = False, ordem: str = 'desc'):
         super().__init__()
-
+        
         self.urls = {
             "insercao": "https://app1.gerencialcredito.com.br/CREFISA/simuladorCrefisa.asp",
             "consulta_status": "https://app1.gerencialcredito.com.br/CREFISA/EsteiraAnaliseContrato.asp"
@@ -55,16 +55,18 @@ class AnalisaContrato(Manager):
         self.request_get = APIDataSource()
 
         self.path_documentos = sys.path[0]+'/sites/crefisa/documentos/'
+        
+        self.ordem = ordem
 
         if 'Windows' in platform.system():
             self.path_documentos = sys.path[0]+'/sites/crefisa/documentos/'
 
     @classmethod
-    def iniciar_horario_comercial(cls, driver: Chrome):
+    def iniciar_horario_comercial(cls, driver: Chrome, ordem):
 
-        run = AnalisaContrato(driver)
+        run = AnalisaContrato(driver,ordem)
         try:
-            run.inserir_contrato()
+            run.analisa_contrato()
         except ForaHorarioComercialError as e:
             print(e.msg)
             run.driver.quit()
@@ -72,17 +74,26 @@ class AnalisaContrato(Manager):
         return run
 
     @ApenasHorarioComercial(*HORARIO_COMERCIAL)
-    def inserir_contrato(self):     
+    def analisa_contrato(self):     
         self.driver.execute_script("document.body.style.zoom='80%'")
+        time.sleep(10)
+        try:
+            self.act.clicar_elemento('/html/body/div[5]/div[2]/div[7]/div/div/div[3]/button', By.XPATH)
+        except:
+            pass
         self.verificar_loading()       
         print('Iniciando inserção de contrato...')
 
         #fila = input('Informe: 1- para fila ou 2- para contrato teste \n')
 
         # if(fila == '1'):
-
-        contratos = self.dados.get_contratos_inserir('asc')  
-
+        
+        contratos = self.dados.get_contratos_inserir(self.ordem)  
+        
+        if(len(contratos['contratos']) < 4 and self.ordem == 'asc'):
+            print('>>>>>>>>>> Menos de 4 contratos para ajudar.')
+            return False
+        
         if contratos['tipo'] == 'alert':
             print('Sem contratos para inserir...')
             return False
@@ -151,6 +162,20 @@ class AnalisaContrato(Manager):
                 self.act.enviar_texto('//*[@id="txtCpfSimulacao"]', informacoes["contrato"]["cpf"], By.XPATH)
                 self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div[2]/div[2]/div/button', By.XPATH)
                 self.verificar_loading(2)
+                
+                mensagem = ""
+                try:
+                    if(self.act.quantidade_elemento(f'/html/body/div[7]/div/div[2]/div[1]', By.XPATH) == 1):
+                        mensagem = self.act.obter_texto(f'/html/body/div[7]/div/div[2]/div[1]', By.XPATH)
+                        if('Aguarde 1 minuto' in mensagem):
+                            print('XXXXXXXXXXX Aguardando 1 minuto... XXXXXXXXXXX')
+                            time.sleep(15)
+                            self.act.clicar_elemento(f'/html/body/div[7]/div/div[3]/button[1]', By.XPATH)
+                            self.remove_div()
+                            continue
+                            
+                except:
+                    pass
                
                 # try:
                 #     retorno_mensagem = self.act.obter_texto('/html/body/div[5]/div/div[2]/div[2]/div[2]/div/div/span', By.XPATH)
@@ -172,6 +197,7 @@ class AnalisaContrato(Manager):
                 if 'convênio baixa renda?' in retorno_mensagem.lower():
                     self.act.press_enter(f'/html/body/div[7]/div/div[3]/button[1]', By.XPATH)
                     retorno_mensagem = ""
+
 
                 try:
                     print('Tela ofertas')
