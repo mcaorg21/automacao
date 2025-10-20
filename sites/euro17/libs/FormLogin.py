@@ -16,7 +16,7 @@ class FormLogin:
 
     def acessar_site(self):
         print("Acessando site")
-        time.sleep(10)
+        sleep(10)
         if "Home" in self.driver.title:
             print('Já logado!')
             return True

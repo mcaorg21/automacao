@@ -31,18 +31,116 @@ def robo_crefisa_sincronizacao():
     system("title Robô - Crefisa Sincronizacao")
     run = Main()
     run.main()
+    
+def robo_phtech():
+    from sites.phtech.main import Main
+    system("title Robô - Phtech Insercao")
+    run = Main()
+    run.main()
+
+def robo_phtech_sincronizacao():
+    from sites.phtech.main_sincronizacao import Main
+    system("title Robô - Phtech Sincronizacao")
+    run = Main()
+    run.main()
+    
+def robo_facta_sincronizacao():
+    from sites.facta.main_sincronizacao import Main
+    system("title Robô - Facta Sincronizacao")
+    run = Main()
+    run.main()
+    
+def robo_facta_analise_contrato():
+    from sites.facta.main_analise import Main
+    system("title Robô - Facta Analise Contrato")
+    run = Main()
+    run.main()
 
 def robo_facta():
     from sites.facta.main import Main
     system("title Robô - Facta Insercao")
     run = Main()
     run.main()
-
-def robo_facta_sincronizacao():
-    from sites.facta.main_sincronizacao import Main
-    system("title Robô - Facta Sincronizacao")
+    
+def robo_euro():
+    from sites.euro17.main import Main
+    system("title Robô - Euro Insercao")
     run = Main()
     run.main()
+    
+def robo_euro_sincronizacao():
+    from sites.euro17.main_sincronizacao import Main
+    system("title Robô - Euro Sincronizacao")
+    run = Main()
+    run.main()
+    
+def robo_euro_analise_contrato():
+    
+    import threading
+    from sites.euro17.main_analise import Main
+    
+    teste_fila = input('Qual modo deseja? 1- Modo unico 2- Modo Server')
+    
+    threads = []
+
+    if teste_fila == '1':
+        
+        final_contrato = input("Digite o número do contrato final: \n\n")
+
+        for i in range(1):
+            try:
+                t = threading.Thread(target=Main(final_contrato).main)
+                t.start()
+                threads.append(t)
+            except Exception as e:
+                print(f"Erro ao iniciar thread {final_contrato}: {e}")
+                pass
+    
+    else:
+
+        threads = []
+
+        range_opcao = input(
+            'Qual range deseja? \n'
+            'a - para 0 até 1 \n'
+            'b - para 1 até 2 \n'
+            'c - para 2 até 3\n\n'
+            'd - para todos\n\n'
+        )
+
+        if range_opcao == 'a':
+            intervalo = range(0, 1)
+        elif range_opcao == 'b':
+            intervalo = range(1, 2)
+        elif range_opcao == 'c':
+            intervalo = range(2, 3)
+        else:
+            intervalo = range(0, 10)
+
+        for i in intervalo:
+            try:
+                t = threading.Thread(target=Main(i).main)
+                t.start()
+                threads.append(t)
+            except Exception as e:
+                print(f"Erro ao iniciar thread {i}: {e}")
+                pass
+
+        
+        
+    
+    for t in threads:
+        t.join()
+
+    # system("title Robô - Euro Analise Contrato")
+    # run = Main()
+    # run.main()
+    
+# def robo_euro_sincronizacao_ajuda():
+#     from sites.euro17.main_analise import Main
+#     system("title Robô - Euro Sincronizacao 2")
+#     run = Main()
+#     run.main()
 
 def robo_waw():
     from sites.whatsappwu.main import Main
@@ -551,8 +649,34 @@ def main(site=False):
                         'value': 'facta'
                     },
                     {
+                        'name': 'Facta Analise Contrato',
+                        'value': 'facta_analise'
+                    },
+                    {
                         'name': 'Facta Sincronizacao',
                         'value': 'facta_sinc'
+                    },
+                    Separator(),
+                    {
+                        'name': 'Euro Insercao',
+                        'value': 'euro'
+                    },
+                    {
+                        'name': 'Euro Analise Contrato',
+                        'value': 'euro_analise'
+                    },
+                    {
+                        'name': 'Euro Sincronizacao',
+                        'value': 'euro_sinc'
+                    },
+                    Separator(),
+                    {
+                        'name': 'PHTech Insercao',
+                        'value': 'phtech'
+                    },
+                    {
+                        'name': 'PHTech Sincronizacao',
+                        'value': 'phtech_sinc'
                     },
 
                 ]
@@ -657,8 +781,20 @@ def main(site=False):
         robo_crefisa_sincronizacao()
     elif site == 'facta':
         robo_facta()
+    elif site == 'facta_analise':
+        robo_facta_analise_contrato()
     elif site == 'facta_sinc':
         robo_facta_sincronizacao()
+    elif site == 'euro':
+        robo_euro()
+    elif site == 'euro_sinc':
+        robo_euro_sincronizacao()
+    elif site == 'euro_analise':
+        robo_euro_analise_contrato()
+    elif site == 'phtech':
+        robo_phtech()
+    elif site == 'phtech_sinc':
+        robo_phtech_sincronizacao()
     elif site == 'whatsapp':
         robo_waw()
     else:

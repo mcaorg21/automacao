@@ -6,16 +6,16 @@ class DadosConsultaStatus(DataHandler):
         super().__init__()
         self.api_urls = {
             "GET_ADES": ("https://emprestimofacil.co/web_admin/api/v1/"
-                         "contratos/em-analise/euro"),
+                         "contratos/em-analise/euro17"),
             "POST_CONSULTA": ("https://emprestimofacil.co/web_admin/api/v1/"
-                              "atualiza-status/euro/contratos/"),
+                              "atualiza-status/euro17/contratos/"),
             "GET_SINC": ("https://emprestimofacil.co/web_admin/api/v1/"
-                         "atualiza-status/euro/sincronizacao/")
+                         "atualiza-status/euro17/sincronizacao/")
         }
         self.api_keys = {
             'GERAL': "f689f1e12a0399fba803cb2365fc362f"
         }
-        self.data_source.nome_banco = "euro"
+        self.data_source.nome_banco = "euro17"
 
     def get_ades(self):
         return self.data_source.consulta_status_parceiro()

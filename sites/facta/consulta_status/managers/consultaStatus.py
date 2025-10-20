@@ -25,7 +25,7 @@ from dados.database.queries.query_dados_robos import query_login_pass_robo
 
 import pyperclip
 
-HORARIO_COMERCIAL = 8, 22
+HORARIO_COMERCIAL = 7, 22
 
 
 class ConsultaStatus(Manager):
@@ -68,9 +68,20 @@ class ConsultaStatus(Manager):
         while desafio == 1:
             print('Resolva o desafio')
             self.driver.execute_script("document.body.style.zoom='100%'")
-            time.sleep(5)
+            time.sleep(25)
             #x, y = find_elements_on_screen(cv2.imread(PATHS.project_path()+'/facta/consulta_status/managers/confirmar.jpg'))
+            print('Clicando tentativa 1')
             pyautogui.click(141,429)
+            pyautogui.click(593,332)
+                
+            time.sleep(50)
+            try:
+                print('Clicando tentativa 2')
+                pyautogui.click(141,429)
+                pyautogui.click(593,332)
+            except:
+                pass
+                
             print('Tentando clicar no desafio...')
             time.sleep(4)
             desafio = self.act.quantidade_elemento('//*[@id="footer-text"]', By.XPATH) 
@@ -84,7 +95,9 @@ class ConsultaStatus(Manager):
             #     pass
                 
         
-        time.sleep(15)
+        time.sleep(5)
+        
+        self.remover_modais()
 
         if not status_a_consultar:
             print('Sem atualizações para realizar...')
@@ -117,28 +130,38 @@ class ConsultaStatus(Manager):
             self.driver.execute_script("document.body.style.zoom='50%'")
             self.act.enviar_texto('//*[@id="codigoAf"]', ade, By.XPATH)
             self.act.clicar_elemento('//*[@id="pesquisar"]', By.XPATH)
-            self.act.clicar_elemento('//i[contains(@class, "copyLink")]', By.XPATH)
-            time.sleep(2)
-            link = pyperclip.paste()
-            print(">>>> Link copiado:", link.strip())
-
-            self.dados_consulta["linkAssinaturaDigital"] = link.strip()
             
-            self.act.manusear_alerta('aceitar')
+            try:
+                self.act.clicar_elemento('//i[contains(@class, "copyLink")]', By.XPATH)
+                
+                time.sleep(2)
+                link = pyperclip.paste()
+                print(">>>> Link copiado:", link.strip())
 
-            self.driver.get(self.urls["consulta"].replace('ade', ade))
-            self.verificar_loading()
+                self.dados_consulta["linkAssinaturaDigital"] = link.strip()
+                
+                self.act.manusear_alerta('aceitar')
 
-            self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[1]/section/div/div/div/div/div/form/div[7]/div/div/div/div/div/div[2]/table/tbody/tr/td[4]', By.XPATH).strip()
+                self.driver.get(self.urls["consulta"].replace('ade', ade))
+                self.verificar_loading()
+
+                self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[1]/section/div/div/div/div/div/form/div[7]/div/div/div/div/div/div[2]/table/tbody/tr/td[4]', By.XPATH).strip()
+                
+                if('AGUARDANDO ASSINATURA DIGITAL' in self.dados_consulta["statusPropostaBanco"]):
+                    self.dados_consulta["statusPropostaBanco"] = 'AGUARDANDO ASSINATURA DIGITAL'
+                    self.dados_consulta['observacaoDetalhadaBanco'] = "Aguardando"
+                else:
+                    self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[1]/section/div/div/div/div/div/form/div[7]/div/div/div/div/div/div[2]/table/tbody/tr[1]/td[4]', By.XPATH).strip()
+                    self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[1]/section/div/div/div/div/div/form/div[7]/div/div/div/div/div/div[2]/table/tbody/tr[1]/td[5]', By.XPATH).replace('-',"").strip()
+
+            except:
+                self.dados_consulta["statusPropostaBanco"] = 'PROPOSTA ANTIGA'
+                self.dados_consulta['observacaoDetalhadaBanco'] = "Proposta sem interacao"
+                pass
+                
+            self.dados.post_dados_consultados(self.dados_consulta)  
             
-            if('AGUARDANDO ASSINATURA DIGITAL' in self.dados_consulta["statusPropostaBanco"]):
-                self.dados_consulta["statusPropostaBanco"] = 'AGUARDANDO ASSINATURA DIGITAL'
-                self.dados_consulta['observacaoDetalhadaBanco'] = "Aguardando"
-            else:
-                self.dados_consulta["statusPropostaBanco"] = self.act.obter_texto(f'/html/body/div[1]/section/div/div/div/div/div/form/div[7]/div/div/div/div/div/div[2]/table/tbody/tr[1]/td[4]', By.XPATH).strip()
-                self.dados_consulta['observacaoDetalhadaBanco'] = self.act.obter_texto(f'/html/body/div[1]/section/div/div/div/div/div/form/div[7]/div/div/div/div/div/div[2]/table/tbody/tr[1]/td[5]', By.XPATH).replace('-',"").strip()
-
-            self.dados.post_dados_consultados(self.dados_consulta)    
+              
 
     def verificar_loading(self, interacoes = 60):
         
@@ -151,3 +174,40 @@ class ConsultaStatus(Manager):
             self.aguardar_consulta(1)
             if(interacoes < 1):
                 return
+            
+    def remover_modais(self):
+        try:
+            self.driver.execute_script("""
+            (function () {
+                // Remove modais conhecidos por ID
+                ['modalAviso1','modalAviso2','popupModal','modalMuralAlertas','modal_2433033']
+                .forEach(function(id){
+                    var el = document.getElementById(id);
+                    if (el && el.parentNode) el.parentNode.removeChild(el);
+                });
+
+                // Remove QUALQUER modal residual (Bootstrap/Bootbox)
+                document.querySelectorAll('.modal').forEach(function(el){
+                    if (el && el.parentNode) el.parentNode.removeChild(el);
+                });
+
+                // REMOVE A BACKDROP (o que você apontou)
+                document.querySelectorAll('.modal-backdrop').forEach(function(el){
+                    if (el && el.parentNode) el.parentNode.removeChild(el);
+                });
+
+                // (Opcional) limpa overlays comuns de plugins (Fancybox etc.)
+                document.querySelectorAll('.fancybox-overlay, .fancybox-wrap').forEach(function(el){
+                    if (el && el.parentNode) el.parentNode.removeChild(el);
+                });
+
+                // Destrava o body
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('padding-right');
+                document.body.style.removeProperty('overflow');
+            })();
+            """)
+            print("✅ Modais e backdrops removidos com sucesso.")
+        except Exception as e:
+            print("❌ Erro ao remover modais/backdrops:", e)
+            pass 

@@ -33,4 +33,5 @@ from initializr.processos_automacao.classes_processos.ProcessoCrefisa import Cre
 from initializr.processos_automacao.classes_processos.ProcessoWhatsappWU import WhatsappWU
 from initializr.processos_automacao.classes_processos.ProcessoCora import Cora,CoraLogin
 
-from initializr.processos_automacao.classes_processos.ProcessoFacta import FactaSincronizacao, FactaInsercao
+from initializr.processos_automacao.classes_processos.ProcessoFacta import FactaSincronizacao, FactaInsercao, FactaAnaliseContrato
+from initializr.processos_automacao.classes_processos.ProcessoEuro17 import Euro17Sincronizacao, Euro17Insercao, Euro17AnaliseContrato

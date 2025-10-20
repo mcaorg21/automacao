@@ -1,52 +1,23 @@
 [
     {
         "domain": ".facta.com.br",
-        "expiry": 1784823991,
+        "expiry": 1795290158,
         "httpOnly": false,
         "name": "_ga_VNTS8HTZGH",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
-        "value": "GS2.3.s1750254340$o4$g1$t1750263991$j60$l0$h0"
+        "value": "GS2.3.s1760729997$o1$g1$t1760730158$j60$l0$h0"
     },
     {
         "domain": ".facta.com.br",
-        "expiry": 1781797173,
-        "httpOnly": true,
-        "name": "cf_clearance",
-        "path": "/",
-        "sameSite": "None",
-        "secure": true,
-        "value": "J0xr08pbf.PYwGtDWgpsuZywfPmJjLmghm9mOuvjv3k-1750261173-1.2.1.1-uZnPZuALnNU_.VxI0C1MS0TM943KLZiz66Tc7clvvsVqL5dO.GEmLk1FoJgKRw5cJ1ZiIjnnMcryRhW8PioMqg2.Z5mOuh9pjX_MWBasxwLJa8WFO9ofMYC_KR9lEP54PLdw5AQMB82t19DjXYPHp1puN4I5AiUnj3Zh4LQyX3XpMFD0ltDofMleCvt.PHPKNhjTQ3gNythIAEvITalEPm.fLLpiTu.p.g0.La4HpYNn3x8dh5qqALo2GKHIismIM8XLTnWyJwk3mjvN7sJhDu9VCN6iVe9jaep9qiyJgE99AtDphIT0j.cjl1uOvrH6BvhvmwJ5n3Yc3k2jiCe0YxL184Hg03fWkyp1EFgv6iOXOSZV6HosNecLNj3NkT1j"
-    },
-    {
-        "domain": ".facta.com.br",
-        "expiry": 1750264051,
+        "expiry": 1760730218,
         "httpOnly": false,
         "name": "_gat",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
         "value": "1"
-    },
-    {
-        "domain": ".desenv.facta.com.br",
-        "httpOnly": false,
-        "name": "ContakoSessaoIntegrado",
-        "path": "/",
-        "sameSite": "Lax",
-        "secure": true,
-        "value": "A7919D9385FB67D049D05CDB4F"
-    },
-    {
-        "domain": ".desenv.facta.com.br",
-        "expiry": 1750264746,
-        "httpOnly": false,
-        "name": "cf_chl_rc_m",
-        "path": "/",
-        "sameSite": "None",
-        "secure": true,
-        "value": "12"
     },
     {
         "domain": ".desenv.facta.com.br",
@@ -59,22 +30,71 @@
     },
     {
         "domain": ".facta.com.br",
-        "expiry": 1784823991,
+        "expiry": 1760816558,
         "httpOnly": false,
-        "name": "_ga",
+        "name": "_gid",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
-        "value": "GA1.3.321740370.1750245053"
+        "value": "GA1.3.323275637.1760729997"
+    },
+    {
+        "domain": ".desenv.facta.com.br",
+        "expiry": 1760730611,
+        "httpOnly": false,
+        "name": "__utmt",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "value": "1"
     },
     {
         "domain": ".desenv.facta.com.br",
         "httpOnly": false,
-        "name": "PHPSESSID",
+        "name": "ContakoSessaoIntegrado",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
-        "value": "gqq7me49vf2kbcubh4c9a7pqf2"
+        "value": "ABADB8AE9886FD68D65AC4BEB7"
+    },
+    {
+        "domain": ".desenv.facta.com.br",
+        "expiry": 1795290011,
+        "httpOnly": false,
+        "name": "__utma",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "value": "35375284.1038145661.1760729997.1760730012.1760730012.1"
+    },
+    {
+        "domain": ".desenv.facta.com.br",
+        "expiry": 1776498011,
+        "httpOnly": false,
+        "name": "__utmz",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "value": "35375284.1760730012.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)"
+    },
+    {
+        "domain": ".desenv.facta.com.br",
+        "expiry": 1760731811,
+        "httpOnly": false,
+        "name": "__utmb",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "value": "35375284.1.10.1760730012"
+    },
+    {
+        "domain": ".desenv.facta.com.br",
+        "httpOnly": false,
+        "name": "__utmc",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "value": "35375284"
     },
     {
         "domain": ".desenv.facta.com.br",
@@ -83,16 +103,25 @@
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
-        "value": "735000007850"
+        "value": "747000163706"
+    },
+    {
+        "domain": ".desenv.facta.com.br",
+        "httpOnly": false,
+        "name": "PHPSESSID",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "value": "smi4nilr1qoq6t69vt01qhl9qq"
     },
     {
         "domain": ".facta.com.br",
-        "expiry": 1750350391,
+        "expiry": 1795290158,
         "httpOnly": false,
-        "name": "_gid",
+        "name": "_ga",
         "path": "/",
         "sameSite": "Lax",
         "secure": false,
-        "value": "GA1.3.1067474661.1750245053"
+        "value": "GA1.3.1038145661.1760729997"
     }
 ]

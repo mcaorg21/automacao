@@ -44,7 +44,7 @@ import time
 import shutil
 import pickle, json, requests
 
-HORARIO_COMERCIAL = 8, 22
+HORARIO_COMERCIAL = 7, 22
 
 class Main:
 
@@ -81,8 +81,8 @@ class Main:
             pasta_user = self.chrome_user.replace("--user-data-dir=","")
             print("Erro de criacao de usuario, deletando a pasta...")
             shutil.rmtree(pasta_user)
-            #deleta_todos_arquivos(pasta_user)
-            #os.rmdir(pasta_user)
+            deleta_todos_arquivos(pasta_user)
+            os.rmdir(pasta_user)
             exit()
 
         self.timer: int = 60
@@ -94,14 +94,22 @@ class Main:
 
         self.caminho_base = PATHS.project_path()
 
-        self.cookies_path = self.caminho_base+"\\facta\\cookies\\" + "usuario_facta.pkl"
-        self.cookies_path_json = self.caminho_base+"\\facta\\cookies\\" + "usuario_facta.json"
+        if 'linux' in sys.platform:
+            self.cookies_path = self.caminho_base+"/facta/cookies/" + "usuario_facta.pkl"
+            self.cookies_path_json = self.caminho_base+"/facta/cookies/" + "usuario_facta.json"
+            self.path_senha = self.caminho_base+"/facta/libs/" + "code.txt"
+        else:
+            self.cookies_path = self.caminho_base+"\\facta\\cookies\\" + "usuario_facta.pkl"
+            self.cookies_path_json = self.caminho_base+"\\facta\\cookies\\" + "usuario_facta.json"
+            self.path_senha = self.caminho_base+"\\facta\\libs\\" + "code.txt"
 
         self.selenium_helper = SeleniumHelper(self.driver)
         
         self.driver.get('https://desenv.facta.com.br/sistemaNovo/dashboard.php')
 
         #self.driver.delete_all_cookies()
+
+        self.driver.set_window_position(0, 0)
 
     @AguardarHorarioComercial(*HORARIO_COMERCIAL)
     def main(self):
@@ -123,18 +131,28 @@ class Main:
                 self.driver.delete_all_cookies()
                 #dados_login = query_login_pass_robo(self.id_robo, self.usuario)
                 dados_login = {}
-                dados_login['login'] = '94485_06050694680'
-                dados_login['senha'] = 'Marcelo@24'
+                # dados_login['login'] = '94485_06050694680'
+                # dados_login['senha'] = 'Marcelo@36'
+                dados_login['login'] = '94485_11157145620'
+                # Lê a senha atual (se existir)
+                if os.path.exists(self.path_senha):
+                    with open(self.path_senha, "r", encoding="utf-8") as f:
+                        senha = f.read().strip()  # remove \n e espaços extras
+                else:
+                    print('Erro ao ler senha')
+                    pdb.set_trace()
+                    
+                dados_login['senha'] = senha
                 dados_login['link'] = 'https://desenv.facta.com.br/sistemaNovo/login.php'
                 login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'])
-                
-                try:
-                    texto_login = self.act.obter_texto('//*[@id="divAlertaMsg"]', By.XPATH)
-                    if('SENHA PRECISA SER ALTERADA' in texto_login):
-                        input('A senha precisa ser alterada. Pressione Enter para continuar...')
+
+                # try:
+                #     texto_login = self.act.obter_texto('//*[@id="divAlertaMsg"]', By.XPATH)
+                #     if('SENHA PRECISA SER ALTERADA' in texto_login):
+                #         input('A senha precisa ser alterada. Pressione Enter para continuar...')
                         
-                except:
-                    pass
+                # except:
+                #     pass
 
             except:
                 self.main()
@@ -150,14 +168,14 @@ class Main:
 
         #fila de sincronizacao
         definir_nome_robo(self.TITLE)
-        #ConsultaStatus.iniciar_horario_comercial(self.driver)
+        ConsultaStatus.iniciar_horario_comercial(self.driver)
         
         #fila de sincronizacao
-        definir_nome_robo('Facta Insercao DESC')
-        InserirContrato.iniciar_horario_comercial(self.driver, 'desc')
+        definir_nome_robo('Facta Insercao ASC')
+        inserir = InserirContrato.iniciar_horario_comercial(self.driver, 'asc')
         
         print('Aguardando minutos para reiniciar...')
-        sleep(300)
+        sleep(30)
         self.main()
 
     def load_cookies_facta_web_admin(self):

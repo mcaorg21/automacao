@@ -74,43 +74,49 @@ class AnalisaContrato(Manager):
             url = "https://desenv.facta.com.br/sistemaNovo/ajax/consignado-trabalhador/simulador.php"
             payload = {'cpf': {cpf},'acao': 'consulta_autorizacao'}
             response = requests.request("POST", url, headers="", data=payload)
-            retorno = response.json()
+            
+            try:
+                retorno = response.json()
 
-            if "consultas_disponiveis" in retorno:
-                print("Consulta disponível")
-                if retorno['consultas_disponiveis'] == 'N':
-                    print("XXXXXXXXX Consulta não disponível")
-                    
-                    self.dados_consulta["codigoCon"] = cod_con
-                    self.dados_consulta["statusPropostaBanco"] = 'Autorização ainda não realizada'
-                    self.dados_consulta['observacaoDetalhadaBanco'] = ""
-                    self.dados.post_dados_consultados(self.dados_consulta)  
-                    continue
-                else:
-                    print("XXXXXXXXX Verificar retorno")
-                    pdb.set_trace()
-            else:
-                if 'error' in retorno:
-                    print("XXXXXXXXX Erro no retorno")
-                    if retorno['error'] == True:
-                        if retorno['message'] == 'CPF não encontrado na base':
-                            print("XXXXXXXXX CPF não encontrado na base")
-                            self.dados_consulta["codigoCon"] = cod_con
-                            self.dados_consulta["statusPropostaBanco"] = 'CPF não encontrado na base'
-                            self.dados_consulta['observacaoDetalhadaBanco'] = ""
-                            self.dados.post_dados_consultados(self.dados_consulta)  
-                            continue
-
-                if("message" in retorno):
-                    if retorno['message'] == 'CPF encontrado':
-                        print("VVVVVVVVVV CPF encontrado")
+                if "consultas_disponiveis" in retorno:
+                    print("Consulta disponível")
+                    if retorno['consultas_disponiveis'] == 'N':
+                        print("XXXXXXXXX Consulta não disponível")
+                        
                         self.dados_consulta["codigoCon"] = cod_con
-                        self.dados_consulta["statusPropostaBanco"] = 'Autorização realizada'
+                        self.dados_consulta["statusPropostaBanco"] = 'Autorização ainda não realizada'
                         self.dados_consulta['observacaoDetalhadaBanco'] = ""
                         self.dados.post_dados_consultados(self.dados_consulta)  
                         continue
+                    else:
+                        print("XXXXXXXXX Verificar retorno")
+                        #pdb.set_trace()
                 else:
-                    print("XXXXXXXXX Verificar mensagem nova")
+                    if 'error' in retorno:
+                        print("XXXXXXXXX Erro no retorno")
+                        if retorno['error'] == True:
+                            if retorno['message'] == 'CPF não encontrado na base':
+                                print("XXXXXXXXX CPF não encontrado na base")
+                                self.dados_consulta["codigoCon"] = cod_con
+                                self.dados_consulta["statusPropostaBanco"] = 'CPF não encontrado na base'
+                                self.dados_consulta['observacaoDetalhadaBanco'] = ""
+                                self.dados.post_dados_consultados(self.dados_consulta)  
+                                continue
 
+                    if("message" in retorno):
+                        if retorno['message'] == 'CPF encontrado':
+                            print("VVVVVVVVVV CPF encontrado")
+                            self.dados_consulta["codigoCon"] = cod_con
+                            self.dados_consulta["statusPropostaBanco"] = 'Autorização realizada'
+                            self.dados_consulta['observacaoDetalhadaBanco'] = ""
+                            self.dados.post_dados_consultados(self.dados_consulta)  
+                            continue
+                    else:
+                        print("XXXXXXXXX Verificar mensagem nova")
+                        
+            except:
+                print("XXXXXXXXX Erro ao interpretar o retorno")
+                #pdb.set_trace()
+                
         
         return True

@@ -68,6 +68,7 @@ class InserirContrato(Manager):
                 "data_nascimento":'//*[@id="dataNascimento"]',
                 "texto_modal_cpf":'/html/body/div[8]/div/div[2]',
                 "texto_modal_cpf2":'/html/body/div[7]/div/div[2]',
+                "texto_modal_cpf3":'/html/body/div[9]/div/div[2]',                
                 "botao_ok_cpf": f'/html/body/div[8]/div/div[6]/button[1]',
                 "nome_cliente":'//*[@id="nomeCliente"]',
                 "nome_social":'//*[@id="nome_social"]',
@@ -96,8 +97,10 @@ class InserirContrato(Manager):
                 "valor_parcela" : '//*[@id="tdVlrParcela"]',
                 "texto_modal": f'/html/body/div[8]/div/div[2]',
                 "texto_modal2": f'/html/body/div[7]/div/div[2]',
+                "texto_modal3": f'/html/body/div[9]/div',
                 "botao_ok_modal": f'/html/body/div[8]/div/div[6]/button[1]',
-                "botao_ok_modal2": f'/html/body/div[7]/div/div[6]/button[1]',
+                "botao_ok_modal2": f'/html/body/div[7]/div/div[6]/button[1]',                
+                "botao_ok_modal3": '//button[contains(text(),"OK")]',
                 "valor_solicitado_input":'//*[@id="valor"]',
                 "div_resultado":'//*[@id="resultado"]',
                 "escolha_plano":'/html/body/div[2]/section/div[1]/div/div/div/div/div/form/div[1]/fieldset[16]/div[2]/div/div/div/table/tbody/tr[1]',
@@ -139,6 +142,7 @@ class InserirContrato(Manager):
                 "texto_modal_cep": f'/html/body/div[8]/div/div/div[2]/div',
                 "botao_ok_modal": f'/html/body/div[8]/div/div/div[3]/button',
                 "botao_ok_modal2": f'/html/body/div[7]/div/div/div[3]/button',
+                "botao_ok_modal3": '//button[contains(text(),"OK")]',
                 "valor_contrato": '//*[@id="valor"]',
                 "logradouro": '//*[@id="endereco"]',
                 "numero": '//*[@id="numero"]',
@@ -153,21 +157,24 @@ class InserirContrato(Manager):
             "liberacao_dados_profissionais": {
                 'texto_modal': f'/html/body/div[8]',
                 'botao_ok_modal': f'/html/body/div[8]/div/div/div[3]/button',
-                "forma_pagamento": '//*[@id="forma_pagamento"]',
-                "tipo_credito": '//*[@id="tipoCredito"]',
+                "forma_pagamento": '//*[@id="metodoLiberacao"]',
+                "tipo_credito": '/html/body/div[1]/section/div/div/div/div/div/div/form/div/fieldset[1]/div/div[2]/div[1]/select',
                 "banco_liberacao": '//*[@id="bancoLiberacao"]',
                 "agencia_iberacao": '//*[@id="agenciaLiberacao"]',
                 "conta_liberacao": '//*[@id="contaLiberacao"]',
                 "tipo_profissao": '//*[@id="id_tipo_profissao"]',
                 "proxima_etapa": '/html/body/div[1]/section/div/div/div/div/div/div/form/div/div/button',
                 "finalizar_documentos" : '/html/body/div[2]/div/div/div[2]/div[2]/button[2]',
+                "finalizar_documentos2" : '//button[contains(text(),"Não")]',
                 "numero_ade" : '/html/body/div[1]/section/div/div/div/div/div/div[2]/h3',
                 "formalizacao_whatsapp" : '/html/body/div[1]/section/div/div/div/div/div/div[3]/div[2]/div[1]/input',
                 "realizar_formalizacao" : '//*[@id="btnRealizaFormalizacao"]',
                 "botao_ok_formalizacao": f'/html/body/div[5]/div/div/div[3]/button',
                 "botao_ok_formalizacao2": f'/html/body/div[6]/div/div/div[3]/button',
                 "botao_ok_formalizacao3": f'//*[@id="corpo"]/div[9]/div/div[6]/button[1]',
+                "botao_ok_formalizacao4": f'//*[@id="corpo"]/div[10]/div/div[6]/button[1]',
                 "botao_ok_finalizacao": f'/html/body/div[9]/div/div[2]',
+                "botao_ok_finalizacao2": f'/html/body/div[10]/div/div[2]',
                 "texto_reprovacao_final" : f'/html/body/div[1]/section/div/div/div/div/div/div[1]/div',
                 "texto_final_insercao" : f'/html/body/div[1]/section/div/div/div/div/div/div[2]'
             },
@@ -218,7 +225,6 @@ class InserirContrato(Manager):
                         self.fila_contrato = ''
                         
                 else:
-                    self.ordem = 'desc'
                     self.fila_contrato = ''
             
             else:
@@ -226,7 +232,6 @@ class InserirContrato(Manager):
                 self.fila_contrato = ''
 
             if(fila == '1'):
-                
                 contratos = self.dados.get_contratos_inserir(self.ordem)  
 
                 if not contratos['contratos']:
@@ -243,10 +248,76 @@ class InserirContrato(Manager):
 
                 #testes
                 contratos = {}
-                contratos['contratos'] = [{'codigo_con' : contrato, 'observacao_emp' : "Pre aprovado"}] 
+                contratos['contratos'] = [{'codigo_con' : contrato, 'observacao_emp' : "Pre aprovado"}]
+       
+        #self.driver.get(self.urls['insercao'])
+        print('>>>>>>>>>>>>>> Removendo modais') 
+        self.remover_modais()
         
+        #self.clicar_menu_cadastro()
+        self.driver.get(self.urls['insercao'])
+        desafio = self.act.quantidade_elemento('//*[@id="footer-text"]', By.XPATH)
+
+        tentativa_desafio = 0
+        while desafio == 1:
+
+            tentativa_desafio += 1
+            if(tentativa_desafio > 5):
+                return False
+
+            print(f'Resolvendo o desafio tentativa: {tentativa_desafio}')
+            self.driver.execute_script("document.body.style.zoom='100%'")
+            time.sleep(25)
+            #x, y = find_elements_on_screen(cv2.imread(PATHS.project_path()+'/facta/consulta_status/managers/confirmar.jpg'))
+            print('Clicando tentativa 1')
+
+            if(self.ordem == 'asc'):
+                self.driver.execute_script(''' alert() ''')
+                #time.sleep(2)
+                self.act.manusear_alerta()
+                pyautogui.click(141,429)
+                pyautogui.click(593,332)
+            else:
+                print('Resolvendo o desafio na versao desc')
+                self.driver.execute_script(''' alert() ''')
+                #time.sleep(2)
+                self.act.manusear_alerta()
+                pyautogui.click(447,443)
+                pyautogui.click(447,443)
+                    
+            time.sleep(25)
+            try:
+                print('Clicando tentativa 2')
+
+                if(self.ordem == 'asc'):
+                    self.driver.execute_script(''' alert() ''')
+                    #time.sleep(2)
+                    self.act.manusear_alerta()
+                    pyautogui.click(141,429)
+                    pyautogui.click(593,332)
+
+                else:
+                    print('Resolvendo o desafio na versao desc')
+                    self.driver.execute_script(''' alert() ''')
+                    #time.sleep(2)
+                    self.act.manusear_alerta()
+                    pyautogui.click(447,443)
+                    pyautogui.click(447,443)
+            except:
+                pass
+        
+            print('Tentando clicar no desafio...')
+            time.sleep(4)
+            desafio = self.act.quantidade_elemento('//*[@id="footer-text"]', By.XPATH) 
+        
+        
+        if(len(contratos['contratos']) < 10 and self.ordem == 'asc'):
+            print('XXXXXXXXXXXXXXXXXXXXXX NAO IRA AJUDAR NA INSERCAO XXXXXXXXXXXXXXXXXXXXX')
+            return False
+        
+        indice = 0
         for contrato in contratos['contratos']:
-            
+
             if(self.fila_contrato != ''):
                 if self.fila_contrato != contrato['codigo_con'][-1]:
                     print('>>>>>>>>>>>>> Pulando contrato por escala <<<<<<<<<<<<<<')
@@ -254,41 +325,65 @@ class InserirContrato(Manager):
                 else:
                     definir_nome_robo(f'Facta {self.fila_contrato} ESCALA Insercao')
             
+            #self.clicar_menu_cadastro()
+            if indice != 0:
+                self.driver.get(self.urls['insercao'])
+                #self.clicar_menu_cadastro()
             
-            self.driver.get(self.urls['insercao'])
+            #self.driver.get(self.urls['insercao'])
 
-            if self.act.quantidade_elemento('//*[@id="footer-text"]', By.XPATH) == 1:
+            desafio = self.act.quantidade_elemento('//*[@id="footer-text"]', By.XPATH) 
+
+            if desafio == 1:
+                return False
+
+            while desafio == 1:
                 print('Resolva o desafio')
-                time.sleep(60)
+                self.driver.execute_script("document.body.style.zoom='100%'")
+                time.sleep(25)
                 #x, y = find_elements_on_screen(cv2.imread(PATHS.project_path()+'/facta/consulta_status/managers/confirmar.jpg'))
-                #pyautogui.click(141,429)
-                if 'Windows' not in platform.system():
-                    # Traz a janela do Chrome para frente
-                    os.system("wmctrl -a 'Chrome'")
-                    
                 print('Clicando tentativa 1')
-                pyautogui.click(593,332)
-                
+
+                if(self.ordem == 'desc'):
+                    pyautogui.click(141,429)
+                    pyautogui.click(593,332)
+                else:
+                    self.driver.execute_script(''' alert() ''')
+                    time.sleep(2)
+                    self.act.manusear_alerta()
+                    pyautogui.click(447,443)
+                    pyautogui.click(447,443)
+                    
                 time.sleep(50)
                 try:
                     print('Clicando tentativa 2')
-                    pyautogui.click(593,332)
-                    #pyautogui.click(x,y)
+
+                    if(self.ordem == 'desc'):
+                        pyautogui.click(141,429)
+                        pyautogui.click(593,332)
+
+                    else:
+                        self.driver.execute_script(''' alert() ''')
+                        time.sleep(2)
+                        self.act.manusear_alerta()
+                        pyautogui.click(447,443)
+                        pyautogui.click(447,443)
                 except:
                     pass
                     
-                time.sleep(15)
+                print('Tentando clicar no desafio...')
+                time.sleep(4)
+                desafio = self.act.quantidade_elemento('//*[@id="footer-text"]', By.XPATH) 
 
             self.div_principal = 7
             dados_atualizacao = {}
             try:
 
                 informacoes = self.dados.get_informacoes_contrato(contrato['codigo_con'])
-                pprint(informacoes)
-                
-                dados_atualizacao['mensagem'] = 'Inserir contrato'
-                self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
-                
+                indice += 1
+                print(f'Inserindo contrato {contrato["codigo_con"]} - {indice} de {len(contratos["contratos"])}')
+                #pprint(informacoes)
+
                 if 'Inserir manual o robô já tentou por 5x e não conseguiu' in contrato['observacao_emp'] or '5 tentativas ou mais' in contrato['observacao_emp']:
                     dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
                     dados_atualizacao['observacao_emp'] = "5 tentativas ou mais de inserção"
@@ -303,35 +398,72 @@ class InserirContrato(Manager):
                     self.act.select_drop_down(self.xpath['cadastro_proposta']['produto'], 'D', By.XPATH)
                     time.sleep(1)
                     self.act.select_drop_down(self.xpath['cadastro_proposta']['tipo_operacao'], '13', By.XPATH)
-                    time.sleep(1)
-                    self.act.select_drop_down(self.xpath['cadastro_proposta']['orgao_empregador'], '10010', By.XPATH)
+                    time.sleep(2)
+                    
+                    try:
+                        self.act.select_drop_down(self.xpath['cadastro_proposta']['orgao_empregador'], '10010', By.XPATH)
+                        time.sleep(1)
+                        self.act.select_drop_down(self.xpath['cadastro_proposta']['orgao_empregador'], '10010', By.XPATH)
+                    except:
+                        print('xxxxxxxxxxxxxxxxxxxxx PRODUTO FORA DO AR xxxxxxxxxxxxxxxxxxxxx')
+                        time.sleep(20)
+                        continue
+                    
                     time.sleep(1)
                     self.act.select_drop_down(self.xpath['cadastro_proposta']['banco'], '3', By.XPATH)
                     print('-----------------------------------------------------------------')
+                    
                 except:
                     print('XXXXXXXXXXXXXXXXXXXXX Erro ao configurar produto XXXXXXXXXXXXXXXXXXXXX')
-                    
-                    # if self.act.quantidade_elemento('//*[@id="wrapper"]', By.XPATH) == 0:
-                    #     return False
+                    #pdb.set_trace()
+                    #raise Exception('Erro ao carregar')
+                    if self.act.quantidade_elemento('//*[@id="wrapper"]', By.XPATH) == 0:
+                        return False
                     
                     continue
                     #self.inserir_contrato()
+                    
+                dados_atualizacao['mensagem'] = 'Inserir contrato'
+                self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                 
                 print('----------------- Configurando dados do cliente -----------------')
+
                 self.act.enviar_texto(self.xpath['cadastro_proposta']['cpf'], informacoes['contrato']['cpf'], By.XPATH)
                 self.act.clicar_elemento(self.xpath['cadastro_proposta']['data_nascimento'], By.XPATH)
                 
                 time.sleep(1)
                 if self.verificar_loading_cadastro() == False:
                     continue
-                    
+                
+                try:
+                    texto_modal = self.act.obter_texto('//div[contains(@class, "bootbox-body")]', By.XPATH)
+                except: 
+                    texto_modal = ""
+                    pass
+                
+                if "está na base Não Perturbe" in texto_modal:
+
+                    print('XXXXXXXXXXXXXXXXXXXXX Erro de CPF na base Não Perturbe XXXXXXXXXXXXXXXXXXXXX')
+                    dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                    dados_atualizacao['observacao_emp'] = 'CPF encontrado na base Não Perturbe'
+                    dados_atualizacao['observacao'] = ''    
+                    dados_atualizacao['erro'] = 'CPF encontrado na base Não Perturbe'
+                    dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                    continue
+                
                 try:
                     try:
-                        texto_modal = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_modal_cpf'], By.XPATH)
+                        try:
+                            texto_modal = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_modal_cpf3'], By.XPATH)
+                        except:
+                            texto_modal = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_modal_cpf2'], By.XPATH)
                     except: 
-                        texto_modal = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_modal_cpf2'], By.XPATH)
+                        texto_modal = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_modal_cpf'], By.XPATH)
                         pass
+                    
                     if('CPF não encontrado na base' in texto_modal):
+                        
                         print('XXXXXXXXXXXXXXXXXXXXX Erro de CPF na base XXXXXXXXXXXXXXXXXXXXX')    
                         dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
                         dados_atualizacao['observacao_emp'] = 'CPF não encontrado na base'
@@ -340,6 +472,7 @@ class InserirContrato(Manager):
                         dados_atualizacao['status_con'] = "Reprovado a Conferir"
                         self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                         continue
+                    
                 except:
                     texto_modal = ""
                     pass
@@ -413,18 +546,20 @@ class InserirContrato(Manager):
                         else:
                             try:    
                                 dados = json.loads(response.text)
+
                                 if 'ENCONTROU' in dados:
                                     if dados['ENCONTROU'] == 'S':
                                         if float(informacoes['contrato']['valorParcela'].replace('.','').replace(',','.')) >= float(dados['VALOR_MAXIMO_PRESTACAO']):
                                             print('>>>>>>  Usando máximo de margem disponível')
                                             informacoes['contrato']['valorParcela'] = dados['VALOR_MAXIMO_PRESTACAO']
                                     else:
+
                                         try:
                                             resultado = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_resultado'], By.XPATH) 
                                         except:
                                             resultado = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_resultado3'], By.XPATH) 
                                             pass
-                                        
+
                                         if 'não está elegível para o empréstimo' in resultado:
                                             print('XXXXXXXXXXXXXXXXXXXXX Erro de elegibilidade XXXXXXXXXXXXXXXXXXXXX')
                                             dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
@@ -440,11 +575,12 @@ class InserirContrato(Manager):
                                 else:
                                     print('XXXXXXXXXXXXXXXXXXXXX TRATAR ERRO DE RESPONSE XXXXXXXXXXXXXXXXXXXXX')    
                             except:
+                                
                                 pass
 
-                        if float(informacoes['contrato']['valorParcela'].replace(',','.')) < 1:
+                        if float(informacoes['contrato']['valorParcela'].replace('.','').replace(',','.') ) < 1:
 
-                            print('XXXXXXXXXXXXXXXXXXXXX VALOR MARGEM QUE 1 XXXXXXXXXXXXXXXXXXXXX')
+                            print('XXXXXXXXXXXXXXXXXXXXX VALOR MARGEM MENOR QUE 1 XXXXXXXXXXXXXXXXXXXXX')
                             dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
                             dados_atualizacao['observacao_emp'] = 'Valor da margem é de menor que 1'
                             dados_atualizacao['observacao'] = ''    
@@ -455,16 +591,54 @@ class InserirContrato(Manager):
                                
                 except:
                     
-                    print('----------------- Configurando dados do contato -----------------')
-                    self.act.enviar_texto(self.xpath['cadastro_proposta']['celular'],'('+informacoes['contrato']['dddCelular']+') '+informacoes['contrato']['celular'][0:5]+'-'+informacoes['contrato']['celular'][5:9], By.XPATH)
-                    self.act.select_drop_down(self.xpath['cadastro_proposta']['forma_envio'], 'WHATSAPP', By.XPATH)
-                    self.act.clicar_elemento(self.xpath['cadastro_proposta']['botao_enviar'], By.XPATH)
-                    time.sleep(4)
-                                        
+                    try:
+                        print('----------------- Configurando dados do contato -----------------')
+                        self.act.enviar_texto(self.xpath['cadastro_proposta']['celular'],'('+informacoes['contrato']['dddCelular']+') '+informacoes['contrato']['celular'][0:5]+'-'+informacoes['contrato']['celular'][5:9], By.XPATH)
+                        self.act.select_drop_down(self.xpath['cadastro_proposta']['forma_envio'], 'WHATSAPP', By.XPATH)
+                        self.act.clicar_elemento(self.xpath['cadastro_proposta']['botao_enviar'], By.XPATH)
+                        time.sleep(4)
+
+                    except:
+                        texto_modal = ""
+                        try:
+                            try:
+                                texto_modal = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_modal3'], By.XPATH)
+                            except:
+                                texto_modal = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_modal2'], By.XPATH)   
+                        except:
+                            texto_modal = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_modal'], By.XPATH)
+                            pass
+                        
+                        if 'possui contrato com parcela em atraso' in texto_modal:
+                            dados_atualizacao['mensagem'] = 'Reprovado a Conferir'      
+                            dados_atualizacao['observacao_emp'] = texto_modal
+                            dados_atualizacao['observacao'] = ''    
+                            dados_atualizacao['erro'] = texto_modal
+                            dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                            continue
+                    
+                    try:
+                        texto_modal = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_modal3'], By.XPATH)
+                    except:
+                        texto_modal = ""
+                        pass
+
+                    if 'para solicitar um novo envio' in texto_modal or 'WHATSAPP com o link de acesso' in texto_modal:
+                        
+                        print('XXXXXXXXXXXXXXXXXXX PEDIDO DE AUTORIZAÇÃO XXXXXXXXXXXXXXXXXXXXX')
+                        dados_atualizacao['mensagem'] = 'Pendente Dados'
+                        dados_atualizacao['textoMensagem'] = 'Enviamos um link de autorização de consulta de seus dados em seu Whatsapp. Verifique se recebeu e nos informe para dar prosseguimento. Se não tiver recebido confirme seu telefone celular com DDD'
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        continue  
+
                     try:
                         self.act.clicar_elemento(self.xpath['cadastro_proposta']['botao_ok_whatsapp'], By.XPATH)    
                     except:
-                        self.act.clicar_elemento(self.xpath['cadastro_proposta']['botao_ok_whatsapp2'], By.XPATH)    
+                        try:
+                            self.act.clicar_elemento(self.xpath['cadastro_proposta']['botao_ok_whatsapp2'], By.XPATH)    
+                        except:
+                            pass
                         pass
                     
                     print('XXXXXXXXXXXXXXXXXXX PEDIDO DE AUTORIZAÇÃO XXXXXXXXXXXXXXXXXXXXX')
@@ -473,10 +647,52 @@ class InserirContrato(Manager):
                     self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                     continue
                         
-                print('-----------------------------------------------------------------')
+                print('--------------------------------------------------------------------')
                 print('----------------- Configurando valores do contrato -----------------')
+                
+                try:
+                    element = self.driver.find_element(By.ID, "ct_maximo_prestacao")
+                    valor = element.get_attribute("value")
+                    
+                    if(float(valor) < 1):
+                        print('XXXXXXXXXXXXXXXXXXXXX VALOR MARGEM MENOR QUE 1 XXXXXXXXXXXXXXXXXXXXX')
+                        dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                        dados_atualizacao['observacao_emp'] = 'Valor da margem é de menor que 1'
+                        dados_atualizacao['observacao'] = ''    
+                        dados_atualizacao['erro'] = 'Valor da margem é de menor que 1'
+                        dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        continue
+                    
+                except:
+                    pass
+                
                 #self.act.enviar_texto(self.xpath['cadastro_proposta']['valor'], informacoes['contrato']['valorParcela'], By.XPATH)
-                self.act.enviar_texto_intervalado(self.xpath['cadastro_proposta']['valor'], informacoes['contrato']['valorParcela'], By.XPATH, True, 0.1)
+                try:
+                    self.act.enviar_texto_intervalado(self.xpath['cadastro_proposta']['valor'], informacoes['contrato']['valorParcela'], By.XPATH, True, 0.1)
+                except:
+
+                    try:
+                        try:
+                            try:
+                                texto_modal = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_modal3'], By.XPATH)
+                            except:
+                                texto_modal = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_modal2'], By.XPATH)
+                        except:
+                            texto_modal = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_modal'], By.XPATH)
+                            pass
+                        
+                        if 'possui contrato com parcela em atraso' in texto_modal:
+                            dados_atualizacao['mensagem'] = 'Reprovado a Conferir'      
+                            dados_atualizacao['observacao_emp'] = texto_modal
+                            dados_atualizacao['observacao'] = ''    
+                            dados_atualizacao['erro'] = texto_modal
+                            dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                            continue
+                    except:
+                        pass
+                    
                 self.act.select_drop_down(self.xpath['cadastro_proposta']['valor_solicitado_select'], '2', By.XPATH)
                 self.act.enviar_texto(self.xpath['cadastro_proposta']['prazo_solicitado'], informacoes['contrato']['prazo'], By.XPATH)
                 
@@ -506,29 +722,11 @@ class InserirContrato(Manager):
                 
                 print('-----------------------------------------------------------------')
                 print('----------------- Escolhendo o plano  -----------------')
-                # pesquisar_novamente = False
-                # remover_popup = self.act.quantidade_elemento('//*[@id="corpo"]/div[7]', By.XPATH)
-                
-                # while remover_popup == 1:
-                #     try:
-                #         print('>>>>> Removendo tela...')
-                #         remover_popup = self.act.quantidade_elemento('//*[@id="corpo"]/div[7]', By.XPATH)
-                #         self.act.clicar_elemento('/html/body/div[7]/div/div/div[3]/button', By.XPATH)
-                #         pesquisar_novamente = True
-                #     except:
-                #         remover_popup = 0
-                #         pass
-                
-                # if pesquisar_novamente == True:
-                #     print('>>>>> Preenchendo data de nasicmento...')
-                #     self.act.enviar_texto(self.xpath['cadastro_proposta']['data_nascimento'], informacoes['contrato']['dataNascimento'], By.XPATH)
-                #     print('>>>>> Pesquisando novamente...')
-                #     self.act.clicar_elemento(self.xpath['cadastro_proposta']['botao_pesquisar'], By.XPATH)
-                #     time.sleep(4)
                 
                 self.driver.execute_script("document.body.style.zoom='60%'")
                 resultado = ""
-               
+                reajuste_parcela  = False
+                
                 try:
                     try: 
                         resultado = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_resultado3'], By.XPATH) 
@@ -540,9 +738,18 @@ class InserirContrato(Manager):
                         pass
 
                     if('não é possível cobrir o saldo devedor em nenhuma das tabelas disponíveis' in resultado or 
-                        'Não foram encontradas tabelas para os filtros realizados' in resultado):
+                        'Não foram encontradas tabelas para os filtros realizados' in resultado or
+                        'Valor solicitado ou idade do cliente superior ao máximo permitido' in resultado
+                        ):
+                        
+                        reajuste_parcela  = True
+                        
+                        self.act.select_drop_down(self.xpath['cadastro_proposta']['valor_solicitado_select'], '2', By.XPATH)
+                        
                         retorno_tabela = False
-                        nova_parcela = str(round(float(informacoes['contrato']['valorParcela'].replace('.','').replace(',','.')) - 50.00,2))
+                        valor_minimo = False
+                        nova_parcela = "{:.2f}".format(float(informacoes['contrato']['valorParcela'].replace('.','').replace(',','.')) - 50.00)
+
                         while retorno_tabela == False:
                             
                             print(f'>>>>> Tentando novo valor de parcela...{str(nova_parcela)}')
@@ -558,16 +765,33 @@ class InserirContrato(Manager):
                                 except:
                                     resultado = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_resultado4'], By.XPATH)
                                 pass
-                            
-                            if 'Não foram encontradas tabelas para os filtros realizados' in resultado or float(nova_parcela) < 80:
+
+                            if float(nova_parcela) < 30:
+                                valor_minimo = True
+                                                
+                                break
+
+                            if 'não é possível cobrir o saldo devedor em nenhuma das tabelas disponíveis' in resultado or 'Não foram encontradas tabelas para os filtros realizados' in resultado or float(nova_parcela) < 80 or 'Valor solicitado ou idade do cliente superior ao máximo permitido' in resultado:
                                 retorno_tabela = False
-                                nova_parcela = round(float(nova_parcela) - 20,2)
-                            
+                                nova_parcela =  "{:.2f}".format(round(float(nova_parcela) - 20,2))
                             else:
                                 informacoes['contrato']['valorParcela'] = str(nova_parcela)
                                 retorno_tabela = True
                                 break
+                        
+                        if valor_minimo == True:
+                            
+                            print('XXXXXXXXXXXXXXXXXXXXX Valor da operação é inferior ao mínimo permitido XXXXXXXXXXXXXXXXXXXXX')
+                            
+                            dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                            dados_atualizacao['observacao_emp'] = 'Valor da operação é inferior ao mínimo permitido.'
+                            dados_atualizacao['observacao'] = ''
+                            dados_atualizacao['erro'] = 'Valor da operação é inferior ao mínimo permitido.'
+                            dados_atualizacao['status_con'] = "Reprovado a Conferir"
                                 
+                            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)   
+                            
+                            continue       
 
                         if retorno_tabela == False:
                             
@@ -667,12 +891,14 @@ class InserirContrato(Manager):
                             continue    
                     
                     pass
-                
+ 
                 print('----------------- Atualizando valor do contrato  -----------------')
                 valor_contrato = self.act.obter_texto(self.xpath['cadastro_proposta']['valor_contrato'], By.XPATH)
                 dados_atualizacao['valorContrato'] = valor_contrato
                 dados_atualizacao['valorParcela'] = informacoes['contrato']['valorParcela'].replace('.',',')
                 
+                self.driver.execute_script("document.body.style.zoom='20%'")
+
                 try:
                     self.act.clicar_elemento(self.xpath['cadastro_proposta']['proxima_etapa'], By.XPATH)
                 except:
@@ -682,13 +908,29 @@ class InserirContrato(Manager):
                 
                 print('-----------------------------------------------------------------')                
                 print('----------------- Verificando erros de simulação -----------------')
+
                 try:
                     time.sleep(2)
                     try:
-                        texto_modal = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_modal'], By.XPATH)
+                        try:
+                            texto_modal = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_modal3'], By.XPATH)
+                        except:
+                            texto_modal = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_modal'], By.XPATH)
+                            pass
                     except:
                         texto_modal = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_modal2'], By.XPATH)
                         pass
+
+                    if 'política de crédito' in texto_modal:
+                        
+                        print('XXXXXXXXXXXXXXXXXXXXX Reprovada automaticamente XXXXXXXXXXXXXXXXXXXXX')    
+                        dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                        dados_atualizacao['observacao_emp'] = texto_modal
+                        dados_atualizacao['observacao'] = ''    
+                        dados_atualizacao['erro'] = texto_modal
+                        dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        continue
                     
                     if('meses' not in texto_modal):
                         print('XXXXXXXXXXXXXXXXXXXXX Erro cálculo de simulação XXXXXXXXXXXXXXXXXXXXX')
@@ -705,7 +947,7 @@ class InserirContrato(Manager):
                                               
                             self.act.clicar_elemento(self.xpath['pesquisa']['botao_pesquisar'], By.XPATH)
                             time.sleep(2)
-                            
+                            self.driver.execute_script("document.body.style.zoom='40%'")
                             try:
                                 link_proposta = self.act.obter_atributo(self.xpath['pesquisa']['link_resultado_pesquisa'], 'href', By.XPATH)
                             except:
@@ -721,6 +963,9 @@ class InserirContrato(Manager):
                             self.verificar_loading_cadastro()
                             dados_atualizacao = {}
                             dados_atualizacao['ade'] = link_proposta.split('codigo=')[1].split('&')[0] 
+                            
+                            self.driver.get(link_proposta)
+                            
                             dados_atualizacao['valorContrato'] = self.act.obter_atributo(self.xpath['pesquisa']['valor_contrato'], 'value', By.XPATH).replace('.','').replace(',','.')
                             dados_atualizacao['valorParcela'] = self.act.obter_atributo(self.xpath['pesquisa']['valor_parcela'], 'value', By.XPATH).replace('.',',')
                             dados_atualizacao['prazo'] = self.act.obter_atributo(self.xpath['pesquisa']['prazo'], 'value', By.XPATH)
@@ -733,6 +978,11 @@ class InserirContrato(Manager):
                                            
                             
                             dados_atualizacao['linkAssinatura'] = response.text.strip()
+                            
+                            if 'DOCTYPE html' in dados_atualizacao['linkAssinatura']:
+                                print('xxxxx Erro no link de assinatura xxxxx')       
+                                dados_atualizacao['linkAssinatura'] = 'aguardando_gerar_link'
+
                             dados_atualizacao['mensagem'] = 'Aguardando Gerar Contrato'
                             dados_atualizacao['textoMensagem'] = "Faça a assinatura digital do seu contrato. Ao entrar em sua proposta clique no botão |Assinatura Digital|"
                             dados_atualizacao['status_con'] = "Pendente"
@@ -762,9 +1012,13 @@ class InserirContrato(Manager):
                         valor_maximo = float(formatar_moeda(re.search(regex_valor_maximo, texto_modal).group(0)))
                     except:
                         pass
-                    
+
                     try:
-                        self.act.clicar_elemento(self.xpath['cadastro_proposta']['botao_ok_modal'], By.XPATH)
+                        try:
+                            self.act.clicar_elemento(self.xpath['cadastro_proposta']['botao_ok_modal3'], By.XPATH)
+                        except:
+                            self.act.clicar_elemento(self.xpath['cadastro_proposta']['botao_ok_modal'], By.XPATH)
+                            pass
                     except:
                         self.act.clicar_elemento(self.xpath['cadastro_proposta']['botao_ok_modal2'], By.XPATH)
                         pass
@@ -782,7 +1036,7 @@ class InserirContrato(Manager):
                     self.act.enviar_texto(self.xpath['cadastro_proposta']['prazo_solicitado'], prazo_maximo, By.XPATH)
                     self.act.clicar_elemento(self.xpath['cadastro_proposta']['botao_pesquisar'], By.XPATH)
                     time.sleep(4)
-
+                    
                     try:
                         try:
                             texto_resultado = self.act.obter_texto(self.xpath['cadastro_proposta']['resultado_pesquisa3'], By.XPATH)
@@ -858,15 +1112,19 @@ class InserirContrato(Manager):
 
                     except:
                         pass
-                       
+
                     print('----------------- Atualizando valor do contrato  -----------------')
                     self.driver.execute_script("document.body.style.zoom='40%'")
                     # valor_contrato = self.act.obter_texto(self.xpath['cadastro_proposta']['valor_contrato'], By.XPATH)
                     # dados_atualizacao['valorContrato'] = "{:.2f}".format(valor_maximo)
+                    dados_atualizacao['mensagem'] = 'Atualizar Valor'
+                    dados_atualizacao['textoMensagem'] = 'Valores atualizados'
                     dados_atualizacao['prazo'] = prazo_maximo
                     dados_atualizacao['valorParcela'] = self.act.obter_texto(self.xpath['cadastro_proposta']['valor_parcela'], By.XPATH).replace('.',',')
                     print('>>>>>>>> Valores: ', dados_atualizacao)
-                    
+
+                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+
                     try:
                         self.act.clicar_elemento(self.xpath['cadastro_proposta']['escolha_plano2'], By.XPATH)
                     except:
@@ -926,10 +1184,13 @@ class InserirContrato(Manager):
                                 url = "https://desenv.facta.com.br/sistemaNovo/ajax/propostas/copiaLinkFormalizacao.php"    
                                 payload = {'codigo': str(dados_atualizacao['ade']), 'averbador': '10010'}
                                 headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-                                response = requests.request("POST", url, headers=headers, data=payload)
-                                            
+                                response = requests.request("POST", url, headers=headers, data=payload)            
                                 
                                 dados_atualizacao['linkAssinatura'] = response.text.strip()
+                                if 'DOCTYPE html' in dados_atualizacao['linkAssinatura']:
+                                    print('xxxxx Erro no link de assinatura xxxxx')       
+                                    dados_atualizacao['linkAssinatura'] = 'aguardando_gerar_link'
+                                    
                                 dados_atualizacao['mensagem'] = 'Aguardando Gerar Contrato'
                                 dados_atualizacao['textoMensagem'] = "Faça a assinatura digital do seu contrato. Ao entrar em sua proposta clique no botão |Assinatura Digital|"
                                 dados_atualizacao['status_con'] = "Pendente"
@@ -963,15 +1224,142 @@ class InserirContrato(Manager):
                 
                 if self.verificar_loading_cadastro() == False:
                     continue
+                
+                resultado = ""
+                try:
+                    try: 
+                        resultado = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_resultado3'], By.XPATH) 
+                    except:
+                        try:
+                            resultado = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_resultado'], By.XPATH) 
+                        except:
+                            resultado = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_resultado4'], By.XPATH)
+                        pass
+
+                    if('não é possível cobrir o saldo devedor em nenhuma das tabelas disponíveis' in resultado or 
+                        'Não foram encontradas tabelas para os filtros realizados' in resultado or
+                        'Valor solicitado ou idade do cliente superior ao máximo permitido' in resultado
+                        ):
+                        
+                        reajuste_parcela  = True
+                        
+                        self.act.select_drop_down(self.xpath['cadastro_proposta']['valor_solicitado_select'], '2', By.XPATH)
+                        
+                        retorno_tabela = False
+                        valor_minimo = False
+                        nova_parcela = "{:.2f}".format(float(dados_atualizacao['valorParcela'].replace(',', '.')) - 10.00)
+
+                        while retorno_tabela == False:
+                            
+                            print(f'>>>>> Tentando novo valor de parcela...{str(nova_parcela)}')
+                            
+                            self.act.enviar_texto_intervalado(self.xpath['cadastro_proposta']['valor'], nova_parcela, By.XPATH, True, 0.1)
+                            self.act.clicar_elemento(self.xpath['cadastro_proposta']['botao_pesquisar'], By.XPATH)
+                            
+                            try: 
+                                resultado = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_resultado3'], By.XPATH) 
+                            except:
+                                try:
+                                    resultado = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_resultado'], By.XPATH) 
+                                except:
+                                    resultado = self.act.obter_texto(self.xpath['cadastro_proposta']['texto_resultado4'], By.XPATH)
+                                pass
+
+                            if float(nova_parcela) < 30:
+                                valor_minimo = True
+                                                
+                                break
+
+                            if 'não é possível cobrir o saldo devedor em nenhuma das tabelas disponíveis' in resultado or 'Não foram encontradas tabelas para os filtros realizados' in resultado or float(nova_parcela) < 80 or 'Valor solicitado ou idade do cliente superior ao máximo permitido' in resultado:
+                                retorno_tabela = False
+                                nova_parcela =  "{:.2f}".format(round(float(nova_parcela) - 20,2))
+                            else:
+                                informacoes['contrato']['valorParcela'] = str(nova_parcela)
+                                retorno_tabela = True
+                                break
+                        
+                        if valor_minimo == True:
+                            
+                            print('XXXXXXXXXXXXXXXXXXXXX Valor da operação é inferior ao mínimo permitido XXXXXXXXXXXXXXXXXXXXX')
+                            
+                            dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                            dados_atualizacao['observacao_emp'] = 'Valor da operação é inferior ao mínimo permitido.'
+                            dados_atualizacao['observacao'] = ''
+                            dados_atualizacao['erro'] = 'Valor da operação é inferior ao mínimo permitido.'
+                            dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                                
+                            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)   
+                            
+                            continue       
+
+                        if retorno_tabela == False:
+                            
+                            print('XXXXXXXXXXXXXXXXXXXXX Erro de calculo de tabela XXXXXXXXXXXXXXXXXXXXX')
+                            dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                            dados_atualizacao['observacao_emp'] = 'Para as condições informadas nesta simulação, não é possível cobrir o saldo devedor em nenhuma das tabelas disponíveis'
+                            dados_atualizacao['observacao'] = ''
+                            dados_atualizacao['erro'] = 'Para as condições informadas nesta simulação, não é possível cobrir o saldo devedor em nenhuma das tabelas disponíveis'
+                            dados_atualizacao['status_con'] = "Reprovado a Conferir"
+
+                            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                            self.remove_div()                        
+                            continue   
+                            
+                    if('Valor da operação é inferior ao mínimo permitido' in resultado):
+                        
+                        print('XXXXXXXXXXXXXXXXXXXXX Valor da operação é inferior ao mínimo permitido XXXXXXXXXXXXXXXXXXXXX')
+                        dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                        dados_atualizacao['observacao_emp'] = 'Valor da operação é inferior ao mínimo permitido.'
+                        dados_atualizacao['observacao'] = ''
+                        dados_atualizacao['erro'] = 'Valor da operação é inferior ao mínimo permitido.'
+                        dados_atualizacao['status_con'] = "Reprovado a Conferir"
+
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        self.remove_div()                        
+                        continue  
+                    
+                    
+                    if reajuste_parcela == True:
+                        print('----------------- Atualizando valor do contrato  -----------------')
+                        self.driver.execute_script("document.body.style.zoom='40%'")
+                        dados_atualizacao['valorContrato'] = self.act.obter_texto('//*[@id="tdVlrParcela"]', By.XPATH)
+                        dados_atualizacao['prazo'] = prazo_maximo
+                        dados_atualizacao['valorParcela'] = nova_parcela.replace('.',',')
+                        dados_atualizacao['mensagem'] = 'Atualizar Valor'
+                        dados_atualizacao['textoMensagem'] = 'Valores atualizados'
+
+                        print('>>>>>>>> Valores: ', dados_atualizacao)
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        
+                        try:
+                            self.act.clicar_elemento(self.xpath['cadastro_proposta']['escolha_plano2'], By.XPATH)
+                        except:
+                            self.act.clicar_elemento(self.xpath['cadastro_proposta']['escolha_plano'], By.XPATH)
+
+                        try:
+                            self.act.clicar_elemento(self.xpath['cadastro_proposta']['proxima_etapa'], By.XPATH)
+                        except:
+                            time.sleep(5)
+                            self.act.clicar_elemento(self.xpath['cadastro_proposta']['proxima_etapa'], By.XPATH)
+                            pass
+
+                except:
+                    pass 
 
                 time.sleep(3)
                 print('----------------- Etapa de certificação -----------------')
-                self.driver.execute_script("document.body.style.zoom='60%'")
+                self.driver.execute_script("document.body.style.zoom='20%'")
                 try:
-                    self.act.select_drop_down(self.xpath['certificado']['indicacao_parceiro'], '94485', By.XPATH)
-                except: 
+                    #self.act.select_drop_down(self.xpath['certificado']['indicacao_parceiro'], '92833', By.XPATH)
                     self.act.select_drop_down(self.xpath['certificado']['indicacao_parceiro'], '92095', By.XPATH)
-                self.act.enviar_texto(self.xpath['certificado']['cpfVendedor'], '06050694680', By.XPATH)
+                except: 
+                    self.act.select_drop_down(self.xpath['certificado']['indicacao_parceiro'], '94485', By.XPATH)
+                
+                time.sleep(2)   
+                #self.act.enviar_texto(self.xpath['certificado']['cpfVendedor'], '06050694680', By.XPATH)
+                self.act.enviar_texto(self.xpath['certificado']['cpfVendedor'], '11157145620', By.XPATH)
+                time.sleep(2)
+                
                 self.act.clicar_elemento(self.xpath['certificado']['proxima_etapa'], By.XPATH)
                 print('-----------------------------------------------------------------')
                 
@@ -1045,7 +1433,7 @@ class InserirContrato(Manager):
                     
                 except:
                     self.act.enviar_texto(self.xpath['cadastro_dados_pessoais']['matricula'], matricula, By.XPATH)                  
-                
+
                 if self.verificar_loading_cadastro() == False:
                     continue
 
@@ -1146,6 +1534,22 @@ class InserirContrato(Manager):
                 print('>>>Clicando em próxima etapa')
                 self.act.clicar_elemento(self.xpath['cadastro_dados_pessoais']['proxima_etapa'], By.XPATH)
                 time.sleep(4)
+                
+                try:
+                    texto_modal = self.act.obter_texto('/html/body/div[8]/div', By.XPATH)
+
+                    if('Atenção' in texto_modal):
+                        dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                        dados_atualizacao['observacao_emp'] = texto_modal
+                        dados_atualizacao['observacao'] = texto_modal
+                        dados_atualizacao['status_con'] = "Aguardando Comercial"
+                        dados_atualizacao['erro'] = texto_modal
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        continue
+                
+                except:
+                    pass
+                
                 if self.verificar_loading_cadastro() == False:
                     continue
 
@@ -1177,7 +1581,7 @@ class InserirContrato(Manager):
                         valor_float = float(valor_str.replace(',', '.'))  # Troca a vírgula por ponto e converte para float
     
                         if valor_float.replace(',','.') < 1:
-                            print('XXXXXXXXXXXXXXXXXXXXX VALOR MARGEM QUE 1 XXXXXXXXXXXXXXXXXXXXX')
+                            print('XXXXXXXXXXXXXXXXXXXXX VALOR MARGEM MENOR QUE 1 XXXXXXXXXXXXXXXXXXXXX')
                             dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
                             dados_atualizacao['observacao_emp'] = 'Valor da margem é de menor que 1'
                             dados_atualizacao['observacao'] = ''    
@@ -1191,14 +1595,36 @@ class InserirContrato(Manager):
                     pass
                 
                 print('----------------- Preechendo Pix e Dados Bancários-----------------')
+
+                try:
+                    texto_modal = self.act.obter_texto('//div[contains(@class,"bootbox-body")]', By.XPATH)
+                    
+                    if('ATENÇÃO' in texto_modal):
+                        print('XXXXXXXXXXXXXXXXXXXXX ERRO AO AVANÇAR PARA DADOS BANCÁRIOS XXXXXXXXXXXXXXXXXXXXX')
+                        dados_atualizacao['mensagem'] = 'Conferir dados do contrato'
+                        dados_atualizacao['observacao_emp'] = texto_modal
+                        dados_atualizacao['observacao'] = texto_modal
+                        dados_atualizacao['status_con'] = "Aguardando Comercial"
+                        dados_atualizacao['erro'] = texto_modal
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        self.act.clicar_elemento('//button[contains(text(),"OK")]', By.XPATH)
+                        continue
+                    
+                except:
+                    texto_modal = ""
+                    pass
+
                 self.act.select_drop_down(self.xpath['liberacao_dados_profissionais']['forma_pagamento'], '6', By.XPATH)
+                time.sleep(2)
                 
                 try:
                     while self.act.quantidade_elemento(self.xpath['liberacao_dados_profissionais']['tipo_credito'], By.XPATH) == 0:
                         print('Aguardando abertura de formulário de dados bancários...')
                     
                     self.act.select_drop_down(self.xpath['liberacao_dados_profissionais']['tipo_credito'], 'C', By.XPATH)
-
+                    
+                    time.sleep(2)
+                    
                     try:
                         self.act.select_drop_down(self.xpath['liberacao_dados_profissionais']['banco_liberacao'], str(int(informacoes['contrato']['numeroBanco'])), By.XPATH)
                     except:
@@ -1207,7 +1633,8 @@ class InserirContrato(Manager):
                         dados_atualizacao['textoMensagem'] = 'O banco que escolheu para depósito não está disponível para receber o crédito. Informe outro banco, agência e conta.'
                         self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                         continue
-                        
+
+                    time.sleep(2)
                     self.act.enviar_texto(self.xpath['liberacao_dados_profissionais']['agencia_iberacao'], informacoes['contrato']['agencia'], By.XPATH)
                     
                     if(informacoes['contrato']['numeroConta'][0] == '0'):
@@ -1216,17 +1643,22 @@ class InserirContrato(Manager):
                     if(informacoes['contrato']['digitoConta'].upper() == 'X'):
                         informacoes['contrato']['digitoConta'] = '0'
                         
+                    time.sleep(1)
                     self.act.enviar_texto(self.xpath['liberacao_dados_profissionais']['conta_liberacao'], informacoes['contrato']['numeroConta']+informacoes['contrato']['digitoConta'], By.XPATH)
                 
                 except:
                     pass
+
+                if 'profissao' not in informacoes['contrato']['dadosProfissionais']:
+                    informacoes['contrato']['dadosProfissionais']['profissao'] = 'TÉCNICO'
                 
                 self.act.obter_elemento_enviar_texto_clicar(self.xpath['liberacao_dados_profissionais']['tipo_profissao'], informacoes['contrato']['dadosProfissionais']['profissao'], By.XPATH)
-
+                
                 print('----------------- CLicando em finalizar -----------------')
-                #self.driver.execute_script("document.body.style.zoom='50%'")
-                self.driver.find_element(By.ID, 'observacao').send_keys(Keys.END)
-                self.act.clicar_elemento(self.xpath['liberacao_dados_profissionais']['proxima_etapa'], By.XPATH)
+                self.driver.execute_script("document.body.style.zoom='30%'")
+                #self.driver.find_element(By.ID, 'observacao').send_keys(Keys.END)
+                self.act.clicar_elemento('//button[contains(text(),"Próxima Etapa")]', By.XPATH)
+                #self.act.clicar_elemento(self.xpath['liberacao_dados_profissionais']['proxima_etapa'], By.XPATH)
 
                 time.sleep(2)
                 print('----------------- Finalizando documentos -----------------')
@@ -1234,7 +1666,6 @@ class InserirContrato(Manager):
                     self.act.clicar_elemento(self.xpath['liberacao_dados_profissionais']['finalizar_documentos'], By.XPATH)
                 except:
                     pass
-                
                 
                 if self.verificar_loading_cadastro() == False:
                     continue
@@ -1251,9 +1682,14 @@ class InserirContrato(Manager):
                 try:
                     texto_ade = self.act.obter_texto(self.xpath['liberacao_dados_profissionais']['numero_ade'], By.XPATH)                    
                 except:
+                    print('XXXXXXXXXXXXXXXXXXX ERRO AO GERAR ADE XXXXXXXXXXXXXXXXXXXXX')
                     texto_modal_final = ""
                     try:
-                        texto_modal_final = self.act.obter_texto(self.xpath['liberacao_dados_profissionais']['botao_ok_finalizacao'], By.XPATH)
+                        try:
+                            texto_modal_final = self.act.obter_texto(self.xpath['liberacao_dados_profissionais']['botao_ok_finalizacao2'], By.XPATH)
+                        except:
+                            texto_modal_final = self.act.obter_texto(self.xpath['liberacao_dados_profissionais']['botao_ok_finalizacao'], By.XPATH)
+                            pass
                     except:
                         texto_modal_final = self.act.obter_texto(self.xpath['liberacao_dados_profissionais']['texto_reprovacao_final'], By.XPATH)
                         pass
@@ -1283,7 +1719,8 @@ class InserirContrato(Manager):
                         continue
                     
                     elif 'O número da agência deve ser 0001' in texto_modal_final:
-                        self.act.clicar_elemento(self.xpath['liberacao_dados_profissionais']['botao_ok_formalizacao3'], By.XPATH)
+                        print('>>>>> Registrando agência corretamente....')  
+                        self.act.clicar_elemento(self.xpath['liberacao_dados_profissionais']['botao_ok_formalizacao4'], By.XPATH)
                         self.act.enviar_texto(self.xpath['liberacao_dados_profissionais']['agencia_iberacao'], '0001', By.XPATH)
                         print('----------------- CLicando em finalizar -----------------')
                         #self.driver.execute_script("document.body.style.zoom='50%'")
@@ -1292,8 +1729,13 @@ class InserirContrato(Manager):
 
                         time.sleep(2)
                         print('----------------- Finalizando documentos -----------------')
+
                         try:
-                            self.act.clicar_elemento(self.xpath['liberacao_dados_profissionais']['finalizar_documentos'], By.XPATH)
+                            try:
+                                self.act.clicar_elemento(self.xpath['liberacao_dados_profissionais']['finalizar_documentos2'], By.XPATH)
+                            except:
+                                self.act.clicar_elemento(self.xpath['liberacao_dados_profissionais']['finalizar_documentos'], By.XPATH)
+                                pass
                         except:
                             pass
                         
@@ -1308,6 +1750,8 @@ class InserirContrato(Manager):
                         dados_atualizacao['status_cor_con'] = "Enviado ao banco"
                         dados_atualizacao['liberarDoc'] = 1
                         dados_atualizacao['pedidoDocumentacao'] = 3
+                        
+                        texto_ade = self.act.obter_texto(self.xpath['liberacao_dados_profissionais']['numero_ade'], By.XPATH)
 
                     else:
                         print('XXXXXXXXXXXXXXXXXXX CLASSIFICAR ERRO FINAL XXXXXXXXXXXXXXXXXXXXX')
@@ -1321,9 +1765,13 @@ class InserirContrato(Manager):
                 payload = {'codigo': str(ade), 'averbador': '10010'}
                 headers = {'Content-Type': 'application/x-www-form-urlencoded'}
                 response = requests.request("POST", url, headers=headers, data=payload)
-                print('>>>>>>Realizando o post do link de assinatura')                
-                dados_atualizacao['linkAssinatura'] = response.text.strip()
                 
+                print('>>>>>>Realizando o post do link de assinatura')                
+                dados_atualizacao['linkAssinatura'] = response.text.strip()           
+                if 'DOCTYPE html' in dados_atualizacao['linkAssinatura']:
+                    print('xxxxx Erro no link de assinatura xxxxx')       
+                    dados_atualizacao['linkAssinatura'] = 'aguardando_gerar_link'
+                    
                 try:
                     self.act.clicar_elemento(self.xpath['liberacao_dados_profissionais']['formalizacao_whatsapp'], By.XPATH)
                     time.sleep(1)
@@ -1455,7 +1903,6 @@ class InserirContrato(Manager):
         }
         return switcher.get(perfil, 'Opção inválida')
 
-
     def registra_data_rg(self,informacoes, forjar_data = False):
         self.remove_div()
         #self.driver.execute_script("""document.querySelector("body > div.loadingoverlay").remove()""")
@@ -1479,3 +1926,55 @@ class InserirContrato(Manager):
         nova_data_nascimento = datetime.datetime.strptime(informacoes['contrato']['dataNascimento'], "%d/%m/%Y").strftime("%m-%d-%Y")
         self.act.enviar_texto('//*[@id="txtDataNascimento"]', nova_data_nascimento, By.XPATH)
         self.act.clicar_elemento('//*[@id="appVue"]/div[2]/div/div[2]/div[10]/div/button', By.XPATH)  
+        
+    def clicar_menu_cadastro(self):
+        
+        try:
+            self.act.clicar_elemento(f'/html/body/div[2]/nav/div/ul/li[1]/a/i[1]/img', By.XPATH)
+            self.act.clicar_elemento('//span[contains(text(),"Operacional")]', By.XPATH)
+            time.sleep(2)
+            self.act.clicar_elemento('//span[contains(text(),"Operacional")]', By.XPATH)
+        except:
+            self.act.clicar_elemento('/html/body/div[2]/nav/div/ul/li[2]/a', By.XPATH)
+            pass
+        
+        self.act.clicar_elemento('//span[contains(text(),"Cadastros")]', By.XPATH)        
+        self.act.clicar_elemento('//span[contains(text(),"Simulação")]', By.XPATH)
+
+        self.verificar_loading_cadastro()
+        
+    def remover_modais(self):
+        try:
+            self.driver.execute_script("""
+            (function () {
+                // Remove modais conhecidos por ID
+                ['modalAviso1','modalAviso2','popupModal','modalMuralAlertas','modal_2433033']
+                .forEach(function(id){
+                    var el = document.getElementById(id);
+                    if (el && el.parentNode) el.parentNode.removeChild(el);
+                });
+
+                // Remove QUALQUER modal residual (Bootstrap/Bootbox)
+                document.querySelectorAll('.modal').forEach(function(el){
+                    if (el && el.parentNode) el.parentNode.removeChild(el);
+                });
+
+                // REMOVE A BACKDROP (o que você apontou)
+                document.querySelectorAll('.modal-backdrop').forEach(function(el){
+                    if (el && el.parentNode) el.parentNode.removeChild(el);
+                });
+
+                // (Opcional) limpa overlays comuns de plugins (Fancybox etc.)
+                document.querySelectorAll('.fancybox-overlay, .fancybox-wrap').forEach(function(el){
+                    if (el && el.parentNode) el.parentNode.removeChild(el);
+                });
+
+                // Destrava o body
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('padding-right');
+                document.body.style.removeProperty('overflow');
+            })();
+            """)
+            print("✅ Modais e backdrops removidos com sucesso.")
+        except Exception as e:
+            print("❌ Erro ao remover modais/backdrops:", e)

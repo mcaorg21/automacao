@@ -16,7 +16,7 @@ from sites.baseRobos.core.uconecte import Uconecte
 from sites.baseRobos.core.decorators import ApenasHorarioComercial, AguardarHorarioComercial
 from sites.baseRobos.core.Exceptions import ForaHorarioComercialError
 
-from sites.facta.consulta_status.data.dados_consulta_status import DadosConsultaStatus
+from sites.phtech.consulta_status.data.dados_consulta_status import DadosConsultaStatus
 
 from dados.APIGetSource import APIDataSource
 
@@ -87,6 +87,7 @@ class InserirContrato(Manager,SeleniumActions):
                 "botao_simular": "//span[contains(text(), 'Simular')]",
                 "resultado": "//div[contains(text(), 'Resultado da operação')]",
                 "valor_contrato": "//span[contains(text(), 'Valor Líquido')]/following-sibling::p",
+                "texto_alerta" : "/html/body/div/div/div[5]/div/div[2]"
             },
             "operacao": {
                 "abrir_operacao": "//span[contains(text(), 'Abrir operação')]",
@@ -160,6 +161,9 @@ class InserirContrato(Manager,SeleniumActions):
             "assinatura": {
                 "link": "//a[contains(text(), 'Assinaturas')]",
                 "copiar_link": "/html/body/div/div/form/div[6]/div/div/div[7]/div/div[3]/div/div/div[2]/div[2]/div/div/div/div/div[5]/div/button",
+                "botao_atualizar": "//span[contains(text(), 'Atualizar')]",
+                "botao_historico": "//a[contains(text(), 'Histórico')]",
+                
             }
         }
 
@@ -203,194 +207,325 @@ class InserirContrato(Manager,SeleniumActions):
 
         else:
 
-            contrato = input('Informe número contrato: \n')
-            #contrato = '858956'
+            codigo = input('Informe número contrato: \n')
 
-            while contrato == "":
-                contrato = input('Informe número contrato: \n')
+            while codigo == "":
+                codigo = input('Informe número contrato: \n')
 
             #testes
             contratos = {}
-            contratos['contratos'] = [{'codigo_con' : contrato, 'observacao_emp' : "Pre aprovado"}] 
-            
+            contratos['contratos'] = [{'codigo_con' : codigo, 'observacao_emp' : "Pre aprovado"}]
+
         for contrato in contratos['contratos']:
             
             self.driver.get(self.urls['insercao'])
             self.div_principal = 7
+            id_perfil = get_id_perfil(contrato['perfil'])
             dados_atualizacao = {}
             
             informacoes = self.dados.get_informacoes_contrato(contrato['codigo_con'])
             pprint(informacoes)
             
-            try:
-                respostaSMS = requests.post('https://consultadpv.phng.dev/auth/login', data={'usuario': 'consulta.glm', 'senha': 'HfQj4b4AY8pWQFY'})
-                token = respostaSMS.json().get('token')
-
-                respostaSMS = requests.get('https://consultadpv.phng.dev/api/dataprev/consultar/' + informacoes['contrato']['cpf'], headers={
-                    'Authorization': f'Bearer {token}',
-                    'Content-Type': 'application/json'
-                }, timeout=10)
+            try:    
+                #11 4766-0026 whatsapp
+                #link pra front end
+                #https://consultadpv.phng.app/auth?redirect=/consulta
+                # Login: consulta.glm
+                # Senha: m9O5uw3s5d22
                 
-                matriculas = []
-                if 'multiplasMatriculas' in respostaSMS.json():
-                    for item in respostaSMS.json()['matriculas']:
-                        if(item['elegivel'] == True):
-                            matriculas.append(item['matricula'])
-                 
-                encontrou_empresa_com_matricula = False
-                if(len(matriculas) > 1):
-                    
-                    print('>>> Mais de uma matrícula encontrada.')
-                    
-                    for matricula in matriculas:
-                        
-                        payload = json.dumps({
-                            "matricula": matricula
-                        })
+                if(id_perfil in [10]):
 
-                        respostaSMS = requests.post('https://consultadpv.phng.dev/api/dataprev/consultar/' + informacoes['contrato']['cpf'], headers={
-                            'Authorization': f'Bearer {token}',
-                            'Content-Type': 'application/json'
-                        }, data=payload, timeout=10)
-                        
-                        valor_margem = float(respostaSMS.json().get('valorMargemDisponivelDigitacao').replace('.','').replace(',','.'))
-                        
-                        if(valor_margem > 50):
-                            print(f'>>> Usando matrícula {matricula} com margem disponível de {valor_margem}')
-                            encontrou_empresa_com_matricula = True
-                            break
-                    
-                    if not encontrou_empresa_com_matricula:
-                        print('>>> Nenhuma matrícula com margem disponível acima de 50 encontrada.')
-                        dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
-                        dados_atualizacao['observacao_emp'] = 'Nenhuma matrícula com margem disponível acima de 50 encontrada'
-                        dados_atualizacao['observacao'] = ''    
-                        dados_atualizacao['erro'] = 'Nenhuma matrícula com margem disponível acima de 50 encontrada'
-                        dados_atualizacao['status_con'] = "Reprovado a Conferir"
-                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
-                        continue
+                    respostaSMS = requests.post('https://consultadpv.phng.dev/auth/login', data={'usuario': 'consulta.glm', 'senha': 'm9O5uw3s5d22'})
+                    token = respostaSMS.json().get('token')
 
-                texto_mensagem = respostaSMS.json().get('mensagem')
-                
-                if respostaSMS.status_code == 409:
+                    respostaSMS = requests.get('https://consultadpv.phng.dev/api/dataprev/consultar/' + informacoes['contrato']['cpf'], headers={
+                        'Authorization': f'Bearer {token}',
+                        'Content-Type': 'application/json'
+                    }, timeout=10)
                     
-                    if("Valor de remuneração zerado" in texto_mensagem):
-                        
-                        print('XXXXXXXXXXXXXXXXXXXXX Sem remuneração XXXXXXXXXXXXXXXXXXXXX')    
-                        dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
-                        dados_atualizacao['observacao_emp'] = 'CPF não encontrado na base'
-                        dados_atualizacao['observacao'] = ''    
-                        dados_atualizacao['erro'] = 'CPF não encontrado'
-                        dados_atualizacao['status_con'] = "Reprovado a Conferir"
-                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                    if respostaSMS.status_code == 500:
+                        print('XXXXXXXXXXXXXXX Erro 500: Problema no servidor ao consultar o CPF XXXXXXXXXXXXXXX')
                         continue
                     
-                    # CPF já cadastrado, tratar erro
-                    print(">>>> Erro 409: CPF já cadastrado no sistema")
-                    print('XXXXXXXXXXXXXXXXXXX PEDIDO DE AUTORIZAÇÃO XXXXXXXXXXXXXXXXXXXXX')
-                    dados_atualizacao['mensagem'] = 'Pendente Dados'
-                    dados_atualizacao['textoMensagem'] = 'Enviamos um link de autorização de consulta de seus dados em seu Whatsapp. Verifique se recebeu e nos informe para dar prosseguimento. Se não tiver recebido confirme seu telefone celular com DDD'
-                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
-                    continue
-                
-                elif respostaSMS.status_code == 404:
+                    matriculas_elegiveis = []
+                    encontrou_empresa_com_matricula = False
                     
-                    if('CPF não encontrado na base' in texto_mensagem):
-                        print('XXXXXXXXXXXXXXXXXXXXX Erro de CPF na base XXXXXXXXXXXXXXXXXXXXX')    
-                        dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
-                        dados_atualizacao['observacao_emp'] = 'CPF não encontrado na base'
-                        dados_atualizacao['observacao'] = ''    
-                        dados_atualizacao['erro'] = 'CPF não encontrado'
-                        dados_atualizacao['status_con'] = "Reprovado a Conferir"
-                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
-                        continue
-                    
-                    else:
-                        print('XXXXXXXX TRATAMENTO DE ERRO 404 XXXXXXXXXXXXXXX')
-                        pdb.set_trace()
+                    if 'multiplasMatriculas' in respostaSMS.json():
                         
-                elif respostaSMS.status_code == 200:
-                    print('VVVVVVVVVVV TRATAMENTO DE RETORNO 200 VVVVVVVVVVV')
-                    
-                    if 'cnae' in respostaSMS.text:
+                        for item in respostaSMS.json()['matriculas']:
+                            if(item['elegivel'] == True):
+                                matriculas_elegiveis.append(item['matricula'])
+                                encontrou_empresa_com_matricula = True
                         
-                        dados = respostaSMS.json()
-                        #{'cpf': 37199980884, 'matricula': '232', 'empregador': 'CNPJ - 66699125', 'nomeEmpregador': 'CAMPO VERDE DISTRIBUIDORA DE GENEROS ALIMENTICIOS LTDA', 'nome': 'RODNEI EMILIO SANTARELLI', 'nomeMae': 'EURIDES DE SANTANA SANTARELLI', 'sexo': 'Masculino', 'dataNascimento': '08/09/1986', 'dataNascimentoDetalhada': '38 anos, 9 meses e 2 dias', 'elegibilidadeDataNascimento': True, 'codigoCategoriaTrabalhador': 101, 'elegibilidadeCodigoCategoriaTrabalhador': True, 'elegivel': True, 'motivoInelegibilidade': '', 'dataAdmissao': '16/12/2024', 'elegibilidadeAdmissao': False, 'pessoaExpostaPoliticamente': 'Pessoa Não Exposta Politicamente', 'elegibilidadePessoaExpostaPoliticamente': True, 'dataInicioAtividadeEmpregador': '08/08/1991', 'elegibilidadeDataInicioAtividadeEmpregador': True, 'paisNacionalidade': 'BRASIL', 'cbo': '783210 - CARREGADOR (ARMAZEM)', 'cnae': '4639701 - COMERCIO ATACADISTA DE PRODUTOS ALIMENTICIOS EM GERAL', 'qtdEmprestimosAtivosSuspensos': 1, 'elegibilidadeQtdEmprestimosAtivosSuspensos': False, 'valorTotalVencimentos': '2.940,76', 'valorBaseMargem': '1.830,94', 'valorMargemDisponivel': '315,63', 'valorMargemDisponivelDigitacao': '157,82', 'prazoMinimno': 0, 'prazoMaximo': 0, 'valorMaximo': '0,00', 'telefone': 11958478978}
-                        print('>>> Dados encontrados na consulta')
-                        pdb.set_trace()
+                        if encontrou_empresa_com_matricula == False:
+                            
+                            print('XXXXXXXXXXXXX Nenhuma matrícula elegível encontrada. XXXXXXXXXXXXX')
+                            
+                            dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                            dados_atualizacao['observacao_emp'] = 'Nenhuma matrícula elegível encontrada'
+                            dados_atualizacao['observacao'] = ''    
+                            dados_atualizacao['erro'] = 'Nenhuma matrícula elegível encontrada'
+                            dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                            continue
                         
-                        valor_margem = float(dados['valorMargemDisponivelDigitacao'].replace('.','').replace(',','.'))
-                        if float(informacoes['contrato']['valorParcela'].replace('.','').replace(',','.')) >= float(valor_margem):
-                            print('>>>>>>  Usando máximo de margem disponível')
-                            informacoes['contrato']['valorParcela'] = dados['valorMargemDisponivelDigitacao']
-                        else:
-                            informacoes['contrato']['valorParcela'] = dados['valorMargemDisponivelDigitacao']
-                        
-                        informacoes['contrato']['dadosProfissionais']['cnpjEmpresa'] = dados['empregador'].replace('CNPJ - ','').replace('CNPJ -','').strip()
-                        informacoes['contrato']['dadosProfissionais']['nomeEmpresa'] = dados['nomeEmpregador']   
-                        informacoes['contrato']['dadosProfissionais']['admissao'] = dados['dataAdmissao']
-                        informacoes['contrato']['dadosProfissionais']['matricula'] = dados['matricula'] 
-                        
-                        
+                    if(len(matriculas_elegiveis) > 0):
 
-                    else:
-                        data={
-                                'cpf': informacoes['contrato']['cpf'],
-                                'numero': informacoes['contrato']['dddCelular'] + informacoes['contrato']['celular'],
-                                'primeiroNome': informacoes['contrato']['nome'].split(' ')[0],
-                            }
+                        print('>>> Múltiplas matrículas encontradas.')
+
+                        for matricula in matriculas_elegiveis:
+                            
+                            payload = json.dumps({
+                                "matricula": matricula
+                            })
+
+                            respostaSMS = requests.post('https://consultadpv.phng.dev/api/dataprev/consultar/' + informacoes['contrato']['cpf'], headers={
+                                'Authorization': f'Bearer {token}',
+                                'Content-Type': 'application/json'
+                            }, data=payload, timeout=10)
+                            
+                            if(respostaSMS.json()['qtdEmprestimosAtivosSuspensos'] > 0):
+                                print('>>> Matricula com emprestimo ativo suspenso, continuando...')
+                                continue
+
+                            valor_margem = float(respostaSMS.json().get('valorMargemDisponivelDigitacao').replace('.','').replace(',','.'))
+                            
+                            if(valor_margem > 0):
+                                print(f'>>> Usando matrícula {matricula} com margem disponível de {valor_margem}')
+                                encontrou_empresa_com_matricula = True
+                                break
+                            
+                            if float(informacoes['contrato']['valorParcela'].replace('.','').replace(',','.')) >= float(valor_margem):
+                                print('>>>>>>  Usando máximo de margem disponível')
+                                informacoes['contrato']['valorParcela'] = dados['valorMargemDisponivelDigitacao']
                         
-                        resposta = requests.post('https://consultadpv.phng.dev/api/dataprev/enviarSms', headers={
-                            'Authorization': f'Bearer {token}',
-                            'Content-Type': 'application/json'
-                        }, data=data, timeout=10)
+                            if not encontrou_empresa_com_matricula:
+                                
+                                print('>>> Nenhuma matrícula elegível encontrada.')
+                                dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                                dados_atualizacao['observacao_emp'] = 'Nenhuma matrícula elegível encontrada'
+                                dados_atualizacao['observacao'] = ''    
+                                dados_atualizacao['erro'] = 'Nenhuma matrícula elegível encontrada'
+                                dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                                self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                                continue
+
+                    texto_mensagem = respostaSMS.json().get('mensagem')              
+
+                    if respostaSMS.status_code == 409:
                         
-                        texto_mensagem = resposta.json().get('mensagem')
+                        if("Valor de remuneração zerado" in texto_mensagem):
+                            
+                            print('XXXXXXXXXXXXXXXXXXXXX Sem remuneração XXXXXXXXXXXXXXXXXXXXX')    
+                            dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                            dados_atualizacao['observacao_emp'] = 'CPF não encontrado na base'
+                            dados_atualizacao['observacao'] = ''    
+                            dados_atualizacao['erro'] = 'CPF não encontrado'
+                            dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                            continue
                         
-                        if "SMS Enviado com sucesso" in texto_mensagem:
-                            print('SMS enviado com sucesso para o CPF:', informacoes['contrato']['cpf'])
+                        if("Empréstimo legado informado pela instituição financeira" in texto_mensagem):
+                            
+                            print('XXXXXXXXXXXXXXXXXXXXX Sem remuneração XXXXXXXXXXXXXXXXXXXXX')    
+                            dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                            dados_atualizacao['observacao_emp'] = 'Cliente possui contrato em andamento'
+                            dados_atualizacao['observacao'] = ''    
+                            dados_atualizacao['erro'] = 'Cliente possui contrato em andamento'
+                            dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                             continue
 
+                        if("Vínculo com data de desligamento" in texto_mensagem):
 
-                    # {
-                    #     "cbo": "783210 - CARREGADOR (ARMAZEM)",
-                    #     "cnae": "4639701 - COMERCIO ATACADISTA DE PRODUTOS ALIMENTICIOS EM GERAL",
-                    #     "codigoCategoriaTrabalhador": 101,
-                    #     "cpf": "37199980884",
-                    #     "dataAdmissao": "16/12/2024",
-                    #     "dataInicioAtividadeEmpregador": "08/08/1991",
-                    #     "dataNascimento": "08/09/1986",
-                    #     "dataNascimentoDetalhada": "38 anos, 9 meses e 2 dias",
-                    #     "elegibilidadeAdmissao": false,
-                    #     "elegibilidadeCodigoCategoriaTrabalhador": true,
-                    #     "elegibilidadeDataInicioAtividadeEmpregador": true,
-                    #     "elegibilidadeDataNascimento": true,
-                    #     "elegibilidadePessoaExpostaPoliticamente": true,
-                    #     "elegibilidadeQtdEmprestimosAtivosSuspensos": false,
-                    #     "elegivel": true,
-                    #     "empregador": "CNPJ - 66699125",
-                    #     "matricula": "232",
-                    #     "motivoInelegibilidade": "",
-                    #     "nome": "RODNEI EMILIO SANTARELLI",
-                    #     "nomeEmpregador": "CAMPO VERDE DISTRIBUIDORA DE GENEROS ALIMENTICIOS LTDA",
-                    #     "nomeMae": "EURIDES DE SANTANA SANTARELLI",
-                    #     "paisNacionalidade": "BRASIL",
-                    #     "pessoaExpostaPoliticamente": "Pessoa Não Exposta Politicamente",
-                    #     "prazoMaximo": 0,
-                    #     "prazoMinimno": 0,
-                    #     "qtdEmprestimosAtivosSuspensos": 1,
-                    #     "sexo": "Masculino",
-                    #     "telefone": "11958478978",
-                    #     "valorBaseMargem": "1.830,94",
-                    #     "valorMargemDisponivel": "315,63",
-                    #     "valorMargemDisponivelDigitacao": "157,82",
-                    #     "valorMaximo": "0,00",
-                    #     "valorTotalVencimentos": "2.940,76"
-                    #     }
+                            print('XXXXXXXXXXXXXXXXXXXXX Possui data de desligamento XXXXXXXXXXXXXXXXXXXXX')
+                            dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                            dados_atualizacao['observacao_emp'] = 'Cliente com data de desligamento'
+                            dados_atualizacao['observacao'] = ''    
+                            dados_atualizacao['erro'] = 'Cliente com data de desligamento'
+                            dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                            continue
+                        
+                        if("Sem remuneração na última competência" in texto_mensagem):
 
-                else:
-                    print('XXXXXXXX TRATAMENTO DE ERRO XXXXXXXXXXXXXXX')
-                    pdb.set_trace()
+                            print('XXXXXXXXXXXXXXXXXXXXX Sem remuneração na última competência XXXXXXXXXXXXXXXXXXXXX')
+                            dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                            dados_atualizacao['observacao_emp'] = 'Cliente sem remuneração na última competência'
+                            dados_atualizacao['observacao'] = ''
+                            dados_atualizacao['erro'] = 'Cliente sem remuneração na última competência'
+                            dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                            continue
+
+                        if('Empréstimo legado registrado no eSocial' in texto_mensagem):
+
+                            print('XXXXXXXXXXXXXXXXXXXXX Empréstimo legado registrado no eSocial XXXXXXXXXXXXXXXXXXXXX')
+                            dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                            dados_atualizacao['observacao_emp'] = 'Cliente com empréstimo legado registrado no eSocial'
+                            dados_atualizacao['observacao'] = ''
+                            dados_atualizacao['erro'] = 'Cliente com empréstimo legado registrado no eSocial'
+                            dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                            continue
+                        
+                        print('XXXXXXXXXXXXXXXXXXX CLASSIFICAR NOVO ERRO 409 XXXXXXXXXXXXXXXXXXXXX')
+                        pdb.set_trace()
+                        # CPF já cadastrado, tratar erro
+                        print(">>>> Erro 409: CPF já cadastrado no sistema")
+                        print('XXXXXXXXXXXXXXXXXXX PEDIDO DE AUTORIZAÇÃO XXXXXXXXXXXXXXXXXXXXX')
+                        dados_atualizacao['mensagem'] = 'Pendente Dados'
+                        dados_atualizacao['textoMensagem'] = 'Adicione o Whatsapp (11)4766-0026 para dar autorização de consulta de seus dados. Assim que fizer nos informe por aqui.'
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        continue
+                    
+                    elif respostaSMS.status_code == 404:
+                        
+                        if('CPF não encontrado na base' in texto_mensagem):
+                            print('XXXXXXXXXXXXXXXXXXXXX Erro de CPF na base XXXXXXXXXXXXXXXXXXXXX')    
+                            dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                            dados_atualizacao['observacao_emp'] = 'CPF não encontrado na base'
+                            dados_atualizacao['observacao'] = ''    
+                            dados_atualizacao['erro'] = 'CPF não encontrado'
+                            dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                            continue
+                        
+                        elif 'Trabalhador nao autorizado para consulta' in texto_mensagem:
+                            
+                            data={
+                                    'cpf': informacoes['contrato']['cpf'],
+                                    'numero': informacoes['contrato']['dddCelular'] + informacoes['contrato']['celular'],
+                                    'primeiroNome': informacoes['contrato']['nome'].split(' ')[0],
+                                }
+                            
+                            resposta = requests.post('https://consultadpv.phng.dev/api/dataprev/enviarSms', headers={
+                                'Authorization': f'Bearer {token}',
+                                'Content-Type': 'application/json'
+                            }, data=data, timeout=10)
+                            
+                            texto_mensagem = resposta.json().get('mensagem')
+                            
+                            if "SMS Enviado com sucesso" in texto_mensagem:
+                                print('XXXXXXXXXXXXXXXXXXX PEDIDO DE AUTORIZAÇÃO XXXXXXXXXXXXXXXXXXXXX')
+                                print('SMS enviado com sucesso para o CPF:', informacoes['contrato']['cpf'])
+                                dados_atualizacao['mensagem'] = 'Pendente Dados'
+                                dados_atualizacao['textoMensagem'] = 'Enviamos um link de autorização de consulta de seus dados via SMS. Se o SMS não chegar adicione o Whatsapp (11)4766-0026 para dar autorização. Assim que fizer nos informe por aqui.'
+                                self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                                continue
+                            
+                            if "Numero de telefone ja cadastrado para outro cpf" in texto_mensagem:
+                                print('XXXXXXXXXXXXXXXXXXX PEDIDO DE AUTORIZAÇÃO XXXXXXXXXXXXXXXXXXXXX')
+                                print('Mensagem para adicionar Whatsapp enviada para o CPF:', informacoes['contrato']['cpf'])
+                                dados_atualizacao['mensagem'] = 'Pendente Dados'
+                                dados_atualizacao['textoMensagem'] = 'Adicione o Whatsapp (11)4766-0026 para dar autorização de consulta de seus dados. Assim que fizer nos informe por aqui.'
+                                self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                                continue
+                            
+                            
+                            
+                        else:
+                            print('XXXXXXXX TRATAMENTO DE ERRO 404 XXXXXXXXXXXXXXX')
+                            pdb.set_trace()
+                            
+                    elif respostaSMS.status_code == 200:
+                        print('VVVVVVVVVVV ENCONTRADO CADASTRO - 200 VVVVVVVVVVV')
+                        
+                        if 'cnae' in respostaSMS.text:
+                            
+                            dados = respostaSMS.json()
+                            #{'cpf': 37199980884, 'matricula': '232', 'empregador': 'CNPJ - 66699125', 'nomeEmpregador': 'CAMPO VERDE DISTRIBUIDORA DE GENEROS ALIMENTICIOS LTDA', 'nome': 'RODNEI EMILIO SANTARELLI', 'nomeMae': 'EURIDES DE SANTANA SANTARELLI', 'sexo': 'Masculino', 'dataNascimento': '08/09/1986', 'dataNascimentoDetalhada': '38 anos, 9 meses e 2 dias', 'elegibilidadeDataNascimento': True, 'codigoCategoriaTrabalhador': 101, 'elegibilidadeCodigoCategoriaTrabalhador': True, 'elegivel': True, 'motivoInelegibilidade': '', 'dataAdmissao': '16/12/2024', 'elegibilidadeAdmissao': False, 'pessoaExpostaPoliticamente': 'Pessoa Não Exposta Politicamente', 'elegibilidadePessoaExpostaPoliticamente': True, 'dataInicioAtividadeEmpregador': '08/08/1991', 'elegibilidadeDataInicioAtividadeEmpregador': True, 'paisNacionalidade': 'BRASIL', 'cbo': '783210 - CARREGADOR (ARMAZEM)', 'cnae': '4639701 - COMERCIO ATACADISTA DE PRODUTOS ALIMENTICIOS EM GERAL', 'qtdEmprestimosAtivosSuspensos': 1, 'elegibilidadeQtdEmprestimosAtivosSuspensos': False, 'valorTotalVencimentos': '2.940,76', 'valorBaseMargem': '1.830,94', 'valorMargemDisponivel': '315,63', 'valorMargemDisponivelDigitacao': '157,82', 'prazoMinimno': 0, 'prazoMaximo': 0, 'valorMaximo': '0,00', 'telefone': 11958478978}
+                            print(f'>>> Dados encontrados na consulta. Margem: {dados['valorMargemDisponivelDigitacao']}')
+
+                            valor_margem = float(dados['valorMargemDisponivelDigitacao'].replace('.','').replace(',','.'))
+                            
+                            if valor_margem < 1:
+                                
+                                print(f'XXXXXXXXXXXXXXXXXXX Valor margem: {str(valor_margem)} XXXXXXXXXXXXXXXXXXXX')
+                                            
+                                dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                                dados_atualizacao['observacao_emp'] = f'Valor menor do que o permitido para o produto - Margem {str(valor_margem)}'
+                                dados_atualizacao['observacao'] = f'Valor menor do que o permitido para o produto - Margem {str(valor_margem)}'
+                                dados_atualizacao['status_con'] = "Reprovado a Conferir"    
+                                dados_atualizacao['erro'] = f'Valor menor do que o permitido para o produto - Margem {str(valor_margem)}'
+                                self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                                continue
+                    
+                            if float(informacoes['contrato']['valorParcela'].replace('.','').replace(',','.')) >= float(valor_margem):
+                                print('>>>>>>  Usando máximo de margem disponível')
+                                informacoes['contrato']['valorParcela'] = dados['valorMargemDisponivelDigitacao']
+                            else:
+                                informacoes['contrato']['valorParcela'] = informacoes['contrato']['valorParcela']
+                            
+                            informacoes['contrato']['dadosProfissionais']['cnpjEmpresa'] = dados['empregador'].replace('CNPJ - ','').replace('CNPJ -','').strip()
+                            informacoes['contrato']['dadosProfissionais']['nomeEmpresa'] = dados['nomeEmpregador']   
+                            informacoes['contrato']['dadosProfissionais']['admissao'] = dados['dataAdmissao']
+                            informacoes['contrato']['dadosProfissionais']['matricula'] = dados['matricula']
+                            
+                            dados_atualizacao['valorParcela'] = informacoes['contrato']['valorParcela']
+
+                        else:
+                            data={
+                                    'cpf': informacoes['contrato']['cpf'],
+                                    'numero': informacoes['contrato']['dddCelular'] + informacoes['contrato']['celular'],
+                                    'primeiroNome': informacoes['contrato']['nome'].split(' ')[0],
+                                }
+                            
+                            resposta = requests.post('https://consultadpv.phng.dev/api/dataprev/enviarSms', headers={
+                                'Authorization': f'Bearer {token}',
+                                'Content-Type': 'application/json'
+                            }, data=data, timeout=10)
+                            
+                            texto_mensagem = resposta.json().get('mensagem')
+                            
+                            if "SMS Enviado com sucesso" in texto_mensagem:
+                                print('XXXXXXXXXXXXXXXXXXX PEDIDO DE AUTORIZAÇÃO XXXXXXXXXXXXXXXXXXXXX')
+                                print('SMS enviado com sucesso para o CPF:', informacoes['contrato']['cpf'])
+                                dados_atualizacao['mensagem'] = 'Pendente Dados'
+                                dados_atualizacao['textoMensagem'] = 'Enviamos um link de autorização de consulta de seus dados via SMS. Se o SMS não chegar adicione o Whatsapp (11)4766-0026 para dar autorização. Assim que fizer nos informe por aqui.'
+                                self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                                continue
+
+
+                        # {
+                        #     "cbo": "783210 - CARREGADOR (ARMAZEM)",
+                        #     "cnae": "4639701 - COMERCIO ATACADISTA DE PRODUTOS ALIMENTICIOS EM GERAL",
+                        #     "codigoCategoriaTrabalhador": 101,
+                        #     "cpf": "37199980884",
+                        #     "dataAdmissao": "16/12/2024",
+                        #     "dataInicioAtividadeEmpregador": "08/08/1991",
+                        #     "dataNascimento": "08/09/1986",
+                        #     "dataNascimentoDetalhada": "38 anos, 9 meses e 2 dias",
+                        #     "elegibilidadeAdmissao": false,
+                        #     "elegibilidadeCodigoCategoriaTrabalhador": true,
+                        #     "elegibilidadeDataInicioAtividadeEmpregador": true,
+                        #     "elegibilidadeDataNascimento": true,
+                        #     "elegibilidadePessoaExpostaPoliticamente": true,
+                        #     "elegibilidadeQtdEmprestimosAtivosSuspensos": false,
+                        #     "elegivel": true,
+                        #     "empregador": "CNPJ - 66699125",
+                        #     "matricula": "232",
+                        #     "motivoInelegibilidade": "",
+                        #     "nome": "RODNEI EMILIO SANTARELLI",
+                        #     "nomeEmpregador": "CAMPO VERDE DISTRIBUIDORA DE GENEROS ALIMENTICIOS LTDA",
+                        #     "nomeMae": "EURIDES DE SANTANA SANTARELLI",
+                        #     "paisNacionalidade": "BRASIL",
+                        #     "pessoaExpostaPoliticamente": "Pessoa Não Exposta Politicamente",
+                        #     "prazoMaximo": 0,
+                        #     "prazoMinimno": 0,
+                        #     "qtdEmprestimosAtivosSuspensos": 1,
+                        #     "sexo": "Masculino",
+                        #     "telefone": "11958478978",
+                        #     "valorBaseMargem": "1.830,94",
+                        #     "valorMargemDisponivel": "315,63",
+                        #     "valorMargemDisponivelDigitacao": "157,82",
+                        #     "valorMaximo": "0,00",
+                        #     "valorTotalVencimentos": "2.940,76"
+                        #     }
+
+                    else:
+                        print('XXXXXXXX TRATAMENTO DE ERRO XXXXXXXXXXXXXXX')
+                        pdb.set_trace()
                 
                 dados_atualizacao['mensagem'] = 'Inserir contrato'
                 self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
@@ -405,16 +540,17 @@ class InserirContrato(Manager,SeleniumActions):
                     continue
 
                 try:
-                    # Navegar para simulação de crédito
-                    # if not self.navegar_para_simulacao_credito():
-                    #     raise Exception("Falha ao navegar para simulação de crédito")
+
+                    # Selecionar produto    
                     
-                    # Selecionar produto
-                    
+                    #idperfil 10 
                     produto_selecionar = "3010499" #CONSIGNADO CLT
+                    if id_perfil == 2:  
+                        produto_selecionar = "2010180" #CONSIGNADO SERVIDOR PUBLICO
+
                     if not self.selecionar_produto(produto_selecionar):
                         raise Exception("Falha ao selecionar produto")
-                    
+
                     # Definir tipo de cálculo
                     if not self.definir_tipo_calculo():
                         raise Exception("Falha ao definir tipo de cálculo")
@@ -434,9 +570,59 @@ class InserirContrato(Manager,SeleniumActions):
                     # Executar simulação
                     if not self.executar_simulacao():
                         raise Exception("Falha ao executar simulação")
-                    
+
+                    try:
+                        texto_alerta = self.act.obter_texto(self.xpath['simulacao']['texto_alerta'], By.XPATH)
+                    except Exception as e:
+                        texto_alerta = None
+                        
+                    if texto_alerta is not None:
+                        
+                        if 'é menor do que o permitido para o produto' in texto_alerta:
+                            
+                            print(f'XXXXXXXXXXXXXXXXXXX Valor menor margem: {respostaSMS.json()['valorMargemDisponivelDigitacao']} XXXXXXXXXXXXXXXXXXXX')
+                            
+                            reprova_valor_maximo = True
+                            
+                            if int(informacoes['contrato']['prazo']) < 36:
+
+                                informacoes['contrato']['prazo'] = '36'
+                                print('>>>> Tentando prazo máximo')                                
+                                self.definir_parcelas('36')
+                                self.executar_simulacao()
+                                
+                                time.sleep(5)
+                                
+                                try:
+                                    texto_alerta = self.act.obter_texto(self.xpath['simulacao']['texto_alerta'], By.XPATH)
+                                except:
+                                    texto_alerta = ''
+                                    
+                                if 'é menor do que o permitido para o produto' in texto_alerta:
+                                    reprova_valor_maximo = True
+                                else:
+                                    reprova_valor_maximo = False
+                                    print('>>>> Prazo máximo aceito')
+                                    dados_atualizacao['valorContrato'] = '36'
+
+                            if reprova_valor_maximo: 
+                                
+                                print('XXXXXXXXXXXXXXXXXXX Valor menor do que o permitido para o produto XXXXXXXXXXXXXXXXXXXX')
+                                                               
+                                dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                                dados_atualizacao['observacao_emp'] = f'Valor menor do que o permitido para o produto - Margem {valor_margem}'
+                                dados_atualizacao['observacao'] = f'Valor menor do que o permitido para o produto - Margem {valor_margem}'
+                                dados_atualizacao['status_con'] = "Reprovado a Conferir"    
+                                dados_atualizacao['erro'] = f'Valor menor do que o permitido para o produto - Margem {valor_margem}'
+                                self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                                continue
+                        
+                        else: 
+                            print('''XXXXXXXXXXXXXXXXXXX TRATAR ERRO ALERTA XXXXXXXXXXXXXXXXXXXX''')
+                            pdb.set_trace()
+
                     valor_contrato = self.act.obter_texto(self.xpath['simulacao']['valor_contrato'], By.XPATH)
-                    dados_atualizacao['valorContrato'] = formatar_moeda(valor_contrato)
+                    dados_atualizacao['valorContrato'] = "{:.2f}".format(formatar_moeda(valor_contrato))
 
                     # Abrir operação
                     if not self.abrir_operacao():
@@ -478,23 +664,56 @@ class InserirContrato(Manager,SeleniumActions):
                         raise Exception("Falha ao selecionar conta de liquidação")
                     
                     # Adicionar garantia
-                    if not self.adicionar_garantia(
-                        tipo_garantia="Crédito do Trabalhador",
-                        cnpj_empregador=informacoes['contrato']['dadosProfissionais']['cnpjEmpresa'],
-                        nome_empregador=informacoes['contrato']['dadosProfissionais']['nomeEmpresa'],
-                        matricula=informacoes['contrato']['dadosProfissionais']['matricula'],
-                        data_admissao=informacoes['contrato']['dadosProfissionais']['admissao'],
-                        inicio_desconto=self.data_desconto,
-                        valor_margem=informacoes['contrato']['valorParcela']
-                    ):
-                        raise Exception("Falha ao adicionar garantia")
+                    
+                    if id_perfil in [10]:
+                        if not self.adicionar_garantia(
+                            tipo_garantia="Crédito do Trabalhador",
+                            cnpj_empregador=informacoes['contrato']['dadosProfissionais']['cnpjEmpresa'],
+                            nome_empregador=informacoes['contrato']['dadosProfissionais']['nomeEmpresa'],
+                            matricula=informacoes['contrato']['dadosProfissionais']['matricula'],
+                            data_admissao=informacoes['contrato']['dadosProfissionais']['admissao'],
+                            inicio_desconto=self.data_desconto,
+                            valor_margem=informacoes['contrato']['valorParcela']
+                        ):
+                            raise Exception("Falha ao adicionar garantia")
+                    
+                    elif id_perfil in [2]:
+                        print('Adicionando garantia para servidor público')
+                        # if not self.adicionar_garantia_consignado_publico(
+                        #     tipo_garantia = "Consignado Público",
+                        #     codigo_convenio = "",
+                        #     codigo_orgao = "",
+                        #     matricula = contrato['matricula'],
+                        #     situacao_funcional = contrato['situacao_funcional'],
+                        #     inicio_desconto=self.data_desconto,
+                        #     valor_margem = informacoes['contrato']['valorParcela']
+                        # ):
+                        #     raise Exception("Falha ao adicionar garantia")
+                        pdb.set_trace()
 
                     # Salvar operação
                     if not self.salvar_operacao():
-                        raise Exception("Falha ao salvar operação")
-                    
+                        dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                        dados_atualizacao['observacao_emp'] = 'Operação não em conformidade ou Valor menor do que o permitido para o produto'
+                        dados_atualizacao['observacao'] = 'Operação não em conformidade ou Valor menor do que o permitido para o produto'
+                        dados_atualizacao['status_con'] = "Reprovado a Conferir"    
+                        dados_atualizacao['erro'] = 'Operação não em conformidade ou Valor menor do que o permitido para o produto'
+                        self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                        continue
+
                     # Tentar enviar para aprovação
                     if not self.enviar_para_aprovacao():
+                        
+                        if 'o tomador precisa ter até 74 anos' in self.alert_text:
+                            print('XXXXXXXXXXXXXXXXXXX Idade maior que 74 anos XXXXXXXXXXXXXXXXXXXX')
+                            dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                            dados_atualizacao['observacao_emp'] = 'Tomador maior que 74 anos'
+                            dados_atualizacao['observacao'] = 'Tomador maior que 74 anos'
+                            dados_atualizacao['status_con'] = "Reprovado a Conferir"    
+                            dados_atualizacao['erro'] = 'Tomador maior que 74 anos'
+                            self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                            continue
+                        
                         raise Exception("Falha ao enviar para aprovação")
 
                     # Obter número da operação
@@ -502,22 +721,50 @@ class InserirContrato(Manager,SeleniumActions):
                     if ade:
                         print(f'----------------- Registrando a Ade {ade} e Atualizando o Contrato -----------------')
                         
-                        dados_atualizacao['ade'] = ade
+                        dados_atualizacao['ade'] = ade                        
                         dados_atualizacao['mensagem'] = 'Aguardando Gerar Contrato'
                         dados_atualizacao['textoMensagem'] = "Faça a assinatura digital do seu contrato. Ao entrar em sua proposta clique no botão |Assinatura Digital|"
                         dados_atualizacao['status_con'] = "Pendente"
                         dados_atualizacao['status_cor_con'] = "Enviado ao banco"
+                        dados_atualizacao['prazo'] = informacoes['contrato']['prazo']
                         dados_atualizacao['liberarDoc'] = 1
                         dados_atualizacao['pedidoDocumentacao'] = 3
                         dados_atualizacao['linkAssinatura'] = self.obter_link_assinatura()
+                        
+                        if(dados_atualizacao['linkAssinatura'] == 'null'):
+                            print('XXXXXX Erro link NULL Assinatura XXXXXX')
+                            pdb.set_trace() 
+                        
+                        if not dados_atualizacao['linkAssinatura']:
+                            print('>>>>> Erro ao obter link de assinatura')
+                            self.act.clicar_elemento(self.xpath['assinatura']['botao_atualizar'], By.XPATH)
+                            time.sleep(1)
+                            self.act.clicar_elemento(self.xpath['assinatura']['botao_historico'], By.XPATH)
+                            time.sleep(1)
+                            try:
+                                texto_historico = self.act.obter_texto('//*[@id="simple-tabpanel-9"]/div/div/div[3]/ul', By.XPATH)
+
+                                if 'Reprovação de Compliance' in texto_historico:
+                                    print('>>>>> Reprovação de Compliance detectada')
+                                    dados_atualizacao['mensagem'] = 'Reprovado a Conferir'
+                                    dados_atualizacao['status_con'] = "Reprovado a Conferir"
+                                    dados_atualizacao['observacao_emp'] = 'Reprovação de Compliance'
+                                    dados_atualizacao['observacao'] = 'Reprovação de Compliance'
+                                    dados_atualizacao['erro'] = 'Reprovação de Compliance'
+                                    self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
+                                    continue
+                            
+                            except:
+                                print('>>>>> Erro ao obter histórico')
+                                pdb.set_trace()
+                                
                         
                     else:
                         print("Número da operação não encontrado. Verificar.")
                         pdb.set_trace()
 
-                    print('Prosseguir com a atualização do contrato.?')
-                    pdb.set_trace()
-                    
+                    print('>>>>> Prosseguir com a atualização do contrato.?')
+
                     self.atualiza.atualizar_contrato(contrato['codigo_con'], dados_atualizacao)
                     
                 except Exception as e:
@@ -598,6 +845,8 @@ class InserirContrato(Manager,SeleniumActions):
             produto_option = self.xpath["simulacao"]["produto_option"](codigo_produto)
             self.act.clicar_elemento(produto_option, By.XPATH)
             
+            self.data_desconto = self.act.obter_valor(self.xpath["simulacao"]["data_simular"], By.XPATH)
+
             print(f"Produto {codigo_produto} selecionado com sucesso")
             return True
             
@@ -666,6 +915,8 @@ class InserirContrato(Manager,SeleniumActions):
             bool: True se a definição for bem-sucedida, False caso contrário
         """
         try:
+            
+            valor = valor.replace('.', '')            
             print(f"Definindo valor da parcela: R$ {valor}")
 
             # Localizar campo de valor
@@ -693,30 +944,34 @@ class InserirContrato(Manager,SeleniumActions):
         try:
             print(f"Definindo data do primeiro pagamento: {data}")
             
-            hoje = datetime.today()
-            mes = hoje.month + 1
-            ano = hoje.year
+            # hoje = datetime.today()
+            # mes = hoje.month + 1
+            # ano = hoje.year
 
-            # Se passar de dezembro, ajusta o ano e o mês
-            if mes > 12:
-                mes = 1
-                ano += 1
+            # # Se passar de dezembro, ajusta o ano e o mês
+            # if mes > 12:
+            #     mes = 1
+            #     ano += 1
 
-            # Tenta criar a nova data — se o dia não existir (ex: 31/02), ajusta para o último dia do mês
-            try:
-                nova_data = hoje.replace(year=ano, month=mes)
-            except ValueError:
-                # Ajusta para o último dia do próximo mês
-                nova_data = (hoje.replace(day=1, month=mes, year=ano) + timedelta(days=31)).replace(day=1) - timedelta(days=1)
+            # # Tenta criar a nova data — se o dia não existir (ex: 31/02), ajusta para o último dia do mês
+            # try:
+            #     nova_data = hoje.replace(year=ano, month=mes)
+            # except ValueError:
+            #     # Ajusta para o último dia do próximo mês
+            #     nova_data = (hoje.replace(day=1, month=mes, year=ano) + timedelta(days=50)).replace(day=1) - timedelta(days=1)
 
-            self.data_desconto = nova_data.strftime('%d/%m/%Y')
+            # self.data_desconto = nova_data.strftime('%d/%m/%Y')
+            
+            if(self.data_desconto != '21/10/2025'):            
+                self.data_desconto = '21/10/2025'  # Forçando a data para teste
+                
             print(f"Data do primeiro pagamento ajustada: {self.data_desconto}")
             
             # Localizar campo de data
             self.act.clicar_elemento(self.xpath["simulacao"]["data_simular"], By.XPATH)
             
-            self.act.press_backspace(self.xpath["simulacao"]["data_simular"], 10, By.XPATH)
-            self.act.enviar_texto(self.xpath["simulacao"]["data_simular"], self.data_desconto[:-2], By.XPATH)
+            # self.act.press_backspace(self.xpath["simulacao"]["data_simular"], 10, By.XPATH)
+            # self.act.enviar_texto(self.xpath["simulacao"]["data_simular"], self.data_desconto[:-2], By.XPATH)
             self.act.press_backspace(self.xpath["simulacao"]["data_simular"], 10, By.XPATH)
             self.act.enviar_texto(self.xpath["simulacao"]["data_simular"], self.data_desconto, By.XPATH)
 
@@ -826,16 +1081,22 @@ class InserirContrato(Manager,SeleniumActions):
             self.act.enviar_texto(self.xpath["tomador"]["ocupacao"], situacao_funcional['perfil'])
             
             #Preencher Nome Mae
-            self.act.enviar_texto(self.xpath["tomador"]["nome_mae"], outras_informacoes['contrato']['nomeMae'])
-
-            #Preencher RG
-            self.act.enviar_texto(self.xpath["tomador"]["rg"], outras_informacoes['contrato']['identidade'])
-                       
-            #Preencher uf Emissor
-            self.act.clicar_elemento(self.xpath["tomador"]["lista_orgao_emissor"], By.XPATH)
-            time.sleep(1)
-            self.act.clicar_elemento(self.xpath["tomador"]["orgao_emissor"](outras_informacoes['contrato']['estadoEmissor']), By.XPATH)
-
+            try:
+                self.act.enviar_texto(self.xpath["tomador"]["nome_mae"], outras_informacoes['contrato']['nomeMae'])
+            except:
+                pass
+            
+            try:
+                #Preencher RG
+                self.act.enviar_texto(self.xpath["tomador"]["rg"], outras_informacoes['contrato']['identidade'])
+                        
+                #Preencher uf Emissor
+                self.act.clicar_elemento(self.xpath["tomador"]["lista_orgao_emissor"], By.XPATH)
+                time.sleep(1)
+                self.act.clicar_elemento(self.xpath["tomador"]["orgao_emissor"](outras_informacoes['contrato']['estadoEmissor']), By.XPATH)
+            except:
+                pass
+            
             # Clicar no botão Continuar
             self.act.clicar_elemento(self.xpath["tomador"]["continuar"], By.XPATH)
             
@@ -916,7 +1177,7 @@ class InserirContrato(Manager,SeleniumActions):
         try:
             print("Navegando para a aba Garantias")
             
-            time.sleep(5)
+            time.sleep(1)
             
             # Clicar na aba Garantias
             self.act.clicar_elemento(self.xpath["garantia"]["aba_garantia"], By.XPATH)
@@ -925,12 +1186,18 @@ class InserirContrato(Manager,SeleniumActions):
             self.act.clicar_elemento(self.xpath["garantia"]["botao_adicionar"], By.XPATH)
             
             # Aguardar carregamento do formulário
-            self.act.obter_texto(self.xpath["garantia"]["form_titulo"], By.XPATH)
+            #self.act.obter_texto(self.xpath["garantia"]["form_titulo"], By.XPATH)
+            
+            time.sleep(1)
             
             # Selecionar tipo de garantia
             self.act.clicar_elemento(self.xpath["garantia"]["tipo_dropdown"], By.XPATH)
+            
+            time.sleep(2)
             guarantia = self.xpath["garantia"]["tipo_opcao"](tipo_garantia)
             self.act.clicar_elemento(guarantia, By.XPATH)
+            
+            time.sleep(1)
             
             # Preencher CNPJ do Empregador
             self.act.enviar_texto(self.xpath["garantia"]["cnpj_empregador"], cnpj_empregador, By.XPATH)
@@ -1059,9 +1326,26 @@ class InserirContrato(Manager,SeleniumActions):
                 self.act.obter_texto(self.xpath["operacao"]["confirmacao_salvar"], By.XPATH)
             except Exception as e:
                 print('XXXXXXXXXXXXX ERRO AO OBTER CONFIRMAÇÃO DE SALVAR XXXXXXXXXXXXX')
-                pdb.set_trace()
-                logger.error(f"Erro ao obter confirmação de salvar: {str(e)}")
-                raise Exception("Falha ao salvar operação")
+                time.sleep(2)
+                self.act.clicar_elemento("//button[@type='submit' and .//span[text()='Salvar']]", By.XPATH)
+                time.sleep(2)
+                
+                try:
+                    texto_alerta = self.act.obter_texto('/html/body/div/div/div[4]/div/div/div/div[1]/div[2]/span[2]', By.XPATH)
+                except:
+                    texto_alerta = ''
+                
+                if 'não está em conformidade com as configurações do convênio do produto' in texto_alerta:
+                    print('>>>>> Produto não está em conformidade com as configurações do convênio')
+                    return False
+                
+                if 'é menor do que o permitido para o produto' in texto_alerta:
+                    print('>>>>> Valor menor que o permitido')
+                    return False
+                
+                else:
+                    print('>>>>>> Erro ao salvar operação NOVO MOTIVO')
+                    pdb.set_trace()
 
             # Extrair número da operação
             ade = self.act.obter_texto("//h4[contains(text(), 'Operação #')]", By.XPATH)
@@ -1088,17 +1372,17 @@ class InserirContrato(Manager,SeleniumActions):
             time.sleep(3)
             # Clicar no botão Enviar para aprovação
             self.act.clicar_elemento(self.xpath["operacao"]["enviar_aprovacao_botao"], By.XPATH)
-
+            time.sleep(3)
             # Verificar se há alertas
-            # try:
-            #     alert_text = self.act.obter_texto(self.xpath["operacao"]["alerta"], By.XPATH)
-            #     logger.warning(f"Alerta ao enviar para aprovação: {alert_text}")
-            #     return False
-            # except:
-            #     # Se não houver alerta, verificar confirmação de envio
-            #     success_message = self.act.obter_texto(self.xpath["operacao"]["aprovacao_sucesso"], By.XPATH)
-            #     print("Operação enviada para aprovação com sucesso")
-            #     return True
+            try:
+                self.alert_text = self.act.obter_texto('/html/body/div/div/form/div[1]/div/div/div/div[1]/div[2]/span[2]', By.XPATH)
+                logger.warning(f"Alerta ao enviar para aprovação: {alert_text}")
+                return False, alert_text
+            except:
+                # Se não houver alerta, verificar confirmação de envio
+                # success_message = self.act.obter_texto(self.xpath["operacao"]["aprovacao_sucesso"], By.XPATH)
+                # print("Operação enviada para aprovação com sucesso")
+                return True
             
             return True
             
@@ -1113,25 +1397,71 @@ class InserirContrato(Manager,SeleniumActions):
         Returns:
             str: Link da assinatura digital ou None se não disponível
         """
+        link = 'null'
+        tentativa_link = 0
         
-        time.sleep(10)
+        time.sleep(5)
         self.act.clicar_elemento(self.xpath["assinatura"]["link"], By.XPATH)
+        time.sleep(1)
 
         try:
-            self.act.clicar_elemento(self.xpath["assinatura"]["copiar_link"], By.XPATH)
-            time.sleep(1)
-            link = pyperclip.paste()
+            
+            while link == 'null':
+                
+                self.act.clicar_elemento(self.xpath["assinatura"]["botao_atualizar"], By.XPATH)
+                time.sleep(2)
+                self.act.clicar_elemento("//*[@id='simple-tabpanel-5']/div/div[2]/div[2]/button", By.XPATH)
+                time.sleep(2)
+                self.act.clicar_elemento(self.xpath["assinatura"]["copiar_link"], By.XPATH)
+                time.sleep(1)
+                link = pyperclip.paste()
+                
+                if tentativa_link > 10:
+                    print("Tentativas excedidas para obter link NULL de assinatura")
+                    return False
+                
+                tentativa_link += 1
+                
+            
             return link
-        
+            
         except Exception as e:
             print(f"XXXXXXXXXXXXX Erro ao copiar link de assinatura XXXXXXXXXXXXXX")
+            tentativa = 0
+            
+            #aguarda o botao copiar de assinatura digital aparecer
             while self.act.quantidade_elemento(self.xpath["assinatura"]["copiar_link"], By.XPATH) == 0:
                 self.act.clicar_elemento("//*[@id='simple-tabpanel-5']/div/div[2]/div[2]/button", By.XPATH)
                 time.sleep(1)
-                print('Aguardando link de assinatura...')
-            
-            self.act.clicar_elemento(self.xpath["assinatura"]["copiar_link"], By.XPATH)
-            time.sleep(1)
-            link = pyperclip.paste()
+                print('>>>>> Aguardando link de assinatura...')
+                tentativa += 1
+                    
+                if tentativa > 10:
+                    print("Tentativas excedidas para obter link de assinatura")
+                    return False
+                
+            while link == 'null':
+                
+                self.act.clicar_elemento(self.xpath["assinatura"]["botao_atualizar"], By.XPATH)
+                time.sleep(2)
+                self.act.clicar_elemento("//*[@id='simple-tabpanel-5']/div/div[2]/div[2]/button", By.XPATH)
+                time.sleep(2)
+                self.act.clicar_elemento(self.xpath["assinatura"]["copiar_link"], By.XPATH)
+                time.sleep(1)
+                link = pyperclip.paste()
+                
+                if tentativa_link > 10:
+                    print("Tentativas excedidas para obter link NULL de assinatura")
+                    return False
+                
+                tentativa_link += 1
+                
             
             return link
+            
+            # self.act.clicar_elemento(self.xpath["assinatura"]["copiar_link"], By.XPATH)
+            # time.sleep(1)
+            # tentativa_link += 1
+            # link = pyperclip.paste()
+
+        return link

@@ -40,7 +40,7 @@ from dados.database.queries.query_dados_robos import query_login_pass_robo
 
 from time import sleep
 
-import shutil,json,random
+import shutil,json
 
 HORARIO_COMERCIAL = 7, 22
 
@@ -52,10 +52,9 @@ class Main():
     TITLE = "Facta - Insercao"
 
     def __init__(self):
-
-        nome = f'Facta Insercao {random.randint(1, 1000)}'
+        
         self.base_path: str = PATHS.project_path()
-        self.chrome_user: str = PATHS.chrome_user(nome)
+        self.chrome_user: str = PATHS.chrome_user('Facta Insercao')
         self.driver_path: str = PATHS.driver_path()
         self.ordem = 'desc' 
         
@@ -81,7 +80,7 @@ class Main():
             #     exit()
             
         except:
-            self.ordem = 'asc' 
+            self.ordem = 'desc'
             self.chrome_user = str = PATHS.chrome_user('Facta Insercao DESC')
             Manager().criar_pasta_usuario_chrome(self.chrome_user)
             
@@ -124,7 +123,7 @@ class Main():
         
         #fila de insercao de contrato
         definir_nome_robo(self.TITLE + ' - ' + self.ordem)   
-        insercao = InserirContrato.iniciar_horario_comercial(self.driver, self.ordem)
+        insercao = InserirContrato.iniciar_horario_comercial(self.driver, 'desc')
 
         if(insercao == False):
             print('entrou............')

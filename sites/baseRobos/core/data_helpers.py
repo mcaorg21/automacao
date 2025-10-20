@@ -118,6 +118,8 @@ def make_request(method: str, url: str, params_data: dict = None, msg: str = '',
             result.status_code, result.content)
     else:
         print(f"HTTP Status: {result.status_code} - OK. " + msg)
+        print("----------------------------------------------------")
+        print(f"Text: {result.text}")
         if json:
             return result.json()
         else:

@@ -60,7 +60,7 @@ sleep(0.4)
 class Initializr:
 
     activate: dict = {}
-    segundos_atualizacao = 10
+    segundos_atualizacao = 5
     init = True
 
     def __init__(self):

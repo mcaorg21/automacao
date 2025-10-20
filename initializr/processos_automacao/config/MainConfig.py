@@ -12,6 +12,7 @@
 """
 import psutil as pt
 import subprocess as sp
+import pdb
 from pathlib import Path
 
 
@@ -58,6 +59,11 @@ class MainConfig:
         que contém um dict com os nomes dos robos referenciando os caminhos
         dos processos.
         """
+        
+        # if indice!= 999:
+        #     print('entrou')
+        #     pdb.set_trace()
+
         path = Path(project_path()+main_paths[nome_robo])
         self.__process_path = str(path)
         self.__set_cmd_target_path()
@@ -78,12 +84,20 @@ class MainConfig:
             raise Exception(
                 "Property <MainConfig.__process_cmd> must be set,"
                 " using MainConfig.load_process_path method.")
+        
         if args:
             if args not in self.__process_cmd[-1]:
-                arg_cmd = self.__process_cmd[-1] + args
+                
+                if 'main_analise' in args:
+                    arg_cmd = self.__process_cmd[-1] + ' --id '+args.split('main_analise')[1]
+                else:
+                    arg_cmd = self.__process_cmd[-1] + args
+                
                 self.__process_cmd[-1] = arg_cmd
         print("Iniciando processo:", self.__process_cmd)
+        
         process = None
+        
         if "win" in SO:
             process = pt.Popen(self.__process_cmd, creationflags=sp.CREATE_NEW_CONSOLE)
         elif "linux" in SO:

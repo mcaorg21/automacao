@@ -31,9 +31,12 @@ import PATHS
 from sites.baseRobos.data_handler import DataHandler
 from selenium.webdriver.common.by import By
 from multiprocessing.dummy import Pool
+from sites.baseRobos.manager import Manager
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+import tempfile
+import atexit
 
 #testando adicionar comentarios
 
@@ -49,7 +52,8 @@ class PromoBank:
 		#screen_height = root.winfo_screenheight()
 
 		self.caminho_base = PATHS.project_path()
-		self.chrome_user = PATHS.chrome_user(f"Promobank{random.randrange(2,12)}")
+		#{random.randrange(2,12)}
+		self.chrome_user = PATHS.chrome_user(f"Promobank")
 		#self.chrome_user = PATHS.chrome_user(f"Promobank12")
 		self.driver_path = PATHS.driver_path()
 		self.api_key = "f689f1e12a0399fba803cb2365fc362f"
@@ -60,30 +64,36 @@ class PromoBank:
 		self.cookies_path = self.caminho_base+"\\promoBank\\cookies\\" + "usuario_promobank.pkl"
 		self.cookies_path_json = self.caminho_base+"\\promoBank\\cookies\\" + "usuario_promobank.json"
 
-		options = Options()
-		options.add_argument('--ignore-ssl-errors')
-		options.add_argument('log-level=3')
-		options.add_argument('--profile-directory=Default')
-		#options.add_argument(f'--window-position={int(screen_width-screen_width/3)},0')
-		options.add_argument(f'--window-size=1300,1000')
+		# options = Options()
+		# options.add_argument('--ignore-ssl-errors')
+		# options.add_argument('log-level=3')
+		# options.add_argument('--profile-directory=Default')
+		# #options.add_argument(f'--window-position={int(screen_width-screen_width/3)},0')
+		# options.add_argument(f'--window-size=1300,1000')
 
-		options.add_argument(self.chrome_user)
-		
-		try:
-			self.driver = webdriver.Chrome(
-					#executable_path=self.driver_path,
-					chrome_options=options)
-		except:
-			options = Options()
-			self.chrome_user = PATHS.chrome_user(f"Promobank{random.randrange(2,12)}")
-			options.add_argument(self.chrome_user)
-			options.add_argument('--ignore-ssl-errors')
-			options.add_argument('log-level=3')
-			options.add_argument('--profile-directory=Default')
-			self.driver = webdriver.Chrome(
-					#executable_path=self.driver_path,
-					options=options)
-		
+		# options.add_argument(self.chrome_user)
+
+		# try:
+		# 	self.driver = webdriver.Chrome(
+		# 			#executable_path=self.driver_path,
+		# 			options=options)
+		# except:
+		# 	#{random.randrange(2,12)}
+		# 	options = Options()
+		# 	self.chrome_user = PATHS.chrome_user(f"Promobank")
+		# 	options.add_argument(self.chrome_user)
+		# 	options.add_argument('--ignore-ssl-errors')
+		# 	options.add_argument('log-level=3')
+		# 	options.add_argument('--profile-directory=Default')
+		# 	self.driver = webdriver.Chrome(
+		# 			#executable_path=self.driver_path,
+		# 			options=options)
+  
+		# Antes: options.add_argument(self.chrome_user)  # Causa conflito
+		options, _ = self.make_ephemeral_chrome_options(window_size="1150,1000", incognito=True)
+		opts = options.arguments
+		self.driver = Manager.driver_factory(*opts)
+
 		self.uconecte = Uconecte()
 		self.selenium_helper = SeleniumHelper(self.driver)
 		self.act = SeleniumActions(self.driver)
@@ -372,9 +382,9 @@ class PromoBank:
 				pass
 
 			try:
-				self.act.enviar_texto_intervalado('#loginSenha', 'Tim_909176')
+				self.act.enviar_texto_intervalado('#loginSenha', 'Tim909176@')
 			except:
-				self.act.enviar_texto_intervalado('#passField', 'Tim_909176')
+				self.act.enviar_texto_intervalado('#passField', 'Tim909176@')
 				pass
 
 			time.sleep(random.randrange(1,7))
@@ -642,6 +652,16 @@ class PromoBank:
 			self.act.enviar_texto('/html/body/div[1]/div/div[1]/div[2]/div/div/div/div/div/input', matricula, By.XPATH)
 			time.sleep(2)
 			self.act.clicar_elemento('//*[@id="consultarCliente"]', By.XPATH)
+			time.sleep(2)
+
+			try:
+				erro = self.act.obter_texto('//div[contains(@class, "p-toast-message-text")]//span[contains(@class, "p-toast-summary")]', By.XPATH)
+				if 'NÃO ENCONTRADO' in erro:
+					return {'retorno': 4, 'mensagem': erro}
+
+			except:
+				erro = ""
+				pass
 
 			#self.selenium_helper.atribuir_valor_campo_driver('[name=value]', matricula)
 			#self.selenium_helper.clicar_elemento_driver('#buttonConsultarInss')
@@ -685,7 +705,10 @@ class PromoBank:
 			if(fila != 'reprovado_conferir'):
 				self.extrair_refinanciamentos()
 
-			self.extrair_dados_consulta()
+			retorno_consulta = self.extrair_dados_consulta()
+   
+			if(retorno_consulta == False):
+				return {'retorno': 11, 'mensagem': 'Erro ao extrair dados da consulta.'}
 
 			return self.retorno
 		except BeneficioCancelado as e:
@@ -821,6 +844,10 @@ class PromoBank:
 			credito_total = formatar_moeda(self.act.obter_texto('/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div/div/div[1]/div[1]/div[2]', By.XPATH))
 		except:
 			print('Cookies vencidos...')
+
+			botao_inss = self.act.quantidade_elemento('//button[contains(text(),"inss")]', By.XPATH)
+			if(botao_inss == 1):
+				return False
 			#mensagem = self.selenium_helper.verificar_texto_campo_jquery(".alert-danger span:visible")
 			#pdb.set_trace()
 			#if mensagem == '':
@@ -839,24 +866,24 @@ class PromoBank:
 		self.act.clicar_elemento('/html/body/div[1]/div/div[2]/div[1]/div[1]/button[1]', By.XPATH)
 
 		padrao_margem = r'(-?)R\$ ([\d\.]+,\d{2})'  # Captura valores positivos e negativos
-		correspondencia = re.search(padrao_margem, self.act.obter_texto('/html/body/div[1]/div/div[3]/div/div[2]/div/div[2]/div[3]', By.XPATH))
+  
+		try:
+			margem = self.act.obter_texto('/html/body/div[1]/div/div[3]/div/div[2]/div/div[2]/div[1]', By.XPATH)
+		except:
+			margem = self.act.obter_texto('/html/body/div[1]/div/div[3]/div/div[2]/div/div[2]/div[3]', By.XPATH)
+			pass
+
+		correspondencia = re.search(padrao_margem, margem)
 		margem_disponivel = formatar_moeda(correspondencia.group(1) + correspondencia.group(2))
 
-		correspondencia = re.search(padrao_margem, self.act.obter_texto('/html/body/div[1]/div/div[3]/div/div[3]/div/div[2]/div[3]', By.XPATH))
+		try:
+			margem_cartao = self.act.obter_texto('/html/body/div[1]/div/div[3]/div/div[3]/div/div/div[1]', By.XPATH)
+		except:
+			margem_cartao = self.act.obter_texto('/html/body/div[1]/div/div[3]/div/div[3]/div/div/div[3]', By.XPATH)
+			pass
+
+		correspondencia = re.search(padrao_margem, margem_cartao)
 		margem_disponivel_cartao = formatar_moeda(correspondencia.group(1) + correspondencia.group(2))
-
-		
-		# if self.selenium_helper.buscar_quantidade_elemento('[name=parcela_rmc]') == 1:
-		# 	margem_disponivel_cartao = formatar_moeda(self.selenium_helper.verificar_valor_campo_driver('[name=parcela_rmc]'))
-		# else:
-		# 	try:
-		# 		margens = self.driver.execute_script("""return $('span:contains(\"Margem Disponível\")')""")
-		# 		margem_disponivel_cartao = formatar_moeda(margens[1].find_element_by_css_selector('input').get_attribute('value'))
-		# 	except:	
-		# 		margem_disponivel_cartao = 0
-
-		#cpf = self.selenium_helper.verificar_valor_campo_driver('[name=con_cpf]')
-		#cpf = self.act.obter_texto('/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div/div/div[1]/div[2]/div/div[2]', By.XPATH)
 
 		try:
 			cpf = self.act.obter_texto('/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div/div/div[1]/div[2]/div/div[2]', By.XPATH)
@@ -981,7 +1008,7 @@ class PromoBank:
 			ano_competencia = int(competencia_detalhamento[1])
 			mes_competencia = int(competencia_detalhamento[0])
 		except:
-			ano_competencia = 2023
+			ano_competencia = 2025
 			mes_competencia = 12
 			pass
 
@@ -990,17 +1017,17 @@ class PromoBank:
 		try:
 			#credito_liquido = formatar_moeda(self.selenium_helper.verificar_valor_campo_driver('[name=con_liquido]'))
 			credito_liquido = credito_total_liquido
-			if(ano_competencia == 2025 and mes_competencia <= 3):
+			if(ano_competencia == 2026 and mes_competencia <= 3):
 				#parcela_aumento = margem_disponivel
-				if(credito_total <= 1413):
+				if(credito_total <= 1518):
 					parcela_aumento = credito_total_liquido * porcentagem_aumento * porcentagem_margem
 					#credito_total = credito_total * (1+porcentagem_aumento)
 				else:
 					parcela_aumento = credito_total_liquido * porcentagem_aumento_salario * porcentagem_margem
 					#credito_total = credito_total * (1+porcentagem_aumento_salario)
 
-			elif(ano_competencia == 2024 and mes_competencia <= 12):
-				if(credito_total <= 1412):
+			elif(ano_competencia == 2025 and mes_competencia <= 12):
+				if(credito_total <= 1518):
 					parcela_aumento = credito_total_liquido * porcentagem_aumento * porcentagem_margem
 					credito_total = credito_total * (1+porcentagem_aumento)
 				else:
@@ -1008,24 +1035,24 @@ class PromoBank:
 					credito_total = credito_total * (1+porcentagem_aumento_salario)
 
 		except:
-			if (ano_competencia == 2024 and mes_competencia <= 12):
-				if(credito_total <= 1412):
+			if (ano_competencia == 2025 and mes_competencia <= 12):
+				if(credito_total <= 1518):
 					parcela_aumento = credito_total * porcentagem_aumento * porcentagem_margem
 					credito_total = credito_total * (1+porcentagem_aumento)
 				else:
 					parcela_aumento = credito_total * porcentagem_aumento_salario * porcentagem_margem
 					credito_total = credito_total * (1+porcentagem_aumento_salario)
 
-			elif(ano_competencia == 2025 and mes_competencia <= 3):
-				#parcela_aumento = margem_disponivel 
-				if(credito_total <= 1413):
+			elif(ano_competencia == 2026 and mes_competencia <= 3):
+				#parcela_aumento = margem_disponivel
+				if(credito_total <= 1518):
 					parcela_aumento = credito_total * porcentagem_aumento * porcentagem_margem
 					#credito_total = credito_total * (1+porcentagem_aumento)
 				else:
 					parcela_aumento = credito_total * porcentagem_aumento_salario * porcentagem_margem
 					#credito_total = credito_total * (1+porcentagem_aumento_salario)
 
-
+		
 		dados = {
 				'especieBeneficio': especie_beneficio,
 				'cpf': cpf,
@@ -1044,9 +1071,9 @@ class PromoBank:
 				'margemDisponivelReal': margem_disponivel,
 			}
 
-		#pdb.set_trace()
-			
 		self.retorno.update(dados)
+  
+		return True
 
 	def extrair_refinanciamentos(self):
 		refinanciamentos = []
@@ -1070,9 +1097,10 @@ class PromoBank:
 
 			# Itera sobre cada `tbody` e extrai as linhas (`tr`)
 			todas_linhas = []
+			
 			for tbody in todos_tbody:
-			    linhas = tbody.find_elements(By.TAG_NAME, "tr")
-			    todas_linhas.extend(linhas)
+				linhas = tbody.find_elements(By.TAG_NAME, "tr")
+				todas_linhas.extend(linhas)
 
 			for i, linha in enumerate(todas_linhas):
 
@@ -1101,8 +1129,10 @@ class PromoBank:
 
 					self.act.clicar_elemento(f'/html/body/div[1]/div/div[4]/div/div/div[2]/div/div[{i+1}]/div/div/div/div[1]/table/tbody/tr/td[6]/button', By.XPATH)
 					time.sleep(0.2)
-					numero_contrato = self.act.obter_texto('/html/body/div[2]', By.XPATH).split('\n')[1]
-					self.act.clicar_elemento('/html/body/div[2]/div/div/div/div[2]/button', By.XPATH)
+					
+					numero_contrato = self.act.obter_texto('/html/body/div[3]', By.XPATH).split('\n')[1]
+					# pdb.set_trace()	
+					#self.act.clicar_elemento('/html/body/div[2]/div/div/div/div[2]/button', By.XPATH)
 
 					refinanciamentos.append({
 								'nomeBanco': rubrica[0].split('\n')[0].split(' ')[-1],
@@ -1119,7 +1149,7 @@ class PromoBank:
 								'saldoDevedorFinal': formatar_moeda(rubrica[-1].split(' ')[-3]),
 								'numeroContrato': numero_contrato
 							})
-
+					#pdb.set_trace()
 					print(refinanciamentos)
 
 				except Exception as e:					
@@ -1232,6 +1262,9 @@ class PromoBank:
 			{
 				'erro': r"NÃO ENCONTRADO MATRÍCULA PARA O CPF INFORMADO",
 				'InfoNotFound': True
+			},{
+				'erro': r"Cliente não encontrado",
+				'InfoNotFound': True
 			}, {
 				'erro': r"Informe uma Matrícula ou CPF válido",
 				'IncorrectInfo': True
@@ -1280,7 +1313,9 @@ class PromoBank:
 
 			if 'InfoNotFound' in erro_regex:
 				raise InfoNotFoundException(message="O Benefício não foi encontrado.")
-			elif 'IncorrectInfo' in erro_regex:				
+			elif 'Cliente não encontrado' in erro_regex:
+				raise InfoNotFoundException(message="O Benefício não foi encontrado.")
+			elif 'IncorrectInfo' in erro_regex:
 				raise IncorrectInfoException(message="Número do benefício informado está incorreto.")
 			elif 'BeneficioCancelado' in erro_regex:
 				raise BeneficioCancelado(message="Benefício não pode realizar empréstimo.")
@@ -1444,6 +1479,55 @@ class PromoBank:
 	    }
 	    return switcher.get(especie_beneficio, "Não consignável")
 
+	def make_ephemeral_chrome_options(self, window_size="1150,1000", incognito=True, guest=False):
+		"""
+		Cria um perfil temporário por execução, evitando lock e reaproveitamento.
+		Retorna (options, temp_profile_path). O path é só para debug se quiser.
+		"""
+		temp_profile = tempfile.mkdtemp(prefix="chrome_sess_")  # perfil efêmero
+
+		options = webdriver.ChromeOptions()
+		options.add_argument(f'--user-data-dir={temp_profile}')   # pasta única por sessão
+		if incognito:
+			options.add_argument("--incognito")
+		if guest:
+			# Guest mode ignora dados e perfis; use sem incognito se preferir.
+			options.add_argument("--guest")
+
+		# Estabilidade / menos prompts
+		options.add_argument("--no-first-run")
+		options.add_argument("--no-default-browser-check")
+		
+		# if 'win32' not in sys.platform:
+		# 	options.add_argument("--headless")
+			
+		options.add_argument("--disable-extensions")
+		options.add_argument("--disable-infobars")
+		options.add_argument("--disable-background-networking")
+		options.add_argument("--disable-popup-blocking")
+		options.add_argument("--disable-sync")
+		options.add_argument("--disable-features=TranslateUI,AutomationControlled")
+		options.add_argument("--ignore-ssl-errors")
+		options.add_argument("--ignore-certificate-errors")
+		options.add_argument("--window-size=" + window_size)
+		options.add_argument("--no-sandbox")
+		options.add_argument("--disable-dev-shm-usage")
+		options.add_argument("log-level=3")
+		options.add_argument("--disable-blink-features=AutomationControlled")
+		options.add_experimental_option("excludeSwitches", ["enable-automation"])
+		options.add_experimental_option("useAutomationExtension", False)
+		options.add_experimental_option("w3c", False)
+
+		# Limpa o perfil temporário no encerramento do processo
+		def _cleanup():
+			try:
+				shutil.rmtree(temp_profile, ignore_errors=True)
+			except:
+				pass
+		atexit.register(_cleanup)
+
+		return options, temp_profile
+    
 class InfoNotFoundException(Exception):
 	def __init__(self, message):
 		super().__init__()

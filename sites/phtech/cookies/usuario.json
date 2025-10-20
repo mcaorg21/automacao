@@ -1,22 +1,22 @@
 [
     {
         "domain": ".uy3.com.br",
-        "expiry": 1781116801,
-        "httpOnly": false,
-        "name": "_hjSessionUser_3875804",
-        "path": "/",
-        "sameSite": "None",
-        "secure": true,
-        "value": "eyJpZCI6ImIzMWU5ODZhLTNiNWYtNTZiNC1iNmExLWQ1YmY4Njk0Njg4ZiIsImNyZWF0ZWQiOjE3NDg4OTYyMzkzNzYsImV4aXN0aW5nIjp0cnVlfQ=="
-    },
-    {
-        "domain": ".uy3.com.br",
-        "expiry": 1749582500,
+        "expiry": 1755532738,
         "httpOnly": false,
         "name": "_hjSession_3875804",
         "path": "/",
         "sameSite": "None",
         "secure": true,
-        "value": "eyJpZCI6IjVlMzk2ZTIzLWE0N2UtNGQ0My05YjVlLTE0YmZjN2Y0Y2Q2MSIsImMiOjE3NDk1ODA3MDAwMTcsInMiOjAsInIiOjAsInNiIjowLCJzciI6MCwic2UiOjAsImZzIjowLCJzcCI6MX0="
+        "value": "eyJpZCI6ImNlMGI2MGM1LTFjOTktNGYzMC1iYjAzLTAwNTRiNGQ5ZjUxMiIsImMiOjE3NTU1MzA5MjU5MTcsInMiOjAsInIiOjAsInNiIjowLCJzciI6MCwic2UiOjAsImZzIjoxLCJzcCI6MH0="
+    },
+    {
+        "domain": ".uy3.com.br",
+        "expiry": 1787066938,
+        "httpOnly": false,
+        "name": "_hjSessionUser_3875804",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "value": "eyJpZCI6IjFiYTM1MzA1LTIxMmMtNTg4My05NzJmLWI2ZjRiNTc4NWFkMyIsImNyZWF0ZWQiOjE3NTU1MzA5Mzg0MTEsImV4aXN0aW5nIjpmYWxzZX0="
     }
 ]

@@ -141,8 +141,11 @@ class Main:
                 self.driver.delete_all_cookies()
                 #dados_login = query_login_pass_robo(self.id_robo, self.usuario)
                 dados_login = {}
-                dados_login['login'] = '50801.06050694680'
-                dados_login['senha'] = '@123Mudar983'
+                #dados_login['login'] = '50801.06050694680'
+                # dados_login['login'] = '52499.06050694680'
+                # dados_login['senha'] = 'Marcelo@29'
+                dados_login['login'] = '1303.06050694680'
+                dados_login['senha'] = '@mudar125@'
                 dados_login['link'] = 'https://app1.gerencialcredito.com.br/CREFISA/'
                 login = FormLogin.realizar_login(self.driver,dados_login['login'], dados_login['senha'], dados_login['link'], popup_login)
             except:

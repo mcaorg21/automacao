@@ -20,7 +20,7 @@ from sites.phtech.libs.FormLogin import FormLogin
 from dados.database.queries.query_dados_robos import query_login_pass_robo
 
 
-HORARIO_COMERCIAL = 8, 22
+HORARIO_COMERCIAL = 7, 22
 
 
 class ConsultaStatus(Manager):
@@ -112,8 +112,6 @@ class ConsultaStatus(Manager):
             
             historico = self.act.retornar_elemento("//ul[contains(@class,'MuiTimeline-root')]", By.XPATH)
             self.dados_consulta['observacaoDetalhadaBanco'] = historico.text
-            
-            pdb.set_trace()
 
             self.dados.post_dados_consultados(self.dados_consulta)    
 

@@ -1,21 +1,41 @@
 [
     {
-        "domain": ".app1.gerencialcredito.com.br",
+        "domain": ".gerencialcredito.com.br",
+        "expiry": 1788528840,
         "httpOnly": false,
-        "name": "ASPSESSIONIDAWBCBASB",
+        "name": "__trf.src",
         "path": "/",
         "sameSite": "Lax",
-        "secure": true,
-        "value": "JICNIIFDEGKOAFMMPLGLFBLB"
+        "secure": false,
+        "value": "encoded_eyJmaXJzdF9zZXNzaW9uIjp7InZhbHVlIjoiKG5vbmUpIiwiZXh0cmFfcGFyYW1zIjp7fX0sImN1cnJlbnRfc2Vzc2lvbiI6eyJ2YWx1ZSI6Iihub25lKSIsImV4dHJhX3BhcmFtcyI6e319LCJjcmVhdGVkX2F0IjoxNzU2OTkyODQwOTI4fQ=="
+    },
+    {
+        "domain": ".gerencialcredito.com.br",
+        "expiry": 1788528841,
+        "httpOnly": false,
+        "name": "rdtrk",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "value": "%7B%22id%22%3A%224062306b-3943-48a5-9481-e0a2c7d7e4be%22%7D"
     },
     {
         "domain": ".app1.gerencialcredito.com.br",
-        "expiry": 1750079141,
+        "expiry": 1757594941,
         "httpOnly": true,
         "name": "__goc_session__",
         "path": "/",
         "sameSite": "Lax",
         "secure": true,
-        "value": "zfuqgwrwvgdbkfjxysxktklkmupuyntu"
+        "value": "zpdkioseeunddioalikmebpokaxbtove"
+    },
+    {
+        "domain": ".app1.gerencialcredito.com.br",
+        "httpOnly": false,
+        "name": "ASPSESSIONIDAWCBADSC",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "value": "IIDANBLAPJNGFKPGCDNDODBG"
     }
 ]

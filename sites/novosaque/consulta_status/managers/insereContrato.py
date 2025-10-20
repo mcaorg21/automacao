@@ -7,7 +7,7 @@ from sites.baseRobos.core.data_helpers import formatar_moeda,formatar_cpf_sem_ca
 from sites.baseRobos.core.uconecte import Uconecte
 from sites.baseRobos.core.data_helpers import similaridade
 
-import os,time,pdb,re
+import os,time,pdb,re, platform
 from sites.baseRobos.core.decorators import ApenasHorarioComercial, AguardarHorarioComercial
 from sites.baseRobos.core.Exceptions import ForaHorarioComercialError
 
@@ -53,9 +53,62 @@ class InserirContrato(Manager):
     def inserir_contrato(self):     
 
         self.verificar_loading()       
-        print('Iniciando inserção de contrato...')
+        #print('Iniciando inserção de contrato...')
 
-        contratos = self.dados.get_contratos_inserir('asc')        
+        #contratos = self.dados.get_contratos_inserir('desc')       
+        
+        configuracao = False
+        self.ordem = 'desc'
+        
+        print(f'Iniciando inserção de contrato... Ordem: {self.ordem}')
+        
+        if configuracao == False:
+            fila = '1'
+            if 'Windows' in platform.system():
+                
+                fila = input('Informe: 1- para fila ou 2- para contrato teste \n')
+                
+                if fila == '1':
+                    self.ordem = input('Qual ordem da fila? desc ou asc? \n')
+                    
+                    self.deseja_escala = input('Quer escala? S ou N? \n')
+                    
+                    if(self.deseja_escala == 'S'):
+                        self.fila_contrato = input('Qual numero dessa fila de 0 a 9?\n')
+                    else:
+                        self.fila_contrato = ''
+                        
+                else:
+                    self.fila_contrato = ''
+            
+            else:
+                fila = '1'
+                self.fila_contrato = ''
+
+            if(fila == '1'):
+                contratos = self.dados.get_contratos_inserir(self.ordem)  
+
+                if not contratos['contratos']:
+                    print('Sem contratos para inserir...')
+                    time.sleep(10)
+                    return False
+
+            else:
+
+                contrato = input('Informe número contrato: \n')
+
+                while contrato == "":
+                    contrato = input('Informe número contrato: \n')
+
+                cpf_cliente = input('CPF cliente: \n')
+
+                while cpf_cliente == "":
+                    cpf_cliente = input('CPF cliente: \n')
+
+                #testes
+                contratos = {}
+                contratos['tipo'] = 'sucesso'
+                contratos['contratos'] = [{'codigo_con' : contrato, 'valor_con' :2, 'cpf_cli' : cpf_cliente}] 
 
         #self.chrome_driver.get(self.urls["consulta"])
 
@@ -203,7 +256,7 @@ class InserirContrato(Manager):
                 self.verificar_loading()              
                 self.act.clicar_elemento('/html/body/div[2]/div/div[4]/div[2]/button', By.XPATH)
                 self.verificar_loading()
-
+                
                 loop_apagar = len(self.act.obter_valor('//*[@id="email"]',By.XPATH))
                 self.act.press_backspace('//*[@id="email"]', metodo = By.XPATH, end = True, loop = loop_apagar, delay = 0)
 

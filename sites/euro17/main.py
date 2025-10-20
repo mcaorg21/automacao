@@ -40,7 +40,7 @@ from dados.database.queries.query_dados_robos import query_login_pass_robo
 
 from time import sleep
 
-import shutil,json
+import shutil,json, random
 
 HORARIO_COMERCIAL = 7, 22
 
@@ -53,9 +53,11 @@ class Main():
 
     def __init__(self):
         
-        self.base_path: str = PATHS.project_path()
-        self.chrome_user: str = PATHS.chrome_user('Euro 17 Insercao')
-        self.driver_path: str = PATHS.driver_path()
+        self.base_path = PATHS.project_path()
+        
+        numero_random = random.randint(1, 2)
+        self.chrome_user = PATHS.chrome_user('Euro 17 Insercao' + str(numero_random))
+        self.driver_path = PATHS.driver_path()
         self.ordem = 'desc' 
         
         self.api_key = "f689f1e12a0399fba803cb2365fc362f"
@@ -80,9 +82,14 @@ class Main():
             #     exit()
             
         except:
-            self.ordem = 'asc' 
-            self.chrome_user = str = PATHS.chrome_user('Euro Insercao DESC')
-            Manager().criar_pasta_usuario_chrome(self.chrome_user)
+
+            try:
+                self.chrome_user = PATHS.chrome_user('Euro Insercao DESC')
+                Manager().criar_pasta_usuario_chrome(self.chrome_user + ' ' + self.ordem)
+            except:
+                self.ordem = 'asc' 
+                self.chrome_user = PATHS.chrome_user('Euro Insercao ASC')
+                Manager().criar_pasta_usuario_chrome(self.chrome_user + ' ' + self.ordem)
             
             options.add_argument('--ignore-ssl-errors')
             
@@ -105,6 +112,8 @@ class Main():
 
         self.cookies_path = self.caminho_base+"\\euro\\cookies\\" + "usuario_euro.pkl"
         self.cookies_path_json = self.caminho_base+"\\euro\\cookies\\" + "usuario_euro.json"
+        
+        self.driver.set_window_position(1350, 0)
 
     @AguardarHorarioComercial(*HORARIO_COMERCIAL)
     def main(self):
@@ -121,7 +130,25 @@ class Main():
         
         #fila de insercao de contrato
         definir_nome_robo(self.TITLE + ' - ' + self.ordem)   
-        insercao = InserirContrato.iniciar_horario_comercial(self.driver, self.ordem)
+        
+        try:
+            insercao = InserirContrato.iniciar_horario_comercial(self.driver, self.ordem)
+        except Exception as e:
+            print(f"Erro no robô: {e}")
+            try:
+                self.act.clicar_elemento('//span[contains(text(),"Parar")]', By.XPATH)
+                sleep(2)
+                self.act.enviar_texto('//*[@id="select-input-reason"]', 'Sem', By.XPATH)
+                sleep(1)
+                self.act.press_enter('//*[@id="select-input-reason"]', By.XPATH)
+                sleep(1)
+                self.act.clicar_elemento('//button[contains(text(),"CANCELAR")]', By.XPATH)
+                sleep(3)
+                self.main()
+            except Exception as e:
+                print(f"Erro ao finalizar proposta: {e}")
+                
+            return False
 
         if(insercao == False):
             print('entrou............')

@@ -103,21 +103,7 @@ class Main:
     @AguardarHorarioComercial(*HORARIO_COMERCIAL)
     def main(self):
         definir_nome_robo(self.TITLE)
-        
-        # try:
-            # pdb.set_trace()
-            # resposta = requests.post('https://consultadpv.phng.dev/auth/login', data={'usuario': 'consulta.glm', 'senha': '&3cywE@72H2S'})
-            # token = resposta.json().get('token')
-            # self.driver.get('https://consultadpv.phng.app/consulta')
-            # pdb.set_trace()
-            # self.driver.refresh()
-            # self.act.enviar_texto("//label[contains(., 'Usuario')]/ancestor::div[contains(@class,'field')]//input", 'consulta.glm', By.XPATH)
-            # self.act.enviar_texto("//label[contains(., 'Senha')]/ancestor::div[contains(@class,'field')]//input", '&3cywE@72H2S', By.XPATH)
-            # self.act.clicar_elemento("//button[span[normalize-space(text())='Entrar']]", By.XPATH)
-            # time.sleep(5)
-        # except:
-        #     pass
-        
+
         try:
             cookies_vencido = self.load_cookies_web_admin()
         except: 
@@ -152,7 +138,7 @@ class Main:
         ConsultaStatus.iniciar_horario_comercial(self.driver)
         
         print('Aguardando minutos para reiniciar...')
-        sleep(1500)
+        sleep(300)
         self.main()
 
     def load_cookies_web_admin(self):

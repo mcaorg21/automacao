@@ -1,82 +1,41 @@
 [
     {
-        "domain": ".promobank.com.br",
-        "expiry": 1668868183,
-        "httpOnly": false,
-        "name": "_ga",
-        "path": "/",
-        "secure": false,
-        "value": "GA1.3.1059098946.1605796179"
-    },
-    {
-        "domain": ".promobank.com.br",
-        "httpOnly": false,
-        "name": "incap_ses_1312_2057640",
-        "path": "/",
-        "sameSite": "None",
-        "secure": true,
-        "value": "4ZnPAONbYVMSbBZ3Eyk1EgY0tl8AAAAAp9fl+4gY39Ay0CViZHurVw=="
-    },
-    {
-        "domain": ".promobank.com.br",
-        "expiry": 1637323205,
+        "domain": "www.promobank.online",
+        "expiry": 1760454563,
         "httpOnly": true,
-        "name": "visid_incap_2057640",
+        "name": "laravel_session",
         "path": "/",
-        "sameSite": "None",
+        "sameSite": "Lax",
         "secure": true,
-        "value": "Wc4FKedOTu6QE9gZUMVp1gM0tl8AAAAAQUIPAAAAAAAHc2fmA+rB2iDTkSBY+XrR"
+        "value": "eyJpdiI6IjQvWmRFZi93M2NrVERsT05CZVpDdmc9PSIsInZhbHVlIjoia0FPUTVSSjk3cVRNT0xwYmFXbExzcENTRWZpdTlnR1VvT1JjZDluWTkweFhFRUFXbUJ1RkFKaEJhVzljVjNRUHFKL09oQnBHc1plSkpQdFVWOStRRU1WaG5keFdlMUVoYi9nWkMyZm00Q3JNdTV5Q2U0VWROcFlUWTB0OGlNbVkiLCJtYWMiOiIzOGE1MjE5Y2IwODY3Njc3ZGM3OTNmNzJiYjA2YjhlMDk2MWZlZmFkMTMzZDliYzcwNzNjNDJjMGI3MTQzMjM4IiwidGFnIjoiIn0%3D"
     },
     {
-        "domain": ".promobank.com.br",
+        "domain": "www.promobank.online",
+        "expiry": 1760454563,
         "httpOnly": false,
-        "name": "incap_ses_532_2057640",
+        "name": "XSRF-TOKEN",
         "path": "/",
-        "sameSite": "None",
+        "sameSite": "Lax",
         "secure": true,
-        "value": "yJ0GU8D/sSmlEl1LbQtiBwM0tl8AAAAANwFxNr++fAR38y8yo5rTiQ=="
+        "value": "eyJpdiI6ImxsMXZhRnZtdlRpU3lSN0RPQ0ZoeXc9PSIsInZhbHVlIjoidGdSb05LUDlEQlRYYnBrR2twMSt1dWpYTmR1Q25wVkZQNGJ6QWZ4cTlJSktBcWpQYWJzREpMc3N2TTNsNzlseEJRdWZnQkw2Z3FOMXU4b1EyclI1WGJuUXB5RDlaMi9QdThZY0lNR041MTBwaGMvZ01JR2V4UzYvU2RaYjJIUzYiLCJtYWMiOiI0MTA2YjA0MzZmMTgzMmYwMmQ4ODY4ODE0MWU2ZDQ4NDExOTU3N2YwMTYxYmJmZDZkODNjZTU4OWU1NWUzMDBmIiwidGFnIjoiIn0%3D"
     },
     {
-        "domain": ".promobank.com.br",
-        "expiry": 1605882583,
-        "httpOnly": false,
-        "name": "_gid",
-        "path": "/",
-        "secure": false,
-        "value": "GA1.3.955507779.1605796179"
-    },
-    {
-        "domain": ".promobank.com.br",
-        "httpOnly": false,
-        "name": "incap_ses_148_2057640",
-        "path": "/",
-        "sameSite": "None",
-        "secure": true,
-        "value": "enaJXZAK1zdg9ZF4cc0NAtgMtF8AAAAAlzN38ng1LhyvqgYFx1yrsA=="
-    },
-    {
-        "domain": "promobank.com.br",
-        "httpOnly": false,
+        "domain": ".promobank.online",
+        "httpOnly": true,
         "name": "PHPSESSID",
         "path": "/",
-        "secure": false,
-        "value": "208ep9srrv2b2138jtee3va62v1f1rnd"
-    },
-    {
-        "domain": ".promobank.com.br",
-        "httpOnly": false,
-        "name": "PHPSESSID",
-        "path": "/",
+        "sameSite": "Lax",
         "secure": true,
-        "value": "208ep9srrv2b2138jtee3va62v1f1rnd"
+        "value": "bsufnc2lnddj46bkrq3hj3cuei"
     },
     {
-        "domain": "promobank.com.br",
-        "expiry": 1606401279,
+        "domain": "www.promobank.online",
+        "expiry": 1761052162,
         "httpOnly": false,
         "name": "ace_settings",
         "path": "/sistema",
+        "sameSite": "Lax",
         "secure": false,
-        "value": "%7B%22navbar-fixed%22%3A1%2C%22sidebar-fixed%22%3A1%2C%22sidebar-collapsed%22%3A1%7D"
+        "value": "%7B%22navbar-fixed%22%3A1%2C%22sidebar-fixed%22%3A1%7D"
     }
 ]

@@ -74,9 +74,19 @@ INSTANCIAS: Dict[str, ProcessWrapper] = {
     #Novo Saque
     'NovoSaque': NovoSaque(),
     
+    #Euro17
+    'Euro17Sincronizacao': Euro17Sincronizacao(),
+    'Euro17Insercao': Euro17Insercao(),
+    #'Euro17AnaliseContrato0': Euro17AnaliseContrato(0),
+    'Euro17AnaliseContrato5': Euro17AnaliseContrato(3),
+    #'Euro17AnaliseContrato': Euro17AnaliseContrato(0),
+    #**{f'Euro17AnaliseContrato{i}': Euro17AnaliseContrato(i) for i in range(5, 6)},  # Exemplo para criar instâncias de 5 a 6
+    
+    
     #Facta
     'FactaSincronizacao': FactaSincronizacao(),
     'FactaInsercao': FactaInsercao(),
+    'FactaAnaliseContrato': FactaAnaliseContrato(),
 
     #Crefisa
     'Crefisa': Crefisa(),

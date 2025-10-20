@@ -89,5 +89,11 @@ main_paths: dict = {
     #Facta
     "FactaSincronizacao": "/facta/main_sincronizacao.py", 
     "FactaInsercao": "/facta/main.py",
+    "FactaAnaliseContrato": "/facta/main_analise.py",
+    
+    #Euro17
+    "Euro17Insercao": "/euro17/main.py",
+    "Euro17Sincronizacao": "/euro17/main_sincronizacao.py",
+    "Euro17AnaliseContrato": "/euro17/main_analise.py"
 }
 

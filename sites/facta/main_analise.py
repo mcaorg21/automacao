@@ -107,7 +107,7 @@ class Main():
             self.main()
 
         print('Aguardando minutos para reiniciar...')
-        sleep(1800)
+        sleep(1800) #30 minutos
         self.main()
 
 

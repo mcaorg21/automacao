@@ -9,7 +9,8 @@ def filtrar_bancos_nome(nome_banco: str) -> str:
         "novo-saque": "novo-saque",
         "crefisa": "crefisa",
         "facta": "facta",
-        "phtech": "phtech"
+        "phtech": "phtech",
+        "euro17": "euro17"
 
     }
     return bancos.get(nome_banco.lower(),"Classificar o banco na funcao filtrar_bancos_nome em dados_apis/registros_bancos.py")

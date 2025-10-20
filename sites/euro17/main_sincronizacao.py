@@ -31,6 +31,7 @@ import PATHS
 from sites.baseRobos.core.helpers import definir_nome_robo,deleta_todos_arquivos
 from sites.baseRobos.core.decorators import AguardarHorarioComercial
 from sites.euro17.consulta_status.managers.consultaStatus import ConsultaStatus
+from sites.euro17.consulta_status.managers.insereContrato import InserirContrato
 from sites.euro17.libs.FormLogin import FormLogin
 
 from dados.database.queries.query_dados_robos import query_login_pass_robo
@@ -95,40 +96,62 @@ class Main:
         self.selenium_helper = SeleniumHelper(self.driver)
 
         self.driver.get('https://web.kapmug.com/home')
+        
+        self.driver.set_window_position(1350, 0)
 
 
     @AguardarHorarioComercial(*HORARIO_COMERCIAL)
     def main(self):
         definir_nome_robo(self.TITLE)
 
-        self.load_cookies_euro_web_admin()
+        logado = self.load_cookies_euro_web_admin()
 
-        usuario = "060.506.946-80"
-        senha = "@123mudar"        
-        login = FormLogin.realizar_login(self.driver, usuario, senha)
+        if not logado:
+            usuario = "060.506.946-80"
+            senha = "@123mudar"        
+            login = FormLogin.realizar_login(self.driver, usuario, senha)
         
-        if login == False:
-            print("Login falhou, verificar o robô.")
-            pdb.set_trace()
-            return False
+        # if login == False:
+        #     print("Login falhou, verificar o robô.")
+        #     pdb.set_trace()
+        #     return False
 
         self.selenium_helper.save_cookies(self.cookies_path)
         self.escreve_json()
 
         #fila de sincronizacao
         definir_nome_robo(self.TITLE)
-        #ConsultaStatus.iniciar_horario_comercial(self.driver)
+        try:
+            consulta_status = ConsultaStatus.iniciar_horario_comercial(self.driver, forcar_consulta=False)    
+
+            # if not consulta_status:
+            #     definir_nome_robo('Euro 17 - Insercao ASC')
+            #     InserirContrato.iniciar_horario_comercial(self.driver, 'asc', limite_insercoes=5)
+                
+            # consulta_status = ConsultaStatus.iniciar_horario_comercial(self.driver, forcar_consulta=True) 
+
+        except Exception as e:
+            print(f"Erro ao iniciar o robô: {e}")
+            
+        self.selenium_helper.save_cookies(self.cookies_path)
+        self.escreve_json()
         
         print('Aguardando minutos para reiniciar...')
-        sleep(600)
+        time.sleep(30)
         self.main()
 
     def load_cookies_euro_web_admin(self):
         
         url = "http://emprestimofacil.co/web_admin/api/v1/consulta/cookies/euro/?key={}".format(self.api_key)
-        cookies = self.selenium_helper.load_cookies_robo_web_admin(url, self.id_robo)
 
-        self.driver.get('https://web.kapmug.com/')
+        try:
+            cookies = self.selenium_helper.load_cookies_robo_web_admin(url, self.id_robo)
+        except Exception as e:
+            cookies = []
+            print("Erro ao carregar cookies: {}".format(e)) 
+            pass
+
+        self.driver.get('https://capture.kapmug.com/dashboard')
         self.driver.delete_all_cookies()
 
         return_cookie = True
@@ -139,8 +162,12 @@ class Main:
             except Exception as e:
                 pass
 
-        self.driver.get('https://web.kapmug.com/home')
-
+        self.driver.get('https://capture.kapmug.com/dashboard')
+        
+        if self.act.quantidade_elemento('//*[@id="input_text_user"]', By.XPATH) == 1:
+            print('XXXXX Não está logado...')
+            return False
+        
         return True
 
     def escreve_json(self):

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-| file: /sites/facta/main_analise.py
+| file: /sites/crefisa/main.py
 
 | projeto: automacao-python
-| data: 2025-05-16
+| data: 2025-05-22
 | autor: Marcelo Amancio
 """
 import pdb,sys, os
@@ -33,50 +33,79 @@ import PATHS
 from sites.baseRobos.core.helpers import definir_nome_robo,deleta_todos_arquivos
 from sites.baseRobos.core.decorators import AguardarHorarioComercial
 
-from sites.facta.consulta_status.managers.analisaContrato import AnalisaContrato
-from sites.facta.libs.FormLogin import FormLogin
+from sites.euro17.consulta_status.managers.consultaStatus import ConsultaStatus
+from sites.euro17.consulta_status.managers.analisaContrato import AnalisaContrato
+from sites.euro17.libs.FormLogin import FormLogin
 
 from dados.database.queries.query_dados_robos import query_login_pass_robo
 
 from time import sleep
 
-import shutil,json
+import shutil,json, random, logging
+
+import tempfile
+import atexit
+import threading
+
+import argparse
 
 HORARIO_COMERCIAL = 7, 22
 
 class Main():
 
-    id_banco: int = '149'
-    id_robo: int = '1491'
+    id_banco: int = '170'
+    id_robo: int = '282941'
 
-    TITLE = "Facta - Analise"
+    TITLE = "Euro - Analisa Contrato"
+    
+    def __init__(self, indice):
 
-    def __init__(self):
+        self.base_path = PATHS.project_path()
+        # numero_random = random.randint(10, 20)
+        # self.final_contrato = str(numero_random)[-1]
+        self.final_contrato = str(indice)
+
+        self.chrome_user = PATHS.chrome_user('Euro Analisa Contrato ' + self.final_contrato)
+
+        os.environ["TMPDIR"] = "/home/gustavo/Desktop/automacao-python/tmp"
+        os.makedirs(os.environ["TMPDIR"], exist_ok=True)
+
+        try:
+            pasta_user = self.chrome_user.replace("--user-data-dir=","")
+            shutil.rmtree(pasta_user)
+
+            os.environ["TMPDIR"] = "/home/gustavo/Desktop/automacao-python/tmp"
+            os.makedirs(os.environ["TMPDIR"], exist_ok=True)
+
+        except:
+            pass
         
-        self.base_path: str = PATHS.project_path()
-        self.chrome_user: str = PATHS.chrome_user('Facta Analise Pendentes')
-        self.driver_path: str = PATHS.driver_path()
+        self.path_documentos = sys.path[0]+'/logs/'
+
+        if 'win32' in sys.platform:
+            self.path_documentos = sys.path[0]+'/logs/'
+        
+        # Gera a data de hoje no formato YYYY-MM-DD
+        self.data_atual = datetime.now().strftime("%Y-%m-%d_%H-%M")
+
+        # Configuração do log
+        logging.basicConfig(
+                filename= self.path_documentos + f"contratos_{self.data_atual}.log",  # nome do arquivo de saída
+                level=logging.INFO,        # nível de log (INFO já é suficiente)
+                format="%(asctime)s - %(levelname)s - %(message)s"  # formato com hora
+            )
+        
+        self.driver_path = PATHS.driver_path()
+        self.ordem = 'desc' 
         
         self.api_key = "f689f1e12a0399fba803cb2365fc362f"
 
-        options = Options()
-
-        Manager().criar_pasta_usuario_chrome(self.chrome_user)
-   
-        options.add_argument('--ignore-ssl-errors')
-            
-        options.add_argument('--window-size=1150,600"')
-        options.add_argument(self.chrome_user)
-        options.add_experimental_option("w3c", False)
-        opts = ("--headless", '--disable-blink-features=AutomationControlled', '--ignore-ssl-errors', self.chrome_user, 'log-level=3', "--no-sandbox", "--window-size=1150,1000", "--ignore-autocomplete-off-autofill", "disable-infobars")
-
-        try:
-            self.driver = Manager.driver_factory(*opts)
-        except:
-            pasta_user = self.chrome_user.replace("--user-data-dir=","")
-            print("Erro de criacao de usuario, deletando a pasta...")
-            shutil.rmtree(pasta_user)
-            exit()
+        # Antes: options.add_argument(self.chrome_user)  # Causa conflito
+        # Agora: perfil efêmero automático
+        options, _ = self.make_ephemeral_chrome_options(window_size="1150,1000", incognito=True)
+        opts = options.arguments 
+        
+        self.driver = Manager.driver_factory(*opts)
 
         self.timer: int = 60
         self.ultima_atualizacao: datetime = datetime.now()
@@ -88,35 +117,46 @@ class Main():
 
         self.caminho_base = PATHS.project_path()
 
-        self.cookies_path = self.caminho_base+"\\facta\\cookies\\" + "usuario_facta.pkl"
-        self.cookies_path_json = self.caminho_base+"\\facta\\cookies\\" + "usuario_facta.json"
+        self.cookies_path = self.caminho_base+"\\euro\\cookies\\" + "usuario_euro.pkl"
+        self.cookies_path_json = self.caminho_base+"\\euro\\cookies\\" + "usuario_euro.json"
+        
+        self.driver.set_window_position(1350, 0)
 
     @AguardarHorarioComercial(*HORARIO_COMERCIAL)
     def main(self):
 
-        while self.load_cookies_facta_web_admin() == False:
+        while self.load_cookies_euro_web_admin() == False:
             print('Cookies vencidos, aguardando atualização...')
-            sleep(5)
+            sleep(50)
+            self.driver.quit()
         
-        #fila de insercao de contrato
-        definir_nome_robo(self.TITLE)   
-        analise = AnalisaContrato.iniciar_horario_comercial(self.driver)
+        #fila de analise
+        definir_nome_robo(self.TITLE + ' - ' + self.final_contrato)
+        
+        try:
+            #consulta_ou_analise = input('1- consulta | 2 analise \n\n')
+            #consulta_ou_analise = '2'
+            # if consulta_ou_analise == '1':
+            #     ConsultaStatus.iniciar_horario_comercial(self.driver, forcar_consulta=True) 
+            # elif consulta_ou_analise == '2':
+            AnalisaContrato.iniciar_horario_comercial(self.driver, self.ordem, self.final_contrato)
+                
+        except Exception as e:
+            print(f"Erro no robô: {e}")
+            pass
+        
 
-        if(analise == False):
-            print('entrou............')
-            self.main()
-
-        print('Aguardando minutos para reiniciar...')
-        sleep(1800)
+        # print('Aguardando minutos para reiniciar...')
+        # sleep(60)
         self.main()
+        #self.driver.quit()
 
+    def load_cookies_euro_web_admin(self):
 
-    def load_cookies_facta_web_admin(self):
-        
-        url = "http://emprestimofacil.co/web_admin/api/v1/consulta/cookies/facta/?key={}".format(self.api_key)
+        url = "http://emprestimofacil.co/web_admin/api/v1/consulta/cookies/euro/?key={}".format(self.api_key)
         cookies = self.selenium_helper.load_cookies_robo_web_admin(url, self.id_robo)
 
-        self.driver.get('https://desenv.facta.com.br/sistemaNovo/login.php')
+        self.driver.get('https://capture.kapmug.com/dashboard')
         self.driver.delete_all_cookies()
 
         return_cookie = True
@@ -127,19 +167,18 @@ class Main():
             except Exception as e:
                 pass
 
-        self.driver.get('https://desenv.facta.com.br/sistemaNovo/dashboard.php')
+        self.driver.get('https://capture.kapmug.com/dashboard')
         
-        area_login = self.act.quantidade_elemento('//*[@id="login"]', By.XPATH)
+        area_login = self.act.quantidade_elemento('//*[@id="input_text_user"]', By.XPATH)
         
         if(area_login == 1):
             return_cookie = False
 
         return return_cookie
 
-
     def load_cookies_pasta(self):
 
-        self.driver.get('https://desenv.facta.com.br/sistemaNovo/login.php')
+        self.driver.get('https://web.kapmug.com/home')
         self.driver.delete_all_cookies()
 
         file = open(self.cookies_path_json)
@@ -147,33 +186,81 @@ class Main():
 
         for cookie in cookies:
             try:
-                #if('expiry' not in cookie):
                 self.driver.add_cookie(cookie)
             except Exception as e:
                 pass
 
-        self.driver.get('https://desenv.facta.com.br/sistemaNovo/propostaSimulador.php')
+        self.driver.get('https://capture.kapmug.com/dashboard')
 
-    def verificar_tempo_execucao(self):
-        time_between_updates = (datetime.now() - self.ultima_atualizacao).seconds
-        print("Tempo entre atualizações: {}".format(time_between_updates))
-        print("Timer: {} segundos".format(self.timer))
+    def make_ephemeral_chrome_options(self, window_size="1150,1000", incognito=True, guest=False):
+        """
+        Cria um perfil temporário por execução, evitando lock e reaproveitamento.
+        Retorna (options, temp_profile_path). O path é só para debug se quiser.
+        """
+        temp_profile = tempfile.mkdtemp(prefix="chrome_sess_")  # perfil efêmero
 
-        if time_between_updates < 60:
-            wait_time = self.timer - time_between_updates
-            print("Esperando {} segundos antes de recomeçar a fila!".format(wait_time))
-
-            if wait_time > 0:
-                sleep(wait_time)
-
-            self.timer += 1
+        options = webdriver.ChromeOptions()
+        
+        if incognito:
+            pass
+            #options.add_argument("--incognito")
         else:
-            self.timer -= 1
+            options.add_argument(f'--user-data-dir={temp_profile}')   # pasta única por sessão
+        # if guest:
+        #     # Guest mode ignora dados e perfis; use sem incognito se preferir.
+        #     options.add_argument("--guest")
 
-        self.ultima_atualizacao = datetime.now()
-        self.uconecte.atualizar_status_robo(self.id_robo)
+        # Estabilidade / menos prompts
+        options.add_argument("--no-first-run")
+        options.add_argument("--no-default-browser-check")
+        if 'win32' not in sys.platform:
+            options.add_argument("--headless")
+        options.add_argument("--disable-extensions")
+        options.add_argument("--disable-infobars")
+        options.add_argument("--disable-background-networking")
+        options.add_argument("--disable-popup-blocking")
+        options.add_argument("--disable-sync")
+        options.add_argument("--disable-features=TranslateUI,AutomationControlled")
+        options.add_argument("--ignore-ssl-errors")
+        options.add_argument("--ignore-certificate-errors")
+        options.add_argument("--window-size=" + window_size)
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("log-level=3")
+        options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        options.add_experimental_option("useAutomationExtension", False)
+        options.add_experimental_option("w3c", False)
 
+        # Limpa o perfil temporário no encerramento do processo
+        def _cleanup():
+            try:
+                shutil.rmtree(temp_profile, ignore_errors=True)
+            except:
+                pass
+        atexit.register(_cleanup)
 
+        return options, temp_profile
+    
 if __name__ == '__main__':
-    run = Main()
+    
+    # threads = []
+    # for i in range(4):
+    #     try:
+    #         print('Aguardando 10 segundos para iniciar a thread...')
+    #         sleep(3)
+    #         t = threading.Thread(target=Main(i).main)
+    #         t.start()
+    #         threads.append(t)
+    #     except Exception as e:
+    #         print(f"Erro ao iniciar thread {i}: {e}")
+    #         pass
+    
+    # for t in threads:
+    #     t.join()
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--id', type=int, help='Modo de execução')
+    args = parser.parse_args()
+
+    run = Main(args.id)
     run.main()
