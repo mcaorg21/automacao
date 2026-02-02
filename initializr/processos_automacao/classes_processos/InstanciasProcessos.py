@@ -98,7 +98,10 @@ INSTANCIAS: Dict[str, ProcessWrapper] = {
     'WhatsappWU': WhatsappWU(),    
 
     #Cora Sincroniza
-    'Cora': Cora()
+    'Cora': Cora(),
+
+    # CPJ Reembolso BMG
+    'CpjReembolsoBmg': CpjReembolsoBmg()
 
 }
 

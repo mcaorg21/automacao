@@ -21,14 +21,29 @@ class ProcessWrapper:
 
     def show_children(self):
         if self.cmd_proc is not None:
-            print(self.cmd_proc.children(recursive=True))
+            try:
+                print(self.cmd_proc.children(recursive=True))
+            except pt.NoSuchProcess:
+                print("Processo não encontrado")
+
+    def get_children_safe(self, process: pt.Process) -> List[pt.Process]:
+        """Retorna os filhos do processo de forma segura"""
+        try:
+            if process is not None:
+                return process.children(recursive=True)
+        except pt.NoSuchProcess:
+            pass
+        return []
 
     @property
     def is_alive(self) -> bool:
         if self.suprocess is None:
             return False
-        else:
+        try:
             return self.suprocess.is_running()
+        except pt.NoSuchProcess:
+            self.suprocess = None
+            return False
 
     @property
     def proc_status(self):
@@ -57,9 +72,16 @@ class ProcessWrapper:
     def set_py_sub_process(self, process: pt.Process):
         # Filtra o subprocesso python e o atribui à
         # variável de instância <subprocess>
-        while self.suprocess is None:
-            children = process.children(recursive=True)
-            self.suprocess = self.__get_python_proc(children)
+        max_tentativas = 30
+        tentativas = 0
+        while self.suprocess is None and tentativas < max_tentativas:
+            try:
+                children = process.children(recursive=True)
+                self.suprocess = self.__get_python_proc(children)
+            except pt.NoSuchProcess:
+                self.suprocess = None
+                break
+            tentativas += 1
 
     def reinit_if_dead(self, proc_obj: object, activate: dict, init=False):
         """

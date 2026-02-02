@@ -94,6 +94,9 @@ main_paths: dict = {
     #Euro17
     "Euro17Insercao": "/euro17/main.py",
     "Euro17Sincronizacao": "/euro17/main_sincronizacao.py",
-    "Euro17AnaliseContrato": "/euro17/main_analise.py"
+    "Euro17AnaliseContrato": "/euro17/main_analise.py",
+
+    # CPJ Reembolso BMG
+    "CpjReembolsoBmg": "/cpj-reembolso-bmg/main.py"
 }
 

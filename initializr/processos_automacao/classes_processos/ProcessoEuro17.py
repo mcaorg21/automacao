@@ -20,7 +20,7 @@ class Euro17Sincronizacao(ProcessWrapper):
         self.set_py_sub_process(process)
 
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)
 
 class Euro17Insercao(ProcessWrapper):
     def __init__(self):
@@ -38,8 +38,8 @@ class Euro17Insercao(ProcessWrapper):
         self.set_py_sub_process(process)
 
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
-        
+        self.all_procs = self.get_children_safe(process)
+
 class Euro17AnaliseContrato(ProcessWrapper):
     def __init__(self, indice):
         super().__init__(proc_name=self.__class__.__name__)
@@ -57,4 +57,4 @@ class Euro17AnaliseContrato(ProcessWrapper):
         self.set_py_sub_process(process)
 
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)

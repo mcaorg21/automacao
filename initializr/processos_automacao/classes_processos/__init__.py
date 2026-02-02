@@ -35,3 +35,4 @@ from initializr.processos_automacao.classes_processos.ProcessoCora import Cora,C
 
 from initializr.processos_automacao.classes_processos.ProcessoFacta import FactaSincronizacao, FactaInsercao, FactaAnaliseContrato
 from initializr.processos_automacao.classes_processos.ProcessoEuro17 import Euro17Sincronizacao, Euro17Insercao, Euro17AnaliseContrato
+from initializr.processos_automacao.classes_processos.ProcessoCpjReembolsoBmg import CpjReembolsoBmg

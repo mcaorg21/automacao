@@ -420,6 +420,17 @@ def itau_insercao_auto_init():
     system("title Robô - Itau Insercao Listener")
     main()
 
+def robo_cpj_reembolso_bmg():
+    import subprocess
+    system("title Robô - CPJ Reembolso BMG")
+
+    numero_recibo = input("Digite o número do recibo: ")
+    data_inicial = input("Digite a data inicial (dd/mm/yyyy): ")
+    data_final = input("Digite a data final (dd/mm/yyyy): ")
+
+    script_path = r'C:\www\automacao\sites\cpj-reembolso-bmg\main.py'
+    subprocess.run(['python', script_path, numero_recibo, data_inicial, data_final])
+
 
 @click.command()
 @click.option('--site', 'site')
@@ -587,6 +598,10 @@ def main(site=False):
                         'name': 'Liberacao BMG',
                         'value': 'liberacao_bmg'
                     },
+                    {
+                        'name': 'CPJ Reembolso BMG',
+                        'value': 'cpj_reembolso_bmg'
+                    },
                     Separator(),
                     {
                         'name': 'Consulta Margem INSS',
@@ -717,6 +732,8 @@ def main(site=False):
         robo_consulta_margem_sp()
     elif site == 'liberacao_bmg':
         robo_bmg_liberacao()
+    elif site == 'cpj_reembolso_bmg':
+        robo_cpj_reembolso_bmg()
     elif site == 'margem_inss':
         robo_consulta_margem_inss()
     elif site == 'robo_refin_anex_lib_sms':

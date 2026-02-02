@@ -30,7 +30,6 @@ fitz
 pymupdf
 qrtools
 pyzbar
-tkinter
 PyInquirer
 click
 selenium
@@ -54,3 +53,10 @@ click
 fuzzywuzzy
 pymysql
 pyotp
+pywinauto
+xlrd
+xlwt
+xlutils
+python-docx
+docx2pdf
+webdriver-manager
