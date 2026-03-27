@@ -1,88 +1,714 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Automação</title>
+    <meta http-equiv="refresh" content="60">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Automação</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
-    <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='style/style.css')}}">
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            background: #f0f4f8;
+            color: #2d3748;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .page-header {
+            background: #fff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 18px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.06);
+        }
+
+        .page-header h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin: 0;
+        }
+
+        .refresh-badge {
+            font-size: 0.72rem;
+            color: #718096;
+            background: #edf2f7;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 3px 10px;
+        }
+
+        /* Search */
+        .search-form { display: flex; gap: 8px; }
+
+        .search-input {
+            background: #f7fafc;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            color: #2d3748;
+            padding: 7px 14px;
+            font-size: 0.875rem;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+            width: 240px;
+        }
+
+        .search-input::placeholder { color: #a0aec0; }
+        .search-input:focus { border-color: #4299e1; box-shadow: 0 0 0 3px rgba(66,153,225,.15); }
+
+        .btn-search {
+            background: #4299e1;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            padding: 7px 18px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .btn-search:hover { background: #3182ce; }
+
+        /* Warning bar */
+        .warning-bar {
+            background: #fffbeb;
+            border: 1px solid #f6e05e;
+            border-radius: 8px;
+            color: #975a16;
+            font-size: 0.8rem;
+            padding: 9px 18px;
+            margin: 20px 32px 4px;
+            text-align: center;
+        }
+
+        /* Grid */
+        .cards-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 20px 32px 48px;
+        }
+
+        /* Card */
+        .proc-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 20px;
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.06);
+            transition: box-shadow .2s, border-color .2s;
+        }
+
+        .proc-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,.1);
+            border-color: #bee3f8;
+        }
+
+        .proc-card.active {
+            border-left: 4px solid #48bb78;
+        }
+
+        .proc-card:not(.active) {
+            border-left: 4px solid #e2e8f0;
+        }
+
+        /* Card title */
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1a202c;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        /* Status pill */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 20px;
+            padding: 4px 12px;
+            width: fit-content;
+        }
+
+        .status-pill.on {
+            background: #f0fff4;
+            color: #276749;
+            border: 1px solid #9ae6b4;
+        }
+
+        .status-pill.off {
+            background: #f7fafc;
+            color: #718096;
+            border: 1px solid #e2e8f0;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+            flex-shrink: 0;
+        }
+
+        .status-pill.on .status-dot {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.35); }
+            50%       { box-shadow: 0 0 0 5px rgba(72, 187, 120, 0.1); }
+        }
+
+        /* Toggle switch */
+        .toggle-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toggle-label {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .toggle-cb {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+        }
+
+        .toggle-track {
+            position: absolute;
+            inset: 0;
+            background: #cbd5e0;
+            border-radius: 28px;
+            transition: background .25s;
+        }
+
+        .toggle-thumb {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 1px 4px rgba(0,0,0,.2);
+            transition: transform .25s;
+        }
+
+        .toggle-cb:checked + .toggle-track { background: #48bb78; }
+        .toggle-cb:checked + .toggle-track .toggle-thumb { transform: translateX(24px); }
+
+        .toggle-text {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #718096;
+        }
+
+        .toggle-cb:checked ~ .toggle-text { color: #276749; }
+
+        /* 2FA */
+        .input-2fa {
+            background: #f7fafc;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            color: #2d3748;
+            padding: 7px 12px;
+            font-size: 1rem;
+            width: 100%;
+            outline: none;
+            letter-spacing: 6px;
+            text-align: center;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .input-2fa:focus { border-color: #4299e1; box-shadow: 0 0 0 3px rgba(66,153,225,.15); }
+        .input-2fa::placeholder { letter-spacing: normal; color: #a0aec0; }
+
+        /* CPJ section */
+        .cpj-divider {
+            border: none;
+            border-top: 1px solid #e2e8f0;
+            margin: 0;
+        }
+
+        .cpj-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            font-weight: 500;
+        }
+
+        .cpj-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .cpj-dot.yellow { background: #d69e2e; box-shadow: 0 0 0 3px rgba(214,158,46,.2); }
+        .cpj-dot.green  { background: #48bb78; box-shadow: 0 0 0 3px rgba(72,187,120,.2); }
+
+        .cpj-label-text { color: #718096; }
+
+        .cpj-timer {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: #ebf8ff;
+            border: 1px solid #bee3f8;
+            border-radius: 8px;
+            padding: 7px 12px;
+            font-size: 0.78rem;
+            color: #2b6cb0;
+        }
+
+        .timer-icon { font-size: 0.9rem; }
+        .timer-text strong { font-weight: 700; }
+
+        .field-label {
+            font-size: 0.73rem;
+            font-weight: 600;
+            color: #718096;
+            margin-bottom: 4px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .field-input {
+            background: #f7fafc;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            color: #2d3748;
+            padding: 7px 10px;
+            font-size: 0.85rem;
+            width: 100%;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .field-input:focus { border-color: #4299e1; box-shadow: 0 0 0 3px rgba(66,153,225,.15); }
+
+        .btn-save {
+            background: #4299e1;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background .2s;
+        }
+
+        .btn-save:hover { background: #3182ce; }
+
+        /* Locked state */
+        .field-input:disabled {
+            background: #edf2f7;
+            color: #a0aec0;
+            cursor: not-allowed;
+            border-color: #e2e8f0;
+        }
+
+        .btn-save:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+        }
+
+        .lock-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 0.78rem;
+            color: #c53030;
+            font-weight: 500;
+        }
+
+        .btn-unlock {
+            background: none;
+            border: 1px solid #fc8181;
+            border-radius: 6px;
+            color: #c53030;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .btn-unlock:hover { background: #fed7d7; }
+
+        /* Lancamentos removidos */
+        .lancamentos-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #c53030;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            transition: background .2s;
+        }
+
+        .lancamentos-toggle:hover { background: #fed7d7; }
+
+        .lancamentos-toggle .toggle-count {
+            background: #c53030;
+            color: #fff;
+            border-radius: 12px;
+            padding: 1px 7px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .lancamentos-toggle .toggle-arrow {
+            font-size: 0.65rem;
+            transition: transform .2s;
+        }
+
+        .lancamentos-toggle.open .toggle-arrow { transform: rotate(180deg); }
+
+        .lancamentos-list {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 220px;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+
+        .lancamentos-list.open { display: flex; }
+
+        .lancamento-item {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 8px;
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .lancamento-civ {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #c53030;
+            background: #fed7d7;
+            border-radius: 4px;
+            padding: 1px 6px;
+            width: fit-content;
+        }
+
+        .lancamento-nota {
+            font-size: 0.78rem;
+            color: #2d3748;
+            line-height: 1.4;
+        }
+
+        .lancamento-hora {
+            font-size: 0.7rem;
+            color: #a0aec0;
+        }
+
+        /* Bloqueados SPF */
+        .bloqueados-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fffbeb;
+            border: 1px solid #fbd38d;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #b7791f;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            transition: background .2s;
+        }
+
+        .bloqueados-toggle:hover { background: #fef3c7; }
+
+        .bloqueados-toggle .toggle-count {
+            background: #b7791f;
+            color: #fff;
+            border-radius: 12px;
+            padding: 1px 7px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .bloqueados-toggle .toggle-arrow {
+            font-size: 0.65rem;
+            transition: transform .2s;
+        }
+
+        .bloqueados-toggle.open .toggle-arrow { transform: rotate(180deg); }
+
+        .bloqueados-list {
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            padding: 4px 2px;
+        }
+
+        .bloqueados-list.open { display: flex; }
+
+        .bloqueados-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .bloqueado-id {
+            background: #fffbeb;
+            border: 1px solid #fbd38d;
+            border-radius: 6px;
+            padding: 3px 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #b7791f;
+        }
+
+        .btn-add-bloqueado {
+            background: #b7791f;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 7px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background .2s;
+        }
+
+        .btn-add-bloqueado:hover { background: #975a16; }
+    </style>
 </head>
 <body>
-    <div class="jumbotron">
-        <h1>Painel de Ativação dos Robôs</h1>
-        <form class="mt-4" method="post" action="{{ url_for("ativacao.ativacao") }}">
-            <label for="buscar">Buscar por palavra chave</label>
-            <input type="text" id="buscar" name="buscar"/>
-            <input class="btn btn-secondary" type="submit" value="Buscar">
+
+    <div class="page-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <h1>&#9881; Painel de Automação</h1>
+            <span class="refresh-badge">&#8635; atualiza a cada 1 min</span>
+        </div>
+        <form class="search-form" method="post" action="{{ url_for('ativacao.ativacao') }}">
+            <input class="search-input" type="text" id="buscar" name="buscar" placeholder="Buscar processo...">
+            <button class="btn-search" type="submit">Buscar</button>
         </form>
     </div>
-    <div class="container-fluid d-flex flex-row flex-wrap ">
-        <div class="alert alert-danger mb-3 p-2 d-flex flex-column align-items-center w-100" role="alert">
-            <p class="m-0 text-center">
-                Ao clicar em Desativar, o processo será interrompido em aprox. 20 segundos
-            </p>
-        </div>
+
+    <div class="warning-bar">
+        ⚠️ Ao clicar em <strong>Desativar</strong>, o processo será interrompido em aprox. 20 segundos
+    </div>
+
+    <div class="cards-grid">
         {% for key, val in procs.items() %}
-            <div class="shadow rounded m-4 p-3 bg-light card">
-                <h3>Processo {{ key }}</h3>
-                <form method="post" action="{{ url_for("ativacao.ativacao") }}">
+            <div class="proc-card {% if val %}active{% endif %}">
 
+                <p class="card-title">{{ labels[key] if key in labels else key }}</p>
+
+                <form method="post" action="{{ url_for('ativacao.ativacao') }}">
                     {% if key == "CrefisaSincronizacao" %}
-                        <div class="form-group">
-                            <label for="2fa_{{ key }}">2FA</label>
-                            <input type="text" id="codigo2fa" name="codigo2fa" maxlength="6" pattern="\d{6}" class="form-control" placeholder="Código 2FA">
+                        <div style="margin-bottom:10px;">
+                            <label class="field-label">Código 2FA</label>
+                            <input type="text" id="codigo2fa" name="codigo2fa" maxlength="6" pattern="\d{6}"
+                                   class="input-2fa" placeholder="000000">
                         </div>
                     {% endif %}
 
-                    {% if val == True %}
-                        <div class="d-inline-flex">
-                            <p>Status de ativação: </p>
-                            <p class="font-weight-bold text-success ml-1"> Ativo</p>
-                        </div>
-                        <br>
-                        <input class="btn btn-danger" type="submit" name="{{ key }}" value="Desativar">
-                    {% else %}
-                        <div class="d-inline-flex">
-                            <p>Status de ativação: </p>
-                            <p class="font-weight-bold text-danger ml-1"> Inativo</p>
-                        </div>
-                        <br>
-                        <input class="btn btn-success" type="submit" name="{{ key }}" value="Ativar">
-                    {% endif %}
+                    <input type="hidden" name="{{ key }}" value="{{ 'Desativar' if val else 'Ativar' }}">
+                    <div class="toggle-wrap">
+                        <label class="toggle-label">
+                            <input class="toggle-cb" type="checkbox" {% if val %}checked{% endif %}
+                                   onchange="this.closest('form').submit()">
+                            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                        </label>
+                        <span class="toggle-text">{{ 'Ativo' if val else 'Inativo' }}</span>
+                    </div>
                 </form>
+
+                {% if key == "CpjReembolsoBmg" %}
+                    <hr class="cpj-divider">
+
+                    <div class="cpj-status">
+                        {% if cpj_config.numero_recibo %}
+                            <span class="cpj-dot yellow"></span>
+                            <span class="cpj-label-text">Nota fiscal preenchida</span>
+                        {% else %}
+                            <span class="cpj-dot green"></span>
+                            <span class="cpj-label-text">Aguardando nota fiscal</span>
+                        {% endif %}
+                    </div>
+
+                    {% if cpj_config.tempo_decorrido %}
+                    <div class="cpj-timer">
+                        <span class="timer-icon">⏱</span>
+                        <span class="timer-text">Trabalhando há <strong>{{ cpj_config.tempo_decorrido }}</strong></span>
+                    </div>
+                    {% endif %}
+
+                    <form id="cpj-form" method="post" action="{{ url_for('ativacao.salvar_cpj_config') }}" style="display:flex;flex-direction:column;gap:10px;">
+
+                        {% if cpj_config.numero_recibo %}
+                        <div class="lock-bar">
+                            <span>🔒 Painel travado</span>
+                            <button type="button" class="btn-unlock" onclick="desbloquearCpj()">Editar</button>
+                        </div>
+                        {% endif %}
+
+                        <div>
+                            <label class="field-label">Nº Nota Fiscal</label>
+                            <input type="text" name="numero_recibo" id="cpj-numero" class="field-input"
+                                   value="{{ cpj_config.numero_recibo }}"
+                                   {% if cpj_config.numero_recibo %}disabled{% endif %}>
+                        </div>
+                        <div>
+                            <label class="field-label">Data Inicial</label>
+                            <input type="date" name="data_inicial" id="cpj-data-ini" class="field-input"
+                                   value="{{ cpj_config.data_inicial_iso }}"
+                                   {% if cpj_config.numero_recibo %}disabled{% endif %}>
+                        </div>
+                        <div>
+                            <label class="field-label">Data Final</label>
+                            <input type="date" name="data_final" id="cpj-data-fim" class="field-input"
+                                   value="{{ cpj_config.data_final_iso }}"
+                                   {% if cpj_config.numero_recibo %}disabled{% endif %}>
+                        </div>
+                        <button type="submit" id="cpj-salvar" class="btn-save"
+                                {% if cpj_config.numero_recibo %}disabled{% endif %}>Salvar</button>
+                    </form>
+
+                    {% if cpj_config.lancamentos_removidos %}
+                    <hr class="cpj-divider">
+                    <button class="lancamentos-toggle" onclick="toggleLancamentos(this)" type="button">
+                        <span>&#10060; Lançamentos removidos</span>
+                        <span style="display:flex;align-items:center;gap:6px;">
+                            <span class="toggle-count">{{ cpj_config.lancamentos_removidos | length }}</span>
+                            <span class="toggle-arrow">&#9660;</span>
+                        </span>
+                    </button>
+                    <div class="lancamentos-list">
+                        {% for lanc in cpj_config.lancamentos_removidos %}
+                        <div class="lancamento-item">
+                            <span class="lancamento-civ">{{ lanc.civ }}</span>
+                            <span class="lancamento-nota">{{ lanc.nota_normalizada }}</span>
+                            <span class="lancamento-hora">{{ lanc.data_hora }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <hr class="cpj-divider">
+                    <button class="bloqueados-toggle" onclick="toggleBloqueados(this)" type="button">
+                        <span>&#128683; Bloqueados SPF</span>
+                        <span style="display:flex;align-items:center;gap:6px;">
+                            <span class="toggle-count">{{ cpj_config.bloqueados_spf | length }}</span>
+                            <span class="toggle-arrow">&#9660;</span>
+                        </span>
+                    </button>
+                    <div class="bloqueados-list">
+                        <form method="post" action="{{ url_for('ativacao.adicionar_bloqueado_spf') }}" style="display:flex;gap:6px;">
+                            <input type="text" name="id_spf" class="field-input" placeholder="ID SPF" maxlength="6" required style="flex:1;">
+                            <button type="submit" class="btn-add-bloqueado">+ Bloquear</button>
+                        </form>
+                        {% if cpj_config.bloqueados_spf %}
+                        <div class="bloqueados-pills">
+                            {% for id in cpj_config.bloqueados_spf %}
+                            <span class="bloqueado-id">{{ id }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                {% endif %}
+
             </div>
         {% endfor %}
-
     </div>
-    <script>
-        document.getElementById('codigo2fa').addEventListener('input', function() {
-            
-            var codigo = this.value;
-            var baseUrl = window.location.origin;
 
-            // Quando atingir 6 dígitos
-            if (codigo.length === 6) {
-                fetch(baseUrl + '/codigo?codigo=' + codigo, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ codigo: codigo })
-                })
-                .then(response => {
-                    if (response.ok) {
-                        alert('Código 2FA enviado com sucesso!');
-                    } else {
-                        alert('Erro ao enviar o código 2FA.');
-                    }
-                })
-                .catch(error => {
-                    alert('Erro na requisição: ' + error);
-                });
-            }
-        });
+    <script>
+        function desbloquearCpj() {
+            ['cpj-numero', 'cpj-data-ini', 'cpj-data-fim', 'cpj-salvar'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = false;
+            });
+            const lockBar = document.querySelector('.lock-bar');
+            if (lockBar) lockBar.remove();
+        }
+
+        function toggleBloqueados(btn) {
+            btn.classList.toggle('open');
+            const list = btn.nextElementSibling;
+            list.classList.toggle('open');
+        }
+
+        function toggleLancamentos(btn) {
+            btn.classList.toggle('open');
+            const list = btn.nextElementSibling;
+            list.classList.toggle('open');
+        }
+
+        const input2fa = document.getElementById('codigo2fa');
+        if (input2fa) {
+            input2fa.addEventListener('input', function () {
+                const codigo = this.value;
+                const baseUrl = window.location.origin;
+                if (codigo.length === 6) {
+                    fetch(baseUrl + '/codigo?codigo=' + codigo, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ codigo: codigo })
+                    })
+                    .then(response => {
+                        if (response.ok) alert('Código 2FA enviado com sucesso!');
+                        else alert('Erro ao enviar o código 2FA.');
+                    })
+                    .catch(error => alert('Erro na requisição: ' + error));
+                }
+            });
+        }
     </script>
 </body>
 </html>

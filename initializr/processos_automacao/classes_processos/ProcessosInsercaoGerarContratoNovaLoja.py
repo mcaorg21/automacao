@@ -20,5 +20,5 @@ class Ole_Insercao_Gerar_Contrato_Nova_Loja(ProcessWrapper):
         self.set_py_sub_process(process)
 
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)
         

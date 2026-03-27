@@ -30,7 +30,7 @@ class OleRefinAnexLibSMS(ProcessWrapper):
         self.set_py_sub_process(process)
 
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)
 
 
 class OleSincInsercao(ProcessWrapper):
@@ -49,7 +49,7 @@ class OleSincInsercao(ProcessWrapper):
         self.set_py_sub_process(process)
 
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)
 
 
 class OleConsultaRefin(ProcessWrapper):
@@ -68,7 +68,7 @@ class OleConsultaRefin(ProcessWrapper):
         self.set_py_sub_process(process)
 
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)
 
 class OleConsigInssCem(ProcessWrapper):
     def __init__(self):
@@ -86,4 +86,4 @@ class OleConsigInssCem(ProcessWrapper):
         self.set_py_sub_process(process)
 
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)

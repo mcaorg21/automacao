@@ -1,0 +1,241 @@
+{
+  "736": {
+    "produto": "ADQUIRIDA/CEDIDAS",
+    "tipo": "NOVO",
+    "dados": [
+      { "CONTESTACAO": 225 },
+      { "SENTENCA": 225 },
+      { "TRANSITO": 225 },
+      { "EXITO": 600 },
+      { "ACORDO_POS": 120 },
+      { "PERDA": 675 },
+      { "TOTAL_EXITO": 1275 },
+      { "TOTAL_ACORDO_POS": 795 },
+      { "TOTAL_ACORDO_PRE": 675 }
+    ], 
+    "versao": 2
+  },
+  "737": {
+    "produto": "ADQUIRIDA/CEDIDAS",
+    "tipo": "NOVO",
+    "dados": [
+      { "CONTESTACAO": 300 },
+      { "SENTENCA": 300 },
+      { "TRANSITO": 300 },
+      { "EXITO": 800 },
+      { "ACORDO_POS": 120 },
+      { "PERDA": 900 },
+      { "TOTAL_EXITO": 1700 },
+      { "TOTAL_ACORDO_POS": 1020 },
+      { "TOTAL_ACORDO_PRE": 900 }
+    ], 
+    "versao": 2
+  },
+
+  "738": {
+    "produto": "VEICULOS",
+    "tipo": "NOVO",
+    "dados": [
+      { "CONTESTACAO": 225 },
+      { "SENTENCA": 225 },
+      { "TRANSITO": 225 },
+      { "EXITO": 600 },
+      { "ACORDO_PRE": 420 },
+      { "ACORDO_POS": 120 },
+      { "PERDA": 675 },
+      { "TOTAL_EXITO": 1275 },
+      { "TOTAL_ACORDO_POS": 795 },
+      { "TOTAL_ACORDO_PRE": 870 }
+    ], 
+    "versao": 2
+  },
+  "739": {
+    "produto": "VEICULOS",
+    "tipo": "NOVO",
+    "dados": [
+      { "CONTESTACAO": 300 },
+      { "SENTENCA": 300 },
+      { "TRANSITO": 300 },
+      { "EXITO": 800 },
+      { "ACORDO_PRE": 560 },
+      { "ACORDO_POS": 120 },
+      { "PERDA": 900 },
+      { "TOTAL_EXITO": 1700 },
+      { "TOTAL_ACORDO_POS": 1020 },
+      { "TOTAL_ACORDO_PRE": 1160 }
+    ], 
+    "versao": 2
+  },
+
+  "740": {
+    "produto": "CARTOES",
+    "tipo": "NOVO",
+    "dados": [
+      { "CONTESTACAO": 225 },
+      { "SENTENCA": 225 },
+      { "TRANSITO": 225 },
+      { "EXITO": 450 },
+      { "ACORDO_PRE": 350 },
+      { "ACORDO_POS": 75 },
+      { "PERDA": 675 },
+      { "TOTAL_EXITO": 1125 },
+      { "TOTAL_ACORDO_POS": 750 },
+      { "TOTAL_ACORDO_PRE": 800 }
+    ], 
+    "versao": 2
+  },
+  "741": {
+    "produto": "CARTOES",
+    "tipo": "NOVO",
+    "dados": [
+      { "CONTESTACAO": 300 },
+      { "SENTENCA": 300 },
+      { "TRANSITO": 300 },
+      { "EXITO": 600 },
+      { "ACORDO_PRE": 500 },
+      { "ACORDO_POS": 100 },
+      { "PERDA": 900 },
+      { "TOTAL_EXITO": 1500 },
+      { "TOTAL_ACORDO_POS": 1000 },
+      { "TOTAL_ACORDO_PRE": 1100 }
+    ], 
+    "versao": 2
+  },
+
+  "742": {
+    "produto": "CDC/CP/MC",
+    "tipo": "NOVO",
+    "dados": [
+      { "CONTESTACAO": 250 },
+      { "SENTENCA": 155 },
+      { "TRANSITO": 155 },
+      { "PERDA": 560 },
+      { "EXITO": 560 },
+      { "ACORDO_POS": 560 },
+      { "ACORDO_PRE": 560 }
+    ], 
+    "versao": 2
+  },
+
+  "743": {
+    "produto": "CDC/CP/MC",
+    "tipo": "NOVO",
+    "dados": [
+      { "CONTESTACAO": 250 },
+      { "SENTENCA": 155 },
+      { "TRANSITO": 155 },
+      { "PERDA": 560 },
+      { "EXITO": 560 },
+      { "ACORDO_POS": 560 },
+      { "ACORDO_PRE": 560 }
+    ], 
+    "versao": 2
+  },
+
+  "829_JEC": {
+    "produto": "ACOES_PATIO",
+    "tipo": "NOVO",
+    "dados": [
+      { "CONTESTACAO": 425 },
+      { "SENTENCA": 425 },
+      { "TRANSITO": 425 },
+      { "PERDA": 1275 },
+      { "EXITO": 1275 },
+      { "ACORDO_POS": 1275 },
+      { "ACORDO_PRE": 1275 }
+    ], 
+    "versao": 2
+  },
+  "829_CIV": {
+    "produto": "ACOES_PATIO",
+    "tipo": "NOVO",
+    "dados": [
+      { "CONTESTACAO": 570 },
+      { "SENTENCA": 570 },
+      { "TRANSITO": 570 },
+      { "PERDA": 1710 },
+      { "EXITO": 1710 },
+      { "ACORDO_POS": 1710 },
+      { "ACORDO_PRE": 1710 }
+    ], 
+    "versao": 2
+  },
+
+  "35": {
+    "produto": "GERAL",
+    "tipo": "ANTIGO",
+    "dados": [
+      { "CONTESTACAO": 250 },
+      { "SENTENCA": 250 },
+      { "TRANSITO": 250 },
+      { "EXITO": 700 },
+      { "PERDA": 750 },
+      { "TOTAL_EXITO": 1450 },
+      { "ACORDO_POS": 750 },
+      { "ACORDO_PRE": 750 }
+    ], 
+    "versao": 1
+  },
+
+  "58": {
+    "produto": "CARTOES",
+    "tipo": "ANTIGO",
+    "dados": [
+      { "CONTESTACAO": 280 },
+      { "SENTENCA": 280 },
+      { "TRANSITO": 280 },
+      { "EXITO": 500 },
+      { "PERDA": 840 },
+      { "TOTAL_EXITO": 1340 },
+      { "ACORDO_POS": 840 },
+      { "ACORDO_PRE": 840 }
+    ],
+    "versao": 1
+  },
+
+  "59": {
+    "produto": "CARTOES",
+    "tipo": "ANTIGO",
+    "dados": [
+      { "CONTESTACAO": 500 },
+      { "SENTENCA": 500 },
+      { "TRANSITO": 500 },
+      { "EXITO": 1000 },
+      { "PERDA": 1500 },
+      { "TOTAL_EXITO": 2500 },
+      { "ACORDO_POS": 1500 },
+      { "ACORDO_PRE": 1500 }
+    ],
+    "versao": 1
+  },
+
+  "34": {
+    "produto": "CDC/CP/MC",
+    "tipo": "ANTIGO",
+    "dados": [
+      { "CONTESTACAO": 250 },
+      { "SENTENCA": 155 },
+      { "TRANSITO": 155 },
+      { "PERDA": 560 },
+      { "EXITO": 560 },
+      { "ACORDO_POS": 560 },
+      { "ACORDO_PRE": 560 }
+    ],
+    "versao": 1
+  },
+
+  "147": {
+    "produto": "EXIBICAO_DOCUMENTOS",
+    "tipo": "ANTIGO",
+    "dados": [
+      { "CONTESTACAO": 130 },
+      { "SENTENCA": 130 },
+      { "TRANSITO": 130 },
+      { "PERDA": 390 },
+      { "EXITO": 390 },
+      { "ACORDO_POS": 390 },
+      { "ACORDO_PRE": 390 }
+    ],
+    "versao": 1
+  }
+}

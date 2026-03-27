@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="16" fill="#4299e1"/>
+
+  <!-- Gear shape -->
+  <g fill="#ffffff" transform="translate(16,16)">
+    <!-- Gear teeth (8 teeth) -->
+    <rect x="-2.5" y="-13" width="5" height="4.5" rx="1"/>
+    <rect x="-2.5" y="8.5" width="5" height="4.5" rx="1" transform="rotate(180)"/>
+    <rect x="-2.5" y="-13" width="5" height="4.5" rx="1" transform="rotate(45)"/>
+    <rect x="-2.5" y="-13" width="5" height="4.5" rx="1" transform="rotate(90)"/>
+    <rect x="-2.5" y="-13" width="5" height="4.5" rx="1" transform="rotate(135)"/>
+    <rect x="-2.5" y="-13" width="5" height="4.5" rx="1" transform="rotate(225)"/>
+    <rect x="-2.5" y="-13" width="5" height="4.5" rx="1" transform="rotate(270)"/>
+    <rect x="-2.5" y="-13" width="5" height="4.5" rx="1" transform="rotate(315)"/>
+
+    <!-- Outer gear ring -->
+    <circle cx="0" cy="0" r="9" fill="#ffffff"/>
+    <!-- Inner cutout (blue) -->
+    <circle cx="0" cy="0" r="5.5" fill="#4299e1"/>
+    <!-- Center dot -->
+    <circle cx="0" cy="0" r="2" fill="#ffffff"/>
+  </g>
+
+  <!-- Lightning bolt (automation symbol) -->
+  <polygon points="18,8 14,16 17,16 14,24 20,14 17,14" fill="#ffd700" opacity="0.95"/>
+</svg>

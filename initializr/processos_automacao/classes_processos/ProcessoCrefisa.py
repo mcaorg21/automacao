@@ -21,7 +21,7 @@ class Crefisa(ProcessWrapper):
         self.set_py_sub_process(process)
 
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)
 
 class CrefisaSincronizacao(ProcessWrapper):
     def __init__(self):
@@ -39,7 +39,7 @@ class CrefisaSincronizacao(ProcessWrapper):
         self.set_py_sub_process(process)
 
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)
 
 class CrefisaAnaliseContrato(ProcessWrapper):
     def __init__(self):
@@ -57,4 +57,4 @@ class CrefisaAnaliseContrato(ProcessWrapper):
         self.set_py_sub_process(process)
 
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)

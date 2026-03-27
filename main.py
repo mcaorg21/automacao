@@ -14,6 +14,12 @@ def robo_cora_sincronizacao():
     run = IniciarEmissaoConsulta()
     run.sincronizacao()
 
+def robo_omni_pde_fsp_trc():
+    from sites.omni_pde_fsp_trc.main import OmniPdeFspTrc
+    system("title Robô - OMNI PDE FSP TRC")
+    run = OmniPdeFspTrc()
+    run.main()
+
 def robo_crefisa_analise_contrato():
     from sites.crefisa.main_analise import Main
     system("title Robô - Crefisa Analise Contrato")
@@ -693,6 +699,11 @@ def main(site=False):
                         'name': 'PHTech Sincronizacao',
                         'value': 'phtech_sinc'
                     },
+                    Separator(),
+                    {
+                        'name': 'OMNI PDE FSP TRC',
+                        'value': 'omni_pde_fsp_trc'
+                    },
 
                 ]
             }
@@ -812,6 +823,8 @@ def main(site=False):
         robo_phtech()
     elif site == 'phtech_sinc':
         robo_phtech_sincronizacao()
+    elif site == 'omni_pde_fsp_trc':
+        robo_omni_pde_fsp_trc()
     elif site == 'whatsapp':
         robo_waw()
     else:

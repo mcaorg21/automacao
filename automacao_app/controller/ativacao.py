@@ -1,11 +1,54 @@
-from flask import Blueprint, request, render_template,abort
-import json,pdb
+from flask import Blueprint, request, render_template, abort, redirect, url_for
+from datetime import date, datetime
+import json, pdb
 from automacao_app import templates
 from initializr import INITIALIZR_ROOT
 from pathlib import Path
 
 file = str(Path(f"{INITIALIZR_ROOT}/ativacao.json"))
+labels_file = str(Path(f"{INITIALIZR_ROOT}/process_labels.json"))
+cpj_config_file = str(Path(INITIALIZR_ROOT).parent / "sites/cpj-reembolso-bmg/config.json")
+bloqueados_spf_file = str(Path(INITIALIZR_ROOT).parent / "cpj_api/bloqueados_id_spf.json")
 bp = Blueprint("ativacao", __name__, template_folder=templates)
+
+
+def _load_cpj_config():
+    with open(cpj_config_file) as f:
+        return json.loads(f.read())
+
+
+def _date_to_iso(date_str):
+    """Converte dd/mm/yyyy para yyyy-mm-dd (formato do input date HTML)."""
+    try:
+        d, m, y = date_str.split("/")
+        return f"{y}-{m}-{d}"
+    except Exception:
+        return ""
+
+
+def _date_from_iso(date_str):
+    """Converte yyyy-mm-dd para dd/mm/yyyy."""
+    try:
+        y, m, d = date_str.split("-")
+        return f"{d}/{m}/{y}"
+    except Exception:
+        return date_str
+
+
+def _tempo_decorrido(iniciado_em_str):
+    if not iniciado_em_str:
+        return None
+    try:
+        iniciado = datetime.strptime(iniciado_em_str, "%Y-%m-%d %H:%M:%S")
+        delta = datetime.now() - iniciado
+        total = int(delta.total_seconds())
+        horas = total // 3600
+        minutos = (total % 3600) // 60
+        if horas > 0:
+            return f"{horas}h {minutos}min"
+        return f"{minutos}min"
+    except Exception:
+        return None
 
 @bp.route('/codigo', methods=["GET", "POST"])
 def salvar_codigo():
@@ -100,6 +143,8 @@ def webhook3():
         promobank.fechar_driver()
         abort(400)    
 
+PROCESSOS_VISIVEIS = ["CpjReembolsoBmg"]
+
 @bp.route("/ativacao", methods=["GET", "POST"])
 def ativacao():
     print(templates)
@@ -123,10 +168,76 @@ def ativacao():
                     activate[key] = True
                 elif val == "Desativar":
                     activate[key] = False
+                    if key == "CpjReembolsoBmg":
+                        config_atual = _load_cpj_config()
+                        config_atual["numero_recibo"] = ""
+                        config_atual["iniciado_em"] = ""
+                        with open(cpj_config_file, mode="w") as f:
+                            f.write(json.dumps(config_atual, ensure_ascii=False, indent=4))
 
             with open(file, mode="w") as fObj:
                 fObj.write(json.dumps(activate))
                 fObj.close()
                 print(activate)
 
-    return render_template("ativacao.html", procs=activate)
+    procs = {k: v for k, v in activate.items() if k in PROCESSOS_VISIVEIS}
+
+    today = date.today().isoformat()
+    cpj_config = _load_cpj_config()
+    cpj_config["data_inicial_iso"] = _date_to_iso(cpj_config.get("data_inicial", "")) or today
+    cpj_config["data_final_iso"] = _date_to_iso(cpj_config.get("data_final", "")) or today
+    cpj_config["tempo_decorrido"] = _tempo_decorrido(cpj_config.get("iniciado_em", ""))
+    try:
+        with open(bloqueados_spf_file) as f:
+            bloqueados_data = json.loads(f.read())
+        cpj_config["bloqueados_spf"] = bloqueados_data.get("bloqueados", [])
+    except Exception:
+        cpj_config["bloqueados_spf"] = []
+
+    with open(labels_file) as f:
+        labels = json.loads(f.read())
+
+    return render_template("ativacao.html", procs=procs, cpj_config=cpj_config, labels=labels)
+
+
+@bp.route("/ativacao/bloqueados-spf", methods=["POST"])
+def adicionar_bloqueado_spf():
+    id_spf = request.form.get("id_spf", "").strip()
+    if id_spf:
+        try:
+            with open(bloqueados_spf_file) as f:
+                data = json.loads(f.read())
+            if id_spf not in data["bloqueados"]:
+                data["bloqueados"].append(id_spf)
+                with open(bloqueados_spf_file, mode="w") as f:
+                    f.write(json.dumps(data, ensure_ascii=False, indent=2))
+        except Exception:
+            pass
+    return redirect(url_for("ativacao.ativacao"))
+
+
+@bp.route("/ativacao/cpj-config", methods=["POST"])
+def salvar_cpj_config():
+    numero_recibo = request.form.get("numero_recibo", "")
+    data_inicial = _date_from_iso(request.form.get("data_inicial", ""))
+    data_final = _date_from_iso(request.form.get("data_final", ""))
+
+    config_atual = _load_cpj_config()
+
+    if numero_recibo and numero_recibo != config_atual.get("numero_recibo", ""):
+        iniciado_em = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    elif not numero_recibo:
+        iniciado_em = ""
+    else:
+        iniciado_em = config_atual.get("iniciado_em", "")
+
+    config_atual.update({
+        "numero_recibo": numero_recibo,
+        "data_inicial": data_inicial,
+        "data_final": data_final,
+        "iniciado_em": iniciado_em,
+    })
+    with open(cpj_config_file, mode="w") as f:
+        f.write(json.dumps(config_atual, ensure_ascii=False, indent=4))
+
+    return redirect(url_for("ativacao.ativacao"))

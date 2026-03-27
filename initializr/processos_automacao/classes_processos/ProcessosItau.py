@@ -16,7 +16,7 @@ class ItauInsercaoMca(ProcessWrapper):
         self.cmd_proc = process
         self.set_py_sub_process(process)
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)
 
 
 class ItauInsercaoCarolina(ProcessWrapper):
@@ -30,7 +30,7 @@ class ItauInsercaoCarolina(ProcessWrapper):
         self.cmd_proc = process
         self.set_py_sub_process(process)
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)
 
 
 class ItauInsercao(ProcessWrapper):
@@ -49,7 +49,7 @@ class ItauInsercao(ProcessWrapper):
         self.set_py_sub_process(process)
 
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)
 
 
 class ItauConsultaRefin(ProcessWrapper):
@@ -71,7 +71,7 @@ class ItauConsultaRefin(ProcessWrapper):
         print("init procs")
         print(self.cmd_proc)
         print(self.all_procs)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)
 
 
 class ItauConsultaRefinN2(ProcessWrapper):
@@ -90,7 +90,7 @@ class ItauConsultaRefinN2(ProcessWrapper):
         self.set_py_sub_process(process)
 
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)
 
 
 class ItauConsultaStatus(ProcessWrapper):
@@ -109,7 +109,7 @@ class ItauConsultaStatus(ProcessWrapper):
         self.set_py_sub_process(process)
 
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)
 
 
 class  Itau_Anexa_Doc_Ajusta_Restricao_Margem(ProcessWrapper):
@@ -128,7 +128,7 @@ class  Itau_Anexa_Doc_Ajusta_Restricao_Margem(ProcessWrapper):
         self.set_py_sub_process(process)
 
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)
 
 
 class ItauGerarContrato(ProcessWrapper):
@@ -147,4 +147,4 @@ class ItauGerarContrato(ProcessWrapper):
         self.set_py_sub_process(process)
 
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)

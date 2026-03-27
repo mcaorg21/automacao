@@ -20,7 +20,7 @@ class TarefasPan(ProcessWrapper):
         self.set_py_sub_process(process)
 
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)
 
 
 class PanConsultaRefin064(ProcessWrapper):
@@ -39,7 +39,7 @@ class PanConsultaRefin064(ProcessWrapper):
         self.set_py_sub_process(process)
 
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)
 
 
 class PanConsultaRefin035(ProcessWrapper):
@@ -58,4 +58,4 @@ class PanConsultaRefin035(ProcessWrapper):
         self.set_py_sub_process(process)
 
         sleep(STDWAIT)
-        self.all_procs = process.children(recursive=True)
+        self.all_procs = self.get_children_safe(process)

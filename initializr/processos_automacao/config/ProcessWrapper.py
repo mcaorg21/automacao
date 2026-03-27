@@ -9,6 +9,7 @@
 """
 import psutil as pt
 from typing import List
+from time import sleep
 
 
 class ProcessWrapper:
@@ -82,6 +83,8 @@ class ProcessWrapper:
                 self.suprocess = None
                 break
             tentativas += 1
+            if self.suprocess is None:
+                sleep(1)
 
     def reinit_if_dead(self, proc_obj: object, activate: dict, init=False):
         """

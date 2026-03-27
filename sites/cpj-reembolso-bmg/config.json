@@ -1,5 +1,158 @@
 {
-    "numero_recibo": "12345",
-    "data_inicial": "02/02/2026",
-    "data_final": "02/02/2026"
+    "numero_recibo": "",
+    "data_inicial": "",
+    "data_final": "",
+    "iniciado_em": "",
+    "lancamentos_removidos": [
+        {
+            "civ": "CIV1606803",
+            "nota_normalizada": "pagamento de condenacao rio grande do sul ",
+            "data_hora": "2026-03-09 15:37:29"
+        },
+        {
+            "civ": "CIV1128806",
+            "nota_normalizada": "custas diversas e taxas judiciais / tribunal de ju",
+            "data_hora": "2026-03-09 15:44:30"
+        },
+        {
+            "civ": "CIV1083926",
+            "nota_normalizada": "",
+            "data_hora": "2026-03-09 15:52:03"
+        },
+        {
+            "civ": "CIV1103215",
+            "nota_normalizada": "",
+            "data_hora": "2026-03-09 15:52:04"
+        },
+        {
+            "civ": "CIV1484953",
+            "nota_normalizada": "prezados, bom dia! solicito o pagamento da condenacao atualizada no valor de 1.044,77. o bmg esta nos pedindo para efetuar os pagamentos que irao nos ressarcir. ",
+            "data_hora": "2026-03-09 15:52:05"
+        },
+        {
+            "civ": "CIV1442111",
+            "nota_normalizada": "trata-se de pagamento de condenacao em honorarios sucumbenciais.",
+            "data_hora": "2026-03-09 15:52:05"
+        },
+        {
+            "civ": "CIV1588968",
+            "nota_normalizada": "pagamento de condenacao - honorarios",
+            "data_hora": "2026-03-09 15:52:05"
+        },
+        {
+            "civ": "CIV1588966",
+            "nota_normalizada": "pagamento de condenacao - honorarios",
+            "data_hora": "2026-03-09 15:52:06"
+        },
+        {
+            "civ": "CIV1606804",
+            "nota_normalizada": "solicito o pagamento de condenacao de honorarios do tjrs, tendo em vista que os comprovantes nao estavam sendo disponibilizados pelo banrisul",
+            "data_hora": "2026-03-09 15:52:06"
+        },
+        {
+            "civ": "CIV1499318",
+            "nota_normalizada": "trata-se de pagamento de condenacao em favor do autor.",
+            "data_hora": "2026-03-09 15:52:06"
+        },
+        {
+            "civ": "CIV1541530",
+            "nota_normalizada": "pagamento de condenacao tjrr",
+            "data_hora": "2026-03-09 15:52:07"
+        },
+        {
+            "civ": "CIV1475001",
+            "nota_normalizada": "pagamento de condenacao",
+            "data_hora": "2026-03-09 15:52:07"
+        },
+        {
+            "civ": "CIV1467344",
+            "nota_normalizada": "pagamento de condenacao ",
+            "data_hora": "2026-03-09 15:52:07"
+        },
+        {
+            "civ": "CIV1458169",
+            "nota_normalizada": "pagamento de condenacao banrisul. r$ 1.235,60",
+            "data_hora": "2026-03-09 15:52:07"
+        },
+        {
+            "civ": "CIV1468789",
+            "nota_normalizada": "pagamento de condenacao - danos materiais",
+            "data_hora": "2026-03-09 15:52:09"
+        },
+        {
+            "civ": "CIV1518099",
+            "nota_normalizada": "pagamento de condenacao do tjrs, solicitaremos rembolso junto ao cliente.",
+            "data_hora": "2026-03-11 12:58:08"
+        },
+        {
+            "civ": "CIV1436234",
+            "nota_normalizada": "pagamento de condenacao tjrs, vamos solicitar reembolso ao cliente.",
+            "data_hora": "2026-03-12 09:52:00"
+        },
+        {
+            "civ": "CIV1468789",
+            "nota_normalizada": "pagamento de condenacao - danos materiais",
+            "data_hora": "2026-03-16 12:42:45"
+        },
+        {
+            "civ": "CIV1201469",
+            "nota_normalizada": "custa finais ",
+            "data_hora": "2026-03-17 17:58:43"
+        },
+        {
+            "civ": "CIV1124539",
+            "nota_normalizada": "custas diversas e taxas judiciais / tribunal de ju",
+            "data_hora": "2026-03-17 17:58:44"
+        },
+        {
+            "civ": "CIV1518099",
+            "nota_normalizada": "pagamento de condenacao do tjrs, solicitaremos rembolso junto ao cliente.",
+            "data_hora": "2026-03-17 17:58:44"
+        },
+        {
+            "civ": "CIV1448397",
+            "nota_normalizada": "pagamento condenacao honorarios",
+            "data_hora": "2026-03-18 11:19:19"
+        },
+        {
+            "civ": "CIV1441307",
+            "nota_normalizada": "resumo da condenacao e do pagamento: considerando a quantia da execucao em r$ 1.020,37 , e o calculo da assessoria no valor de r$ 1.070,30, solicitamos o pagamento no valor de r$ 1.070,30",
+            "data_hora": "2026-03-18 11:19:21"
+        },
+        {
+            "civ": "CIV1637485",
+            "nota_normalizada": "prezados, \\n\\rpor gentileza, proceder com o pagamento da guia em anexo. conforme orientacao do cliente, o escritorio sera reembolsado posteriormente.\\n\\rdesde ja, agradeco o retorno.\\n\\ratt.,\\n\\rmauro de paula goncalves junior",
+            "data_hora": "2026-03-23 12:48:44"
+        },
+        {
+            "civ": "CIV1468789",
+            "nota_normalizada": "pagamento condenacao - honorarios",
+            "data_hora": "2026-03-24 10:12:51"
+        },
+        {
+            "civ": "CIV1609739",
+            "nota_normalizada": "pagamento condenacao - honorarios",
+            "data_hora": "2026-03-24 10:12:52"
+        },
+        {
+            "civ": "CIV1495286",
+            "nota_normalizada": "prezados, boa tarde!tudo bem? solicitamos o pagamento da condenacao no valor de 531,67, pois o  bmg nao esta conseguindo efetuar os pagamentos do tjrs. tao logo pago, buscaremos restituicao. att.\\n\\r",
+            "data_hora": "2026-03-24 10:43:48"
+        },
+        {
+            "civ": "CIV1548966",
+            "nota_normalizada": "apelacao civel",
+            "data_hora": "2026-03-24 14:45:29"
+        },
+        {
+            "civ": "CIV1596029",
+            "nota_normalizada": "apelacao civel",
+            "data_hora": "2026-03-24 14:45:29"
+        },
+        {
+            "civ": "CIV1467730",
+            "nota_normalizada": "pagamento condenacao honorarios",
+            "data_hora": "2026-03-26 09:26:01"
+        }
+    ]
 }
