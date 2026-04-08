@@ -569,6 +569,33 @@
                     </div>
                 </form>
 
+                {% if key == "OmniPdeFspTrc" %}
+                    <hr class="cpj-divider">
+                    <div style="display:flex;gap:8px;">
+                        <a href="{{ url_for('ativacao.omni_download_erros') }}" class="btn-save" style="text-decoration:none;text-align:center;flex:1;">
+                            &#8595; Erros Despesa
+                        </a>
+                        <a href="{{ url_for('ativacao.omni_download_pastas') }}" class="btn-save" style="text-decoration:none;text-align:center;flex:1;">
+                            &#8595; Sem Contrato
+                        </a>
+                    </div>
+                    <hr class="cpj-divider">
+                    <form method="post" action="{{ url_for('ativacao.salvar_omni_config') }}" style="display:flex;flex-direction:column;gap:10px;">
+                        <div>
+                            <label class="field-label">Data Inicial</label>
+                            <input type="date" name="data_inicial" class="field-input"
+                                   value="{{ omni_config.data_inicial }}"
+                                   onchange="this.closest('form').submit()">
+                        </div>
+                        <div>
+                            <label class="field-label">Data Final</label>
+                            <input type="date" name="data_final" class="field-input"
+                                   value="{{ omni_config.data_final_display }}"
+                                   onchange="this.closest('form').submit()">
+                        </div>
+                    </form>
+                {% endif %}
+
                 {% if key == "CpjReembolsoBmg" %}
                     <hr class="cpj-divider">
 

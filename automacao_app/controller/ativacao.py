@@ -1,6 +1,7 @@
-from flask import Blueprint, request, render_template, abort, redirect, url_for
+from flask import Blueprint, request, render_template, abort, redirect, url_for, send_file
 from datetime import date, datetime
-import json, pdb
+import json, pdb, io
+import pandas as pd
 from automacao_app import templates
 from initializr import INITIALIZR_ROOT
 from pathlib import Path
@@ -8,12 +9,18 @@ from pathlib import Path
 file = str(Path(f"{INITIALIZR_ROOT}/ativacao.json"))
 labels_file = str(Path(f"{INITIALIZR_ROOT}/process_labels.json"))
 cpj_config_file = str(Path(INITIALIZR_ROOT).parent / "sites/cpj-reembolso-bmg/config.json")
+omni_config_file = str(Path(INITIALIZR_ROOT).parent / "sites/omni-pde-fsp-trc/config.json")
 bloqueados_spf_file = str(Path(INITIALIZR_ROOT).parent / "cpj_api/bloqueados_id_spf.json")
 bp = Blueprint("ativacao", __name__, template_folder=templates)
 
 
 def _load_cpj_config():
     with open(cpj_config_file) as f:
+        return json.loads(f.read())
+
+
+def _load_omni_config():
+    with open(omni_config_file, encoding='utf-8') as f:
         return json.loads(f.read())
 
 
@@ -143,7 +150,7 @@ def webhook3():
         promobank.fechar_driver()
         abort(400)    
 
-PROCESSOS_VISIVEIS = ["CpjReembolsoBmg"]
+PROCESSOS_VISIVEIS = ["CpjReembolsoBmg", "OmniPdeFspTrc"]
 
 @bp.route("/ativacao", methods=["GET", "POST"])
 def ativacao():
@@ -197,7 +204,10 @@ def ativacao():
     with open(labels_file) as f:
         labels = json.loads(f.read())
 
-    return render_template("ativacao.html", procs=procs, cpj_config=cpj_config, labels=labels)
+    omni_config = _load_omni_config()
+    omni_config["data_final_display"] = today
+
+    return render_template("ativacao.html", procs=procs, cpj_config=cpj_config, omni_config=omni_config, labels=labels)
 
 
 @bp.route("/ativacao/bloqueados-spf", methods=["POST"])
@@ -213,6 +223,51 @@ def adicionar_bloqueado_spf():
                     f.write(json.dumps(data, ensure_ascii=False, indent=2))
         except Exception:
             pass
+    return redirect(url_for("ativacao.ativacao"))
+
+
+def _json_to_excel_bytes(json_path: str) -> io.BytesIO:
+    with open(json_path, encoding='utf-8') as f:
+        data = json.load(f)
+    df = pd.json_normalize(data)
+    buf = io.BytesIO()
+    with pd.ExcelWriter(buf, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False)
+    buf.seek(0)
+    return buf
+
+
+@bp.route("/ativacao/omni-download/erros")
+def omni_download_erros():
+    erros_path = str(Path(INITIALIZR_ROOT).parent / "sites/omni-pde-fsp-trc/erros_registro_despesa.json")
+    buf = _json_to_excel_bytes(erros_path)
+    return send_file(buf, as_attachment=True,
+                     download_name="erros_registro_despesa.xlsx",
+                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+
+@bp.route("/ativacao/omni-download/pastas-sem-contrato")
+def omni_download_pastas():
+    pastas_path = str(Path(INITIALIZR_ROOT).parent / "sites/omni-pde-fsp-trc/pastas_sem_contrato.json")
+    buf = _json_to_excel_bytes(pastas_path)
+    return send_file(buf, as_attachment=True,
+                     download_name="pastas_sem_contrato.xlsx",
+                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+
+@bp.route("/ativacao/omni-config", methods=["POST"])
+def salvar_omni_config():
+    data_inicial = request.form.get("data_inicial", "")
+    data_final = request.form.get("data_final", "")
+
+    config_atual = _load_omni_config()
+    config_atual.update({
+        "data_inicial": data_inicial,
+        "data_final": data_final,
+    })
+    with open(omni_config_file, mode="w", encoding='utf-8') as f:
+        f.write(json.dumps(config_atual, ensure_ascii=False, indent=2))
+
     return redirect(url_for("ativacao.ativacao"))
 
 

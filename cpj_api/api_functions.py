@@ -270,15 +270,18 @@ def api_post(endpoint: str, data: dict = None):
         
         if response.status_code in [200, 201]:
             return response.json()
-        elif response.status_code == 401:
-            print('✗ Token expirado ou inválido. Tentando reautenticar...')
+        elif response.status_code in [400, 401]:
+            print(f'✗ Erro {response.status_code}. Tentando reautenticar...')
             if api_login():
                 # Tenta novamente com o novo token
                 headers = {'Authorization': f'Bearer {API_TOKEN}'}
                 response = API_SESSION.post(url, json=data, headers=headers, timeout=30)
                 if response.status_code in [200, 201]:
                     return response.json()
-            print(f'✗ Falha na reautenticação')
+                print(f'✗ Falha após reautenticação. Status: {response.status_code}')
+                print(f'Resposta: {response.text[:200]}')
+            else:
+                print(f'✗ Falha na reautenticação')
             return None
         else:
             print(f'✗ Erro na requisição. Status: {response.status_code}')
@@ -1128,13 +1131,14 @@ def processar_documentos_registros(json_path: str = None, output_folder: str = N
         raise
 
 
-def api_buscar_processo_tarefa(evento: str, ag_data_hora: str = None, id_tramitacao: int = 13000000, id_tramitacao_situacao: int = 0, limit: int = 1000):
+def api_buscar_processo_tarefa(evento: str, ag_data_hora: str = None, id_tramitacao_inicio: int = 13000000, id_tramitacao_fim: int = 15000000, id_tramitacao_situacao: int = 0, limit: int = 1000):
     """Busca tarefas de processo na API com filtro por evento e data
     
     Args:
         evento: Código/nome do evento a ser filtrado
         ag_data_hora: Data inicial de agendamento no formato YYYY-MM-DD (opcional, padrão: hoje)
-        id_tramitacao: ID mínimo de tramitação para filtro _gte (opcional, padrão: 13000000)
+        id_tramitacao_inicio: ID mínimo de tramitação para filtro _gte (opcional, padrão: 13000000)
+        id_tramitacao_fim: ID máximo de tramitação para filtro _lte (opcional, padrão: 15000000)
         id_tramitacao_situacao: Situação da tramitação (padrão: 0)
         limit: Limite de registros retornados (padrão: 1000)
         
@@ -1166,29 +1170,32 @@ def api_buscar_processo_tarefa(evento: str, ag_data_hora: str = None, id_tramita
             },
             {
                 "id_tramitacao": {
-                    "_gte": id_tramitacao
+                    "_gte": id_tramitacao_inicio,
+                    "_lte": id_tramitacao_fim
                 }
             },
             {
                 "id_tramitacao_situacao": {
                     "_eq": id_tramitacao_situacao
                 }
-            },
-            {
-                "ag_data_hora": {
-                    "_gte": ag_data_hora
-                }
             }
         ]
+
+        # ,
+        #     {
+        #         "ag_data_hora": {
+        #             "_gte": ag_data_hora
+        #         }
+        #     }
         
         # Adiciona filtro de id_tramitacao se informado
-        if id_tramitacao is not None:
-            print(f'id_tramitacao >= {id_tramitacao}')
-            filtros.insert(1, {
-                "id_tramitacao": {
-                    "_gte": id_tramitacao
-                }
-            })
+        # if id_tramitacao is not None:
+        #     print(f'id_tramitacao >= {id_tramitacao}')
+        #     filtros.insert(1, {
+        #         "id_tramitacao": {
+        #             "_gte": id_tramitacao
+        #         }
+        #     })
         
         # Monta o body da requisição
         body = {
@@ -1231,7 +1238,98 @@ def api_buscar_processo_tarefa(evento: str, ag_data_hora: str = None, id_tramita
         traceback.print_exc()
         return None
 
-#tarefa['id_tramitacao'],1,tarefa['update_data_hora'], tarefa['update_usuario']
+
+def api_buscar_processo_tarefa_por_data(evento: str, data_inicial: datetime = None, data_fim: datetime = None, id_tramitacao_situacao: int = 0, limit: int = 1000):
+    """Busca tarefas de processo na API com filtro por evento e intervalo de datas em data_hora_lan
+    
+    Args:
+        evento: Código/nome do evento a ser filtrado
+        data_inicial: Data inicial do filtro (padrão: hoje - 7 dias)
+        data_fim: Data final do filtro (padrão: hoje)
+        id_tramitacao_situacao: Situação da tramitação (padrão: 0)
+        limit: Limite de registros retornados (padrão: 1000)
+        
+    Returns:
+        list: Lista de tarefas encontradas
+        None: Se a requisição falhar
+    """
+    try:
+        print('\n=== Buscando tarefas de processo por data na API ===')
+        print(f'Evento: {evento}')
+
+        hoje = datetime.now()
+        if data_inicial is None:
+            data_inicial = hoje - timedelta(days=7)
+        if data_fim is None:
+            data_fim = hoje
+
+        data_inicial_str = data_inicial.strftime('%Y-%m-%d') if isinstance(data_inicial, datetime) else data_inicial
+        data_fim_str = data_fim.strftime('%Y-%m-%d') if isinstance(data_fim, datetime) else data_fim
+
+        print(f'data_inicial: {data_inicial_str}')
+        print(f'data_fim: {data_fim_str}')
+        print(f'id_tramitacao_situacao: {id_tramitacao_situacao}')
+        print(f'Limite: {limit} registro(s)')
+
+        body = {
+            "filter": {
+                "_and": [
+                    {
+                        "evento": {
+                            "_eq": evento
+                        }
+                    },
+                    {
+                        "id_tramitacao_situacao": {
+                            "_eq": id_tramitacao_situacao
+                        }
+                    },
+                    {
+                        "data_hora_lan": {
+                            "_gte": data_inicial_str
+                        }
+                    },
+                    {
+                        "data_hora_lan": {
+                            "_lte": data_fim_str
+                        }
+                    }
+                ]
+            },
+            "sort": "data_hora_lan",
+            "limit": limit
+        }
+
+        endpoint = '/api/v2/processo/tarefa'
+        print(f'Endpoint: {endpoint}')
+        print(f'Body: {json.dumps(body, indent=2)}')
+
+        response = api_post(endpoint, data=body)
+
+        if response is not None:
+            if isinstance(response, list):
+                print(f'✓ {len(response)} tarefa(s) encontrada(s)')
+                return response
+            elif isinstance(response, dict):
+                data = response.get('data', response)
+                if isinstance(data, list):
+                    print(f'✓ {len(data)} tarefa(s) encontrada(s)')
+                    return data
+                else:
+                    print(f'✓ 1 tarefa encontrada')
+                    return [data]
+            else:
+                print(f'✓ Resposta recebida')
+                return response
+        else:
+            print('✗ Nenhuma resposta recebida')
+            return None
+
+    except Exception as e:
+        print(f'✗ Erro ao buscar tarefas de processo por data: {e}')
+        traceback.print_exc()
+        return None
+
 
 def api_atualizar_tarefa(id_tramitacao: int, id_tramitacao_situacao: int = 1, update_data_hora: str = None, update_usuario: int = 19192):
     """Atualiza a situação de uma tarefa de processo na API
@@ -1240,7 +1338,7 @@ def api_atualizar_tarefa(id_tramitacao: int, id_tramitacao_situacao: int = 1, up
         id_tramitacao: ID da tramitação a ser atualizada
         id_tramitacao_situacao: Nova situação da tramitação (padrão: 1)
         update_usuario: ID do usuário responsável pela atualização (padrão: 19192)
-        
+        update_data_hora: Data e hora da atualização (opcional)
     Returns:
         dict: Resposta da API em caso de sucesso
         None: Se a requisição falhar

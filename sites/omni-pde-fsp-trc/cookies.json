@@ -1,124 +1,93 @@
 [
-{
+  {
     "domain": ".omnifacil.com.br",
-    "expirationDate": 1774616693.572668,
-    "hostOnly": false,
-    "httpOnly": true,
-    "name": "__cf_bm",
-    "path": "/",
-    "sameSite": "unspecified",
-    "secure": true,
-    "session": false,
-    "storeId": "0",
-    "value": "XLUuk_IcsSDaDa_HlrsRscRqNtqyBVSWvze0OyRkyQQ-1774614892.9550333-1.0.1.1-eqgqaS3NPHEEU.YhQZyMdMYoSwVhS1hbPmZRuPFEdYSWSsTu8Br0ogHRFGROvpe6E5MTJl8e0LYqNcKLunGEHUELk6AKxCgCY9WyqN69DI1sdJOP6Jg6JtZbpktXgjZ4",
-    "id": 1
-},
-{
-    "domain": ".omnifacil.com.br",
-    "hostOnly": false,
-    "httpOnly": true,
-    "name": "_cfuvid",
-    "path": "/",
-    "sameSite": "no_restriction",
-    "secure": true,
-    "session": true,
-    "storeId": "0",
-    "value": "78_Qb.rzI_A4oGyCL_2yFASvgazOU82AAFuunmczVt8-1774614892.9550333-1.0.1.1-SNVtJhpXMoghlcKNcHKocpXjuj4T1Lkgx7wTQv8hOIg",
-    "id": 2
-},
-{
-    "domain": ".omnifacil.com.br",
-    "hostOnly": false,
-    "httpOnly": false,
-    "name": "_cls_s",
-    "path": "/",
-    "sameSite": "no_restriction",
-    "secure": true,
-    "session": true,
-    "storeId": "0",
-    "value": "ed04aca1-b9e4-4757-ab44-398b87c03504:1",
-    "id": 3
-},
-{
-    "domain": ".omnifacil.com.br",
-    "expirationDate": 1797619960.16173,
-    "hostOnly": false,
     "httpOnly": false,
     "name": "_cls_v",
     "path": "/",
-    "sameSite": "no_restriction",
+    "sameSite": "Lax",
     "secure": true,
-    "session": false,
-    "storeId": "0",
-    "value": "8efb9b2b-7599-4052-bf19-ac61ea787577",
-    "id": 4
-},
-{
-    "domain": ".omnifacil.com.br",
-    "expirationDate": 1774957352.902954,
-    "hostOnly": false,
-    "httpOnly": false,
-    "name": "_ga",
-    "path": "/",
-    "sameSite": "unspecified",
-    "secure": false,
-    "session": false,
-    "storeId": "0",
-    "value": "GA1.1.2090135576.1740397353",
-    "id": 5
-},
-{
-    "domain": ".omnifacil.com.br",
-    "expirationDate": 1809174912.32798,
-    "hostOnly": false,
-    "httpOnly": false,
-    "name": "_ga_67Z6TR5WSF",
-    "path": "/",
-    "sameSite": "unspecified",
-    "secure": false,
-    "session": false,
-    "storeId": "0",
-    "value": "GS2.1.s1774614909$o939$g1$t1774614912$j57$l0$h0",
-    "id": 6
-},
-{
+    "value": "8efb9b2b-7599-4052-bf19-ac61ea787577"
+  },
+  {
     "domain": ".www.omnifacil.com.br",
-    "expirationDate": 1781297660.084507,
-    "hostOnly": false,
     "httpOnly": false,
-    "name": "_ga_67Z6TR5WSF",
-    "path": "/",
-    "sameSite": "unspecified",
-    "secure": false,
-    "session": false,
-    "storeId": "0",
-    "value": "deleted",
-    "id": 7
-},
-{
-    "domain": "www.omnifacil.com.br",
-    "hostOnly": true,
-    "httpOnly": true,
     "name": "omni-key",
     "path": "/pls/webdad",
-    "sameSite": "no_restriction",
+    "sameSite": "Lax",
     "secure": true,
-    "session": true,
-    "storeId": "0",
-    "value": "4E01A2D282F47CD4E0638E0E7D0AD9B1",
-    "id": 8
-},
-{
-    "domain": "www.omnifacil.com.br",
-    "hostOnly": true,
+    "value": "4EDE2FB864F730C5E0638E0E7D0AFE3F"
+  },
+  {
+    "domain": ".www.omnifacil.com.br",
     "httpOnly": false,
     "name": "ORIGEM",
     "path": "/pls/webdad",
-    "sameSite": "unspecified",
-    "secure": false,
-    "session": true,
-    "storeId": "0",
-    "value": "MENU_NEW",
-    "id": 9
-}
+    "sameSite": "Lax",
+    "secure": true,
+    "value": "MENU_OLD"
+  },
+  {
+    "domain": "www.omnifacil.com.br",
+    "httpOnly": true,
+    "name": "omni-key",
+    "path": "/pls/webdad",
+    "sameSite": "None",
+    "secure": true,
+    "value": "4EEBB016E174FA59E0638E0E7D0AC99D"
+  },
+  {
+    "domain": ".omnifacil.com.br",
+    "httpOnly": false,
+    "name": "_ga",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": true,
+    "value": "GA1.1.1122056138.1774961733"
+  },
+  {
+    "domain": ".omnifacil.com.br",
+    "httpOnly": false,
+    "name": "_cls_s",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": true,
+    "value": "891ae921-0488-410c-9efb-d072ddfbeea3:1"
+  },
+  {
+    "domain": ".omnifacil.com.br",
+    "httpOnly": false,
+    "name": "_ga_67Z6TR5WSF",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": true,
+    "value": "GS2.1.s1775074737$o11$g1$t1775075310$j60$l0$h0"
+  },
+  {
+    "domain": ".omnifacil.com.br",
+    "httpOnly": true,
+    "name": "_cfuvid",
+    "path": "/",
+    "sameSite": "None",
+    "secure": true,
+    "value": "UuXskOwHHCyL1EQWw2H6.hpuuRBzYt_F.i9YnlMz_nA-1775642159.205568-1.0.1.1-gHPfPPnhXIUEldC9lJlybpbXyz.NIXB2wlGADQtNpPg"
+  },
+  {
+    "domain": ".omnifacil.com.br",
+    "expiry": 1775643957,
+    "httpOnly": true,
+    "name": "__cf_bm",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": true,
+    "value": "HcuozgCpI7sx8O.b4XNWdugrXYuPNyn3UVfXeh890CY-1775642159.205568-1.0.1.1-FAXFUikKJJs5uv1JFfz2GQV161SeGzkLC9PmK19uXc6iDqMuAr_pOsnITy3L6LRFbDXYP446qay9XbMGFg7.D0NqPJbxL7RueZZmVND1IFBDQ4N6JDb.pOSRSEqJ.38x"
+  },
+  {
+    "domain": ".www.omnifacil.com.br",
+    "httpOnly": false,
+    "name": "_ga_67Z6TR5WSF",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": true,
+    "value": "deleted"
+  }
 ]

@@ -237,5 +237,13 @@
       { "ACORDO_PRE": 390 }
     ],
     "versao": 1
+  },
+  "999": {
+    "produto": "CEJUSC_PROCON",
+    "tipo": "NOVO",
+    "dados": [
+      { "CONTESTACAO": 400 }
+    ], 
+    "versao": 2
   }
 }

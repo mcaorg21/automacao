@@ -306,7 +306,7 @@ def login_web_exyon_bmg(driver):
         print('Preenchendo campo de senha...')
         senha_input = driver.find_element(By.ID, 'txtcd_Pwd')
         senha_input.clear()
-        senha_input.send_keys('npisv9VSb0lZQGsR')
+        senha_input.send_keys('eKuMrDviw4XZGgnw')
         print('✓ Senha digitada')
         
         # Clica no botão OK
@@ -883,14 +883,27 @@ def anexar_pdfs_formulario(driver,  nao_procurar_pelo_processo = None, tentativa
 
                                 processo_alternativo = buscar_processo_alternativo(numero_integracao, numero_processo, nao_procurar_pelo_processo, tentativa)
                                 print(f'  ✓ Processo alternativo: {processo_alternativo}')
+                                
+                                if tentativa == 1:
+                                    
+                                    processo_alternativo = formatar_numero_processo(processo_alternativo)
+                                    print(f'  ✓ Processo alternativo formatado: {processo_alternativo}')
+                                    processos_alternativos.append({
+                                        "numero_integracao": numero_integracao, 
+                                        "processo_alternativo": processo_alternativo,
+                                        "valor" : valor_pleito,
+                                        "numero_processo_original": numero_processo,
+                                        "atualiza_historico_padrao": False    
+                                    })
 
-                                processos_alternativos.append({
-                                    "numero_integracao": numero_integracao, 
-                                    "processo_alternativo": processo_alternativo,
-                                    "valor" : valor_pleito,
-                                    "numero_processo_original": numero_processo,
-                                    "atualiza_historico_padrao": False    
-                                })
+                                else:     
+                                    processos_alternativos.append({
+                                        "numero_integracao": numero_integracao, 
+                                        "processo_alternativo": processo_alternativo,
+                                        "valor" : valor_pleito,
+                                        "numero_processo_original": numero_processo,
+                                        "atualiza_historico_padrao": False    
+                                    })
 
                             elif '#00ff21' in html_interno:
                                 print('  ⚠ Processo com status verde encontrado, mas sem processo alternativo, Processo não Encontrado...')
@@ -1467,9 +1480,9 @@ def main():
                     print('\n✗ Ainda há processos com alternativas, repetindo o processo...')
                     print(processar_pdf['processos_alternativos'])
 
-                    if tentativa >= 2:
+                    if tentativa >= 4:
                         
-                        if tentativa == 2:
+                        if tentativa == 4:
                             # Atualiza o JSON com todos os processos alternativos
                             for processo_alt in processar_pdf['processos_alternativos']:
 
@@ -1488,7 +1501,7 @@ def main():
                         else:                
                             print('\n⚠ Muitas tentativas sem sucesso, verifique manualmente os processos alternativos:')
                             pdb.set_trace()
-                    
+                            processar_pdf = anexar_pdfs_formulario(driver, processo_alt['processo_alternativo'], tentativa, tentativa_formatacao)
 
             #pdb.set_trace()
 
@@ -1557,7 +1570,7 @@ def main():
 
         # Faz logout da API
         api_logout()
-        
+
         # Não esqueça de fechar o navegador ao final
         driver.quit()
 

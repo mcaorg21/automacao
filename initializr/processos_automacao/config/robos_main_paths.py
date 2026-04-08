@@ -97,6 +97,9 @@ main_paths: dict = {
     "Euro17AnaliseContrato": "/euro17/main_analise.py",
 
     # CPJ Reembolso BMG
-    "CpjReembolsoBmg": "/cpj-reembolso-bmg/main.py"
+    "CpjReembolsoBmg": "/cpj-reembolso-bmg/main.py",
+
+    # Omni PDE FSP TRC
+    "OmniPdeFspTrc": "/omni-pde-fsp-trc/main.py"
 }
 

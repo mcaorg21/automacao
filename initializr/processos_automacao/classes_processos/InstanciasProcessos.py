@@ -101,7 +101,10 @@ INSTANCIAS: Dict[str, ProcessWrapper] = {
     'Cora': Cora(),
 
     # CPJ Reembolso BMG
-    'CpjReembolsoBmg': CpjReembolsoBmg()
+    'CpjReembolsoBmg': CpjReembolsoBmg(),
+
+    # Omni PDE FSP TRC
+    'OmniPdeFspTrc': OmniPdeFspTrc()
 
 }
 
