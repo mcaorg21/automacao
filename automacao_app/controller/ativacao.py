@@ -1,5 +1,5 @@
 from flask import Blueprint, request, render_template, abort, redirect, url_for, send_file
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 import json, pdb, io
 import pandas as pd
 from automacao_app import templates
@@ -11,6 +11,7 @@ labels_file = str(Path(f"{INITIALIZR_ROOT}/process_labels.json"))
 cpj_config_file = str(Path(INITIALIZR_ROOT).parent / "sites/cpj-reembolso-bmg/config.json")
 omni_config_file = str(Path(INITIALIZR_ROOT).parent / "sites/omni-pde-fsp-trc/config.json")
 bloqueados_spf_file = str(Path(INITIALIZR_ROOT).parent / "cpj_api/bloqueados_id_spf.json")
+pan_config_file = str(Path(INITIALIZR_ROOT).parent / "sites/cpj-reembolso-pan/config.json")
 bp = Blueprint("ativacao", __name__, template_folder=templates)
 
 
@@ -21,6 +22,11 @@ def _load_cpj_config():
 
 def _load_omni_config():
     with open(omni_config_file, encoding='utf-8') as f:
+        return json.loads(f.read())
+
+
+def _load_pan_config():
+    with open(pan_config_file, encoding='utf-8') as f:
         return json.loads(f.read())
 
 
@@ -150,7 +156,7 @@ def webhook3():
         promobank.fechar_driver()
         abort(400)    
 
-PROCESSOS_VISIVEIS = ["CpjReembolsoBmg", "OmniPdeFspTrc"]
+PROCESSOS_VISIVEIS = ["CpjReembolsoBmg", "OmniPdeFspTrc", "CpjReembolsoPan"]
 
 @bp.route("/ativacao", methods=["GET", "POST"])
 def ativacao():
@@ -181,6 +187,12 @@ def ativacao():
                         config_atual["iniciado_em"] = ""
                         with open(cpj_config_file, mode="w") as f:
                             f.write(json.dumps(config_atual, ensure_ascii=False, indent=4))
+                    if key == "CpjReembolsoPan":
+                        config_atual = _load_pan_config()
+                        config_atual["numero_recibo"] = ""
+                        config_atual["iniciado_em"] = ""
+                        with open(pan_config_file, mode="w", encoding='utf-8') as f:
+                            f.write(json.dumps(config_atual, ensure_ascii=False, indent=4))
 
             with open(file, mode="w") as fObj:
                 fObj.write(json.dumps(activate))
@@ -206,8 +218,19 @@ def ativacao():
 
     omni_config = _load_omni_config()
     omni_config["data_final_display"] = today
+    try:
+        prox = datetime.strptime(omni_config["proxima_execucao"], "%Y-%m-%dT%H:%M:%S")
+        omni_config["proxima_execucao_fmt"] = prox.strftime("%d/%m/%Y às %H:%M")
+    except Exception:
+        omni_config["proxima_execucao_fmt"] = None
 
-    return render_template("ativacao.html", procs=procs, cpj_config=cpj_config, omni_config=omni_config, labels=labels)
+    pan_config = _load_pan_config()
+    pan_config["data_inicial_iso"] = pan_config.get("data_inicial", today)
+    pan_config["data_final_iso"] = pan_config.get("data_final", today)
+    pan_config["tempo_decorrido"] = _tempo_decorrido(pan_config.get("iniciado_em", ""))
+
+    dash_mode = request.args.get("dash") == "1"
+    return render_template("ativacao.html", procs=procs, cpj_config=cpj_config, omni_config=omni_config, pan_config=pan_config, labels=labels, dash_mode=dash_mode)
 
 
 @bp.route("/ativacao/bloqueados-spf", methods=["POST"])
@@ -219,6 +242,22 @@ def adicionar_bloqueado_spf():
                 data = json.loads(f.read())
             if id_spf not in data["bloqueados"]:
                 data["bloqueados"].append(id_spf)
+                with open(bloqueados_spf_file, mode="w") as f:
+                    f.write(json.dumps(data, ensure_ascii=False, indent=2))
+        except Exception:
+            pass
+    return redirect(url_for("ativacao.ativacao"))
+
+
+@bp.route("/ativacao/bloqueados-spf/remover", methods=["POST"])
+def remover_bloqueado_spf():
+    id_spf = request.form.get("id_spf", "").strip()
+    if id_spf:
+        try:
+            with open(bloqueados_spf_file) as f:
+                data = json.loads(f.read())
+            if id_spf in data["bloqueados"]:
+                data["bloqueados"].remove(id_spf)
                 with open(bloqueados_spf_file, mode="w") as f:
                     f.write(json.dumps(data, ensure_ascii=False, indent=2))
         except Exception:
@@ -253,6 +292,45 @@ def omni_download_pastas():
     return send_file(buf, as_attachment=True,
                      download_name="pastas_sem_contrato.xlsx",
                      mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+
+@bp.route("/ativacao/pan-config", methods=["POST"])
+def salvar_pan_config():
+    numero_recibo = request.form.get("numero_recibo", "")
+    data_inicial = request.form.get("data_inicial", "")
+    data_final = request.form.get("data_final", "")
+
+    config_atual = _load_pan_config()
+
+    if numero_recibo and numero_recibo != config_atual.get("numero_recibo", ""):
+        iniciado_em = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    elif not numero_recibo:
+        iniciado_em = ""
+    else:
+        iniciado_em = config_atual.get("iniciado_em", "")
+
+    config_atual.update({
+        "numero_recibo": numero_recibo,
+        "data_inicial": data_inicial,
+        "data_final": data_final,
+        "iniciado_em": iniciado_em,
+    })
+    with open(pan_config_file, mode="w", encoding='utf-8') as f:
+        f.write(json.dumps(config_atual, ensure_ascii=False, indent=4))
+
+    return redirect(url_for("ativacao.ativacao"))
+
+
+@bp.route("/ativacao/omni-executar-agora", methods=["POST"])
+def omni_executar_agora():
+    try:
+        config_atual = _load_omni_config()
+        config_atual["proxima_execucao"] = (datetime.now() - timedelta(minutes=1)).strftime("%Y-%m-%dT%H:%M:%S")
+        with open(omni_config_file, mode="w", encoding='utf-8') as f:
+            f.write(json.dumps(config_atual, ensure_ascii=False, indent=2))
+    except Exception:
+        pass
+    return redirect(url_for("ativacao.ativacao"))
 
 
 @bp.route("/ativacao/omni-config", methods=["POST"])

@@ -449,6 +449,84 @@
             color: #a0aec0;
         }
 
+        /* Config button */
+        .config-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #4a5568;
+            cursor: pointer;
+            width: 100%;
+            transition: background .2s, border-color .2s;
+        }
+
+        .config-toggle:hover { background: #edf2f7; border-color: #cbd5e0; }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.45);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.open { display: flex; }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 28px;
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,.2);
+            animation: modalIn .18s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(-12px) scale(.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #a0aec0;
+            cursor: pointer;
+            line-height: 1;
+            padding: 2px 6px;
+            border-radius: 6px;
+            transition: background .15s, color .15s;
+        }
+
+        .modal-close:hover { background: #edf2f7; color: #4a5568; }
+
         /* Bloqueados SPF */
         .bloqueados-toggle {
             display: flex;
@@ -524,19 +602,143 @@
         }
 
         .btn-add-bloqueado:hover { background: #975a16; }
+
+        .bloqueado-id-wrap {
+            position: relative;
+            display: inline-flex;
+        }
+
+        .bloqueado-remove-btn {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 16px;
+            height: 16px;
+            background: #c53030;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            font-size: 0.6rem;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            font-weight: 700;
+            transition: background .15s;
+        }
+
+        .bloqueado-remove-btn:hover { background: #9b2c2c; }
+
+        /* ── Modo dashboard (iframe) ── */
+        .dash-mode {
+            background: #ffffff;
+        }
+
+        .dash-mode .page-header {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 12px 20px;
+        }
+
+        .search-wrap { display: contents; }
+        .dash-refresh-badge { display: none; }
+
+        .dash-mode .page-header-title { display: none !important; }
+        .dash-mode .page-header { gap: 0; }
+
+        .dash-mode .search-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+        }
+
+        .dash-mode .search-form {
+            width: 100%;
+            flex: 1;
+        }
+
+        .dash-mode .dash-refresh-badge {
+            display: inline-block;
+            align-self: flex-end;
+            font-size: 0.68rem;
+        }
+
+        .dash-mode .search-input {
+            flex: 1;
+            width: 100%;
+            background: #f9fafb;
+            border-color: #d1d5db;
+            border-radius: 6px;
+        }
+
+        .dash-mode .btn-search {
+            background: #111827;
+            border-radius: 6px;
+            font-weight: 600;
+            letter-spacing: .01em;
+        }
+
+        .dash-mode .btn-search:hover { background: #1f2937; }
+
+        .dash-mode .cards-grid {
+            padding: 16px 20px 40px;
+            background: #ffffff;
+        }
+
+        .dash-mode .proc-card {
+            background: #ffffff;
+            border-color: #e5e7eb;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.06);
+        }
+
+        .dash-mode .proc-card:hover {
+            border-color: #c7d2fe;
+            box-shadow: 0 4px 12px rgba(0,0,0,.08);
+        }
+
+        .dash-mode .proc-card.active { border-left-color: #10b981; }
+        .dash-mode .proc-card:not(.active) { border-left-color: #e5e7eb; }
+
+        .dash-mode .toggle-cb:checked + .toggle-track { background: #10b981; }
+
+        .dash-mode .btn-save {
+            background: #111827;
+        }
+
+        .dash-mode .btn-save:hover { background: #1f2937; }
+
+        .dash-mode .config-toggle {
+            background: #f9fafb;
+            border-color: #e5e7eb;
+            color: #374151;
+        }
+
+        .dash-mode .config-toggle:hover { background: #f3f4f6; border-color: #d1d5db; }
+
+        .dash-mode .warning-bar {
+            margin: 12px 20px 0;
+            border-radius: 6px;
+        }
     </style>
 </head>
-<body>
+<body {% if dash_mode %}class="dash-mode"{% endif %}>
 
     <div class="page-header">
-        <div style="display:flex;align-items:center;gap:12px;">
+        <div class="page-header-title" style="display:flex;align-items:center;gap:12px;">
             <h1>&#9881; Painel de Automação</h1>
             <span class="refresh-badge">&#8635; atualiza a cada 1 min</span>
         </div>
-        <form class="search-form" method="post" action="{{ url_for('ativacao.ativacao') }}">
-            <input class="search-input" type="text" id="buscar" name="buscar" placeholder="Buscar processo...">
-            <button class="btn-search" type="submit">Buscar</button>
-        </form>
+        <div class="search-wrap">
+            <form class="search-form" method="post" action="{{ url_for('ativacao.ativacao') }}{% if dash_mode %}?dash=1{% endif %}">
+                <input class="search-input" type="text" id="buscar" name="buscar" placeholder="Buscar processo...">
+                <button class="btn-search" type="submit">Buscar</button>
+            </form>
+            <span class="refresh-badge dash-refresh-badge">&#8635; atualiza a cada 1 min</span>
+        </div>
     </div>
 
     <div class="warning-bar">
@@ -571,131 +773,269 @@
 
                 {% if key == "OmniPdeFspTrc" %}
                     <hr class="cpj-divider">
-                    <div style="display:flex;gap:8px;">
-                        <a href="{{ url_for('ativacao.omni_download_erros') }}" class="btn-save" style="text-decoration:none;text-align:center;flex:1;">
-                            &#8595; Erros Despesa
-                        </a>
-                        <a href="{{ url_for('ativacao.omni_download_pastas') }}" class="btn-save" style="text-decoration:none;text-align:center;flex:1;">
-                            &#8595; Sem Contrato
-                        </a>
-                    </div>
-                    <hr class="cpj-divider">
-                    <form method="post" action="{{ url_for('ativacao.salvar_omni_config') }}" style="display:flex;flex-direction:column;gap:10px;">
-                        <div>
-                            <label class="field-label">Data Inicial</label>
-                            <input type="date" name="data_inicial" class="field-input"
-                                   value="{{ omni_config.data_inicial }}"
-                                   onchange="this.closest('form').submit()">
-                        </div>
-                        <div>
-                            <label class="field-label">Data Final</label>
-                            <input type="date" name="data_final" class="field-input"
-                                   value="{{ omni_config.data_final_display }}"
-                                   onchange="this.closest('form').submit()">
-                        </div>
-                    </form>
+                    <button class="config-toggle" type="button" onclick="openModal('modal-omni')">
+                        &#9881; Configurações
+                    </button>
                 {% endif %}
 
                 {% if key == "CpjReembolsoBmg" %}
                     <hr class="cpj-divider">
-
-                    <div class="cpj-status">
-                        {% if cpj_config.numero_recibo %}
-                            <span class="cpj-dot yellow"></span>
-                            <span class="cpj-label-text">Nota fiscal preenchida</span>
-                        {% else %}
-                            <span class="cpj-dot green"></span>
-                            <span class="cpj-label-text">Aguardando nota fiscal</span>
-                        {% endif %}
-                    </div>
-
-                    {% if cpj_config.tempo_decorrido %}
-                    <div class="cpj-timer">
-                        <span class="timer-icon">⏱</span>
-                        <span class="timer-text">Trabalhando há <strong>{{ cpj_config.tempo_decorrido }}</strong></span>
-                    </div>
-                    {% endif %}
-
-                    <form id="cpj-form" method="post" action="{{ url_for('ativacao.salvar_cpj_config') }}" style="display:flex;flex-direction:column;gap:10px;">
-
-                        {% if cpj_config.numero_recibo %}
-                        <div class="lock-bar">
-                            <span>🔒 Painel travado</span>
-                            <button type="button" class="btn-unlock" onclick="desbloquearCpj()">Editar</button>
-                        </div>
-                        {% endif %}
-
-                        <div>
-                            <label class="field-label">Nº Nota Fiscal</label>
-                            <input type="text" name="numero_recibo" id="cpj-numero" class="field-input"
-                                   value="{{ cpj_config.numero_recibo }}"
-                                   {% if cpj_config.numero_recibo %}disabled{% endif %}>
-                        </div>
-                        <div>
-                            <label class="field-label">Data Inicial</label>
-                            <input type="date" name="data_inicial" id="cpj-data-ini" class="field-input"
-                                   value="{{ cpj_config.data_inicial_iso }}"
-                                   {% if cpj_config.numero_recibo %}disabled{% endif %}>
-                        </div>
-                        <div>
-                            <label class="field-label">Data Final</label>
-                            <input type="date" name="data_final" id="cpj-data-fim" class="field-input"
-                                   value="{{ cpj_config.data_final_iso }}"
-                                   {% if cpj_config.numero_recibo %}disabled{% endif %}>
-                        </div>
-                        <button type="submit" id="cpj-salvar" class="btn-save"
-                                {% if cpj_config.numero_recibo %}disabled{% endif %}>Salvar</button>
-                    </form>
-
-                    {% if cpj_config.lancamentos_removidos %}
-                    <hr class="cpj-divider">
-                    <button class="lancamentos-toggle" onclick="toggleLancamentos(this)" type="button">
-                        <span>&#10060; Lançamentos removidos</span>
-                        <span style="display:flex;align-items:center;gap:6px;">
-                            <span class="toggle-count">{{ cpj_config.lancamentos_removidos | length }}</span>
-                            <span class="toggle-arrow">&#9660;</span>
-                        </span>
+                    <button class="config-toggle" type="button" onclick="openModal('modal-cpj')">
+                        &#9881; Configurações
                     </button>
-                    <div class="lancamentos-list">
-                        {% for lanc in cpj_config.lancamentos_removidos %}
-                        <div class="lancamento-item">
-                            <span class="lancamento-civ">{{ lanc.civ }}</span>
-                            <span class="lancamento-nota">{{ lanc.nota_normalizada }}</span>
-                            <span class="lancamento-hora">{{ lanc.data_hora }}</span>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
+                {% endif %}
 
+                {% if key == "CpjReembolsoPan" %}
                     <hr class="cpj-divider">
-                    <button class="bloqueados-toggle" onclick="toggleBloqueados(this)" type="button">
-                        <span>&#128683; Bloqueados SPF</span>
-                        <span style="display:flex;align-items:center;gap:6px;">
-                            <span class="toggle-count">{{ cpj_config.bloqueados_spf | length }}</span>
-                            <span class="toggle-arrow">&#9660;</span>
-                        </span>
+                    <button class="config-toggle" type="button" onclick="openModal('modal-pan')">
+                        &#9881; Configurações
                     </button>
-                    <div class="bloqueados-list">
-                        <form method="post" action="{{ url_for('ativacao.adicionar_bloqueado_spf') }}" style="display:flex;gap:6px;">
-                            <input type="text" name="id_spf" class="field-input" placeholder="ID SPF" maxlength="6" required style="flex:1;">
-                            <button type="submit" class="btn-add-bloqueado">+ Bloquear</button>
-                        </form>
-                        {% if cpj_config.bloqueados_spf %}
-                        <div class="bloqueados-pills">
-                            {% for id in cpj_config.bloqueados_spf %}
-                            <span class="bloqueado-id">{{ id }}</span>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                    </div>
-
                 {% endif %}
 
             </div>
         {% endfor %}
     </div>
 
+    <!-- Modal Omni -->
+    <div class="modal-overlay" id="modal-omni" onclick="closeOnOverlay(event, 'modal-omni')">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-title">&#9881; Banco Omni — Configurações</span>
+                <button class="modal-close" type="button" onclick="closeModal('modal-omni')">&#10005;</button>
+            </div>
+            <hr class="cpj-divider">
+            {% if omni_config.proxima_execucao_fmt %}
+            <div class="cpj-timer">
+                <span class="timer-icon">&#128337;</span>
+                <span class="timer-text">Próxima execução: <strong>{{ omni_config.proxima_execucao_fmt }}</strong></span>
+            </div>
+            {% endif %}
+            <form method="post" action="{{ url_for('ativacao.salvar_omni_config') }}" style="display:flex;flex-direction:column;gap:12px;">
+                <div>
+                    <label class="field-label">Data Inicial</label>
+                    <input type="date" name="data_inicial" class="field-input"
+                           value="{{ omni_config.data_inicial }}"
+                           onchange="this.closest('form').submit()">
+                </div>
+                <div>
+                    <label class="field-label">Data Final</label>
+                    <input type="date" name="data_final" class="field-input"
+                           value="{{ omni_config.data_final_display }}"
+                           onchange="this.closest('form').submit()">
+                </div>
+            </form>
+            <hr class="cpj-divider">
+            <form method="post" action="{{ url_for('ativacao.omni_executar_agora') }}">
+                <button type="submit" class="btn-save" style="background:#48bb78;">
+                    &#9654; Executar agora
+                </button>
+            </form>
+            <div style="display:flex;gap:8px;">
+                <a href="{{ url_for('ativacao.omni_download_erros') }}" class="btn-save" style="text-decoration:none;text-align:center;flex:1;">
+                    &#8595; Erros Despesa
+                </a>
+                <a href="{{ url_for('ativacao.omni_download_pastas') }}" class="btn-save" style="text-decoration:none;text-align:center;flex:1;">
+                    &#8595; Sem Contrato
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal CPJ -->
+    <div class="modal-overlay" id="modal-cpj" onclick="closeOnOverlay(event, 'modal-cpj')">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-title">&#9881; BMG Reembolso — Configurações</span>
+                <button class="modal-close" type="button" onclick="closeModal('modal-cpj')">&#10005;</button>
+            </div>
+            <hr class="cpj-divider">
+
+            <div class="cpj-status">
+                {% if cpj_config.numero_recibo %}
+                    <span class="cpj-dot yellow"></span>
+                    <span class="cpj-label-text">Nota fiscal preenchida</span>
+                {% else %}
+                    <span class="cpj-dot green"></span>
+                    <span class="cpj-label-text">Aguardando nota fiscal</span>
+                {% endif %}
+            </div>
+
+            {% if cpj_config.tempo_decorrido %}
+            <div class="cpj-timer">
+                <span class="timer-icon">⏱</span>
+                <span class="timer-text">Trabalhando há <strong>{{ cpj_config.tempo_decorrido }}</strong></span>
+            </div>
+            {% endif %}
+
+            <form id="cpj-form" method="post" action="{{ url_for('ativacao.salvar_cpj_config') }}" style="display:flex;flex-direction:column;gap:10px;">
+                {% if cpj_config.numero_recibo %}
+                <div class="lock-bar">
+                    <span>🔒 Painel travado</span>
+                    <button type="button" class="btn-unlock" onclick="desbloquearCpj()">Editar</button>
+                </div>
+                {% endif %}
+                <div>
+                    <label class="field-label">Nº Nota Fiscal</label>
+                    <input type="text" name="numero_recibo" id="cpj-numero" class="field-input"
+                           value="{{ cpj_config.numero_recibo }}"
+                           {% if cpj_config.numero_recibo %}disabled{% endif %}>
+                </div>
+                <div>
+                    <label class="field-label">Data Inicial</label>
+                    <input type="date" name="data_inicial" id="cpj-data-ini" class="field-input"
+                           value="{{ cpj_config.data_inicial_iso }}"
+                           {% if cpj_config.numero_recibo %}disabled{% endif %}>
+                </div>
+                <div>
+                    <label class="field-label">Data Final</label>
+                    <input type="date" name="data_final" id="cpj-data-fim" class="field-input"
+                           value="{{ cpj_config.data_final_iso }}"
+                           {% if cpj_config.numero_recibo %}disabled{% endif %}>
+                </div>
+                <button type="submit" id="cpj-salvar" class="btn-save"
+                        {% if cpj_config.numero_recibo %}disabled{% endif %}>Salvar</button>
+            </form>
+
+            {% if cpj_config.lancamentos_removidos %}
+            <hr class="cpj-divider">
+            <button class="lancamentos-toggle" onclick="toggleLancamentos(this)" type="button">
+                <span>&#10060; Lançamentos removidos</span>
+                <span style="display:flex;align-items:center;gap:6px;">
+                    <span class="toggle-count">{{ cpj_config.lancamentos_removidos | length }}</span>
+                    <span class="toggle-arrow">&#9660;</span>
+                </span>
+            </button>
+            <div class="lancamentos-list">
+                {% for lanc in cpj_config.lancamentos_removidos %}
+                <div class="lancamento-item">
+                    <span class="lancamento-civ">{{ lanc.civ }}</span>
+                    <span class="lancamento-nota">{{ lanc.nota_normalizada }}</span>
+                    <span class="lancamento-hora">{{ lanc.data_hora }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <hr class="cpj-divider">
+            <button class="bloqueados-toggle" onclick="toggleBloqueados(this)" type="button">
+                <span>&#128683; Bloqueados SPF</span>
+                <span style="display:flex;align-items:center;gap:6px;">
+                    <span class="toggle-count">{{ cpj_config.bloqueados_spf | length }}</span>
+                    <span class="toggle-arrow">&#9660;</span>
+                </span>
+            </button>
+            <div class="bloqueados-list">
+                <form method="post" action="{{ url_for('ativacao.adicionar_bloqueado_spf') }}" style="display:flex;gap:6px;">
+                    <input type="text" name="id_spf" class="field-input" placeholder="ID SPF" maxlength="6" required style="flex:1;">
+                    <button type="submit" class="btn-add-bloqueado">+ Bloquear</button>
+                </form>
+                {% if cpj_config.bloqueados_spf %}
+                <div class="bloqueados-pills">
+                    {% for id in cpj_config.bloqueados_spf %}
+                    <div class="bloqueado-id-wrap">
+                        <span class="bloqueado-id">{{ id }}</span>
+                        <form method="post" action="{{ url_for('ativacao.remover_bloqueado_spf') }}" style="margin:0;">
+                            <input type="hidden" name="id_spf" value="{{ id }}">
+                            <button type="submit" class="bloqueado-remove-btn" title="Remover">&#10005;</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal PAN -->
+    <div class="modal-overlay" id="modal-pan" onclick="closeOnOverlay(event, 'modal-pan')">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-title">&#9881; Banco PAN — Configurações</span>
+                <button class="modal-close" type="button" onclick="closeModal('modal-pan')">&#10005;</button>
+            </div>
+            <hr class="cpj-divider">
+
+            <div class="cpj-status">
+                {% if pan_config.numero_recibo %}
+                    <span class="cpj-dot yellow"></span>
+                    <span class="cpj-label-text">Nota fiscal preenchida</span>
+                {% else %}
+                    <span class="cpj-dot green"></span>
+                    <span class="cpj-label-text">Aguardando nota fiscal</span>
+                {% endif %}
+            </div>
+
+            {% if pan_config.tempo_decorrido %}
+            <div class="cpj-timer">
+                <span class="timer-icon">⏱</span>
+                <span class="timer-text">Trabalhando há <strong>{{ pan_config.tempo_decorrido }}</strong></span>
+            </div>
+            {% endif %}
+
+            <form id="pan-form" method="post" action="{{ url_for('ativacao.salvar_pan_config') }}" style="display:flex;flex-direction:column;gap:10px;">
+                {% if pan_config.numero_recibo %}
+                <div class="lock-bar">
+                    <span>🔒 Painel travado</span>
+                    <button type="button" class="btn-unlock" onclick="desbloquearPan()">Editar</button>
+                </div>
+                {% endif %}
+                <div>
+                    <label class="field-label">Nº Nota Fiscal</label>
+                    <input type="text" name="numero_recibo" id="pan-numero" class="field-input"
+                           value="{{ pan_config.numero_recibo }}"
+                           {% if pan_config.numero_recibo %}disabled{% endif %}>
+                </div>
+                <div>
+                    <label class="field-label">Data Inicial</label>
+                    <input type="date" name="data_inicial" id="pan-data-ini" class="field-input"
+                           value="{{ pan_config.data_inicial_iso }}"
+                           {% if pan_config.numero_recibo %}disabled{% endif %}>
+                </div>
+                <div>
+                    <label class="field-label">Data Final</label>
+                    <input type="date" name="data_final" id="pan-data-fim" class="field-input"
+                           value="{{ pan_config.data_final_iso }}"
+                           {% if pan_config.numero_recibo %}disabled{% endif %}>
+                </div>
+                <button type="submit" id="pan-salvar" class="btn-save"
+                        {% if pan_config.numero_recibo %}disabled{% endif %}>Salvar</button>
+            </form>
+        </div>
+    </div>
+
     <script>
+        function openModal(id) {
+            document.getElementById(id).classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function closeOnOverlay(e, id) {
+            if (e.target === e.currentTarget) closeModal(id);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.open').forEach(m => {
+                    m.classList.remove('open');
+                });
+                document.body.style.overflow = '';
+            }
+        });
+
+        function desbloquearPan() {
+            ['pan-numero', 'pan-data-ini', 'pan-data-fim', 'pan-salvar'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = false;
+            });
+            const lockBar = document.querySelector('#modal-pan .lock-bar');
+            if (lockBar) lockBar.remove();
+        }
+
         function desbloquearCpj() {
             ['cpj-numero', 'cpj-data-ini', 'cpj-data-fim', 'cpj-salvar'].forEach(id => {
                 const el = document.getElementById(id);
