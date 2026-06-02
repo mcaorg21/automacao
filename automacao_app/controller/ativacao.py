@@ -12,6 +12,10 @@ cpj_config_file = str(Path(INITIALIZR_ROOT).parent / "sites/cpj-reembolso-bmg/co
 omni_config_file = str(Path(INITIALIZR_ROOT).parent / "sites/omni-pde-fsp-trc/config.json")
 bloqueados_spf_file = str(Path(INITIALIZR_ROOT).parent / "cpj_api/bloqueados_id_spf.json")
 pan_config_file = str(Path(INITIALIZR_ROOT).parent / "sites/cpj-reembolso-pan/config.json")
+omni_cc_config_file = str(Path(INITIALIZR_ROOT).parent / "sites/omni-conciliacao-conta-corrente/config.json")
+omni_erros_file = str(Path(INITIALIZR_ROOT).parent / "sites/omni-pde-fsp-trc/erros_registro_despesa.json")
+omni_pastas_file = str(Path(INITIALIZR_ROOT).parent / "sites/omni-pde-fsp-trc/pastas_sem_contrato.json")
+_OMNI_CC_BASE = Path(INITIALIZR_ROOT).parent / "sites/omni-conciliacao-conta-corrente"
 bp = Blueprint("ativacao", __name__, template_folder=templates)
 
 
@@ -27,6 +31,11 @@ def _load_omni_config():
 
 def _load_pan_config():
     with open(pan_config_file, encoding='utf-8') as f:
+        return json.loads(f.read())
+
+
+def _load_omni_cc_config():
+    with open(omni_cc_config_file, encoding='utf-8') as f:
         return json.loads(f.read())
 
 
@@ -156,7 +165,7 @@ def webhook3():
         promobank.fechar_driver()
         abort(400)    
 
-PROCESSOS_VISIVEIS = ["CpjReembolsoBmg", "OmniPdeFspTrc", "CpjReembolsoPan"]
+PROCESSOS_VISIVEIS = ["CpjReembolsoBmg", "OmniPdeFspTrc", "CpjReembolsoPan", "OmniConciliacaoContaCorrente"]
 
 @bp.route("/ativacao", methods=["GET", "POST"])
 def ativacao():
@@ -193,6 +202,11 @@ def ativacao():
                         config_atual["iniciado_em"] = ""
                         with open(pan_config_file, mode="w", encoding='utf-8') as f:
                             f.write(json.dumps(config_atual, ensure_ascii=False, indent=4))
+                    if key == "OmniConciliacaoContaCorrente":
+                        config_atual = _load_omni_cc_config()
+                        config_atual["executar_agora"] = False
+                        with open(omni_cc_config_file, mode="w", encoding='utf-8') as f:
+                            f.write(json.dumps(config_atual, ensure_ascii=False, indent=2))
 
             with open(file, mode="w") as fObj:
                 fObj.write(json.dumps(activate))
@@ -228,9 +242,44 @@ def ativacao():
     pan_config["data_inicial_iso"] = pan_config.get("data_inicial", today)
     pan_config["data_final_iso"] = pan_config.get("data_final", today)
     pan_config["tempo_decorrido"] = _tempo_decorrido(pan_config.get("iniciado_em", ""))
+    _pan_base = Path(INITIALIZR_ROOT).parent / "sites/cpj-reembolso-pan"
+    _pan_xlsx = _latest_file(_pan_base / "planilha", "xlsx")
+    _pan_pdf  = _latest_file(_pan_base / "pdf_merge", "pdf")
+    pan_config["planilha_nome"] = _pan_xlsx.name if _pan_xlsx else None
+    pan_config["pdf_nome"]      = _pan_pdf.name  if _pan_pdf  else None
+
+    omni_cc_config = _load_omni_cc_config()
+    omni_cc_config["data_inicial"] = (date.today() - timedelta(days=7)).isoformat()
+    try:
+        prox_cc = datetime.strptime(omni_cc_config["proxima_execucao"], "%Y-%m-%dT%H:%M:%S")
+        omni_cc_config["proxima_execucao_fmt"] = prox_cc.strftime("%d/%m/%Y às %H:%M")
+    except Exception:
+        omni_cc_config["proxima_execucao_fmt"] = None
+    _DIAS_SEMANA = {1: 'Seg', 2: 'Ter', 3: 'Qua', 4: 'Qui', 5: 'Sex', 6: 'Sáb', 7: 'Dom'}
+    omni_cc_config["dias_execucao_nomes"] = [
+        _DIAS_SEMANA.get(d, str(d)) for d in omni_cc_config.get("dias_execucao", [])
+    ]
+    try:
+        _res_folder = _OMNI_CC_BASE / "resultados"
+        omni_cc_resultados = sorted(
+            [p.name for p in _res_folder.glob("*.json")],
+            reverse=True
+        )
+    except Exception:
+        omni_cc_resultados = []
+
+    def _load_json_list(path):
+        try:
+            with open(path, encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            return []
+
+    omni_erros  = _load_json_list(omni_erros_file)
+    omni_pastas = _load_json_list(omni_pastas_file)
 
     dash_mode = request.args.get("dash") == "1"
-    return render_template("ativacao.html", procs=procs, cpj_config=cpj_config, omni_config=omni_config, pan_config=pan_config, labels=labels, dash_mode=dash_mode)
+    return render_template("ativacao.html", procs=procs, cpj_config=cpj_config, omni_config=omni_config, pan_config=pan_config, omni_cc_config=omni_cc_config, labels=labels, dash_mode=dash_mode, omni_erros=omni_erros, omni_pastas=omni_pastas, omni_cc_resultados=omni_cc_resultados)
 
 
 @bp.route("/ativacao/bloqueados-spf", methods=["POST"])
@@ -265,6 +314,15 @@ def remover_bloqueado_spf():
     return redirect(url_for("ativacao.ativacao"))
 
 
+def _latest_file(folder: Path, ext: str):
+    """Retorna o arquivo mais recente com a extensão dada dentro de folder, ou None."""
+    try:
+        files = sorted(folder.glob(f"*.{ext}"), key=lambda p: p.stat().st_mtime, reverse=True)
+        return files[0] if files else None
+    except Exception:
+        return None
+
+
 def _json_to_excel_bytes(json_path: str) -> io.BytesIO:
     with open(json_path, encoding='utf-8') as f:
         data = json.load(f)
@@ -274,6 +332,34 @@ def _json_to_excel_bytes(json_path: str) -> io.BytesIO:
         df.to_excel(writer, index=False)
     buf.seek(0)
     return buf
+
+
+@bp.route("/ativacao/omni-baixa/erro", methods=["POST"])
+def omni_baixa_erro():
+    id_tarefa = request.form.get("id_tarefa", type=int)
+    try:
+        with open(omni_erros_file, encoding='utf-8') as f:
+            dados = json.load(f)
+        dados = [r for r in dados if r.get("id_tarefa") != id_tarefa]
+        with open(omni_erros_file, "w", encoding='utf-8') as f:
+            json.dump(dados, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+    return redirect(url_for("ativacao.ativacao"))
+
+
+@bp.route("/ativacao/omni-baixa/pasta", methods=["POST"])
+def omni_baixa_pasta():
+    id_tramitacao = request.form.get("id_tramitacao", type=int)
+    try:
+        with open(omni_pastas_file, encoding='utf-8') as f:
+            dados = json.load(f)
+        dados = [r for r in dados if r.get("tarefa", {}).get("id_tramitacao") != id_tramitacao]
+        with open(omni_pastas_file, "w", encoding='utf-8') as f:
+            json.dump(dados, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+    return redirect(url_for("ativacao.ativacao"))
 
 
 @bp.route("/ativacao/omni-download/erros")
@@ -292,6 +378,28 @@ def omni_download_pastas():
     return send_file(buf, as_attachment=True,
                      download_name="pastas_sem_contrato.xlsx",
                      mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+
+@bp.route("/ativacao/pan-download/planilha")
+def pan_download_planilha():
+    folder = Path(INITIALIZR_ROOT).parent / "sites/cpj-reembolso-pan/planilha"
+    arquivo = _latest_file(folder, "xlsx")
+    if not arquivo:
+        return "Nenhuma planilha gerada ainda.", 404
+    return send_file(str(arquivo), as_attachment=True,
+                     download_name=arquivo.name,
+                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+
+@bp.route("/ativacao/pan-download/pdf")
+def pan_download_pdf():
+    folder = Path(INITIALIZR_ROOT).parent / "sites/cpj-reembolso-pan/pdf_merge"
+    arquivo = _latest_file(folder, "pdf")
+    if not arquivo:
+        return "Nenhum PDF gerado ainda.", 404
+    return send_file(str(arquivo), as_attachment=True,
+                     download_name=arquivo.name,
+                     mimetype="application/pdf")
 
 
 @bp.route("/ativacao/pan-config", methods=["POST"])
@@ -374,3 +482,128 @@ def salvar_cpj_config():
         f.write(json.dumps(config_atual, ensure_ascii=False, indent=4))
 
     return redirect(url_for("ativacao.ativacao"))
+
+
+@bp.route("/ativacao/omni-cc-executar-agora", methods=["POST"])
+def omni_cc_executar_agora():
+    try:
+        config_atual = _load_omni_cc_config()
+        config_atual["executar_agora"] = True
+        with open(omni_cc_config_file, mode="w", encoding='utf-8') as f:
+            f.write(json.dumps(config_atual, ensure_ascii=False, indent=2))
+    except Exception:
+        pass
+    return redirect(url_for("ativacao.ativacao"))
+
+
+@bp.route("/ativacao/omni-cc-config", methods=["POST"])
+def salvar_omni_cc_config():
+    data_inicial = request.form.get("data_inicial", "")
+    data_final = request.form.get("data_final", "")
+
+    config_atual = _load_omni_cc_config()
+    config_atual.update({
+        "data_inicial": data_inicial,
+        "data_final": data_final,
+    })
+    with open(omni_cc_config_file, mode="w", encoding='utf-8') as f:
+        f.write(json.dumps(config_atual, ensure_ascii=False, indent=2))
+
+    return redirect(url_for("ativacao.ativacao"))
+
+
+_CC_RESULTADO_CAMPOS_LANCAMENTO = [
+    "update_data_hora", "numero_cc", "data_lancamento", "historico", "id_titulo", "valor_original",
+]
+
+# (source, campo): "t"=raiz do registro, "p"=dados_processo, "l"=lancamentos_ficha serializado
+_CC_COLUNAS_ORDEM = [
+    ("t", "data_lancamento"),
+    ("p", "ficha"),
+    ("p", "numero_integracao"),
+    ("p", "contrato_cliente"),
+    ("t", "valor_tabela_base"),
+    ("t", "valor_divergencia"),
+    ("t", "conciliacao_errada"),
+    ("t", "a_fazer"),
+    ("t", "motivo_conciliacao_errada"),
+    ("t", "numero_cc"),
+    ("t", "centro_custo"),
+    ("p", "materia"),
+    ("p", "materia_sigla"),
+    ("p", "materia_descricao"),
+    ("l", "lancamentos_ficha"),
+    ("t", "documento"),
+    ("t", "valor_original_total"),
+    ("p", "entrada"),
+    ("p", "acao"),
+    ("p", "numero_processo"),
+    ("p", "oj_sigla"),
+    ("p", "valor_estimado"),
+    ("p", "valor_causa"),
+    ("p", "sigla_integracao"),
+    ("p", "contrato_correspondente"),
+    ("p", "grupo_trabalho"),
+    ("p", "primeiro_advogado"),
+    ("p", "primeiro_autor"),
+    ("p", "primeiro_reu"),
+    ("p", "autor_nome"),
+    ("p", "reu_nome"),
+    ("p", "advogado_nome"),
+    ("p", "autor_cpf_cnpj"),
+    ("p", "reu_cpf_cnpj"),
+    ("p", "adv_oab"),
+    ("t", "update_data_hora"),
+]
+
+
+def _resultado_cc_to_excel_bytes(json_path: str) -> io.BytesIO:
+    with open(json_path, encoding='utf-8') as f:
+        registros = json.load(f)
+
+    rows = []
+    for r in registros:
+        dados = r.get("dados_processo") or {}
+        lancamentos = r.get("lancamentos_ficha") or []
+        lanc_str = json.dumps(
+            [{k: l.get(k) for k in _CC_RESULTADO_CAMPOS_LANCAMENTO} for l in lancamentos],
+            ensure_ascii=False
+        )
+        row = {}
+        for src, campo in _CC_COLUNAS_ORDEM:
+            if src == "t":
+                row[campo] = r.get(campo)
+            elif src == "p":
+                row[campo] = dados.get(campo)
+            else:
+                row[campo] = lanc_str
+        rows.append(row)
+
+    df = pd.DataFrame(rows)
+    buf = io.BytesIO()
+    with pd.ExcelWriter(buf, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False)
+    buf.seek(0)
+    return buf
+
+
+@bp.route("/ativacao/omni-cc-download/resultado/<path:filename>")
+def omni_cc_download_resultado(filename):
+    resultado_path = _OMNI_CC_BASE / "resultados" / filename
+    if not resultado_path.exists() or resultado_path.suffix != ".json":
+        abort(404)
+    buf = _resultado_cc_to_excel_bytes(str(resultado_path))
+    xlsx_name = resultado_path.stem + ".xlsx"
+    return send_file(buf, as_attachment=True,
+                     download_name=xlsx_name,
+                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+
+@bp.route("/ativacao/omni-cc-download/erros")
+def omni_cc_download_erros():
+    erros_path = str(Path(INITIALIZR_ROOT).parent / "sites/omni-conciliacao-conta-corrente/erros_conciliacao.json")
+    buf = _json_to_excel_bytes(erros_path)
+    return send_file(buf, as_attachment=True,
+                     download_name="erros_conciliacao.xlsx",
+                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+

@@ -631,6 +631,124 @@
 
         .bloqueado-remove-btn:hover { background: #9b2c2c; }
 
+        /* Baixa */
+        .btn-baixa {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            color: #4a5568;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 5px 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: background .15s, border-color .15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-baixa:hover { background: #edf2f7; border-color: #cbd5e0; }
+
+        .baixa-count {
+            background: #e53e3e;
+            color: #fff;
+            border-radius: 10px;
+            padding: 1px 6px;
+            font-size: 0.68rem;
+            font-weight: 700;
+        }
+
+        /* Modal baixa */
+        .baixa-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+
+        .baixa-item {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 10px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .baixa-item-info { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+
+        .baixa-item-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .baixa-item-sub {
+            font-size: 0.72rem;
+            color: #718096;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .baixa-item-alerta {
+            font-size: 0.7rem;
+            color: #c53030;
+            margin-top: 2px;
+            line-height: 1.3;
+        }
+
+        .btn-baixa-remove {
+            background: none;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            color: #a0aec0;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background .15s, color .15s, border-color .15s;
+        }
+
+        .btn-baixa-remove:hover { background: #fed7d7; border-color: #fc8181; color: #c53030; }
+
+        .baixa-search { margin-bottom: 2px; font-size: 0.82rem; }
+
+        /* Resultado CC */
+        .resultado-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: #2d3748;
+            text-decoration: none;
+            transition: background .15s, border-color .15s;
+        }
+
+        .resultado-item:hover { background: #ebf8ff; border-color: #bee3f8; color: #2b6cb0; }
+
+        .resultado-dl {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #4299e1;
+            background: #ebf8ff;
+            border: 1px solid #bee3f8;
+            border-radius: 6px;
+            padding: 2px 8px;
+        }
+
         /* ── Modo dashboard (iframe) ── */
         .dash-mode {
             background: #ffffff;
@@ -792,6 +910,13 @@
                     </button>
                 {% endif %}
 
+                {% if key == "OmniConciliacaoContaCorrente" %}
+                    <hr class="cpj-divider">
+                    <button class="config-toggle" type="button" onclick="openModal('modal-omni-cc')">
+                        &#9881; Configurações
+                    </button>
+                {% endif %}
+
             </div>
         {% endfor %}
     </div>
@@ -831,12 +956,22 @@
                 </button>
             </form>
             <div style="display:flex;gap:8px;">
-                <a href="{{ url_for('ativacao.omni_download_erros') }}" class="btn-save" style="text-decoration:none;text-align:center;flex:1;">
-                    &#8595; Erros Despesa
-                </a>
-                <a href="{{ url_for('ativacao.omni_download_pastas') }}" class="btn-save" style="text-decoration:none;text-align:center;flex:1;">
-                    &#8595; Sem Contrato
-                </a>
+                <div style="display:flex;flex-direction:column;gap:4px;flex:1;">
+                    <a href="{{ url_for('ativacao.omni_download_erros') }}" class="btn-save" style="text-decoration:none;text-align:center;">
+                        &#8595; Erros Despesa
+                    </a>
+                    <button type="button" class="btn-baixa" onclick="openModal('modal-omni-erros')">
+                        Realizar baixa <span class="baixa-count">{{ omni_erros | length }}</span>
+                    </button>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;flex:1;">
+                    <a href="{{ url_for('ativacao.omni_download_pastas') }}" class="btn-save" style="text-decoration:none;text-align:center;">
+                        &#8595; Sem Contrato
+                    </a>
+                    <button type="button" class="btn-baixa" onclick="openModal('modal-omni-pastas')">
+                        Realizar baixa <span class="baixa-count">{{ omni_pastas | length }}</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1000,6 +1135,183 @@
                 <button type="submit" id="pan-salvar" class="btn-save"
                         {% if pan_config.numero_recibo %}disabled{% endif %}>Salvar</button>
             </form>
+            <hr class="cpj-divider">
+            <div style="display:flex;gap:8px;">
+                <div style="display:flex;flex-direction:column;gap:4px;flex:1;">
+                    <a href="{{ url_for('ativacao.pan_download_planilha') }}" class="btn-save" style="text-decoration:none;text-align:center;">
+                        &#8595; Planilha
+                    </a>
+                    {% if pan_config.planilha_nome %}
+                    <span style="font-size:0.68rem;color:#718096;text-align:center;word-break:break-all;">{{ pan_config.planilha_nome }}</span>
+                    {% else %}
+                    <span style="font-size:0.68rem;color:#a0aec0;text-align:center;">nenhum arquivo</span>
+                    {% endif %}
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;flex:1;">
+                    <a href="{{ url_for('ativacao.pan_download_pdf') }}" class="btn-save" style="text-decoration:none;text-align:center;">
+                        &#8595; PDF
+                    </a>
+                    {% if pan_config.pdf_nome %}
+                    <span style="font-size:0.68rem;color:#718096;text-align:center;word-break:break-all;">{{ pan_config.pdf_nome }}</span>
+                    {% else %}
+                    <span style="font-size:0.68rem;color:#a0aec0;text-align:center;">nenhum arquivo</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Omni Conciliação C/C -->
+    <div class="modal-overlay" id="modal-omni-cc" onclick="closeOnOverlay(event, 'modal-omni-cc')">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-title">&#9881; Banco Omni — Conciliação C/C</span>
+                <button class="modal-close" type="button" onclick="closeModal('modal-omni-cc')">&#10005;</button>
+            </div>
+            <hr class="cpj-divider">
+            {% if omni_cc_config.proxima_execucao_fmt %}
+            <div class="cpj-timer">
+                <span class="timer-icon">&#128337;</span>
+                <span class="timer-text">Próxima execução: <strong>{{ omni_cc_config.proxima_execucao_fmt }}</strong></span>
+            </div>
+            {% endif %}
+            {% if omni_cc_config.dias_execucao_nomes %}
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                <span style="font-size:0.72rem;color:#718096;font-weight:600;">Roda em:</span>
+                {% for dia in omni_cc_config.dias_execucao_nomes %}
+                <span style="background:#ebf8ff;border:1px solid #bee3f8;border-radius:6px;padding:2px 8px;font-size:0.72rem;font-weight:700;color:#2b6cb0;">{{ dia }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <form method="post" action="{{ url_for('ativacao.salvar_omni_cc_config') }}" style="display:flex;flex-direction:column;gap:12px;">
+                <div>
+                    <label class="field-label">Data Inicial <span style="font-weight:400;color:#a0aec0;">(padrão: hoje − 7 dias)</span></label>
+                    <input type="date" name="data_inicial" class="field-input"
+                           value="{{ omni_cc_config.data_inicial }}">
+                </div>
+                <div>
+                    <label class="field-label">Data Final</label>
+                    <input type="date" name="data_final" class="field-input"
+                           value="{{ omni_cc_config.data_final }}">
+                </div>
+                <button type="submit" class="btn-save">Salvar datas</button>
+            </form>
+            <hr class="cpj-divider">
+            <form method="post" action="{{ url_for('ativacao.omni_cc_executar_agora') }}">
+                <button type="submit" class="btn-save" style="background:#48bb78;">
+                    &#9654; Executar agora
+                </button>
+            </form>
+            {% if omni_cc_resultados %}
+            <hr class="cpj-divider">
+            <span class="field-label">Resultados gerados</span>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+                {% for nome in omni_cc_resultados %}
+                <a href="{{ url_for('ativacao.omni_cc_download_resultado', filename=nome) }}"
+                   class="resultado-item" title="Baixar {{ nome }}">
+                    <span>&#128202; {{ nome | replace('.json','') }}</span>
+                    <span class="resultado-dl">&#8595; xlsx</span>
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal Baixa Erros Despesa -->
+    <div class="modal-overlay" id="modal-omni-erros" onclick="closeOnOverlay(event, 'modal-omni-erros')">
+        <div class="modal-box" style="max-width:520px;">
+            <div class="modal-header">
+                <span class="modal-title">&#10060; Erros Despesa — Realizar Baixa</span>
+                <button class="modal-close" type="button" onclick="closeModal('modal-omni-erros')">&#10005;</button>
+            </div>
+            <hr class="cpj-divider">
+            <input type="text" class="baixa-search field-input" placeholder="Buscar pasta, evento, alerta..."
+                   oninput="filtrarBaixa(this, 'lista-erros')">
+            {% if omni_erros %}
+            <div class="baixa-list" id="lista-erros">
+                {% for item in omni_erros %}
+                <div class="baixa-item">
+                    <div class="baixa-item-info">
+                        <span class="baixa-item-title">Pasta {{ item.tarefa.pasta_numero_integracao }} — {{ item.tarefa.evento }}</span>
+                        <span class="baixa-item-sub">{{ item.data_hora }}</span>
+                        <span class="baixa-item-alerta">{{ item.texto_alerta }}</span>
+                    </div>
+                    <form method="post" action="{{ url_for('ativacao.omni_baixa_erro') }}" class="form-confirm-baixa">
+                        <input type="hidden" name="id_tarefa" value="{{ item.id_tarefa }}">
+                        <button type="button" class="btn-baixa-remove"
+                                data-label="Pasta {{ item.tarefa.pasta_numero_integracao }} — {{ item.tarefa.evento }}"
+                                onclick="pedirConfirmacao(this)">
+                            &#10005;
+                        </button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="font-size:0.82rem;color:#718096;text-align:center;padding:12px 0;">Nenhum erro registrado.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal Baixa Pastas Sem Contrato -->
+    <div class="modal-overlay" id="modal-omni-pastas" onclick="closeOnOverlay(event, 'modal-omni-pastas')">
+        <div class="modal-box" style="max-width:520px;">
+            <div class="modal-header">
+                <span class="modal-title">&#128194; Sem Contrato — Realizar Baixa</span>
+                <button class="modal-close" type="button" onclick="closeModal('modal-omni-pastas')">&#10005;</button>
+            </div>
+            <hr class="cpj-divider">
+            <input type="text" class="baixa-search field-input" placeholder="Buscar ficha, evento, processo..."
+                   oninput="filtrarBaixa(this, 'lista-pastas')">
+            {% if omni_pastas %}
+            <div class="baixa-list" id="lista-pastas">
+                {% for item in omni_pastas %}
+                <div class="baixa-item">
+                    <div class="baixa-item-info">
+                        <span class="baixa-item-title">{{ item.processo.ficha if item.processo and item.processo.ficha else 'ID ' ~ item.tarefa.id_tramitacao }} — {{ item.tarefa.evento }}</span>
+                        <span class="baixa-item-sub">{{ item.data_hora }}</span>
+                        <span class="baixa-item-alerta">{{ item.processo.numero_processo if item.processo else '' }}</span>
+                    </div>
+                    <form method="post" action="{{ url_for('ativacao.omni_baixa_pasta') }}" class="form-confirm-baixa">
+                        <input type="hidden" name="id_tramitacao" value="{{ item.tarefa.id_tramitacao }}">
+                        <button type="button" class="btn-baixa-remove"
+                                data-label="{{ item.processo.ficha if item.processo and item.processo.ficha else item.tarefa.id_tramitacao }} — {{ item.tarefa.evento }}"
+                                onclick="pedirConfirmacao(this)">
+                            &#10005;
+                        </button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="font-size:0.82rem;color:#718096;text-align:center;padding:12px 0;">Nenhuma pasta registrada.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal Confirmação Baixa -->
+    <div class="modal-overlay" id="modal-confirmar-baixa">
+        <div class="modal-box" style="max-width:360px;gap:20px;">
+            <div class="modal-header">
+                <span class="modal-title" style="color:#c53030;">&#9888; Confirmar remoção</span>
+            </div>
+            <p style="font-size:0.85rem;color:#4a5568;line-height:1.5;margin:0;">
+                Tem certeza que deseja remover o registro<br>
+                <strong id="confirm-label" style="color:#1a202c;"></strong>?<br>
+                <span style="color:#a0aec0;font-size:0.78rem;">Essa ação não pode ser desfeita.</span>
+            </p>
+            <div style="display:flex;gap:8px;">
+                <button type="button" class="btn-save"
+                        style="flex:1;background:#e53e3e;"
+                        id="confirm-sim">
+                    Sim, remover
+                </button>
+                <button type="button" onclick="closeModal('modal-confirmar-baixa')"
+                        style="flex:1;background:none;border:1px solid #cbd5e0;border-radius:8px;padding:8px;font-size:0.85rem;font-weight:600;color:#4a5568;cursor:pointer;">
+                    Cancelar
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1007,11 +1319,14 @@
         function openModal(id) {
             document.getElementById(id).classList.add('open');
             document.body.style.overflow = 'hidden';
+            window.parent.postMessage({ type: 'automacao-modal', open: true }, '*');
         }
 
         function closeModal(id) {
             document.getElementById(id).classList.remove('open');
             document.body.style.overflow = '';
+            const anyOpen = document.querySelectorAll('.modal-overlay.open').length > 0;
+            if (!anyOpen) window.parent.postMessage({ type: 'automacao-modal', open: false }, '*');
         }
 
         function closeOnOverlay(e, id) {
@@ -1044,6 +1359,29 @@
             const lockBar = document.querySelector('.lock-bar');
             if (lockBar) lockBar.remove();
         }
+
+        function filtrarBaixa(input, listaId) {
+            const termo = input.value.toLowerCase();
+            const lista = document.getElementById(listaId);
+            if (!lista) return;
+            lista.querySelectorAll('.baixa-item').forEach(function(item) {
+                const texto = item.textContent.toLowerCase();
+                item.style.display = texto.includes(termo) ? '' : 'none';
+            });
+        }
+
+        let _formPendente = null;
+
+        function pedirConfirmacao(btn) {
+            _formPendente = btn.closest('form');
+            document.getElementById('confirm-label').textContent = btn.dataset.label || 'este registro';
+            openModal('modal-confirmar-baixa');
+        }
+
+        document.getElementById('confirm-sim').addEventListener('click', function () {
+            closeModal('modal-confirmar-baixa');
+            if (_formPendente) { _formPendente.submit(); _formPendente = null; }
+        });
 
         function toggleBloqueados(btn) {
             btn.classList.toggle('open');

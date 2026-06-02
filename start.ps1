@@ -7,7 +7,7 @@ $ROOT = "C:\www\automacao"
 Start-Process powershell -ArgumentList @(
     "-NoExit",
     "-Command",
-    "cd '$ROOT\automacao_app'; `$env:FLASK_APP='__init__.py'; flask run"
+    "cd '$ROOT\automacao_app'; `$env:FLASK_APP='__init__.py'; flask run --reload"
 )
 
 # Aguarda Flask subir antes de iniciar o ngrok

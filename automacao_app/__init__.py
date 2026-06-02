@@ -12,6 +12,7 @@ def create_app() -> Flask:
     print(templates)
     app = Flask(__name__, template_folder=templates, static_folder=static)
     app.config['SECRET_KEY'] = os.urandom(10)
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
 
     from automacao_app.controller import ativacao
     app.register_blueprint(ativacao.bp)
