@@ -486,13 +486,11 @@ def salvar_cpj_config():
 
 @bp.route("/ativacao/omni-cc-executar-agora", methods=["POST"])
 def omni_cc_executar_agora():
-    try:
-        config_atual = _load_omni_cc_config()
-        config_atual["executar_agora"] = True
-        with open(omni_cc_config_file, mode="w", encoding='utf-8') as f:
-            f.write(json.dumps(config_atual, ensure_ascii=False, indent=2))
-    except Exception:
-        pass
+    config_atual = _load_omni_cc_config()
+    config_atual["executar_agora"] = True
+    with open(omni_cc_config_file, mode="w", encoding='utf-8') as f:
+        f.write(json.dumps(config_atual, ensure_ascii=False, indent=2))
+    print(f"[omni-cc] executar_agora gravado: {omni_cc_config_file}")
     return redirect(url_for("ativacao.ativacao"))
 
 
