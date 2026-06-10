@@ -917,6 +917,13 @@
                     </button>
                 {% endif %}
 
+                {% if key == "BradescoConciliacaoContaCorrente" %}
+                    <hr class="cpj-divider">
+                    <button class="config-toggle" type="button" onclick="openModal('modal-bradesco-cc')">
+                        &#9881; Configurações
+                    </button>
+                {% endif %}
+
             </div>
         {% endfor %}
     </div>
@@ -1208,6 +1215,63 @@
             <div style="display:flex;flex-direction:column;gap:6px;">
                 {% for nome in omni_cc_resultados %}
                 <a href="{{ url_for('ativacao.omni_cc_download_resultado', filename=nome) }}"
+                   class="resultado-item" title="Baixar {{ nome }}">
+                    <span>&#128202; {{ nome | replace('.json','') }}</span>
+                    <span class="resultado-dl">&#8595; xlsx</span>
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal Bradesco Conciliação C/C -->
+    <div class="modal-overlay" id="modal-bradesco-cc" onclick="closeOnOverlay(event, 'modal-bradesco-cc')">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-title">&#9881; Banco Bradesco — Conciliação C/C</span>
+                <button class="modal-close" type="button" onclick="closeModal('modal-bradesco-cc')">&#10005;</button>
+            </div>
+            <hr class="cpj-divider">
+            {% if bradesco_cc_config.proxima_execucao_fmt %}
+            <div class="cpj-timer">
+                <span class="timer-icon">&#128337;</span>
+                <span class="timer-text">Próxima execução: <strong>{{ bradesco_cc_config.proxima_execucao_fmt }}</strong></span>
+            </div>
+            {% endif %}
+            {% if bradesco_cc_config.dias_execucao_nomes %}
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                <span style="font-size:0.72rem;color:#718096;font-weight:600;">Roda em:</span>
+                {% for dia in bradesco_cc_config.dias_execucao_nomes %}
+                <span style="background:#ebf8ff;border:1px solid #bee3f8;border-radius:6px;padding:2px 8px;font-size:0.72rem;font-weight:700;color:#2b6cb0;">{{ dia }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <form method="post" action="{{ url_for('ativacao.salvar_bradesco_cc_config') }}" style="display:flex;flex-direction:column;gap:12px;">
+                <div>
+                    <label class="field-label">Data Inicial <span style="font-weight:400;color:#a0aec0;">(padrão: hoje − 7 dias)</span></label>
+                    <input type="date" name="data_inicial" class="field-input"
+                           value="{{ bradesco_cc_config.data_inicial }}">
+                </div>
+                <div>
+                    <label class="field-label">Data Final</label>
+                    <input type="date" name="data_final" class="field-input"
+                           value="{{ bradesco_cc_config.data_final }}">
+                </div>
+                <button type="submit" class="btn-save">Salvar datas</button>
+            </form>
+            <hr class="cpj-divider">
+            <form method="post" action="{{ url_for('ativacao.bradesco_cc_executar_agora') }}">
+                <button type="submit" class="btn-save" style="background:#48bb78;">
+                    &#9654; Executar agora
+                </button>
+            </form>
+            {% if bradesco_cc_resultados %}
+            <hr class="cpj-divider">
+            <span class="field-label">Resultados gerados</span>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+                {% for nome in bradesco_cc_resultados %}
+                <a href="{{ url_for('ativacao.bradesco_cc_download_resultado', filename=nome) }}"
                    class="resultado-item" title="Baixar {{ nome }}">
                     <span>&#128202; {{ nome | replace('.json','') }}</span>
                     <span class="resultado-dl">&#8595; xlsx</span>

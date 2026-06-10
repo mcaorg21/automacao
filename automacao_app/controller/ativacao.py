@@ -16,6 +16,8 @@ omni_cc_config_file = str(Path(INITIALIZR_ROOT).parent / "sites/omni-conciliacao
 omni_erros_file = str(Path(INITIALIZR_ROOT).parent / "sites/omni-pde-fsp-trc/erros_registro_despesa.json")
 omni_pastas_file = str(Path(INITIALIZR_ROOT).parent / "sites/omni-pde-fsp-trc/pastas_sem_contrato.json")
 _OMNI_CC_BASE = Path(INITIALIZR_ROOT).parent / "sites/omni-conciliacao-conta-corrente"
+bradesco_cc_config_file = str(Path(INITIALIZR_ROOT).parent / "sites/bradesco-conciliacao-conta-corrente/config.json")
+_BRADESCO_CC_BASE = Path(INITIALIZR_ROOT).parent / "sites/bradesco-conciliacao-conta-corrente"
 bp = Blueprint("ativacao", __name__, template_folder=templates)
 
 
@@ -36,6 +38,11 @@ def _load_pan_config():
 
 def _load_omni_cc_config():
     with open(omni_cc_config_file, encoding='utf-8') as f:
+        return json.loads(f.read())
+
+
+def _load_bradesco_cc_config():
+    with open(bradesco_cc_config_file, encoding='utf-8') as f:
         return json.loads(f.read())
 
 
@@ -165,7 +172,7 @@ def webhook3():
         promobank.fechar_driver()
         abort(400)    
 
-PROCESSOS_VISIVEIS = ["CpjReembolsoBmg", "OmniPdeFspTrc", "CpjReembolsoPan", "OmniConciliacaoContaCorrente"]
+PROCESSOS_VISIVEIS = ["CpjReembolsoBmg", "OmniPdeFspTrc", "CpjReembolsoPan", "OmniConciliacaoContaCorrente", "BradescoConciliacaoContaCorrente"]
 
 @bp.route("/ativacao", methods=["GET", "POST"])
 def ativacao():
@@ -206,6 +213,11 @@ def ativacao():
                         config_atual = _load_omni_cc_config()
                         config_atual["executar_agora"] = False
                         with open(omni_cc_config_file, mode="w", encoding='utf-8') as f:
+                            f.write(json.dumps(config_atual, ensure_ascii=False, indent=2))
+                    if key == "BradescoConciliacaoContaCorrente":
+                        config_atual = _load_bradesco_cc_config()
+                        config_atual["executar_agora"] = False
+                        with open(bradesco_cc_config_file, mode="w", encoding='utf-8') as f:
                             f.write(json.dumps(config_atual, ensure_ascii=False, indent=2))
 
             with open(file, mode="w") as fObj:
@@ -268,6 +280,25 @@ def ativacao():
     except Exception:
         omni_cc_resultados = []
 
+    bradesco_cc_config = _load_bradesco_cc_config()
+    bradesco_cc_config["data_inicial"] = (date.today() - timedelta(days=7)).isoformat()
+    try:
+        prox_bcc = datetime.strptime(bradesco_cc_config["proxima_execucao"], "%Y-%m-%dT%H:%M:%S")
+        bradesco_cc_config["proxima_execucao_fmt"] = prox_bcc.strftime("%d/%m/%Y às %H:%M")
+    except Exception:
+        bradesco_cc_config["proxima_execucao_fmt"] = None
+    bradesco_cc_config["dias_execucao_nomes"] = [
+        _DIAS_SEMANA.get(d, str(d)) for d in bradesco_cc_config.get("dias_execucao", [])
+    ]
+    try:
+        _bcc_res_folder = _BRADESCO_CC_BASE / "resultados"
+        bradesco_cc_resultados = sorted(
+            [p.name for p in _bcc_res_folder.glob("*.json")],
+            reverse=True
+        )
+    except Exception:
+        bradesco_cc_resultados = []
+
     def _load_json_list(path):
         try:
             with open(path, encoding='utf-8') as f:
@@ -279,7 +310,7 @@ def ativacao():
     omni_pastas = _load_json_list(omni_pastas_file)
 
     dash_mode = request.args.get("dash") == "1"
-    return render_template("ativacao.html", procs=procs, cpj_config=cpj_config, omni_config=omni_config, pan_config=pan_config, omni_cc_config=omni_cc_config, labels=labels, dash_mode=dash_mode, omni_erros=omni_erros, omni_pastas=omni_pastas, omni_cc_resultados=omni_cc_resultados)
+    return render_template("ativacao.html", procs=procs, cpj_config=cpj_config, omni_config=omni_config, pan_config=pan_config, omni_cc_config=omni_cc_config, labels=labels, dash_mode=dash_mode, omni_erros=omni_erros, omni_pastas=omni_pastas, omni_cc_resultados=omni_cc_resultados, bradesco_cc_config=bradesco_cc_config, bradesco_cc_resultados=bradesco_cc_resultados)
 
 
 @bp.route("/ativacao/bloqueados-spf", methods=["POST"])
@@ -603,5 +634,43 @@ def omni_cc_download_erros():
     buf = _json_to_excel_bytes(erros_path)
     return send_file(buf, as_attachment=True,
                      download_name="erros_conciliacao.xlsx",
+                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+
+@bp.route("/ativacao/bradesco-cc-executar-agora", methods=["POST"])
+def bradesco_cc_executar_agora():
+    config_atual = _load_bradesco_cc_config()
+    config_atual["executar_agora"] = True
+    with open(bradesco_cc_config_file, mode="w", encoding='utf-8') as f:
+        f.write(json.dumps(config_atual, ensure_ascii=False, indent=2))
+    print(f"[bradesco-cc] executar_agora gravado: {bradesco_cc_config_file}")
+    return redirect(url_for("ativacao.ativacao"))
+
+
+@bp.route("/ativacao/bradesco-cc-config", methods=["POST"])
+def salvar_bradesco_cc_config():
+    data_inicial = request.form.get("data_inicial", "")
+    data_final = request.form.get("data_final", "")
+
+    config_atual = _load_bradesco_cc_config()
+    config_atual.update({
+        "data_inicial": data_inicial,
+        "data_final": data_final,
+    })
+    with open(bradesco_cc_config_file, mode="w", encoding='utf-8') as f:
+        f.write(json.dumps(config_atual, ensure_ascii=False, indent=2))
+
+    return redirect(url_for("ativacao.ativacao"))
+
+
+@bp.route("/ativacao/bradesco-cc-download/resultado/<path:filename>")
+def bradesco_cc_download_resultado(filename):
+    resultado_path = _BRADESCO_CC_BASE / "resultados" / filename
+    if not resultado_path.exists() or resultado_path.suffix != ".json":
+        abort(404)
+    buf = _resultado_cc_to_excel_bytes(str(resultado_path))
+    xlsx_name = resultado_path.stem + ".xlsx"
+    return send_file(buf, as_attachment=True,
+                     download_name=xlsx_name,
                      mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 

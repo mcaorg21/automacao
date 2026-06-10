@@ -100,6 +100,15 @@ main_paths: dict = {
     "CpjReembolsoBmg": "/cpj-reembolso-bmg/main.py",
 
     # Omni PDE FSP TRC
-    "OmniPdeFspTrc": "/omni-pde-fsp-trc/main.py"
+    "OmniPdeFspTrc": "/omni-pde-fsp-trc/main.py",
+
+    # CPJ Reembolso PAN
+    "CpjReembolsoPan": "/cpj-reembolso-pan/main.py",
+
+    # Omni Conciliação Conta Corrente
+    "OmniConciliacaoContaCorrente": "/omni-conciliacao-conta-corrente/main.py",
+
+    # Bradesco Conciliação Conta Corrente
+    "BradescoConciliacaoContaCorrente": "/bradesco-conciliacao-conta-corrente/main.py",
 }
 

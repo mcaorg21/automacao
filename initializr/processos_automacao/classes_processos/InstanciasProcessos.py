@@ -104,7 +104,16 @@ INSTANCIAS: Dict[str, ProcessWrapper] = {
     'CpjReembolsoBmg': CpjReembolsoBmg(),
 
     # Omni PDE FSP TRC
-    'OmniPdeFspTrc': OmniPdeFspTrc()
+    'OmniPdeFspTrc': OmniPdeFspTrc(),
+
+    # CPJ Reembolso PAN
+    'CpjReembolsoPan': CpjReembolsoPan(),
+
+    # Omni Conciliação Conta Corrente
+    'OmniConciliacaoContaCorrente': OmniConciliacaoContaCorrente(),
+
+    # Bradesco Conciliação Conta Corrente
+    'BradescoConciliacaoContaCorrente': BradescoConciliacaoContaCorrente(),
 
 }
 
