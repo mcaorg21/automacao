@@ -3,7 +3,7 @@ from initializr.processos_automacao.config.MainConfig import MainConfig
 from time import sleep
 from initializr.processos_automacao import STDWAIT
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from PATHS import project_path
 
@@ -66,6 +66,20 @@ class BradescoConciliacaoContaCorrente(ProcessWrapper):
         except Exception:
             return True
 
+    def _atualizar_datas(self):
+        try:
+            config_path = Path(project_path()) / "bradesco-conciliacao-conta-corrente/config.json"
+            with open(config_path, encoding='utf-8') as f:
+                config = json.load(f)
+            hoje = datetime.now().date()
+            config["data_inicial"] = (hoje - timedelta(days=7)).isoformat()
+            config["data_final"] = hoje.isoformat()
+            with open(config_path, "w", encoding='utf-8') as f:
+                json.dump(config, f, ensure_ascii=False, indent=2)
+            print(f"[{self.proc_name}] Datas atualizadas: {config['data_inicial']} a {config['data_final']}")
+        except Exception as e:
+            print(f"[{self.proc_name}] Erro ao atualizar datas: {e}")
+
     def run(self):
         if self._consumir_executar_agora():
             pass  # soberano: ignora proxima_execucao e dias_execucao
@@ -73,6 +87,8 @@ class BradescoConciliacaoContaCorrente(ProcessWrapper):
             return
         elif not self._dia_execucao_permitido():
             return
+
+        self._atualizar_datas()
 
         process = self.__config.build_sub_process()
         self.cmd_proc = process
