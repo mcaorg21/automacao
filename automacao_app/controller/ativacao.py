@@ -1,7 +1,14 @@
 from flask import Blueprint, request, render_template, abort, redirect, url_for, send_file
 from datetime import date, datetime, timedelta
-import json, pdb, io
+import json, pdb, io, re
 import pandas as pd
+
+_ILLEGAL_CHARS_RE = re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f]')
+
+def _sanitize_val(val):
+    if isinstance(val, str):
+        return _ILLEGAL_CHARS_RE.sub('', val)
+    return val
 from automacao_app import templates
 from initializr import INITIALIZR_ROOT
 from pathlib import Path
@@ -358,6 +365,7 @@ def _json_to_excel_bytes(json_path: str) -> io.BytesIO:
     with open(json_path, encoding='utf-8') as f:
         data = json.load(f)
     df = pd.json_normalize(data)
+    df = df.map(_sanitize_val)
     buf = io.BytesIO()
     with pd.ExcelWriter(buf, engine='openpyxl') as writer:
         df.to_excel(writer, index=False)
