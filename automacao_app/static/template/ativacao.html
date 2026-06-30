@@ -1292,8 +1292,20 @@
                 <button class="modal-close" type="button" onclick="closeModal('modal-omni-erros')">&#10005;</button>
             </div>
             <hr class="cpj-divider">
-            <input type="text" class="baixa-search field-input" placeholder="Buscar pasta, evento, alerta..."
-                   oninput="filtrarBaixa(this, 'lista-erros')">
+            <div style="display:flex;gap:8px;align-items:center;">
+                <input type="text" class="baixa-search field-input" placeholder="Buscar pasta, evento, alerta..."
+                       oninput="filtrarBaixa(this, 'lista-erros')" style="flex:1;margin:0;">
+                {% if omni_erros %}
+                <form method="post" action="{{ url_for('ativacao.omni_baixa_erros_todos') }}" class="form-confirm-baixa" style="margin:0;">
+                    <button type="button" class="btn-baixa-remove"
+                            style="background:#e53e3e;color:#fff;border-radius:8px;padding:6px 10px;font-size:0.78rem;white-space:nowrap;"
+                            data-label="TODOS OS {{ omni_erros | length }} ERROS"
+                            onclick="pedirConfirmacao(this)">
+                        &#128465; Apagar todos
+                    </button>
+                </form>
+                {% endif %}
+            </div>
             {% if omni_erros %}
             <div class="baixa-list" id="lista-erros">
                 {% for item in omni_erros %}
@@ -1328,8 +1340,20 @@
                 <button class="modal-close" type="button" onclick="closeModal('modal-omni-pastas')">&#10005;</button>
             </div>
             <hr class="cpj-divider">
-            <input type="text" class="baixa-search field-input" placeholder="Buscar ficha, evento, processo..."
-                   oninput="filtrarBaixa(this, 'lista-pastas')">
+            <div style="display:flex;gap:8px;align-items:center;">
+                <input type="text" class="baixa-search field-input" placeholder="Buscar ficha, evento, processo..."
+                       oninput="filtrarBaixa(this, 'lista-pastas')" style="flex:1;margin:0;">
+                {% if omni_pastas %}
+                <form method="post" action="{{ url_for('ativacao.omni_baixa_pastas_todas') }}" class="form-confirm-baixa" style="margin:0;">
+                    <button type="button" class="btn-baixa-remove"
+                            style="background:#e53e3e;color:#fff;border-radius:8px;padding:6px 10px;font-size:0.78rem;white-space:nowrap;"
+                            data-label="TODAS AS {{ omni_pastas | length }} PASTAS"
+                            onclick="pedirConfirmacao(this)">
+                        &#128465; Apagar todos
+                    </button>
+                </form>
+                {% endif %}
+            </div>
             {% if omni_pastas %}
             <div class="baixa-list" id="lista-pastas">
                 {% for item in omni_pastas %}

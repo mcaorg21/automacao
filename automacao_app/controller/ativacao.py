@@ -387,6 +387,26 @@ def omni_baixa_erro():
     return redirect(url_for("ativacao.ativacao"))
 
 
+@bp.route("/ativacao/omni-baixa/erros-todos", methods=["POST"])
+def omni_baixa_erros_todos():
+    try:
+        with open(omni_erros_file, "w", encoding='utf-8') as f:
+            json.dump([], f)
+    except Exception:
+        pass
+    return redirect(url_for("ativacao.ativacao"))
+
+
+@bp.route("/ativacao/omni-baixa/pastas-todas", methods=["POST"])
+def omni_baixa_pastas_todas():
+    try:
+        with open(omni_pastas_file, "w", encoding='utf-8') as f:
+            json.dump([], f)
+    except Exception:
+        pass
+    return redirect(url_for("ativacao.ativacao"))
+
+
 @bp.route("/ativacao/omni-baixa/pasta", methods=["POST"])
 def omni_baixa_pasta():
     id_tramitacao = request.form.get("id_tramitacao", type=int)
