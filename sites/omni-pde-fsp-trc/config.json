@@ -1,8 +1,9 @@
 {
   "web_url": "https://www.omnifacil.com.br/pls/webdad/pck_login.prc_login",
   "web_login": "2614MARCELO",
-  "web_password": "EOS5SJ34",
+  "web_password": "Edasasd@12872",
   "2fa_secret": "BR5TDY6ZNEO6L7I7M6RUZZABI4ZMX3OK",
-  "data_inicial": "2026-04-01",
-  "data_final": "2026-04-08"
+  "data_inicial": "2026-06-01",
+  "data_final": "2026-06-30",
+  "proxima_execucao": "2026-06-30T18:04:59"
 }

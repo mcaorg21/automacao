@@ -1511,7 +1511,7 @@ def main():
 
         pdb.set_trace() #debug depois remover
 
-        atualizar_proxima_execucao(horas=2)
+        atualizar_proxima_execucao(horas=168)
 
     except Exception as e:
         print(f'\n✗ ERRO CRÍTICO na automação: {e}')

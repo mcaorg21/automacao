@@ -20,6 +20,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 import requests
 
+from cpj_api.api_functions import api_buscar_lancamentos_bmg
+
 # Adiciona o caminho dos módulos
 sys.path.append('C:\\www\\automacao')
 
@@ -306,7 +308,7 @@ def login_web_exyon_bmg(driver):
         print('Preenchendo campo de senha...')
         senha_input = driver.find_element(By.ID, 'txtcd_Pwd')
         senha_input.clear()
-        senha_input.send_keys('eKuMrDviw4XZGgnw')
+        senha_input.send_keys('pjrmGvH4ezu9t2k5krqK')
         print('✓ Senha digitada')
         
         # Clica no botão OK
@@ -436,7 +438,7 @@ def executar_script_menu_lateral(driver):
         traceback.print_exc()
         return False
 
-def executar_script_classificacao(driver):
+def executar_script_classificacao(driver, script_select: str = "select('34','CUSTAS');"):
     """Executa o script de classificação financeira e seleciona CUSTAS"""
     try:
         print('\nExecutando script de classificação financeira...')
@@ -480,7 +482,6 @@ def executar_script_classificacao(driver):
         print('✓ Frame do popup encontrado e selecionado')
         
         # Executa o script select no popup
-        script_select = "select('34','CUSTAS');"
         print(f'Executando no popup: {script_select}')
         driver.execute_script(script_select)
         print('✓ Script select executado no popup!')
@@ -570,7 +571,7 @@ def executar_script_classificacao(driver):
         traceback.print_exc()
         return False
 
-def executar_preenchimento_formulario(driver, valor_somado):
+def executar_preenchimento_formulario(driver, valor_somado, path = PLANILHA_MODELO_PATH):
     """Executa o script de preenchimento do formulário"""
     try:
         print('\nExecutando preenchimento do formulário..')
@@ -616,15 +617,15 @@ def executar_preenchimento_formulario(driver, valor_somado):
         # Aguarda processar
         # Faz upload do arquivo
         
-        print(f'Fazendo upload do arquivo: {PLANILHA_MODELO_PATH}...')
+        print(f'Fazendo upload do arquivo: {path}...')
         arquivo_input = driver.find_element(By.ID, 'ArqCarga')
-        arquivo_input.send_keys(PLANILHA_MODELO_PATH)
-        print(f'✓ Arquivo enviado: {PLANILHA_MODELO_PATH}')
+        arquivo_input.send_keys(path)
+        print(f'✓ Arquivo enviado: {path}')
         
         # Aguarda processar
         time.sleep(1)
         print('Abrindo arquivo no Excel...')
-        os.startfile(PLANILHA_MODELO_PATH)
+        os.startfile(path)
 
         # Aguarda o Excel abrir
         time.sleep(3)
@@ -860,9 +861,12 @@ def anexar_pdfs_formulario(driver,  nao_procurar_pelo_processo = None, tentativa
                     numero_processo_sistema = driver.find_element(By.ID, f'pro_{indice}')
                     numero_processo_sistema_value = numero_processo_sistema.get_attribute('value')
                     
-                    # Verifica se os valores correspondem
-                    if cau_value == numero_integracao and pleito_value == valor_pleito:
+                    # if 'CIV1090321' in numero_integracao:
+                    #     pdb.set_trace() #debug para caso específico
 
+                    # Verifica se os valores correspondem
+                    if cau_value in numero_integracao and pleito_value == valor_pleito:
+                        
                         elemento = driver.find_element(By.XPATH, f'/html/body/fieldset/form/div[1]/fieldset/table[1]/tbody/tr[{indice_simbolo}]')
                         html_interno = elemento.get_attribute('innerHTML')
                         # and numero_processo == numero_processo_sistema_value
@@ -1234,10 +1238,11 @@ def main():
                 data_final = datetime.strptime(DATA_FINAL_PESQUISA, '%d/%m/%Y')
                 
                 #reembolsos BMG
-                lancamentos = api_buscar_lancamentos(
+                lancamentos = api_buscar_lancamentos_bmg(
                     data_inicial=data_inicial,
                     data_final=data_final,
-                    numero_cc=1397
+                    numero_cc=1397,
+                    titulo=NUMERO_RECIBO
                 )
                 
                 if lancamentos:
@@ -1366,7 +1371,18 @@ def main():
 
                 etapa_cpj = True
    
-        ## Lê JSON processadoo
+        ## Lê JSON processado (cria padrão se não existir)
+        if not os.path.exists(JSON_PATH):
+            os.makedirs(os.path.dirname(JSON_PATH), exist_ok=True)
+            _data_padrao = {
+                'contagem': 0,
+                'registros': [],
+                'valor_somado': '0,00'
+            }
+            with open(JSON_PATH, 'w', encoding='utf-8') as f:
+                json.dump(_data_padrao, f, ensure_ascii=False, indent=2)
+            print(f'⚠ Arquivo não encontrado. JSON padrão criado em: {JSON_PATH}')
+
         with open(JSON_PATH, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
@@ -1473,7 +1489,7 @@ def main():
 
                 # Anexa os PDFs no formulário
                 processar_pdf = anexar_pdfs_formulario(driver, processo_alt['processo_alternativo'], tentativa, tentativa_formatacao)
-
+                #pdb.set_trace()
                 if processar_pdf['retorno'] == False:
                     tentativa_formatacao = True
                     tentativa += 1                    
@@ -1488,7 +1504,7 @@ def main():
 
                                 # Aplica máscara CNJ no processo alternativo
                                 processo_formatado = formatar_numero_processo(processo_alt['numero_processo_original'])
-                                
+
                                 atualizar_processo_json(
                                     processo_alt['numero_integracao'],
                                     processo_formatado,

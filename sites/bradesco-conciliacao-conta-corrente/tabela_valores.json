@@ -1,0 +1,21 @@
+{
+  "880": {
+    "tipo": "CIV",
+    "dados": [
+        { "ENTRADA_PROCESSO": 300 },
+        { "ENCERRAMENTO_PROCESSO": 350 },
+        { "ACORDO": 450 },
+        { "IMPROCEDENCIA": 750 }
+    ], 
+    "versao": 2
+  },
+  "947": {
+    "tipo": "JEC",
+    "dados": [
+        { "ENTRADA_PROCESSO": 200 },
+        { "ENCERRAMENTO_PROCESSO": 250 },
+        { "ACORDO": 350 },
+        { "IMPROCEDENCIA": 450 }
+    ]
+  }
+}

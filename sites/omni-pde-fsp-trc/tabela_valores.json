@@ -161,6 +161,35 @@
     "versao": 2
   },
 
+  "829_JEC_TRANSITO": {
+    "produto": "ACOES_PATIO_TRANSITO",
+    "tipo": "NOVO",
+    "dados": [
+      { "CONTESTACAO": 425 },
+      { "SENTENCA": 425 },
+      { "TRANSITO": 425 },
+      { "PERDA": 1275 },
+      { "EXITO": 1275 },
+      { "ACORDO_POS": 1275 },
+      { "ACORDO_PRE": 1275 }
+    ], 
+    "versao": 2
+  },
+  "829_CIV_TRANSITO": {
+    "produto": "ACOES_PATIO_TRANSITO",
+    "tipo": "NOVO",
+    "dados": [
+      { "CONTESTACAO": 570 },
+      { "SENTENCA": 570 },
+      { "TRANSITO": 570 },
+      { "PERDA": 1710 },
+      { "EXITO": 1710 },
+      { "ACORDO_POS": 1710 },
+      { "ACORDO_PRE": 1710 }
+    ], 
+    "versao": 2
+  },
+  
   "35": {
     "produto": "GERAL",
     "tipo": "ANTIGO",
@@ -243,6 +272,14 @@
     "tipo": "NOVO",
     "dados": [
       { "CONTESTACAO": 400 }
+    ], 
+    "versao": 2
+  },
+  "1000": {
+    "produto": "PROCON",
+    "tipo": "NOVO",
+    "dados": [
+      { "CONTESTACAO": 500 }
     ], 
     "versao": 2
   }

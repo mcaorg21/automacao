@@ -1097,7 +1097,9 @@ def fill_planilha_modelo_v4():
         data_hoje = datetime.now().strftime('%d/%m/%Y')
         
         for idx, registro in enumerate(data['registros'], start=1):  # Linha 1 (pula cabeçalho na linha 0)
-            sheet.write(idx, 0, registro.get('pro_numero_de_integracao', ''))
+            integracao = registro.get('pro_numero_de_integracao', '')
+            integracao = integracao.split('.')[0] if '.' in integracao else integracao
+            sheet.write(idx, 0, integracao)
             sheet.write(idx, 1, registro.get('pro_numero_do_processo', ''))
             sheet.write(idx, 2, registro.get('historico', 'CUSTAS DIVERSAS E TAXAS JUDICIAIS / TRIBUNAL DE JU'))
             sheet.write(idx, 3, registro.get('debito_na_moeda', ''))

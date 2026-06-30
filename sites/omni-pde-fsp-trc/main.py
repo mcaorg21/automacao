@@ -26,6 +26,7 @@ from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from urllib.parse import urlparse, parse_qs
+from decimal import Decimal
 
 # Adiciona o caminho dos módulos
 sys.path.append('C:\\www\\automacao')
@@ -38,6 +39,7 @@ from cpj_api import (
     api_buscar_processo_tarefa,
     api_buscar_processo_por_pj,
     api_atualizar_tarefa,
+    api_atualizar_processo,
     api_buscar_processo_tarefa_por_data
 )
 
@@ -63,7 +65,7 @@ DRIVER_PATH = PATHS.driver_path()
 COOKIES_JSON_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cookies.json')
 
 # URL da página de processo a ser visitada após login
-PAGINA_PROCESSO_URL = 'https://www.omnifacil.com.br/pls/webdad/pck_sj_processo_juridico.consulta_acao?p_cod_acao_omni=3580512&p_nome=2614MARCELO&p_emp=2614&p_ide=|ID_SESSAO|&p_cpf=06050694680'
+PAGINA_PROCESSO_URL = 'https://www.omnifacil.com.br/pls/webdad/pck_sj_processo_juridico.consulta_acao?p_cod_acao_omni=3572019&p_nome=2614MARCELO&p_emp=2614&p_ide=|ID_SESSAO|&p_cpf=06050694680'
 
 # Caminho do arquivo de configuração (opcional)
 CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json')
@@ -77,8 +79,8 @@ PAGINA_PROCESSO_URL_PERSONALIZADA = (
             '?p_cod_acao_omni=|PASTA_NUMERO_INTEGRACAO|'
             '&p_nome=2614MARCELO&p_emp=2614&p_ide=|ID_SESSAO|&p_cpf=06050694680'
         )
-#
-EVENTOS = ['TRC','PDE', 'FSP', 'FTP', 'TRC', 'FPB', 'FTE', 'FBA']
+EVENTOS = ['PDE', 'FSP', 'FTP', 'TRC', 'FPB', 'FTE', 'FBA','FCF']
+#EVENTOS = [ ] , 'FCF'
 OPTIONS_SELECT = {
 
     "PDE_V1":[
@@ -164,17 +166,48 @@ OPTIONS_SELECT = {
         {"p_cod_tipo_documento" : "5"}, #TERMO DE ACORDO
         {"tipo_documento" : "C"}
     ],
+
     "ACOES_PATIO":[
         {"p_cod_custo" : "244"},#DESPESA DE PATIO - SENTENÇA
         {"p_cod_tipo_documento" : "7"},#SENTENÇA
         {"tipo_documento" : "S"}
     ],
 
+    "ACOES_PATIO_TRANSITO":[
+        {"p_cod_custo" : "245"},#DESPESA DE PATIO - TRANSITO
+        {"p_cod_tipo_documento" : "39"},#TRANSITO
+        {"tipo_documento" : "T"}
+    ],
+
+    "ACOES_PATIO_CONTESTACAO":[
+        {"p_cod_custo" : "243"},#DESPESA DE PATIO - CONTESTACAO
+        {"p_cod_tipo_documento" : "5"},#CONTESTACAO
+        {"tipo_documento" : "C"}
+    ],
+
+    "ACOES_PATIO_SENTENCA":[
+        {"p_cod_custo" : "244"},#DESPESA DE PATIO - SENTENÇA
+        {"p_cod_tipo_documento" : "7"},#SENTENÇA
+        {"tipo_documento" : "S"}
+    ]
+
 
 
 }
 
 ID_SESSAO = None
+
+def atualizar_proxima_execucao(horas=2):
+    """Atualiza o campo proxima_execucao no config.json para daqui a N horas."""
+    try:
+        with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
+            config_data = json.load(f)
+        config_data['proxima_execucao'] = (datetime.now() + timedelta(hours=horas)).strftime('%Y-%m-%dT%H:%M:%S')
+        with open(CONFIG_PATH, 'w', encoding='utf-8') as f:
+            json.dump(config_data, f, ensure_ascii=False, indent=2)
+        print(f'✓ proxima_execucao atualizada para: {config_data["proxima_execucao"]}')
+    except Exception as e:
+        print(f'✗ Erro ao atualizar config.json: {e}')
 
 URL_REGISTRO_DESPESA = "https://www.omnifacil.com.br/pls/webdad/pck_sj_despesa_utils.registro_despesa?P_NOME=2614MARCELO&P_EMP=2614&P_IDE=|ID_SESSAO|&P_CPF=06050694680"
 
@@ -192,8 +225,8 @@ if os.path.exists(CONFIG_PATH):
     WEB_PASSWORD = config.get('web_password', WEB_PASSWORD)
     T2FA_SECRET = config.get('2fa_secret', None)
     DATA_INICIAL = config.get('data_inicial', (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d'))
-    DATA_FIM = config.get('data_final', (datetime.now()).strftime('%Y-%m-%d'))
-
+    #DATA_FIM = config.get('data_final', (datetime.now()).strftime('%Y-%m-%d'))
+    DATA_FIM = datetime.now().strftime('%Y-%m-%d')
 
     print(f"Configurações carregadas:")
     print(f"  - URL: {WEB_URL}")
@@ -369,6 +402,7 @@ def login_web_sistema(driver):
         # Navegar para a URL de login
         print(f'\nAcessando {WEB_URL}...')
         driver.get(WEB_URL)
+        driver.delete_all_cookies()  # Limpa cookies para evitar conflitos
         print('✓ Página carregada')
         
         # Aguarda a página carregar
@@ -425,10 +459,17 @@ def login_web_sistema(driver):
         mfa_input.send_keys(codigo_mfa)
 
         print(f'✓ Código MFA inserido: {codigo_mfa}')
-        botao_enviar = driver.find_element(By.ID, "bt-enviar-mfa").click()
+
+        try: 
+            time.sleep(2)
+            botao_enviar = driver.find_element(By.ID, "bt-enviar-mfa")
+            #pdb.set_trace()  # Debug: Verificar se o botão de enviar MFA está sendo encontrado corretamente
+            webdriver.ActionChains(driver).move_to_element(botao_enviar).click().perform()
+        except:
+            pass
 
         # Aguarda um pouco para o login processar
-        time.sleep(3)
+        time.sleep(5)
         
         print('✓ Login realizado com sucesso!')
 
@@ -497,7 +538,8 @@ def registrar_despesa(driver, tarefa=None, valor_despesa=None, option_do_select_
             tentativa += 1
 
             if tentativa > 10:
-                return registra_erro(tarefa, "Erro de seleção de custo: opção não disponível.")
+                #pdb.set_trace()  # Debug: Verificar por que o select de custo não está carregando as opções corretamente
+                return registra_erro(tarefa, "Erro de seleção de custo: não apareceu nenhuma opção não disponível.")
 
         select_custo.select_by_value(str(option_do_select_despesa))
         print(f'  ✓ p_cod_custo selecionado: {option_do_select_despesa}')
@@ -523,7 +565,7 @@ def registrar_despesa(driver, tarefa=None, valor_despesa=None, option_do_select_
         campo_valor.clear()
         campo_valor.send_keys(f"{valor_despesa:.2f}")  # Formata o valor com 2 casas decimais
         print(f'  ✓ p_num_valor preenchido: {valor_despesa}')
-
+        
         try:
             time.sleep(2)
             # Clica no botão Ok
@@ -541,7 +583,7 @@ def registrar_despesa(driver, tarefa=None, valor_despesa=None, option_do_select_
                 print(f'  [Alert] Configuração ausente para despesa: {texto_alerta}')
                 return False, texto_alerta
             else:
-
+                #pdb.set_trace()  # Debug: Verificar se o valor da despesa foi preenchido corretamente antes de clicar em OK
                 if texto_alerta != "":
                     return False, texto_alerta
                 
@@ -649,6 +691,19 @@ def normalizar_texto(texto: str, somente_alfanumerico: bool = True) -> str:
 
     return texto.strip()
 
+def extrair_nome_contrato(driver, numero_contrato):
+   
+    driver.get(f'https://www.omnifacil.com.br/pls/webdad/pck_cob_acionamento_b.tela_cobranca?P_NOME=2614MARCELO&P_EMP=2614&P_IDE={ID_SESSAO}&P_CPF=06050694680')
+    time.sleep(1)
+
+    driver.find_element(By.ID, 'p_contrato').send_keys(numero_contrato, webdriver.Keys.ENTER)
+
+    time.sleep(1)
+
+    texto_produto = driver.find_element(By.ID, 'contA').text
+
+    return texto_produto
+
 def main():
     """Executa o fluxo completo da automação"""
     driver = None
@@ -710,31 +765,24 @@ def main():
                         data_fim=_dia_seguinte,
                         id_tramitacao_situacao=0
                     )
+                    
                     _dia_atual = _dia_seguinte
                     #conta_dias += 1
 
-                if _resultado:
-                    novos = []
-                    for item in _resultado:
-                        _id = item.get("id_tramitacao")
-                        if _id not in ids_vistos:
-                            ids_vistos.add(_id)
-                            novos.append(item)
-
-                    tarefas.extend(novos)
-
-                    print(f'+ {len(novos)} novas tarefas (filtrado de {len(_resultado)})')
-
-                # else:
+                    if _resultado:
+                        novos = []
+                        for item in _resultado:
+                            _id = item.get("id_tramitacao")
+                            if _id not in ids_vistos:
+                                ids_vistos.add(_id)
+                                novos.append(item)
                         
-                #     tarefas = api_buscar_processo_tarefa_por_data(
-                #             evento=evento,
-                #             data_inicial=_dia_atual,
-                #             data_fim=_dia_seguinte,
-                #             id_tramitacao_situacao=0
-                #         )
+                        tarefas.extend(novos)
+
+                    #
 
                 if tarefas:
+                    print(f'+ {len(novos)} novas tarefas (filtrado de {len(_resultado)})')
                     print(f'  ✓ {len(tarefas)} tarefa(s) encontrada(s) para {evento}')
                     todas_tarefas.extend(tarefas)
                     resumo[evento] = len(tarefas)
@@ -772,82 +820,103 @@ def main():
             # ====================================================================
             print('\n[ETAPA 3/4] Buscar número de integração (pasta) por processo')
             print('-'*70)
+            
+            try:
+                sem_integracao = 0
+                for idx, tarefa in enumerate(todas_tarefas, 1):
+                    id_processo = tarefa.get('id_processo')
+                    if not id_processo:
+                        print(f'  [{idx}/{len(todas_tarefas)}] ⚠ id_processo ausente, pulando...')
+                        tarefa['pasta_numero_integracao'] = None
+                        sem_integracao += 1
+                        continue
 
-            sem_integracao = 0
-            for idx, tarefa in enumerate(todas_tarefas, 1):
-                id_processo = tarefa.get('id_processo')
-                if not id_processo:
-                    print(f'  [{idx}/{len(todas_tarefas)}] ⚠ id_processo ausente, pulando...')
-                    tarefa['pasta_numero_integracao'] = None
-                    sem_integracao += 1
-                    continue
+                    processos = api_buscar_processo_por_pj(pj=id_processo)
 
-                processos = api_buscar_processo_por_pj(pj=id_processo)
+                    if processos and isinstance(processos, list) and len(processos) > 0:
+                        numero_integracao = processos[0].get('numero_integracao').strip()
+                        contrato_cliente = processos[0].get('contrato_cliente')
 
-                if processos and isinstance(processos, list) and len(processos) > 0:
-                    numero_integracao = processos[0].get('numero_integracao')
-                    contrato_cliente = processos[0].get('contrato_cliente')
+                        if processos[0].get('numero_processo'):
+                            
+                            _num_proc = processos[0]['numero_processo']
+                            _CNJ_PATTERN = re.compile(r'^\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}$')
+                            if not _CNJ_PATTERN.match(str(_num_proc).strip()):
+                                print(f'  [!] numero_processo "{_num_proc}" não é um processo CNJ válido — registrando em pastas_sem_contrato.json e pulando tarefa.')
+                                _pastas_sem_contrato_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pastas_sem_contrato.json')
+                                _pastas_sem_contrato = []
 
-                    if processos[0].get('numero_processo'):
-                        
-                        _num_proc = processos[0]['numero_processo']
-                        _CNJ_PATTERN = re.compile(r'^\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}$')
-                        if not _CNJ_PATTERN.match(str(_num_proc).strip()):
-                            print(f'  [!] numero_processo "{_num_proc}" não é um processo CNJ válido — registrando em pastas_sem_contrato.json e pulando tarefa.')
-                            _pastas_sem_contrato_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pastas_sem_contrato.json')
-                            _pastas_sem_contrato = []
-                            if os.path.exists(_pastas_sem_contrato_path):
-                                try:
-                                    with open(_pastas_sem_contrato_path, 'r', encoding='utf-8') as _f:
-                                        _conteudo = _f.read().strip()
-                                        if _conteudo:
-                                            _pastas_sem_contrato = json.loads(_conteudo)
-                                except (json.JSONDecodeError, ValueError):
-                                    _pastas_sem_contrato = []
+                                if os.path.exists(_pastas_sem_contrato_path):
+                                    try:
+                                        with open(_pastas_sem_contrato_path, 'r', encoding='utf-8') as _f:
+                                            _conteudo = _f.read().strip()
+                                            if _conteudo:
+                                                _pastas_sem_contrato = json.loads(_conteudo)
+                                    except (json.JSONDecodeError, ValueError):
+                                        _pastas_sem_contrato = []
 
-                            _id_tarefa = tarefa.get('id_tramitacao')
+                                _id_tarefa = tarefa.get('id_tramitacao')
 
-                            if any(t.get('tarefa', {}).get('id_tramitacao') == _id_tarefa for t in _pastas_sem_contrato):
-                                print(f'  [!] Tarefa id_tramitacao={_id_tarefa} já registrada em pastas_sem_contrato.json, pulando.')
-                                tarefa['pasta_numero_integracao'] = None
-                                sem_integracao += 1
+                                if any(t.get('tarefa', {}).get('id_tramitacao') == _id_tarefa for t in _pastas_sem_contrato):
+                                    print(f'  [!] Tarefa id_tramitacao={_id_tarefa} já registrada em pastas_sem_contrato.json, pulando.')
+                                    tarefa['pasta_numero_integracao'] = None
+                                    sem_integracao += 1
+                                    continue
+
+                                if 'TESTE COREJUR' in processos[0].get('autor_nome', '') or processos[0].get('autor_nome', '') == None:
+                                    continue
+
+                                if processos[0].get('autor_nome', '') is not None and ('OMNI' in processos[0].get('autor_nome', '') or 'OMNI' in processos[0].get('reu_nome', '')):
+
+                                    _pastas_sem_contrato.append({
+                                        'data_hora': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                                        'tarefa': tarefa,
+                                        'processo': processos[0]
+                                    })
+                                    
+
+                                    with open(_pastas_sem_contrato_path, 'w', encoding='utf-8') as _f:
+                                        json.dump(_pastas_sem_contrato, _f, ensure_ascii=False, indent=2)
+                                    print(f'  ✓ Registrado em pastas_sem_contrato.json ({len(_pastas_sem_contrato)} total)')
+                                    tarefa['pasta_numero_integracao'] = None
+                                    sem_integracao += 1
+
                                 continue
 
-                            if 'OMNI' in processos[0].get('autor_nome', '') or 'OMNI' in processos[0].get('reu_nome', ''):
+                            else:
 
-                                _pastas_sem_contrato.append({
-                                    'data_hora': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                                    'tarefa': tarefa,
-                                    'processo': processos[0]
-                                })
-                                
+                                print(f'  [!] Processo encontrado com número de processo: {_num_proc} - isso pode indicar que o processo já está integrado ou que há mais de um processo para o mesmo id_processo. Verifique manualmente se necessário.')
 
-                                with open(_pastas_sem_contrato_path, 'w', encoding='utf-8') as _f:
-                                    json.dump(_pastas_sem_contrato, _f, ensure_ascii=False, indent=2)
-                                print(f'  ✓ Registrado em pastas_sem_contrato.json ({len(_pastas_sem_contrato)} total)')
-                                tarefa['pasta_numero_integracao'] = None
-                                sem_integracao += 1
+                        reu_nome = processos[0].get('reu_nome')
+                        update_cliente_processo = processos[0].get('update_usuario')
+                        tarefa['pasta_numero_integracao'] = numero_integracao
+                        tarefa['contrato_cliente'] = contrato_cliente
+                        tarefa['reu_nome'] = reu_nome
+                        tarefa['update_cliente_processo'] = update_cliente_processo
+                        tarefa['pj'] = processos[0].get('pj')
+                        tarefa['ficha'] = processos[0].get('ficha')
+                        tarefa['arquivo'] = processos[0].get('arquivo')
+                        tarefa['incidente'] = processos[0].get('incidente')
+                        tarefa['data_hora_processo'] = processos[0].get('update_data_hora')
+                        tarefa['resultado_situacao'] = processos[0].get('resultado_situacao')
 
-                            continue
+                        print(f'  [{idx}/{len(todas_tarefas)}] ✓ id_processo={id_processo} → pasta={numero_integracao}, contrato_cliente={contrato_cliente}, reu_nome={reu_nome}')
+                    else:
+                        tarefa['pasta_numero_integracao'] = None
+                        tarefa['contrato_cliente'] = None
+                        tarefa['reu_nome'] = None
+                        tarefa['update_cliente_processo'] = None
+                        tarefa['pj'] = None
+                        tarefa['ficha'] = None
+                        tarefa['arquivo'] = None
+                        tarefa['incidente'] = None
+                        tarefa['data_hora_processo'] = None
+                        tarefa['resultado_situacao'] = None
+                        sem_integracao += 1
+                        print(f'  [{idx}/{len(todas_tarefas)}] ⚠ Nenhum processo encontrado para id_processo={id_processo}')
 
-                        else:
-
-                            print(f'  [!] Processo encontrado com número de processo: {_num_proc} - isso pode indicar que o processo já está integrado ou que há mais de um processo para o mesmo id_processo. Verifique manualmente se necessário.')
-
-                    reu_nome = processos[0].get('reu_nome')
-                    update_cliente_processo = processos[0].get('update_usuario')
-                    tarefa['pasta_numero_integracao'] = numero_integracao
-                    tarefa['contrato_cliente'] = contrato_cliente
-                    tarefa['reu_nome'] = reu_nome
-                    tarefa['update_cliente_processo'] = update_cliente_processo
-                    print(f'  [{idx}/{len(todas_tarefas)}] ✓ id_processo={id_processo} → pasta={numero_integracao}, contrato_cliente={contrato_cliente}, reu_nome={reu_nome}')
-                else:
-                    tarefa['pasta_numero_integracao'] = None
-                    tarefa['contrato_cliente'] = None
-                    tarefa['reu_nome'] = None
-                    tarefa['update_cliente_processo'] = None
-                    sem_integracao += 1
-                    print(f'  [{idx}/{len(todas_tarefas)}] ⚠ Nenhum processo encontrado para id_processo={id_processo}')
+            except Exception as e:
+                pass
 
             # Atualiza o JSON com os dados enriquecidos
             payload_json['tarefas'] = todas_tarefas
@@ -859,7 +928,6 @@ def main():
             print(f'  - Com integração: {len(todas_tarefas) - sem_integracao}')
             print(f'  - Sem integração: {sem_integracao}')
         
-
           # Debug: Verificar tarefas antes de iniciar automação web
         # ====================================================================
         # ETAPA 4: Automação Web
@@ -887,7 +955,15 @@ def main():
 
             # Após login, navega para a página de processo
             print(f'\nAcessando página de processo após login...')
-            driver.get(PAGINA_PROCESSO_URL)
+
+            url = driver.current_url
+            parsed = urlparse(url)
+            params = parse_qs(parsed.query)
+
+            global ID_SESSAO
+            ID_SESSAO = params.get('p_ide', [''])[0]
+            driver.get(PAGINA_PROCESSO_URL.replace('|ID_SESSAO|', ID_SESSAO))
+
         else:
             print(f'✓ Sessão ativa via cookies, login ignorado.')
 
@@ -903,6 +979,7 @@ def main():
         # FPB: Bonus
         # FTE: Revisionais
         # FBA: Acordo
+        # FCF: Fechamento Ciclo Financeiro
 
         # Carrega tarefas do JSON
         with open(TAREFAS_JSON_PATH, 'r', encoding='utf-8') as f:
@@ -941,19 +1018,39 @@ def main():
 
         for idx, tarefa in enumerate(tarefas_validas, 1):
             
-            
-            # if '3585581' in str(tarefa.get('pasta_numero_integracao')):
-            #     continue
+            atualizar_tarefa_concluido_cpj = True
 
-            if str(tarefa.get('pasta_numero_integracao'))  in _erros_pastas:
+            # if '3481902' in str(tarefa.get('pasta_numero_integracao')) or '3481123' in str(tarefa.get('pasta_numero_integracao')):
+            #     pdb.set_trace()  # Debug: Verificar detalhes das tarefas com pasta_numero_integracao contendo '3481902' ou '3481123', analisar se há algo específico nesses casos que justifique um tratamento diferenciado ou se é necessário ajustar a lógica de processamento para esses casos
+
+            if str(tarefa.get('pasta_numero_integracao')) in _erros_pastas:
                 print(f'  [{idx}/{len(tarefas_validas)}] pasta={tarefa.get("pasta_numero_integracao")} já consta em erros_registro_despesa.json, pulando...')
                 continue
 
-            if "OMNI" not in tarefa.get('reu_nome', ''):
-                print(f'  [{idx}/{len(tarefas_validas)}] Evento {tarefa.get("evento")} não é OMNI, pulando...')
-                continue
-             
+            EMPRESAS_PERMITIDAS = [
+                "OMNI",
+                "COMPANHIA SECURITIZADORA",
+                "AGILITY",
+                "ZURICH",
+                "VIP",
+                "RDC",
+                "TRAVESSIA"
+            ]
+             # Debug: Verificar nome do réu para filtro de empresas
+            reu_nome = tarefa.get('reu_nome', '')
             pasta = tarefa['pasta_numero_integracao']
+
+            try:
+
+                if not any(empresa in reu_nome for empresa in EMPRESAS_PERMITIDAS) or 'BRAD' in pasta:
+
+                    #if '829' not in str(tarefa.get('contrato_cliente')):
+                    print(f'  [{idx}/{len(tarefas_validas)}] Evento {tarefa.get("evento")} não é OMNI, pulando...')
+                    continue
+            
+            except Exception as e:
+                continue  # Ignora tarefas com erro ao acessar reu_nome ou pasta
+
             evento = tarefa.get('evento', '')
             url = PAGINA_PROCESSO_URL_PERSONALIZADA.replace('|PASTA_NUMERO_INTEGRACAO|', str(pasta)).replace("|ID_SESSAO|", ID_SESSAO)
             url_despesa = URL_REGISTRO_DESPESA.replace("|ID_SESSAO|", ID_SESSAO)
@@ -983,6 +1080,96 @@ def main():
                     EC.presence_of_element_located((By.ID, 'theform'))   
                 ).text
 
+                if  '863' in str(tarefa.get('contrato_cliente')):
+
+                    try:
+                        numero_contrato = driver.find_element(By.XPATH, '//*[@id="theform"]/table[2]/tbody/tr/td/fieldset/table/tbody/tr[2]/td[1]/font/a').text  # Clica para abrir detalhes de despesa e verificar texto específico do caso de juizado
+                    except:
+                        numero_contrato = ""
+
+                    if 'DESPESAS DE PÁTIO' in texto_orgao or 'DESPESA DE PATIO' in texto_orgao:
+                        print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso de despesas de pátio.')
+                        tarefa.update({'contrato_cliente': 829})  # Override para contrato 829, que é o correto para despesas de pátio
+                        api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
+                        #pdb.set_trace()  # Debug: Verificar detalhes do processo com contrato_cliente contendo '863'
+
+
+                    elif 'VARA CÍVEL' in texto_orgao: 
+                        
+                        sigla_produto = 'CIV'
+
+                        if '3.01' in numero_contrato[0:4] or '3.02' in numero_contrato[0:4] or '3.03' in numero_contrato[0:4] or '3.04' in numero_contrato[0:4] or '3.05' in numero_contrato[0:4]:
+                            print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso cível e cartão.')
+                            tarefa.update({'contrato_cliente': 741})  # Override para contrato 741, que é o correto para casos cíveis sem despesas de pátio
+                            api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
+                        
+                        else:
+
+                            texto_produto = extrair_nome_contrato(driver, numero_contrato)
+
+                            
+                            if 'BU LEVES' in texto_produto or 'BU MOTOS' in texto_produto or 'BU PESADOS' in texto_produto:
+                                print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso civel veiculos.')
+                                tarefa.update({'contrato_cliente': 739})  # Override para contrato 741, que é o correto para casos de juizado sem despesas de pátio
+                                api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
+
+                            elif 'BU CDC LOJA' in texto_produto:
+                                print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso de juizado CDC lojas.')
+                                tarefa.update({'contrato_cliente': 743})  # Override para contrato 741, que é o correto para casos de juizado sem despesas de pátio
+                                api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
+                            
+                            elif 'ADQUIRIDAS' in texto_produto:
+                                print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso de juizado adquiridas.')
+                                tarefa.update({'contrato_cliente': 737})  # Override para contrato 741, que é o correto para casos de juizado sem despesas de pátio
+                                api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
+
+                            else:
+                                
+                                pdb.set_trace()  # Debug: CLASSIFICAR NOVO NOME DE HTML PARA DEFINIR PRODUTO CIV
+
+                            driver.get(url)
+                           
+                    elif 'JUIZADO ESPECIAL CÍVEL' in texto_orgao:
+
+                        sigla_produto = 'JEC'
+
+                        if '3.01' in numero_contrato[0:4] or '3.02' in numero_contrato[0:4] or '3.03' in numero_contrato[0:4] or '3.04' in numero_contrato[0:4] or '3.05' in numero_contrato[0:4]:
+                            print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso juizado e cartão.')
+                            tarefa.update({'contrato_cliente': 740})  # Override para contrato 741, que é o correto para casos cíveis sem despesas de pátio
+                            api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
+                        
+                        else:
+                        
+                            texto_produto = extrair_nome_contrato(driver, numero_contrato)
+
+                            if 'ADQUIRIDAS' in texto_produto:
+                                print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso de juizado adquiridas.')
+                                tarefa.update({'contrato_cliente': 736})  # Override para contrato 741, que é o correto para casos de juizado sem despesas de pátio
+                                api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
+
+                            elif 'BU CDC LOJA' in texto_produto:
+                                print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso de juizado CDC lojas.')
+                                tarefa.update({'contrato_cliente': 742})  # Override para contrato 741, que é o correto para casos de juizado sem despesas de pátio
+                                api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
+
+                            elif 'BU LEVES' in texto_produto or 'BU MOTOS' in texto_produto or 'BU PESADOS' in texto_produto:
+                                print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso civel veiculos.')
+                                tarefa.update({'contrato_cliente': 738})  # Override para contrato 741, que é o correto para casos de juizado sem despesas de pátio
+                                api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
+
+                            else:
+
+                                pdb.set_trace()  # Debug: CLASSIFICAR NOVO NOME DE HTML PARA DEFINIR PRODUTO JEC
+
+                            driver.get(url)  # Volta para a página do processo após verificação do caso de juizado
+                    
+                    else:
+
+                        #continue
+                        pdb.set_trace()  # Debug: Verificar detalhes do processo com contrato_cliente contendo '863'
+                        print(f'  [!] Processo com contrato_cliente contendo "863" mas sem indicação de despesas de pátio no texto. Verificar manualmente, pode ser caso de erro de OCR ou necessidade de ajuste de contrato_cliente.')     
+
+
                 td_despesa = WebDriverWait(driver, 10).until(
                     EC.element_to_be_clickable((By.ID, 'td_despesa'))
                 )
@@ -998,18 +1185,55 @@ def main():
                 # FPB: Bonus
                 # FTE: Revisionais
                 # FBA: Acordo
+                # FCF: Fechamento Ciclo Financeiro
+
+                # Override manual de contrato_cliente e texto por pasta_numero_integracao
+                _OVERRIDES_PASTA = {
+                    '3567066': {'contrato_cliente': 738, 'texto': 'ACORDO PÓS'},
+                    '3566278': {'contrato_cliente': 740, 'texto': 'ACORDO PÓS'},
+                    '3579814': {'contrato_cliente': 741, 'texto': 'ACORDO PÓS'},
+                    '3586543': {'contrato_cliente': 738, 'texto': 'ACORDO PRÉ'},
+                    '3581670': {'contrato_cliente': 737, 'texto': 'ACORDO PRÉ'},
+                    '3582422': {'contrato_cliente': 736, 'texto': 'ACORDO PRÉ'},
+                    '3583853': {'contrato_cliente': 737, 'texto': 'ACORDO PRÉ'},
+                    '3566231': {'contrato_cliente': 737, 'texto': 'ACORDO PÓS'},
+                    '3512435': {'contrato_cliente': 741, 'texto': 'ACORDO PÓS'},
+                    '3569988': {'contrato_cliente': 739, 'texto': 'ACORDO PÓS'},
+                    '3584033': {'contrato_cliente': 736, 'texto': 'ACORDO PRÉ'},
+                    '3582739': {'contrato_cliente': 740, 'texto': 'ACORDO PÓS'},
+                }
+
+                _pasta_str = str(tarefa.get('pasta_numero_integracao', ''))
+                if _pasta_str in _OVERRIDES_PASTA:
+                    _ov = _OVERRIDES_PASTA[_pasta_str]
+                    print(f'  [Override] pasta={_pasta_str}: contrato_cliente={_ov["contrato_cliente"]}, texto="{_ov["texto"]}"')
+                    tarefa['contrato_cliente'] = _ov['contrato_cliente']
+                    tarefa['texto'] = _ov['texto']
 
                 prefixo = ""
                 jec_civ = ""
+
                 
                 if cejusc_procon:
-                    if 'CONTESTAÇÃO' in texto:
+
+                    if 'DEFESA ADMINISTRATIVA' in texto and ('FTP' in evento or 'TRC' in evento):
+                        print(f'  ✓ Evento FTP/TRC confirmado no texto da página.')
+                    elif 'DEFESA ADMINISTRATIVA' in texto and 'FSP' in evento:
+                        print(f'  ✓ Evento FSP confirmado no texto da página.')
+                    elif 'CONTESTAÇÃO' in texto:
                         print(f'  ✓ Evento PDE confirmado no texto da página.')
                     else:
+
                         #de acordo com chat AMANDA CEJUS ou PROCON sempre sao eventos de contestação
                         tarefa['contrato_cliente'] = 999
+                        if 'PROCON' in texto_demanda:
+                            tarefa['contrato_cliente'] = 1000   
+
                         evento = "CEJUSC_PROCON"
                         chave_tabela_valores = 'CONTESTACAO'  # Debug: Verificar texto para PDE
+
+                    #pdb.set_trace()  # Debug: Verificar texto para eventos CEJUSC/PROCON, confirmar se são sempre contestação ou se há casos de defesa administrativa
+
                 else:    
 
                     if 'PDE' in evento: 
@@ -1047,10 +1271,18 @@ def main():
                                     jec_civ = "_JEC"
                             
                     if 'FTP' in evento or 'TRC' in evento:
+
                         if 'TRÂNSITO EM JULGADO' in texto:
                             print(f'  ✓ Evento FTP/TRC confirmado no texto da página.')
                         else:  
                             chave_tabela_valores = 'TRANSITO'
+
+                            if tarefa['contrato_cliente'] == 829:
+                                #pdb.set_trace()  # Debug: Verificar texto orgao para definir JEC ou CIV para contrato 829
+                                if 'juizado' in normalizar_texto(texto_orgao).lower():
+                                    jec_civ = "_JEC_TRANSITO"
+                                else:
+                                    jec_civ = "_CIV_TRANSITO"
                     
                     if 'FPB' in evento:
                         if 'ÊXITO' in texto or 'BONUS' in texto or 'BÔNUS' in texto:
@@ -1069,7 +1301,7 @@ def main():
                             print(f'  ✓ Evento FBA confirmado no texto da página.')
                         else:  
 
-                            pdb.set_trace()  # Debug: Verificar texto para definir chave de acordo pré ou pós
+                            #pdb.set_trace()  # Debug: Verificar texto para definir chave de acordo pré ou pós
                             if "ACORDO POS" in tarefa['texto'] or "ACORDO PÓS" in tarefa['texto']:
                                 chave_tabela_valores = 'ACORDO_POS'  # Debug: Verificar texto para FBA POS
                                 prefixo = "_POS"
@@ -1077,80 +1309,290 @@ def main():
                                 chave_tabela_valores = 'ACORDO_PRE'  # Debug: Verificar texto para FBA PRE
                                 prefixo = "_PRE"
                             else:
-                                registra_erro(tarefa, "[URGENTE] Evento FBA não identificado como ACORDO PRÉ ou PÓS no texto da tarefa, e nem na página. Verificar manualmente. Texto tarefa: " + tarefa['texto'])
-                                continue #retirar quando
+                                produto = tabela_valores[str(tarefa['contrato_cliente']) + jec_civ]['produto']
 
-                if chave_tabela_valores != "":
-                    print('  ✓ Evento não identificado na OMNI, usando chave para tabela_valores: ' + chave_tabela_valores)
-                    try:
-                        print(str(tarefa['contrato_cliente']) + ' Numero do contrato Cliente  - Dias Costa...')
-                        lista = tabela_valores[str(tarefa['contrato_cliente']) + jec_civ]['dados']
-                        produto = tabela_valores[str(tarefa['contrato_cliente']) + jec_civ]['produto']
+                                if produto == "CDC/CP/MC" and evento == "FBA":
 
-                        valor_despesa = next((v[chave_tabela_valores] for v in lista if chave_tabela_valores in v), None)
-                        
-                        if valor_despesa is None:
-                        
-                            if 'FPB' in evento:
-                                chave_tabela_valores = "EXITO"
-                                valor_despesa = next((v[chave_tabela_valores] for v in lista if chave_tabela_valores in v), None)
-
-                            if 'FBA' in evento:
-                                if 'ACORDO_PRE' in chave_tabela_valores:
-                                    print(f'  X Acordo não permite registro FBA PRE: ACORDO')
+                                    #pdb.set_trace()  # Debug: Verificar caso de produto Cartão com evento FPB para entender por que não deve registrar despesa
+                                    print(f'  X Produto CDC não permite Bonus')
                                     api_atualizar_tarefa(tarefa['id_tramitacao'],2,tarefa['update_data_hora'], tarefa['update_usuario'])
+                                    atualizar_tarefa_concluido_cpj = False
 
-                            #pdb.set_trace()  # Debug: COnfirmar evento FPB FBA para definir chave de êxito caso valor da chave bonus seja None
+                                elif tarefa['contrato_cliente'] == 35 and evento == "FBA":
 
-                        versao = str(tabela_valores[str(tarefa['contrato_cliente']) +jec_civ]['versao'] )
-                        
-                        if valor_despesa is not None:
-                            print(f'  ✓ Valor encontrado na tabela_valores para contrato_cliente={tarefa["contrato_cliente"]} e chave={chave_tabela_valores}')
-                            driver.get(url_despesa)
+                                    #pdb.set_trace()  # Debug: Verificar caso de produto Civil com evento FBA para entender por que não deve registrar despesa
+                                    print(f'  X Produto 35 não permite Acordo')
+                                    api_atualizar_tarefa(tarefa['id_tramitacao'],2,tarefa['update_data_hora'], tarefa['update_usuario'])
+                                    atualizar_tarefa_concluido_cpj = False
 
-                            #pdb.set_trace()  # Debug: Verificar tarefa atual antes de processar
-                            
-                            if produto == 'ACOES_PATIO':
-                                option_select_despesa = OPTIONS_SELECT[produto][0]['p_cod_custo']
-                                option_select_documento = OPTIONS_SELECT[produto][1]['p_cod_tipo_documento']
-                                input_tipo_documento = OPTIONS_SELECT[produto][2]['tipo_documento']
-                            else:
-                                option_select_despesa = OPTIONS_SELECT[evento + prefixo + '_V'+ versao][0]['p_cod_custo']
-                                option_select_documento = OPTIONS_SELECT[evento + prefixo + '_V'+ versao][1]['p_cod_tipo_documento']
-                                input_tipo_documento = OPTIONS_SELECT[evento + prefixo + '_V'+ versao][2]['tipo_documento']
-
-                            registrar_despesa_retorno = registrar_despesa(driver, tarefa, valor_despesa, option_select_despesa, option_select_documento, input_tipo_documento)
-
-                            if registrar_despesa_retorno[0] == False:
-
-                                if "Não foi localizado parametrização para o lançamento da despesa" in registrar_despesa_retorno[1]:
-                                    print(f'  ✗ Configuração ausente para despesa: {registrar_despesa_retorno[1]}')
-                                    #pdb.set_trace()  # Debug: Verificar detalhes da configuração ausente para despesa
-                                    api_atualizar_tarefa(tarefa['id_tramitacao'],2,tarefa['update_data_hora'], tarefa['update_usuario'],re.sub(r'\s+', ' ',unicodedata.normalize('NFD', registrar_despesa_retorno[1]).encode('ascii','ignore').decode()).strip())
-                                    continue
-                                
-                                elif 'Demanda Encontra-se Encerrada' in registrar_despesa_retorno[1]:
-                                    print(f'  ✗ Demanda Encontra-se Encerrada: {registrar_despesa_retorno[1]}')
-                                    #pdb.set_trace()  # Debug: Verificar detalhes da demanda encerrada
-                                    registra_erro(tarefa, registrar_despesa_retorno[1])
-
-                                else:
-                                    print(f'  ✗ Erro ao registrar despesa: {registrar_despesa_retorno[1]}')
-                                    #pdb.set_trace()  # Debug: Verificar o motivo de registrar despesa nao ter funcionado
-                                    registra_erro(tarefa, registrar_despesa_retorno[1])
-                                continue
-      
-                        else:
-                            pdb.set_trace()  # Debug: Verificar o valor de despesa
-
-                    except KeyError:   
-                        pdb.set_trace()  # Debug: erro de chaves
-                        registra_erro(tarefa, f'Chave de valor não encontrada: contrato_cliente={tarefa["contrato_cliente"]} chave={chave_tabela_valores}')
-                        
-                        continue
+                                else: 
+                                    registra_erro(tarefa, "[URGENTE] Evento FBA não identificado como ACORDO PRÉ ou PÓS no texto da tarefa, e nem na página. Verificar manualmente. Texto tarefa: " + tarefa['texto'])
+                                    continue #retirar quando
                 
-                #pdb.set_trace()  # Debug: Verificar qual é o evento e o texto para definir a chave da tabela de valores
-                api_atualizar_tarefa(tarefa['id_tramitacao'],1,tarefa['update_data_hora'], tarefa['update_usuario'])
+                if 'FCF' in evento:
+
+                    if tarefa['resultado_situacao'] != 1:
+                        atualizar_tarefa_concluido_cpj = True
+
+                    else:
+
+                        _tabela_valores_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'omni-pde-fsp-trc', 'tabela_valores.json')
+                        _tabela_valores = {}
+
+                        try:
+                            with open(_tabela_valores_path, 'r', encoding='utf-8') as _f:
+                                _tabela_valores = json.load(_f)
+                            print(f'      ✓ tabela_valores.json carregada ({len(_tabela_valores)} entradas)')
+                        except Exception as _e:
+                            print(f'      ⚠ Erro ao carregar tabela_valores.json: {_e}')
+    
+                        chave_tabela_valores = 'FECHAMENTO_CICLO_FINANCEIRO'
+                        print(f'  ✓ Evento FCF identificado, usando chave para tabela_valores: {chave_tabela_valores}')
+
+                        if '35' in str(tarefa['contrato_cliente']):
+                            print(f'⚠ Contrato cliente tipo: {tarefa["contrato_cliente"]}')
+
+                            _dados_tabela = _tabela_valores.get(str(tarefa['contrato_cliente']), {}).get('dados', [])
+                            _soma_3_primeiros = sum(Decimal(list(d.values())[0]) for d in _dados_tabela[:3] if d)
+
+                        elif '736' in str(tarefa['contrato_cliente']):
+
+                            print(f'⚠ Contrato cliente tipo: {tarefa["contrato_cliente"]}')
+
+                            _dados_tabela = _tabela_valores.get(str(tarefa['contrato_cliente']), {}).get('dados', [])
+                            _soma_3_primeiros = sum(list(d.values())[0] for d in _dados_tabela[:3] if d)
+
+                        elif '737' in str(tarefa['contrato_cliente']):
+
+                            print(f'⚠ Contrato cliente tipo: {tarefa["contrato_cliente"]}')
+
+                            _dados_tabela = _tabela_valores.get(str(tarefa['contrato_cliente']), {}).get('dados', [])
+                            _soma_3_primeiros = sum(list(d.values())[0] for d in _dados_tabela[:3] if d)                      
+
+                        elif '740' in str(tarefa['contrato_cliente']):
+
+                            print(f'⚠ Contrato cliente tipo: {tarefa["contrato_cliente"]}')
+
+                            _dados_tabela = _tabela_valores.get(str(tarefa['contrato_cliente']), {}).get('dados', [])
+                            _soma_3_primeiros = sum(list(d.values())[0] for d in _dados_tabela[:3] if d)
+
+                        elif '741' in str(tarefa['contrato_cliente']):
+
+                            print(f'⚠ Contrato cliente tipo: {tarefa["contrato_cliente"]}')
+
+                            _dados_tabela = _tabela_valores.get(str(tarefa['contrato_cliente']), {}).get('dados', [])
+                            _soma_3_primeiros = sum(list(d.values())[0] for d in _dados_tabela[:3] if d)
+
+                        elif '739' in str(tarefa['contrato_cliente']):
+
+                            print(f'⚠ Contrato cliente tipo: {tarefa["contrato_cliente"]}')
+
+                            _dados_tabela = _tabela_valores.get(str(tarefa['contrato_cliente']), {}).get('dados', [])
+                            _soma_3_primeiros = sum(list(d.values())[0] for d in _dados_tabela[:3] if d)
+
+                        elif '742' in str(tarefa['contrato_cliente']):    
+                            print(f'⚠ Contrato cliente tipo: {tarefa["contrato_cliente"]}')
+
+                            _dados_tabela = _tabela_valores.get(str(tarefa['contrato_cliente']), {}).get('dados', [])
+                            _soma_3_primeiros = sum(list(d.values())[0] for d in _dados_tabela[:3] if d)
+
+                        elif '743' in str(tarefa['contrato_cliente']):
+                            #é CDC nao prevê lancamento de valor de recebimento de PERDA, EXITO, ACORDO POS OU ACORDO PRE 
+                            print(f'⚠ Contrato cliente tipo: {tarefa["contrato_cliente"]}')
+
+                            _dados_tabela = _tabela_valores.get(str(tarefa['contrato_cliente']), {}).get('dados', [])
+                            _soma_3_primeiros = sum(list(d.values())[0] for d in _dados_tabela[:3] if d)
+
+                        else:
+                            pdb.set_trace()  # Debug: Verificar contrato_cliente para eventos de fechamento de ciclo financeiro, analisar se há casos não tratados e se a lógica de soma dos 3 primeiros valores da tabela está correta para esses casos específicos
+
+                        try:
+                            wait = WebDriverWait(driver, 10)
+                            texto = wait.until(EC.presence_of_element_located((By.ID, 'listaDespesas'))).text
+                            valores = re.findall(r'\b\d{1,3}(?:\.\d{3})*,\d{2}\b', texto)
+
+                            total_cadastrado = sum(
+                                Decimal(v.replace('.', '').replace(',', '.'))
+                                for v in valores
+                            )
+
+                            if total_cadastrado == _soma_3_primeiros:
+                                atualizar_tarefa_concluido_cpj = True
+
+                            elif total_cadastrado > _soma_3_primeiros:
+                                _nao_encerrados_path = os.path.join(
+                                    os.path.dirname(os.path.abspath(__file__)),
+                                    'tarefas_resultado_situacao_nao_encerrados.json'
+                                )
+                                _nao_encerrados_lista = []
+
+                                if os.path.exists(_nao_encerrados_path):
+                                    try:
+                                        with open(_nao_encerrados_path, 'r', encoding='utf-8') as _f:
+                                            _conteudo = _f.read().strip()
+                                            if _conteudo:
+                                                _nao_encerrados_lista = json.loads(_conteudo)
+                                    except (json.JSONDecodeError, ValueError):
+                                        _nao_encerrados_lista = []
+
+                                _id_tarefa = tarefa.get('id_tramitacao')
+                                _pasta_tarefa = str(tarefa.get('pasta_numero_integracao', ''))
+
+                                def _extrair_tarefa(_item):
+                                    if isinstance(_item, dict) and isinstance(_item.get('tarefa'), dict):
+                                        return _item.get('tarefa')
+                                    if isinstance(_item, dict):
+                                        return _item
+                                    return {}
+
+                                _ja_existe = any(
+                                    (
+                                        _extrair_tarefa(_item).get('id_tramitacao') == _id_tarefa
+                                        if _id_tarefa is not None else False
+                                    )
+                                    or (
+                                        str(_extrair_tarefa(_item).get('pasta_numero_integracao', '')) == _pasta_tarefa
+                                        if _pasta_tarefa else False
+                                    )
+                                    for _item in _nao_encerrados_lista
+                                )
+
+                                if not _ja_existe:
+                                    _nao_encerrados_lista.append({'tarefa': tarefa})
+                                    with open(_nao_encerrados_path, 'w', encoding='utf-8') as _f:
+                                        json.dump(_nao_encerrados_lista, _f, ensure_ascii=False, indent=2)
+                                    print(f'  ✓ Tarefa adicionada em {_nao_encerrados_path}')
+                                else:
+                                    print('  ✓ Tarefa já existe em tarefas_resultado_situacao_nao_encerrados.json, pulando gravação')
+
+                                continue
+
+                            else:
+                                pdb.set_trace()  # Debug: Verificar discrepância entre total cadastrado e soma dos 3 primeiros valores da tabela, analisar se os valores estão sendo extraídos corretamente e se a lógica de comparação está adequada
+
+                        except Exception as e:
+                            print(f'  X Erro ao calcular total de despesas: {e}')
+                            pdb.set_trace()  # Debug: Verificar erro ao calcular total de despesas, analisar se o elemento 'listaDespesas' está presente e se os valores estão sendo extraídos corretamente
+
+                else:
+                    print(f'  ✓ Evento identificado na OMNI, não é necessário usar chave para tabela_valores.')
+                    
+                    if chave_tabela_valores != "":
+                        print('  ✓ Evento não identificado na OMNI, usando chave para tabela_valores: ' + chave_tabela_valores)
+                        try:
+
+                            print(str(tarefa['contrato_cliente']) + ' Numero do contrato Cliente  - Dias Costa...')
+
+                            try:
+                                lista = tabela_valores[str(tarefa['contrato_cliente']) + jec_civ]['dados']     
+                            except Exception as e:
+                                print(f'  X Erro ao buscar valor_despesa: {e}')
+                                registra_erro(tarefa, f'Chave de valor não encontrada na tabela de valores: evento: {evento} contrato_cliente={tarefa["contrato_cliente"]} chave={chave_tabela_valores}')
+                                continue
+
+                            produto = tabela_valores[str(tarefa['contrato_cliente']) + jec_civ]['produto']
+                            
+                            if produto == "CDC/CP/MC" and evento == "FPB":                            
+                                #pdb.set_trace()  # Debug: Verificar caso de produto CDC com evento FPB para entender por que não deve registrar despesa
+                                print(f'  X Produto CDC não permite Bonus')
+                                api_atualizar_tarefa(tarefa['id_tramitacao'],2,tarefa['update_data_hora'], tarefa['update_usuario'])
+                                atualizar_tarefa_concluido_cpj = False
+
+                            elif produto == "CDC/CP/MC" and evento == "FBA":
+                                #pdb.set_trace()  # Debug: Verificar caso de produto Cartão com evento FPB para entender por que não deve registrar despesa
+                                print(f'  X Produto CDC não permite Bonus')
+                                api_atualizar_tarefa(tarefa['id_tramitacao'],2,tarefa['update_data_hora'], tarefa['update_usuario'])
+                                atualizar_tarefa_concluido_cpj = False
+
+                            elif tarefa['contrato_cliente'] == 35 and evento == "FBA":
+                                #pdb.set_trace()  # Debug: Verificar caso de produto Civil com evento FBA para entender por que não deve registrar despesa
+                                print(f'  X Produto 35 não permite Acordo')
+                                api_atualizar_tarefa(tarefa['id_tramitacao'],2,tarefa['update_data_hora'], tarefa['update_usuario'])
+                                atualizar_tarefa_concluido_cpj = False
+
+                            else:
+
+                                valor_despesa = next((v[chave_tabela_valores] for v in lista if chave_tabela_valores in v), None)
+                                
+                                if valor_despesa is None:
+                                
+                                    if 'FPB' in evento:
+                                        chave_tabela_valores = "EXITO"
+                                        valor_despesa = next((v[chave_tabela_valores] for v in lista if chave_tabela_valores in v), None)
+
+                                    if 'FBA' in evento:
+                                        if 'ACORDO_PRE' in chave_tabela_valores:
+                                            print(f'  X Acordo não permite registro FBA PRE: ACORDO')
+                                            api_atualizar_tarefa(tarefa['id_tramitacao'],2,tarefa['update_data_hora'], tarefa['update_usuario'])
+                                            atualizar_tarefa_concluido_cpj = False
+                                            continue
+
+                                versao = str(tabela_valores[str(tarefa['contrato_cliente']) +jec_civ]['versao'] )
+                                if valor_despesa is not None:
+                                    print(f'  ✓ Valor encontrado na tabela_valores para contrato_cliente={tarefa["contrato_cliente"]} e chave={chave_tabela_valores}')
+                                    driver.get(url_despesa)
+                                    time.sleep(1)  # Espera a página de registro de despesa carregar
+
+                                    #pdb.set_trace()  # Debug: Verificar tarefa atual antes de processar
+                                    
+                                    if produto == 'ACOES_PATIO':
+
+                                        if 'PDE' in evento:
+                                            produto = 'ACOES_PATIO_CONTESTACAO'
+                                        elif 'FTP' in evento or 'TRC' in evento:
+                                            produto = 'ACOES_PATIO_TRANSITO'
+                                        elif 'FSP' in evento:
+                                            produto = 'ACOES_PATIO_SENTENCA'
+
+                                        #pdb.set_trace()  # Debug: Verificar definição de produto para ações pátio
+
+                                        option_select_despesa = OPTIONS_SELECT[produto][0]['p_cod_custo']
+                                        option_select_documento = OPTIONS_SELECT[produto][1]['p_cod_tipo_documento']
+                                        input_tipo_documento = OPTIONS_SELECT[produto][2]['tipo_documento']
+
+                                    elif produto == 'ACOES_PATIO_TRANSITO':
+                                        option_select_despesa = OPTIONS_SELECT[produto][0]['p_cod_custo']
+                                        option_select_documento = OPTIONS_SELECT[produto][1]['p_cod_tipo_documento']
+                                        input_tipo_documento = OPTIONS_SELECT[produto][2]['tipo_documento']
+                                    
+                                    else:
+                                        option_select_despesa = OPTIONS_SELECT[evento + prefixo + '_V'+ versao][0]['p_cod_custo']
+                                        option_select_documento = OPTIONS_SELECT[evento + prefixo + '_V'+ versao][1]['p_cod_tipo_documento']
+                                        input_tipo_documento = OPTIONS_SELECT[evento + prefixo + '_V'+ versao][2]['tipo_documento']
+
+                                    registrar_despesa_retorno = registrar_despesa(driver, tarefa, valor_despesa, option_select_despesa, option_select_documento, input_tipo_documento)
+                                    #pdb.set_trace()  # Debug: Verificar retorno do registro de despesa para definir próximos passos
+                                    if registrar_despesa_retorno[0] == False:
+
+                                        if "Não foi localizado parametrização para o lançamento da despesa" in registrar_despesa_retorno[1]:
+                                            print(f'  ✗ Configuração ausente para despesa: {registrar_despesa_retorno[1]}')
+                                            texto_sanitizado = re.sub(r'\s+', ' ',unicodedata.normalize('NFD', registrar_despesa_retorno[1]).encode('ascii','ignore').decode()).strip()
+                                            registra_erro(tarefa, texto_sanitizado)
+                                            #api_atualizar_tarefa(tarefa['id_tramitacao'],2,tarefa['update_data_hora'], tarefa['update_usuario'])
+                                            continue
+                                        
+                                        elif 'Demanda Encontra-se Encerrada' in registrar_despesa_retorno[1]:
+                                            print(f'  ✗ Demanda Encontra-se Encerrada: {registrar_despesa_retorno[1]}')
+                                            #pdb.set_trace()  # Debug: Verificar detalhes da demanda encerrada
+                                            registra_erro(tarefa, registrar_despesa_retorno[1])
+
+                                        else:
+                                            print(f'  ✗ Erro ao registrar despesa: {registrar_despesa_retorno[1]}')
+                                            #pdb.set_trace()  # Debug: Verificar o motivo de registrar despesa nao ter funcionado
+                                            registra_erro(tarefa, registrar_despesa_retorno[1])
+                                        continue
+            
+                                else:
+                                    pdb.set_trace()  # Debug: Verificar o valor de despesa
+
+                        except KeyError:   
+                            pdb.set_trace()  # Debug: erro de chaves
+                            registra_erro(tarefa, f'Chave de valor não encontrada na tabela de valores: evento: {evento} contrato_cliente={tarefa["contrato_cliente"]} chave={chave_tabela_valores}')
+                            
+                            continue
+
+                if atualizar_tarefa_concluido_cpj:
+                    api_atualizar_tarefa(tarefa['id_tramitacao'],1,tarefa['update_data_hora'], tarefa['update_usuario'])
 
                 if integracao == False:
                     with open(TAREFAS_JSON_PATH, 'r', encoding='utf-8') as _f:
@@ -1164,9 +1606,12 @@ def main():
                 sucesso += 1
 
             except Exception as e:
-                print(f'  ✗ Erro na tarefa pasta={pasta}: {e}')
-                falha += 1
                 continue
+                print(f'  ✗ Erro na tarefa pasta={pasta}: {e}')
+                api_logout()
+                driver.quit()  # Fecha o navegador para evitar sessões travadas
+                falha += 1
+                break
 
         print(f'\n--- Resumo do processamento ---')
         print(f'  ✓ Sucesso: {sucesso}')
@@ -1174,6 +1619,20 @@ def main():
         print(f'  - Ignoradas (sem pasta): {tarefas_sem_pasta}')
 
         print('\n✓ Automação concluída com sucesso!')
+
+        # Logout da API
+        print('\nFinalizando...')
+        api_logout()
+        atualizar_proxima_execucao()  # Configura próxima execução para 7 dias depois
+        
+        # Fecha o navegador
+        if driver:
+            driver.quit()
+            print('✓ Navegador fechado')
+        
+        print('\n' + '='*70)
+        print('FIM DA EXECUÇÃO')
+        print('='*70)
         
     except Exception as e:
         print(f'\n✗ Falha na automação: {e}')
@@ -1184,7 +1643,8 @@ def main():
         # Logout da API
         print('\nFinalizando...')
         api_logout()
-        
+        atualizar_proxima_execucao()  # Configura próxima execução para 7 dias depois    
+
         # Fecha o navegador
         if driver:
             driver.quit()

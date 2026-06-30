@@ -69,6 +69,7 @@ class FormLogin:
                     #secret = "IRCDQQJVGUYDERRVGMYDIRBQGFAUKMKBGY2EKNRYHBBEEN2EGFDA===="
                     #secret = "IJDECNRQGZAUIOKGIMYDIMJYGBBDONRVGUZDGMJZGJBEMMBVGM4A===="
                     secret = "II4EGMSGIVBDQOBUGZCDIQ2FIRATGRBXGQ4TOMRYIVBUIRBTHFBQ===="
+                    
                     codigo_tfa = pyotp.TOTP(secret).now()
                     #codigo_tfa = login.ler_codigo()
     

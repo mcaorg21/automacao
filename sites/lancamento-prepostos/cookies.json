@@ -1,0 +1,20 @@
+[
+  {
+    "domain": "spjw.daycoval.com.br",
+    "httpOnly": true,
+    "name": "ASP.NET_SessionId",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "keqffcdvzemp32nujtdbwvwv"
+  },
+  {
+    "domain": "spjw.daycoval.com.br",
+    "httpOnly": true,
+    "name": "PJPrime",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "value": "E71DF8E9300C24391611CF2259B0A2E72B062FFE2E5332747FD80267888AC09127965071A00F9AA50A7AC403795477028345F259EE614E7A6E2091718173F006E77170428BDCBE30FB8DDD7EB87A3D0D01D85DA7"
+  }
+]

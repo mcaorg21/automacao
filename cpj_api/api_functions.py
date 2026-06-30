@@ -293,7 +293,7 @@ def api_post(endpoint: str, data: dict = None):
         traceback.print_exc()
         return None
 
-def api_buscar_lancamentos(data_inicial: datetime = None, data_final: datetime = None, numero_cc: int = 1397, limit: int = 5000):
+def api_buscar_lancamentos(data_inicial: datetime = None, data_final: datetime = None, numero_cc: int = 1397, limit: int = 5000, titulo: str = None, valor_limite_original: bool = True, documento_spf: str = True):
     """Busca lançamentos da conta corrente na API
     
     Args:
@@ -308,7 +308,7 @@ def api_buscar_lancamentos(data_inicial: datetime = None, data_final: datetime =
     """
     try:
         print('\n=== Buscando lançamentos na API ===')
-        
+
         # Define data padrão como ontem se não informada
         if data_inicial is None:
             data_inicial = datetime.now() - timedelta(days=1)
@@ -330,7 +330,7 @@ def api_buscar_lancamentos(data_inicial: datetime = None, data_final: datetime =
                 "_and": [
                     {
                         "numero_cc": {
-                            "_eq": numero_cc
+                            "_in": numero_cc
                         }
                     },
                     {
@@ -342,36 +342,37 @@ def api_buscar_lancamentos(data_inicial: datetime = None, data_final: datetime =
                         "data_lancamento": {
                             "_lte": data_final_str
                         }
-                    },
-                    { 
-                        "documento":{
-                            "_like": "SPF"
-                        }
-                    },
-                    { 
-                        "valor_original":{
-                            "_lt": 4000
-                        }
                     }
                 ]
             },
             "sort": "data_lancamento",
             "limit": limit
         }
+
+        if titulo:
+            body["filter"]["_and"].append({"id_titulo": {"_eq": titulo}})
+
+        if valor_limite_original:
+            body["filter"]["_and"].append({"valor_original": {"_lt": 4000000000}})
+        
+        if documento_spf:
+            body["filter"]["_and"].append({"documento": {"_like": "SPF"}})
+        
         
         # Faz a requisição POST
         response = api_post('/api/v2/cclan/listar', data=body)
 
-        # Carrega lista de bloqueados do arquivo JSON
-        bloqueados_json_path = os.path.join(os.path.dirname(__file__), 'bloqueados_id_spf.json')
-        try:
-            with open(bloqueados_json_path, 'r', encoding='utf-8') as f:
-                bloqueados_data = json.load(f)
-                bloqueados = bloqueados_data.get('bloqueados', [])
-        except Exception as e:
-            print(f'⚠ Erro ao carregar bloqueados_id_spf.json: {e}')
+        if numero_cc == 1397:
+            # Carrega lista de bloqueados do arquivo JSON
+            bloqueados_json_path = os.path.join(os.path.dirname(__file__), 'bloqueados_id_spf.json')
             bloqueados = []
-        
+            try:
+                with open(bloqueados_json_path, 'r', encoding='utf-8') as f:
+                    bloqueados_data = json.load(f)
+                    bloqueados = bloqueados_data.get('bloqueados', [])
+            except Exception as e:
+                print(f'⚠ Erro ao carregar bloqueados_id_spf.json: {e}')
+
         if response:
             # Verifica se a resposta tem dados
             if isinstance(response, list):
@@ -387,22 +388,97 @@ def api_buscar_lancamentos(data_inicial: datetime = None, data_final: datetime =
                 # Filtra lançamentos que contêm "pagamento de condenacao" na nota
                 lancamentos_filtrados = []
                 removidos = 0
-                
+                lancamentos_nao_classificados = []
+
                 for lancamento in lancamentos:
                     nota = lancamento.get('nota', '')
                     nota_normalizada = normalizar_texto(nota)
 
-                    if 'condenacao' not in nota_normalizada and all(bloqueado not in lancamento['documento'] for bloqueado in bloqueados):
+                    #BANCO PAN
+                    if numero_cc == 1506:
+
+                        # • APELAÇÃO
+                        # • CUSTAS FINAIS
+                        # • DESARQUIVAMENTO
+                        # • OFÍCIO
+                        # • PROTOCOLO POSTAL
+                        # • RECURSO ESPECIAL
+                        # • RECURSO EXTRAORDINÁRIO
+                        # • RECURSO INOMINADO
+                        # • HONORÁRIOS DO CONCILIADOR
+                        # • HONORÁRIOS DO PERITO
+                        # • AGRAVO DE INSTRUMENTO
+                        # • AGRAVO INTERNO
+                        
+                        lancamento['id_spf'] = sanitizar_documento(lancamento['documento'])
+                        detalhes_spf = api_buscar_spf(lancamento['id_spf'], limit=10)
+                        lancamento['pj'] = detalhes_spf.get('pj', '')
+                        tipo_despesa = normalizar_texto(detalhes_spf.get('resumo_solicitacao', '')).strip()
+
+                        if 'apelacao' in tipo_despesa or 'apelcao' in tipo_despesa:
+                            lancamento['tipo_despesa'] = 'APELAÇÃO'
+                        elif 'recurso' in tipo_despesa or 'preparo recursal' in tipo_despesa:
+                            lancamento['tipo_despesa'] = 'PREPARO RECURSAL'
+                        elif 'custas finais' in tipo_despesa or 'custas cumprimento de sentenca' in tipo_despesa or 'custas processuais' in tipo_despesa:
+                            lancamento['tipo_despesa'] = 'CUSTAS FINAIS'
+                        elif 'conciliador' in tipo_despesa:
+                            lancamento['tipo_despesa'] = 'HONORÁRIOS DO CONCILIADOR'
+                        elif 'contadoria' in tipo_despesa:
+                            lancamento['tipo_despesa'] = 'CUSTAS CONTADORIA'
+                        elif 'divida ativa' in tipo_despesa:
+                            lancamento['tipo_despesa'] = 'DÍVIDA ATIVA'
+                        elif 'divida ativa' in tipo_despesa:
+                            lancamento['tipo_despesa'] = 'DÍVIDA ATIVA'
+                        elif 'custas desarquivamento' in tipo_despesa:
+                            lancamento['tipo_despesa'] = 'CUSTAS DESARQUIVAMENTO'
+                        elif 'agravo de instrumento' in tipo_despesa:
+                            lancamento['tipo_despesa'] = 'AGRAVO DE INSTRUMENTO'
+                        elif tipo_despesa == '':
+                            lancamento['tipo_despesa'] = 'VAZIO'
+                        else:
+                            lancamento['tipo_despesa'] = 'CUSTAS FINAIS'
+                            # lancamento['tipo_despesa'] = f'NAO_IDENTIFICADO_{tipo_despesa}'
+                            # pdb.set_trace()  # Debug: Verificar tipo de despesa desconhecido
+                            #lancamento['tipo_despesa'] = 'OUTRO'
+
+                        dados_processo = api_buscar_processo_por_pj(lancamento['pj'])
+
+                        #for parcela in api_buscar_spf(lancamento['id_spf'])['parcela']: 
+                        lancamento['valores_parcelas'] = ','.join(str(parcela.get('valor', '')) for parcela in detalhes_spf['parcela']) 
+
+                        # if lancamento['id_spf'] == '51884':
+                        #     pdb.set_trace()  # Debug: Verificar dados do processo e parcelas para o lançamento
+
+                        lancamento['numero_processo'] = dados_processo[0].get('numero_processo', '')
+                        lancamento['autor_nome'] = dados_processo[0].get('autor_nome').upper()
+                        lancamento['id_caso'] = sanitizar_documento(dados_processo[0].get('numero_integracao', ''))
+
+                        if lancamento['tipo_despesa'] == 'VAZIO':
+                            lancamentos_nao_classificados.append(dados_processo[0].get('numero_integracao', ''))
+
+
                         lancamentos_filtrados.append(lancamento)
-                    else:
-                        id_spf = sanitizar_documento(lancamento['documento'])
-                        civ = api_buscar_processo(api_buscar_spf(id_spf)['pj'])['numero_integracao']
-                        registrar_removido(civ, nota_normalizada, CONFIG_JSON_PATH)
-                        removidos += 1
-                
+
+                    #BANCO BMG
+                    elif numero_cc == 1397:
+
+                        if 'condenacao' not in nota_normalizada and all(bloqueado not in lancamento['documento'] for bloqueado in bloqueados):
+                            lancamentos_filtrados.append(lancamento)
+                        else:
+                            id_spf = sanitizar_documento(lancamento['documento'])
+                            civ = api_buscar_processo(api_buscar_spf(id_spf)['pj'])['numero_integracao']
+                            registrar_removido(civ, nota_normalizada, CONFIG_JSON_PATH)
+                            removidos += 1
+
+                    elif numero_cc in "36, 1394, 1373, 1449":
+                        lancamentos_filtrados.append(lancamento)
+
                 print(f'✓ {len(lancamentos_filtrados)} lançamento(s) encontrado(s)!')
                 if removidos > 0:
                     print(f'  ⚠ {removidos} lançamento(s) removido(s)')
+
+                # if lancamentos_nao_classificados:
+                #     pdb.set_trace()  # Debug: Verificar lançamentos vazios
                 
                 return lancamentos_filtrados
             else:
@@ -416,6 +492,319 @@ def api_buscar_lancamentos(data_inicial: datetime = None, data_final: datetime =
         print(f'✗ Erro ao buscar lançamentos: {e}')
         traceback.print_exc()
         return None
+
+def api_buscar_lancamentos_filtro(filtros: list, limit: int = 5000, sort: str = 'data_lancamento'):
+    """Busca lançamentos da conta corrente com filtro customizado
+    
+    Args:
+        filtros: Lista de condições para o campo _and do filtro (ex: [{"numero_cc": {"_eq": 36}}, ...])
+        limit: Limite de registros (padrão: 5000)
+        sort: Campo de ordenação (padrão: 'data_lancamento')
+        
+    Returns:
+        list: Lista de lançamentos encontrados
+        None: Se a requisição falhar
+    """
+    try:
+        body = {
+            "filter": {
+                "_and": filtros
+            },
+            "sort": sort,
+            "limit": limit
+        }
+
+        response = api_post('/api/v2/cclan/listar', data=body)
+        
+        if response:
+            if isinstance(response, list):
+                print(f'✓ {len(response)} lançamento(s) encontrado(s)!')
+                return response
+            elif isinstance(response, dict):
+                data = response.get('data', response.get('items', None))
+                if isinstance(data, list):
+                    print(f'✓ {len(data)} lançamento(s) encontrado(s)!')
+                    return data
+            print(f'✓ Resposta recebida (formato não esperado)')
+            return response
+        else:
+            print('✗ Nenhum lançamento encontrado')
+            return None
+
+    except Exception as e:
+        print(f'✗ Erro ao buscar lançamentos: {e}')
+        traceback.print_exc()
+        return None
+
+def api_buscar_lancamentos_bmg(data_inicial: datetime = None, data_final: datetime = None, numero_cc: int = 1397, limit: int = 5000, titulo: str = None, valor_limite_original: bool = True, documento_spf: str = True, tipo_lancamento: str = "Reembsolso"):
+    """Busca lançamentos da conta corrente na API
+    
+    Args:
+        data_inicial: Data inicial para busca (padrão: ontem)
+        data_final: Data final para busca (padrão: ontem)
+        numero_cc: Número da conta corrente (padrão: 1397 - Banco BMG)
+        limit: Limite de registros (padrão: 5000)
+        titulo: Título do lançamento (padrão: None)
+        valor_limite_original: Se deve considerar o valor limite original (padrão: True)
+        documento_spf: Se deve considerar o documento SPF (padrão: True)
+        tipo_lancamento: Tipo de lançamento (padrão: "Reembsolso")
+    Returns:
+        list: Lista de lançamentos encontrados
+        None: Se a requisição falhar
+    """
+    try:
+        print('\n=== Buscando lançamentos na API ===')
+
+        # Define data padrão como ontem se não informada
+        if data_inicial is None:
+            data_inicial = datetime.now() - timedelta(days=1)
+        if data_final is None:
+            data_final = datetime.now() - timedelta(days=1)
+        
+        # Formata datas para o formato da API (YYYY-MM-DD)
+        data_inicial_str = data_inicial.strftime('%Y-%m-%d')
+        data_final_str = data_final.strftime('%Y-%m-%d')
+        
+        print(f'Conta Corrente: {numero_cc}')
+        print(f'Data Inicial: {data_inicial_str}')
+        print(f'Data Final: {data_final_str}')
+        print(f'Limite: {limit} registros')
+        
+        # Monta o body da requisição
+        body = {
+            "filter": {
+                "_and": [
+                    {
+                        "id_titulo": {
+                            "_in": titulo
+                        }
+                    }
+                ]
+            },
+            "sort": "data_lancamento",
+            "limit": limit
+        }
+        
+        # Faz a requisição POST
+        response = api_post('/api/v2/cclan/listar', data=body)
+
+        # Carrega lista de bloqueados do arquivo JSON
+        bloqueados_json_path = os.path.join(os.path.dirname(__file__), 'bloqueados_id_spf.json')
+        bloqueados = []
+        try:
+            with open(bloqueados_json_path, 'r', encoding='utf-8') as f:
+                bloqueados_data = json.load(f)
+                bloqueados = bloqueados_data.get('bloqueados', [])
+        except Exception as e:
+            print(f'⚠ Erro ao carregar bloqueados_id_spf.json: {e}')
+
+        if response:
+            # Verifica se a resposta tem dados
+            if isinstance(response, list):
+                # Se a resposta já é uma lista
+                lancamentos = response
+            elif isinstance(response, dict):
+                # Se é um objeto, tenta extrair a lista
+                lancamentos = response.get('data', response.get('items', None))
+            else:
+                lancamentos = None
+
+            if tipo_lancamento == "Reembolso":
+            
+                if lancamentos and isinstance(lancamentos, list):
+                    # Filtra lançamentos que contêm "pagamento de condenacao" na nota
+                    lancamentos_filtrados = []
+                    removidos = 0
+                    lancamentos_nao_classificados = []
+
+                    for lancamento in lancamentos:
+                        nota = lancamento.get('nota', '')
+                        nota_normalizada = normalizar_texto(nota)
+
+                        if 'condenacao' not in nota_normalizada and all(bloqueado not in lancamento['documento'] for bloqueado in bloqueados):
+                            lancamentos_filtrados.append(lancamento)
+                        else:
+                            id_spf = sanitizar_documento(lancamento['documento'])
+                            civ = api_buscar_processo(api_buscar_spf(id_spf)['pj'])['numero_integracao']
+                            registrar_removido(civ, nota_normalizada, CONFIG_JSON_PATH)
+                            removidos += 1
+
+
+                    print(f'✓ {len(lancamentos_filtrados)} lançamento(s) encontrado(s)!')
+                    if removidos > 0:
+                        print(f'  ⚠ {removidos} lançamento(s) removido(s)')
+
+                # if lancamentos_nao_classificados:
+                #     pdb.set_trace()  # Debug: Verificar lançamentos vazios
+                
+                return lancamentos_filtrados
+            else:
+                print(f'✓ Resposta recebida (formato não esperado)')
+                return response
+        else:
+            print('✗ Nenhum lançamento encontrado')
+            return None
+            
+    except Exception as e:
+        print(f'✗ Erro ao buscar lançamentos: {e}')
+        traceback.print_exc()
+        return None
+
+def api_buscar_lancamentos_pan(data_inicial: datetime = None, data_final: datetime = None, numero_cc: int = 1397, limit: int = 5000, titulo: str = None, valor_limite_original: bool = True, documento_spf: str = True):
+    """Busca lançamentos da conta corrente na API
+    
+    Args:
+        data_inicial: Data inicial para busca (padrão: ontem)
+        data_final: Data final para busca (padrão: ontem)
+        numero_cc: Número da conta corrente (padrão: 1397 - Banco BMG)
+        limit: Limite de registros (padrão: 5000)
+        
+    Returns:
+        list: Lista de lançamentos encontrados
+        None: Se a requisição falhar
+    """
+    try:
+        print('\n=== Buscando lançamentos na API ===')
+
+        # Define data padrão como ontem se não informada
+        if data_inicial is None:
+            data_inicial = datetime.now() - timedelta(days=1)
+        if data_final is None:
+            data_final = datetime.now() - timedelta(days=1)
+        
+        # Formata datas para o formato da API (YYYY-MM-DD)
+        data_inicial_str = data_inicial.strftime('%Y-%m-%d')
+        data_final_str = data_final.strftime('%Y-%m-%d')
+        
+        print(f'Conta Corrente: {numero_cc}')
+        print(f'Data Inicial: {data_inicial_str}')
+        print(f'Data Final: {data_final_str}')
+        print(f'Limite: {limit} registros')
+        
+        # Monta o body da requisição
+        body = {
+            "filter": {
+                "_and": [
+                    {
+                        "id_titulo": {
+                            "_in": titulo
+                        }
+                    }
+                ]
+            },
+            "sort": "data_lancamento",
+            "limit": limit
+        }
+        
+        # Faz a requisição POST
+        response = api_post('/api/v2/cclan/listar', data=body)
+
+        if response:
+            # Verifica se a resposta tem dados
+            if isinstance(response, list):
+                # Se a resposta já é uma lista
+                lancamentos = response
+            elif isinstance(response, dict):
+                # Se é um objeto, tenta extrair a lista
+                lancamentos = response.get('data', response.get('items', None))
+            else:
+                lancamentos = None
+            
+            if lancamentos and isinstance(lancamentos, list):
+                # Filtra lançamentos que contêm "pagamento de condenacao" na nota
+                lancamentos_filtrados = []
+                removidos = 0
+                lancamentos_nao_classificados = []
+
+                for lancamento in lancamentos:
+                    nota = lancamento.get('nota', '')
+                    nota_normalizada = normalizar_texto(nota)
+
+                    #BANCO PAN
+                    if numero_cc == 1506:
+
+                        # • APELAÇÃO
+                        # • CUSTAS FINAIS
+                        # • DESARQUIVAMENTO
+                        # • OFÍCIO
+                        # • PROTOCOLO POSTAL
+                        # • RECURSO ESPECIAL
+                        # • RECURSO EXTRAORDINÁRIO
+                        # • RECURSO INOMINADO
+                        # • HONORÁRIOS DO CONCILIADOR
+                        # • HONORÁRIOS DO PERITO
+                        # • AGRAVO DE INSTRUMENTO
+                        # • AGRAVO INTERNO
+                        
+                        lancamento['id_spf'] = sanitizar_documento(lancamento['documento'])
+                        detalhes_spf = api_buscar_spf(lancamento['id_spf'], limit=10)
+                        lancamento['pj'] = detalhes_spf.get('pj', '')
+                        tipo_despesa = normalizar_texto(detalhes_spf.get('resumo_solicitacao', '')).strip()
+
+                        if 'apelacao' in tipo_despesa or 'apelcao' in tipo_despesa:
+                            lancamento['tipo_despesa'] = 'APELAÇÃO'
+                        elif 'recurso' in tipo_despesa or 'preparo recursal' in tipo_despesa:
+                            lancamento['tipo_despesa'] = 'PREPARO RECURSAL'
+                        elif 'custas finais' in tipo_despesa or 'custas cumprimento de sentenca' in tipo_despesa or 'custas processuais' in tipo_despesa:
+                            lancamento['tipo_despesa'] = 'CUSTAS FINAIS'
+                        elif 'conciliador' in tipo_despesa:
+                            lancamento['tipo_despesa'] = 'HONORÁRIOS DO CONCILIADOR'
+                        elif 'contadoria' in tipo_despesa:
+                            lancamento['tipo_despesa'] = 'CUSTAS CONTADORIA'
+                        elif 'divida ativa' in tipo_despesa:
+                            lancamento['tipo_despesa'] = 'DÍVIDA ATIVA'
+                        elif 'divida ativa' in tipo_despesa:
+                            lancamento['tipo_despesa'] = 'DÍVIDA ATIVA'
+                        elif 'custas desarquivamento' in tipo_despesa:
+                            lancamento['tipo_despesa'] = 'CUSTAS DESARQUIVAMENTO'
+                        elif 'agravo de instrumento' in tipo_despesa:
+                            lancamento['tipo_despesa'] = 'AGRAVO DE INSTRUMENTO'
+                        elif tipo_despesa == '':
+                            lancamento['tipo_despesa'] = 'VAZIO'
+                        else:
+                            lancamento['tipo_despesa'] = 'CUSTAS FINAIS'
+                            # lancamento['tipo_despesa'] = f'NAO_IDENTIFICADO_{tipo_despesa}'
+                            # pdb.set_trace()  # Debug: Verificar tipo de despesa desconhecido
+                            #lancamento['tipo_despesa'] = 'OUTRO'
+
+                        dados_processo = api_buscar_processo_por_pj(lancamento['pj'])
+
+                        #for parcela in api_buscar_spf(lancamento['id_spf'])['parcela']: 
+                        lancamento['valores_parcelas'] = ','.join(str(parcela.get('valor', '')) for parcela in detalhes_spf['parcela']) 
+
+                        # if lancamento['id_spf'] == '51884':
+                        #     pdb.set_trace()  # Debug: Verificar dados do processo e parcelas para o lançamento
+
+                        lancamento['numero_processo'] = dados_processo[0].get('numero_processo', '')
+                        lancamento['autor_nome'] = dados_processo[0].get('autor_nome').upper()
+                        lancamento['id_caso'] = sanitizar_documento(dados_processo[0].get('numero_integracao', ''))
+
+                        if lancamento['tipo_despesa'] == 'VAZIO':
+                            lancamentos_nao_classificados.append(dados_processo[0].get('numero_integracao', ''))
+
+
+                        lancamentos_filtrados.append(lancamento)
+
+                print(f'✓ {len(lancamentos_filtrados)} lançamento(s) encontrado(s)!')
+                if removidos > 0:
+                    print(f'  ⚠ {removidos} lançamento(s) removido(s)')
+
+                # if lancamentos_nao_classificados:
+                #     pdb.set_trace()  # Debug: Verificar lançamentos vazios
+                
+                return lancamentos_filtrados
+            else:
+                print(f'✓ Resposta recebida (formato não esperado)')
+                return response
+        else:
+            print('✗ Nenhum lançamento encontrado')
+            return None
+            
+    except Exception as e:
+        print(f'✗ Erro ao buscar lançamentos: {e}')
+        traceback.print_exc()
+        return None
+
 
 def normalizar_texto(texto: str) -> str:
     """Normaliza texto removendo acentos e substituindo ç por c
@@ -486,7 +875,8 @@ def registrar_removido(civ: str, nota_normalizada: str, config_path: str = None)
             data_existente = registro_existente.get('data_hora', '')[:10]  # Pega apenas YYYY-MM-DD
             if data_existente == data_atual and registro_existente.get('civ') == civ:
                 ja_existe = True
-                print(f'  ℹ Já existe registro de lançamento removido para a data {data_atual}, não será duplicado')
+                print(f'  ℹ Já existe registro de lançamento {civ} removido para a data {data_atual}, não será duplicado')
+                #pdb.set_trace()  # Debug: Verificar registro existente para o mesmo CIV e data
                 break
         
         # Adiciona o novo registro somente se não existir
@@ -547,11 +937,12 @@ def formatar_data_lancamento(data_str: str) -> str:
         print(f'⚠ Erro ao formatar data {data_str}: {e}')
         return data_str
 
-def api_buscar_spf(id_spf: str):
+def api_buscar_spf(id_spf: str, limit: int = 1):
     """Busca informações do SPF pelo ID
     
     Args:
         id_spf: ID do SPF (ex: "49815")
+        limit: Número máximo de resultados a serem retornados (padrão: 1)   
         
     Returns:
         dict: Dados do SPF encontrado
@@ -568,7 +959,7 @@ def api_buscar_spf(id_spf: str):
                     }
                 ]
             },
-            "limit": 1
+            "limit": limit
         }
         
         response = api_post('/api/v2/spf/listar', data=body)
@@ -676,6 +1067,53 @@ def api_buscar_processo_por_pj(pj: int):
         traceback.print_exc()
         return None
 
+def api_buscar_processo_por_ficha(ficha: str):
+    """Busca processos pelo número de ficha retornando todos os resultados
+    
+    Args:
+        ficha: Número da ficha
+        
+    Returns:
+        list: Lista de processos encontrados
+        None: Se não encontrar
+    """
+    try:
+        print(f'\n=== Buscando processos pela ficha {ficha} ===')
+        
+        body = {
+            "filter": {
+                "_and": [
+                    {
+                        "ficha": {
+                            "_eq": ficha
+                        }
+                    }
+                ]
+            },
+            "limit": 1000,
+            "sort": "update_data_hora"
+        }
+        
+        response = api_post('/api/v2/processo', data=body)
+        
+        if response is not None:
+            if isinstance(response, list):
+                print(f'✓ {len(response)} processo(s) encontrado(s)')
+                return response
+            elif isinstance(response, dict):
+                data = response.get('data', response.get('items', None))
+                if isinstance(data, list):
+                    print(f'✓ {len(data)} processo(s) encontrado(s)')
+                    return data
+        
+        print(f'✗ Nenhum processo encontrado para ficha {ficha}')
+        return None
+            
+    except Exception as e:
+        print(f'✗ Erro ao buscar processos por ficha {ficha}: {e}')
+        traceback.print_exc()
+        return None
+
 def processar_lancamentos(lancamentos: list, filtro_integracao: str = 'CIV', json_path: str = None, planilha_path: str = None):
     """Processa cada lançamento e busca informações relacionadas
     
@@ -700,6 +1138,7 @@ def processar_lancamentos(lancamentos: list, filtro_integracao: str = 'CIV', jso
     registros = []
     valor_total = 0.0
     remover_registros = 0
+    
     
     for idx, lancamento in enumerate(lancamentos, start=1):
         try:
@@ -788,7 +1227,7 @@ def processar_lancamentos(lancamentos: list, filtro_integracao: str = 'CIV', jso
                 if 'APELAÇÃO CIVEL' in nota_upper or 'APELACAO CIVEL' in nota_upper or 'APELACAO CÍVEL' in nota_upper or 'APELAÇÃO CÍVEL' in nota_upper:
                     lancamento['nota'] = 'APELAÇÃO CIVEL'
                 
-                elif 'CUSTA FINAIS' in nota_upper or 'CUSTAS FINAIS' in nota_upper:
+                elif 'CUSTA FINAIS' in nota_upper or 'CUSTAS FINAIS' in nota_upper or 'CUSTA FINAS' in nota_upper:
                     lancamento['nota'] = 'CUSTA FINAIS'
                 
                 elif 'DESARQUIVAMENTO' in nota_upper:
@@ -808,6 +1247,10 @@ def processar_lancamentos(lancamentos: list, filtro_integracao: str = 'CIV', jso
                 
                 elif 'RECURSO INOMINADO' in nota_upper:
                     lancamento['nota'] = 'RECURSO INOMINADO'
+
+                elif 'AGRAVO DE INSTRUMENTO' in nota_upper:
+                    lancamento['nota'] = 'AGRAVO DE INSTRUMENTO'
+                    
                 
                 elif 'PAGAMENTO DE CONDENAÇÃO' in nota_upper or 'PAGAMENTO DE CONDENACAO' in nota_upper:
                     remover_registros += 1
@@ -818,11 +1261,14 @@ def processar_lancamentos(lancamentos: list, filtro_integracao: str = 'CIV', jso
                     # nota_original = lancamento['nota']
                     # nota_normalizada_para_log = normalizar_texto(nota_original)
                     # registrar_nota_desconhecida(nota_original, nota_normalizada_para_log)
-                    if 'CUSTAS DIVERSAS' in nota_upper:
-                        lancamento['nota'] = "CUSTAS DIVERSAS E TAXAS JUDICIAIS / TRIBUNAL DE JU"
-                    else:
-                        print('-------> ENTROU NO ELSE')
-                        pdb.set_trace()
+                    # if 'CUSTAS DIVERSAS' in nota_upper:
+                    #     lancamento['nota'] = "CUSTAS DIVERSAS E TAXAS JUDICIAIS / TRIBUNAL DE JU"
+                    # else:
+                    #     #lancamento['nota'] = "CUSTAS DIVERSAS E TAXAS JUDICIAIS / TRIBUNAL DE JU"
+                    #     print('-------> ENTROU NO ELSE')
+                    #     pdb.set_trace()
+
+                    lancamento['nota'] = "CUSTAS DIVERSAS E TAXAS JUDICIAIS / TRIBUNAL DE JU"
 
                     
             else:
@@ -920,6 +1366,34 @@ def api_buscar_documentos_spf(id_spf: str):
         print(f'✗ Erro ao buscar documentos do SPF {id_spf}: {e}')
         return None
 
+def api_buscar_documentos_pj(origem: int, pj: int):
+    """Busca documentos de um processo pelo PJ.
+
+    Args:
+        pj: Identificador do processo (PJ)
+
+    Returns:
+        list: Lista de documentos encontrados
+        None: Se não encontrar
+    """
+    try:
+        endpoint = f'/api/v2/documento/{origem}/{pj}'
+        response = api_post(endpoint, data={})
+
+        if response and isinstance(response, list):
+            return response
+
+        if isinstance(response, dict):
+            data = response.get('data', response.get('items', None))
+            if isinstance(data, list):
+                return data
+
+        return None
+
+    except Exception as e:
+        print(f'✗ Erro ao buscar documentos do PJ {pj}: {e}')
+        return None
+
 def api_baixar_documento(id_ged: int, destino_path: str):
     """Baixa um documento pelo ID GED
     
@@ -957,10 +1431,12 @@ def api_baixar_documento(id_ged: int, destino_path: str):
             print(f'  ✓ Documento salvo: {os.path.basename(destino_path)}')
             return True
             
-        elif response.status_code == 401:
-            print('✗ Token expirado. Tentando reautenticar...')
+        elif response.status_code in [400, 401]:
+            print(f'✗ Erro {response.status_code}. Invalidando token e reautenticando...')
+            API_TOKEN = None
+            API_SESSION = None
             if api_login():
-                # Tenta novamente com o novo token
+                # Tenta novamente com novo token gerado pelo login
                 headers = {'Authorization': f'Bearer {API_TOKEN}'}
                 response = API_SESSION.get(url, headers=headers, timeout=60, stream=True)
                 if response.status_code == 200:
@@ -1130,7 +1606,6 @@ def processar_documentos_registros(json_path: str = None, output_folder: str = N
         traceback.print_exc()
         raise
 
-
 def api_buscar_processo_tarefa(evento: str, ag_data_hora: str = None, id_tramitacao_inicio: int = 13000000, id_tramitacao_fim: int = 15000000, id_tramitacao_situacao: int = 0, limit: int = 1000):
     """Busca tarefas de processo na API com filtro por evento e data
     
@@ -1238,7 +1713,6 @@ def api_buscar_processo_tarefa(evento: str, ag_data_hora: str = None, id_tramita
         traceback.print_exc()
         return None
 
-
 def api_buscar_processo_tarefa_por_data(evento: str, data_inicial: datetime = None, data_fim: datetime = None, id_tramitacao_situacao: int = 0, limit: int = 1000):
     """Busca tarefas de processo na API com filtro por evento e intervalo de datas em data_hora_lan
     
@@ -1286,12 +1760,12 @@ def api_buscar_processo_tarefa_por_data(evento: str, data_inicial: datetime = No
                     },
                     {
                         "data_hora_lan": {
-                            "_gte": data_inicial_str
+                            "_gte": data_inicial_str+'T00:00:00.000-03:00'
                         }
                     },
                     {
                         "data_hora_lan": {
-                            "_lte": data_fim_str
+                            "_lte": data_fim_str+'T23:59:59.999-03:00'
                         }
                     }
                 ]
@@ -1330,6 +1804,65 @@ def api_buscar_processo_tarefa_por_data(evento: str, data_inicial: datetime = No
         traceback.print_exc()
         return None
 
+def api_buscar_processo_tarefa_filter(filter_data: dict, limit: int = 1000, sort: str = None, offset: int = None):
+    """Busca tarefas de processo na API aceitando um filtro completo.
+
+    Args:
+        filter_data: Objeto completo do campo "filter" aceito pela API.
+            Exemplo: {"_and": [{"evento": {"_eq": "PDE"}}, {"id_tramitacao_situacao": {"_eq": 0}}]}
+        limit: Limite de registros retornados (padrão: 1000)
+        sort: Campo de ordenação (opcional)
+        offset: Offset para paginação (opcional)
+
+    Returns:
+        list: Lista de tarefas encontradas
+        None: Se a requisição falhar
+    """
+    try:
+        print('\n=== Buscando tarefas de processo com filtro completo ===')
+
+        if not isinstance(filter_data, dict) or not filter_data:
+            raise ValueError('filter_data deve ser um dict não vazio contendo o filtro da API')
+
+        body = {
+            "filter": filter_data,
+            "limit": limit
+        }
+
+        if sort:
+            body["sort"] = sort
+        if offset is not None:
+            body["offset"] = offset
+
+        endpoint = '/api/v2/processo/tarefa'
+        print(f'Endpoint: {endpoint}')
+        print(f'Body: {json.dumps(body, indent=2)}')
+
+        response = api_post(endpoint, data=body)
+
+        if response is not None:
+            if isinstance(response, list):
+                print(f'✓ {len(response)} tarefa(s) encontrada(s)')
+                return response
+            elif isinstance(response, dict):
+                data = response.get('data', response)
+                if isinstance(data, list):
+                    print(f'✓ {len(data)} tarefa(s) encontrada(s)')
+                    return data
+                else:
+                    print('✓ 1 tarefa encontrada')
+                    return [data]
+            else:
+                print('✓ Resposta recebida')
+                return response
+        else:
+            print('✗ Nenhuma resposta recebida')
+            return None
+
+    except Exception as e:
+        print(f'✗ Erro ao buscar tarefas de processo com filtro completo: {e}')
+        traceback.print_exc()
+        return None
 
 def api_atualizar_tarefa(id_tramitacao: int, id_tramitacao_situacao: int = 1, update_data_hora: str = None, update_usuario: int = 19192):
     """Atualiza a situação de uma tarefa de processo na API
@@ -1375,3 +1908,51 @@ def api_atualizar_tarefa(id_tramitacao: int, id_tramitacao_situacao: int = 1, up
         print(f'✗ Erro ao atualizar tarefa: {e}')
         traceback.print_exc()
         return None
+
+def api_atualizar_processo(pj: str, fields: dict, update_usuario: int = 1, update_data_hora: str = None):
+    """Atualiza dados de um processo identificado pelo PJ
+    
+    Args:
+        pj: Identificador PJ do processo a ser atualizado (obrigatório)
+        fields: Dicionário com os campos a serem atualizados (ex: {'variavel_1': 'Administrativo', 'variavel_2': 'Aux RH'})
+        update_usuario: ID do usuário responsável pela atualização (padrão: 1)
+        update_data_hora: Data e hora da atualização (ISO 8601). Usa o momento atual se não informado.
+
+    Returns:
+        dict: Resposta da API em caso de sucesso
+        None: Se a requisição falhar
+
+    Exemplo:
+        >>> api_atualizar_processo('PJ123', {'variavel_1': 'Administrativo', 'variavel_2': 'Aux RH', 'variavel_3': '1800,00'})
+    """
+    try:
+        print(f'\n=== Atualizando processo (pj={pj}) ===')
+
+        endpoint = f'/api/v2/processo/atualizar/{pj}'
+
+        if update_data_hora is None:
+            update_data_hora = datetime.now(ZoneInfo('UTC')).strftime('%Y-%m-%dT%H:%M:%S.000-03:00')
+
+        body = {
+            'update_data_hora': update_data_hora,
+            'update_usuario': update_usuario,
+            **fields,
+        }
+
+        print(f'Endpoint: {endpoint}')
+        print(f'Body: {json.dumps(body, indent=2)}')
+
+        response = api_post(endpoint, data=body)
+
+        if response is not None:
+            print(f'✓ Processo {pj} atualizado com sucesso')
+            return response
+        else:
+            print(f'✗ Falha ao atualizar processo {pj}')
+            return None
+
+    except Exception as e:
+        print(f'✗ Erro ao atualizar processo: {e}')
+        traceback.print_exc()
+        return None
+
