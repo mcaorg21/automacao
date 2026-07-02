@@ -25,6 +25,8 @@ omni_pastas_file = str(Path(INITIALIZR_ROOT).parent / "sites/omni-pde-fsp-trc/pa
 _OMNI_CC_BASE = Path(INITIALIZR_ROOT).parent / "sites/omni-conciliacao-conta-corrente"
 bradesco_cc_config_file = str(Path(INITIALIZR_ROOT).parent / "sites/bradesco-conciliacao-conta-corrente/config.json")
 _BRADESCO_CC_BASE = Path(INITIALIZR_ROOT).parent / "sites/bradesco-conciliacao-conta-corrente"
+daycoval_cc_config_file = str(Path(INITIALIZR_ROOT).parent / "sites/daycoval-conciliacao-conta-corrente/config.json")
+_DAYCOVAL_CC_BASE = Path(INITIALIZR_ROOT).parent / "sites/daycoval-conciliacao-conta-corrente"
 bp = Blueprint("ativacao", __name__, template_folder=templates)
 
 
@@ -50,6 +52,11 @@ def _load_omni_cc_config():
 
 def _load_bradesco_cc_config():
     with open(bradesco_cc_config_file, encoding='utf-8') as f:
+        return json.loads(f.read())
+
+
+def _load_daycoval_cc_config():
+    with open(daycoval_cc_config_file, encoding='utf-8') as f:
         return json.loads(f.read())
 
 
@@ -179,7 +186,7 @@ def webhook3():
         promobank.fechar_driver()
         abort(400)    
 
-PROCESSOS_VISIVEIS = ["CpjReembolsoBmg", "OmniPdeFspTrc", "CpjReembolsoPan", "OmniConciliacaoContaCorrente", "BradescoConciliacaoContaCorrente"]
+PROCESSOS_VISIVEIS = ["CpjReembolsoBmg", "OmniPdeFspTrc", "CpjReembolsoPan", "OmniConciliacaoContaCorrente", "BradescoConciliacaoContaCorrente", "DaycovaIConciliacaoContaCorrente"]
 
 @bp.route("/ativacao", methods=["GET", "POST"])
 def ativacao():
@@ -225,6 +232,11 @@ def ativacao():
                         config_atual = _load_bradesco_cc_config()
                         config_atual["executar_agora"] = False
                         with open(bradesco_cc_config_file, mode="w", encoding='utf-8') as f:
+                            f.write(json.dumps(config_atual, ensure_ascii=False, indent=2))
+                    if key == "DaycovaIConciliacaoContaCorrente":
+                        config_atual = _load_daycoval_cc_config()
+                        config_atual["executar_agora"] = False
+                        with open(daycoval_cc_config_file, mode="w", encoding='utf-8') as f:
                             f.write(json.dumps(config_atual, ensure_ascii=False, indent=2))
 
             with open(file, mode="w") as fObj:
@@ -306,6 +318,25 @@ def ativacao():
     except Exception:
         bradesco_cc_resultados = []
 
+    daycoval_cc_config = _load_daycoval_cc_config()
+    daycoval_cc_config["data_inicial"] = (date.today() - timedelta(days=7)).isoformat()
+    try:
+        prox_dcc = datetime.strptime(daycoval_cc_config["proxima_execucao"], "%Y-%m-%dT%H:%M:%S")
+        daycoval_cc_config["proxima_execucao_fmt"] = prox_dcc.strftime("%d/%m/%Y às %H:%M")
+    except Exception:
+        daycoval_cc_config["proxima_execucao_fmt"] = None
+    daycoval_cc_config["dias_execucao_nomes"] = [
+        _DIAS_SEMANA.get(d, str(d)) for d in daycoval_cc_config.get("dias_execucao", [])
+    ]
+    try:
+        _dcc_res_folder = _DAYCOVAL_CC_BASE / "resultados"
+        daycoval_cc_resultados = sorted(
+            [p.name for p in _dcc_res_folder.glob("*.json")],
+            reverse=True
+        )
+    except Exception:
+        daycoval_cc_resultados = []
+
     def _load_json_list(path):
         try:
             with open(path, encoding='utf-8') as f:
@@ -317,7 +348,7 @@ def ativacao():
     omni_pastas = _load_json_list(omni_pastas_file)
 
     dash_mode = request.args.get("dash") == "1"
-    return render_template("ativacao.html", procs=procs, cpj_config=cpj_config, omni_config=omni_config, pan_config=pan_config, omni_cc_config=omni_cc_config, labels=labels, dash_mode=dash_mode, omni_erros=omni_erros, omni_pastas=omni_pastas, omni_cc_resultados=omni_cc_resultados, bradesco_cc_config=bradesco_cc_config, bradesco_cc_resultados=bradesco_cc_resultados)
+    return render_template("ativacao.html", procs=procs, cpj_config=cpj_config, omni_config=omni_config, pan_config=pan_config, omni_cc_config=omni_cc_config, labels=labels, dash_mode=dash_mode, omni_erros=omni_erros, omni_pastas=omni_pastas, omni_cc_resultados=omni_cc_resultados, bradesco_cc_config=bradesco_cc_config, bradesco_cc_resultados=bradesco_cc_resultados, daycoval_cc_config=daycoval_cc_config, daycoval_cc_resultados=daycoval_cc_resultados)
 
 
 @bp.route("/ativacao/bloqueados-spf", methods=["POST"])
@@ -689,6 +720,39 @@ def salvar_bradesco_cc_config():
         f.write(json.dumps(config_atual, ensure_ascii=False, indent=2))
 
     return redirect(url_for("ativacao.ativacao"))
+
+
+@bp.route("/ativacao/daycoval-cc-executar-agora", methods=["POST"])
+def daycoval_cc_executar_agora():
+    config_atual = _load_daycoval_cc_config()
+    config_atual["executar_agora"] = True
+    with open(daycoval_cc_config_file, mode="w", encoding='utf-8') as f:
+        f.write(json.dumps(config_atual, ensure_ascii=False, indent=2))
+    print(f"[daycoval-cc] executar_agora gravado: {daycoval_cc_config_file}")
+    return redirect(url_for("ativacao.ativacao"))
+
+
+@bp.route("/ativacao/daycoval-cc-config", methods=["POST"])
+def salvar_daycoval_cc_config():
+    data_inicial = request.form.get("data_inicial", "")
+    data_final = request.form.get("data_final", "")
+    config_atual = _load_daycoval_cc_config()
+    config_atual.update({"data_inicial": data_inicial, "data_final": data_final})
+    with open(daycoval_cc_config_file, mode="w", encoding='utf-8') as f:
+        f.write(json.dumps(config_atual, ensure_ascii=False, indent=2))
+    return redirect(url_for("ativacao.ativacao"))
+
+
+@bp.route("/ativacao/daycoval-cc-download/resultado/<path:filename>")
+def daycoval_cc_download_resultado(filename):
+    resultado_path = _DAYCOVAL_CC_BASE / "resultados" / filename
+    if not resultado_path.exists() or resultado_path.suffix != ".json":
+        abort(404)
+    buf = _resultado_cc_to_excel_bytes(str(resultado_path))
+    xlsx_name = resultado_path.stem + ".xlsx"
+    return send_file(buf, as_attachment=True,
+                     download_name=xlsx_name,
+                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 
 @bp.route("/ativacao/bradesco-cc-download/resultado/<path:filename>")

@@ -115,5 +115,8 @@ INSTANCIAS: Dict[str, ProcessWrapper] = {
     # Bradesco Conciliação Conta Corrente
     'BradescoConciliacaoContaCorrente': BradescoConciliacaoContaCorrente(),
 
+    # Daycoval Conciliação Conta Corrente
+    'DaycovaIConciliacaoContaCorrente': DaycovaIConciliacaoContaCorrente(),
+
 }
 

@@ -42,5 +42,6 @@
     "OmniPdeFspTrc": "Banco Omni - Cadastro Eventos - CPJ",
     "CpjReembolsoPan": "Banco PAN - Reembolso - CPJ",
     "OmniConciliacaoContaCorrente": "Banco Omni - Conciliacao C/C - CPJ",
-    "BradescoConciliacaoContaCorrente": "Banco Bradesco - Conciliacao C/C - CPJ"
+    "BradescoConciliacaoContaCorrente": "Banco Bradesco - Conciliacao C/C - CPJ",
+    "DaycovaIConciliacaoContaCorrente": "Banco Daycoval - Conciliacao C/C - CPJ"
 }

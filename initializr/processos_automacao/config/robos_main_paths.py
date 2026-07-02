@@ -110,5 +110,8 @@ main_paths: dict = {
 
     # Bradesco Conciliação Conta Corrente
     "BradescoConciliacaoContaCorrente": "/bradesco-conciliacao-conta-corrente/main.py",
+
+    # Daycoval Conciliação Conta Corrente
+    "DaycovaIConciliacaoContaCorrente": "/daycoval-conciliacao-conta-corrente/main.py",
 }
 
