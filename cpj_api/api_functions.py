@@ -90,7 +90,7 @@ def api_login():
         login_url = f'{API_BASE_URL}/api/v2/login'
         
         print(f'Tentando autenticar em: {login_url}')
-        response = session.post(login_url, json=login_data, timeout=30)
+        response = session.post(login_url, json=login_data, timeout=180)
         
         # Verifica se o login foi bem-sucedido
         if response.status_code == 200:
@@ -156,7 +156,7 @@ def api_logout():
         # Headers com Bearer token
         headers = {'Authorization': f'Bearer {API_TOKEN}'}
         
-        response = API_SESSION.post(logout_url, headers=headers, timeout=30)
+        response = API_SESSION.post(logout_url, headers=headers, timeout=180)
         
         if response.status_code in [200, 201, 204]:
             print('✓ Logout realizado com sucesso!')
@@ -216,7 +216,7 @@ def api_get(endpoint: str, params: dict = None):
         # Headers com Bearer token
         headers = {'Authorization': f'Bearer {API_TOKEN}'}
         
-        response = API_SESSION.get(url, params=params, headers=headers, timeout=30)
+        response = API_SESSION.get(url, params=params, headers=headers, timeout=180)
         
         if response.status_code == 200:
             return response.json()
@@ -225,7 +225,7 @@ def api_get(endpoint: str, params: dict = None):
             if api_login():
                 # Tenta novamente com o novo token
                 headers = {'Authorization': f'Bearer {API_TOKEN}'}
-                response = API_SESSION.get(url, params=params, headers=headers, timeout=30)
+                response = API_SESSION.get(url, params=params, headers=headers, timeout=180)
                 if response.status_code == 200:
                     return response.json()
             print(f'✗ Falha na reautenticação')
@@ -266,7 +266,7 @@ def api_post(endpoint: str, data: dict = None):
         # Headers com Bearer token
         headers = {'Authorization': f'Bearer {API_TOKEN}'}
         
-        response = API_SESSION.post(url, json=data, headers=headers, timeout=30)
+        response = API_SESSION.post(url, json=data, headers=headers, timeout=180)
         
         if response.status_code in [200, 201]:
             return response.json()
@@ -275,7 +275,7 @@ def api_post(endpoint: str, data: dict = None):
             if api_login():
                 # Tenta novamente com o novo token
                 headers = {'Authorization': f'Bearer {API_TOKEN}'}
-                response = API_SESSION.post(url, json=data, headers=headers, timeout=30)
+                response = API_SESSION.post(url, json=data, headers=headers, timeout=180)
                 if response.status_code in [200, 201]:
                     return response.json()
                 print(f'✗ Falha após reautenticação. Status: {response.status_code}')
@@ -329,7 +329,7 @@ def api_buscar_lancamentos(data_inicial: datetime = None, data_final: datetime =
             "filter": {
                 "_and": [
                     {
-                        "numero_cc": {
+                        "ccl.numero_cc": {
                             "_in": numero_cc
                         }
                     },
@@ -357,8 +357,7 @@ def api_buscar_lancamentos(data_inicial: datetime = None, data_final: datetime =
         
         if documento_spf:
             body["filter"]["_and"].append({"documento": {"_like": "SPF"}})
-        
-        
+
         # Faz a requisição POST
         response = api_post('/api/v2/cclan/listar', data=body)
 
@@ -470,7 +469,7 @@ def api_buscar_lancamentos(data_inicial: datetime = None, data_final: datetime =
                             registrar_removido(civ, nota_normalizada, CONFIG_JSON_PATH)
                             removidos += 1
 
-                    elif numero_cc in "36, 1394, 1373, 1449":
+                    elif numero_cc in "36, 1394, 1373, 1449, 1479":
                         lancamentos_filtrados.append(lancamento)
 
                 print(f'✓ {len(lancamentos_filtrados)} lançamento(s) encontrado(s)!')
@@ -1420,7 +1419,7 @@ def api_baixar_documento(id_ged: int, destino_path: str):
         # Headers com Bearer token
         headers = {'Authorization': f'Bearer {API_TOKEN}'}
         
-        response = API_SESSION.get(url, headers=headers, timeout=60, stream=True)
+        response = API_SESSION.get(url, headers=headers, timeout=180, stream=True)
         
         if response.status_code == 200:
             # Salva o arquivo
@@ -1438,7 +1437,7 @@ def api_baixar_documento(id_ged: int, destino_path: str):
             if api_login():
                 # Tenta novamente com novo token gerado pelo login
                 headers = {'Authorization': f'Bearer {API_TOKEN}'}
-                response = API_SESSION.get(url, headers=headers, timeout=60, stream=True)
+                response = API_SESSION.get(url, headers=headers, timeout=180, stream=True)
                 if response.status_code == 200:
                     with open(destino_path, 'wb') as f:
                         for chunk in response.iter_content(chunk_size=8192):

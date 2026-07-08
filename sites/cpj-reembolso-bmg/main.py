@@ -792,6 +792,119 @@ def buscar_processo_alternativo(numero_integracao, numero_processo, nao_procurar
     print('  ✗ Nenhum processo alternativo encontrado')
     return None
 
+def buscar_processo_alternativo(numero_integracao, numero_processo, nao_procurar_pelo_processo=None, tentativa=-1):
+    """Busca processo alternativo pelo número de integração.
+    Retorna o processo com a data mais antiga (key 'entrada').
+    
+    Args:
+        numero_integracao: Número de integração do processo
+        numero_processo: Número do processo
+        nao_procurar_pelo_processo: Número do processo que não deve ser considerado
+        tentativa: Número da tentativa atual
+    Returns:
+        str: Número do processo alternativo com data mais antiga ou None
+    """
+    print('XXXXXXXXXXXX TROCAR NA PLANILHA DE IMPORTAÇÃO  XXXXXXXXXXXX')
+    print(f'  → Buscando processo alternativo para integração: {numero_integracao}')
+    print(f'  → Tentativa: {tentativa}')
+    
+    # Faz requisição ao endpoint /api/v2/processo
+    body = {
+        "filter": {
+            "_and": [
+                {
+                    "numero_integracao": {
+                        "_eq": numero_integracao
+                    }
+                }
+            ]
+        },
+        "limit": 100
+    }
+    
+    response = api_post('/api/v2/processo', data=body)
+    
+    if response:
+        print(f'  ✓ Resposta recebida com {len(response) if isinstance(response, list) else "N/A"} processos')
+        
+        # Percorre os processos buscando um com numero_processo diferente
+        processos_list = response if isinstance(response, list) else response.get('data', response.get('items', []))
+        
+        processo_mais_antigo = None
+        data_mais_antiga = None
+
+        indice_resultados = 0 
+
+        for processo in processos_list:
+            numero_processo_resp = re.sub(r'[^0-9]', '', processo.get('numero_processo', ''))
+            
+            if numero_processo_resp != numero_processo:
+                if tentativa >= 0 and tentativa == indice_resultados:
+                    print(f'  → Tentando agora com numero de processo: {numero_processo_resp}')
+                    return numero_processo_resp
+
+                else:
+
+                    print(f'  → Processo diferente encontrado: {numero_processo_resp} <> {numero_processo}')
+
+                    # Obtém a data de entrada
+                    data_entrada = processo.get('entrada')
+                    
+                    if data_entrada:
+                        print(f'    Data de entrada: {data_entrada}')
+                        
+                        # Se é a primeira vez ou encontrou uma data mais antiga
+                        if processo_mais_antigo is None or data_entrada < data_mais_antiga:
+                            processo_mais_antigo = numero_processo_resp
+                            data_mais_antiga = data_entrada
+                            print(f'    ✓ Processo com data mais antiga atualizado: {numero_processo_resp} ({data_entrada})')
+                
+            indice_resultados += 1 
+
+        if processo_mais_antigo:
+            print(f'  ✓ Processo mais antigo selecionado: {processo_mais_antigo} (data: {data_mais_antiga})')
+            return processo_mais_antigo
+    
+    print('  ✗ Nenhum processo alternativo encontrado')
+    return None
+
+def buscar_quantidade_processos(numero_integracao):
+    """Busca processo alternativo pelo número de integração.
+    Retorna o processo com a data mais antiga (key 'entrada').
+    
+    Args:
+        numero_integracao: Número de integração do processo
+    Returns:
+        int: Quantidade de processos alternativos encontrados
+    """
+    print('XXXXXXXXXXXX TROCAR NA PLANILHA DE IMPORTAÇÃO  XXXXXXXXXXXX')
+    print(f'  → Buscando processo alternativo para integração: {numero_integracao}')
+    
+    # Faz requisição ao endpoint /api/v2/processo
+    body = {
+        "filter": {
+            "_and": [
+                {
+                    "numero_integracao": {
+                        "_eq": numero_integracao
+                    }
+                }
+            ]
+        },
+        "limit": 100
+    }
+    
+    response = api_post('/api/v2/processo', data=body)
+    
+    if response:
+        print(f'  ✓ Resposta recebida com {len(response) if isinstance(response, list) else "N/A"} processos')
+        
+        # Percorre os processos buscando um com numero_processo diferente
+        processos_list = response if isinstance(response, list) else response.get('data', response.get('items', []))
+        
+        return len(processos_list)
+
+
 def anexar_pdfs_formulario(driver,  nao_procurar_pelo_processo = None, tentativa=-1, tentativa_formatacao=False):
     """Anexa os PDFs da pasta pdf_merge nos inputs correspondentes do formulário"""
     try:
@@ -1103,7 +1216,7 @@ def finalizar_processo(driver, valor_somado):
         
         print(f'Valor esperado: {valor_somado_normalizado}')
         print(f'Valor na tela (normalizado): {total_tela_normalizado}')
-        
+
         # Compara os valores
         if valor_somado_normalizado == total_tela_normalizado:
             print('\n✓✓✓ Pronto para submeter ✓✓✓')

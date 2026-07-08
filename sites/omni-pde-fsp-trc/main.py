@@ -1087,7 +1087,7 @@ def main():
                     except:
                         numero_contrato = ""
 
-                    if 'DESPESAS DE PÁTIO' in texto_orgao or 'DESPESA DE PATIO' in texto_orgao:
+                    if 'DESPESAS DE PÁTIO' in texto_orgao or 'DESPESA DE PATIO' in texto_orgao or 'OBRIGAÇÃO DE FAZER' in texto_orgao:
                         print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso de despesas de pátio.')
                         tarefa.update({'contrato_cliente': 829})  # Override para contrato 829, que é o correto para despesas de pátio
                         api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])

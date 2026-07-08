@@ -103,6 +103,31 @@ executar_script_menu_lateral = cpj_reembolso_bmg.executar_script_menu_lateral
 executar_script_classificacao = cpj_reembolso_bmg.executar_script_classificacao
 executar_preenchimento_formulario = cpj_reembolso_bmg.executar_preenchimento_formulario
 anexar_pdfs_formulario = cpj_reembolso_bmg.anexar_pdfs_formulario
+buscar_processo_alternativo = cpj_reembolso_bmg.buscar_processo_alternativo
+buscar_quantidade_processos = cpj_reembolso_bmg.buscar_quantidade_processos
+finalizar_processo = cpj_reembolso_bmg.finalizar_processo
+verificar_lancamentos = cpj_reembolso_bmg.verificar_lancamentos
+
+def formatar_numero_processo_cnj(valor: object) -> str:
+    """Formata um número de processo para o padrão CNJ com pontos e hífen."""
+    if valor is None:
+        return ''
+
+    texto = str(valor).strip()
+    if not texto:
+        return ''
+
+    digits = ''.join(ch for ch in texto if ch.isdigit())
+    if not digits:
+        return texto
+
+    if len(digits) < 20:
+        digits = digits.zfill(20)
+    elif len(digits) > 20:
+        digits = digits[:20]
+
+    return f'{digits[:7]}-{digits[7:9]}.{digits[9:13]}.{digits[13:14]}.{digits[14:16]}.{digits[16:20]}'
+
 
 API_BASE_URL = 'https://app.leviatan.com.br/dcncadv/cpj/agnes'
 API_LOGIN = 'api'
@@ -236,6 +261,28 @@ def carregar_config_bmg() -> dict:
     except Exception as e:
         print(f'✗ Falha ao ler config_bmg.json: {e}')
         return {}
+
+
+def salvar_config_bmg(config_bmg: dict) -> None:
+    """Salva as configurações de BMG no arquivo config_bmg.json."""
+    try:
+        with open(CONFIG_BMG_PATH, 'w', encoding='utf-8') as f:
+            json.dump(config_bmg, f, ensure_ascii=False, indent=4)
+        print(f'✓ Configuração BMG salva em: {CONFIG_BMG_PATH}')
+    except Exception as e:
+        print(f'✗ Falha ao salvar config_bmg.json: {e}')
+
+
+def zerar_config_bmg() -> None:
+    """Zera os valores de config_bmg.json."""
+    config_bmg = {
+        'numero_recibo': '',
+        'data_inicial': '',
+        'data_final': '',
+        'iniciado_em': '',
+    }
+    salvar_config_bmg(config_bmg)
+    print('✓ Values de config_bmg.json zerados')
 
 
 def abrir_chrome_e_acessar_url(url_destino: str, url_base_cookies: str = None):
@@ -625,10 +672,16 @@ def anexar_pdfs_formulario(driver, tentativa=-1):
     try:
         print('\nAnexando PDFs ao formulário...')
 
+        # Lista para armazenar processos alternativos
+        processos_alternativos = []
+
+        continuar_anexar = True
+
         # Procura o input correspondente no formulário
         encontrado = False
         indice = 1
         indice_simbolo = 2
+        
         
         while True:
             try:
@@ -651,15 +704,34 @@ def anexar_pdfs_formulario(driver, tentativa=-1):
                 html_interno = elemento.get_attribute('innerHTML')
                     # and numero_processo == numero_processo_sistema_value
                 if '/images/check_green.gif' not in html_interno:
-                        
-                    if '#3146c7' in html_interno:
+
+                    numero_processo = driver.find_element( By.XPATH, f"//input[@type='hidden' and @id='pro_{indice}']").get_attribute("value")
+                    numero_integracao = driver.find_element( By.XPATH, f"//input[@type='hidden' and @id='cau_{indice}']").get_attribute("value")  
+
+                    if '#3146c7' in html_interno and tentativa == -1:
                         print('  ⚠ Processo com status não encontrado, nova tentativa de importacao com formatação acontecerá')
-                            
-                        pdb.set_trace() #debug para caso específico 3146c7
+
+                        processos_alternativos.append({
+                            "numero_processo_pesq": formatar_numero_processo_cnj(numero_processo),
+                            "numero_integracao": numero_integracao,
+                            "remover": "nao"
+                        })
 
                     elif '#3146c7' in html_interno and tentativa > -1:
 
-                        pdb.set_trace() #debug para caso específico 3146c7
+                        quantidade_processos = buscar_quantidade_processos(numero_integracao)
+
+                        if quantidade_processos == 1:
+
+                            processos_alternativos.append({
+                                "numero_processo_pesq": formatar_numero_processo_cnj(numero_processo),
+                                "numero_integracao": numero_integracao,
+                                "remover": "sim"
+                            })
+
+                        else:
+                            pdb.set_trace() #debug para caso específico 3146c7
+                            #processo_alternativo = buscar_processo_alternativo(numero_integracao, numero_processo, numero_processo, tentativa)
 
                     elif '#00ff21' in html_interno:
 
@@ -669,7 +741,8 @@ def anexar_pdfs_formulario(driver, tentativa=-1):
                         print('XXXXXXXXXXXXXXXXXXX TRATAR STATUS NOVO XXXXXXXXXXXXXXXXXXX')
                         pdb.set_trace()
 
-
+                    continuar_anexar = False
+  
                 print(f'  ✓ Correspondência encontrada no índice {indice}')
                     
                 # Anexa o PDF no input docLancfin_X
@@ -698,11 +771,16 @@ def anexar_pdfs_formulario(driver, tentativa=-1):
                 indice_simbolo +=  4
  
             except:
+
+                if continuar_anexar == False:
+                    return {"retorno": False, "processos_alternativos": processos_alternativos}
+                
                 # Se não encontrar mais inputs, sai do loop
                 break
         
     
         print('\n✓ Todos os PDFs foram processados!')
+        return {"retorno": True, "processos_alternativos": []}
         
         
     except Exception as e:
@@ -727,7 +805,7 @@ def main() -> None:
     token = api_login()
     if token:
 
-        tipo_titulo = True
+        tipo_titulo = False
 
         print('✓ Login na API CPJ realizado com sucesso')
         
@@ -756,7 +834,7 @@ def main() -> None:
                     },
                     {
                         "ag_data_hora": {
-                            "_lte": "2026-06-30T23:59:59.999-03:00"
+                            "_lte": "2026-06-26T23:59:59.999-03:00"
                         }
                     }
                 ]
@@ -807,6 +885,8 @@ def main() -> None:
                 total_tarefas = len(tarefas_processamento)
                 print(f'✓ Busca retornou {total_tarefas} tarefa(s) após unificação')
 
+                tarefas_processamento_atualizadas = []
+
                 for idx, tarefa in enumerate(tarefas_processamento, start=1):
                     id_processo = tarefa.get('id_processo')
 
@@ -824,17 +904,178 @@ def main() -> None:
                         print(f'  [{idx}/{total_tarefas}] ⚠ Nenhum processo encontrado para id_processo={id_processo}')
                         continue
 
-                    cliente_grupo_trabalho = dados_processo[0].get('grupo_trabalho') 
+                    tarefa['grupo_trabalho'] = dados_processo[0].get('grupo_trabalho') 
 
-                    
+                    tarefas_processamento_atualizadas.append(tarefa)
 
-                    if cliente_grupo_trabalho != 47:
+                tarefas_ordenadas = sorted(tarefas_processamento_atualizadas, key=lambda x: x["grupo_trabalho"])
+
+                for idx, tarefa in enumerate(tarefas_ordenadas, start=1):
+
+                    cliente_grupo_trabalho = tarefa.get('processo_detalhes', [{}])[0].get('grupo_trabalho')
+                    id_processo = tarefa.get('id_processo')
+
+                    #REMOVERRRRRRRRRRRR
+                    if cliente_grupo_trabalho != 88:
                         continue
-                        
-                    pdb.set_trace()
+
+                    #IFOOD #88 de grupo de trabalho
+                    if cliente_grupo_trabalho == 88:
+                        pdb.set_trace()  #debug para caso específico 88
+
+                        filtro_tarefa = {
+                            "_and": [
+                                {
+                                    "_or": [
+                                    {
+                                        "evento": {
+                                        "_eq": "ATA"
+                                        }
+                                    },
+                                    {
+                                        "evento": {
+                                        "_eq": "IA AT"
+                                        }
+                                    },
+                                    {
+                                        "evento": {
+                                        "_eq": "IA ATA"
+                                        }
+                                    }
+                                    ]
+                                },
+                                {
+                                    "id_processo": {
+                                        "_eq": id_processo
+                                    }
+                                },
+                                {
+                                    "ag_data_hora": {
+                                        "_gte": tarefa['ag_data_hora']
+                                    }
+                                }
+                            ]
+                        }
+
+                        tarefas_ata = api_buscar_processo_tarefa_filter(
+                            filter_data=filtro_tarefa,
+                            limit=1,
+                        )
+
+                        qtd_ata = len(tarefas_ata) if tarefas_ata else 0
+                        caminho_sem_ata_json = os.path.join(BASE_PATH, 'ifood_tarefas_sem_ata.json')
+
+                        if qtd_ata == 0:
+
+                            registrar_tarefa_sem_ata(
+                                tarefa=tarefa,
+                                id_processo=id_processo,
+                                caminho_saida=caminho_sem_ata_json,
+                                motivo = 'Nenhuma tarefa de ATA encontrada para o processo'
+                            )
+
+                            continue
+
+                        print(f'  [{idx}/{len(tarefas)}] id_processo={id_processo} -> ATA: {qtd_ata} tarefa(s)')
+
+                        if tarefas_ata:
+                            documentos_pj = api_buscar_documentos_pj(10, id_processo) or []
+
+                            id_ged_filtrados = ""
+
+                            if len(documentos_pj) == 0:
+                                print(f'    ⚠ Nenhuma ata encontrada para id_processo={id_processo}')
+
+                                registrar_tarefa_sem_ata(
+                                    tarefa=tarefa,
+                                    id_processo=id_processo,
+                                    caminho_saida=caminho_sem_ata_json,
+                                    motivo = 'Nenhum documento encontrado para o processo'
+                                )
+
+                                continue
+
+                                
+                            for documento in documentos_pj:
+                                if not isinstance(documento, dict):
+                                    continue
+
+                                path_documento = documento.get('path')
+                                if not path_documento:
+                                    continue
+
+                                path_normalizado = normalizar_texto_busca(path_documento)
+                                
+                                if 'ata_audiencia' in path_normalizado:
+                                    id_ged_filtrados = documento.get('id_ged')
+                                    break
+                            
+                            if id_ged_filtrados == '':
+                                print(f'    ⚠ Nenhuma ata encontrada para id_processo={id_processo}')
+
+                                registrar_tarefa_sem_ata(
+                                    tarefa=tarefa,
+                                    id_processo=id_processo,
+                                    caminho_saida=caminho_sem_ata_json,
+                                    motivo = 'Nenhum documento de ata encontrado anexado no processo'
+                                )
+
+                                continue
+                                    
+                            if id_ged_filtrados:
+                                print(f'    ✓ Arquivos com "ata de audiencia": {id_ged_filtrados}')
+
+                                arquivo_local = os.path.join(
+                                    DOWNLOADS_PATH,
+                                    f'id_processo_{id_processo}_id_ged_{id_ged_filtrados}.pdf'
+                                )
+                                sucesso_download = api_baixar_documento(id_ged_filtrados, arquivo_local)
+
+                                if sucesso_download and os.path.exists(arquivo_local):
+                                    with open(arquivo_local, 'rb') as f_pdf:
+                                        b64 = base64.b64encode(f_pdf.read()).decode('utf-8')
+
+                                    resp_audiencia = _requests.post(
+                                        'https://n8n-diascosta.up.railway.app/webhook/ocr-guia',
+                                        json={'base64': b64, 'mime_type': 'application/pdf', 'prompt' : """Você é um analisador de atas de audiência judiciais.
+
+                                                Sua tarefa é analisar o texto da ata e identificar se a audiência possui participação presencial.
+
+                                                Regras:
+
+                                                - Retorne TRUE quando houver qualquer indicação de presença física ou possibilidade de participação presencial, incluindo termos como:
+                                                - presencial
+                                                - pregão presencial
+                                                - sala de audiência
+                                                - fórum
+                                                - comparecimento presencial
+                                                - audiência híbrida
+                                                - virtual/presencial
+                                                - pregão virtual e presencial
+
+                                                - Retorne FALSE quando a audiência for exclusivamente virtual/remota, contendo apenas referências a videoconferência, webconferência, Teams, Zoom, Meet ou participação remota, sem qualquer menção à modalidade presencial.
+                                                - Se houver a possibilidade de participação virtual, mesmo que a audiência seja híbrida, retorne false para "audiencia_presencial".
+                                                - Se não houver informação suficiente para determinar a modalidade, retorne FALSE.
+                                                - Se a audicencia for híbrida, ou seja, permitir participação tanto presencial quanto virtual, considere como "audiencia_presencial": false.
+
+                                                IMPORTANTE:
+                                                - Analise todo o texto.
+                                                - Não faça suposições.
+                                                - Retorne apenas JSON válido.
+                                                - Não inclua explicações, comentários ou markdown.
+                                                
+
+                                                Formato obrigatório de saída:
+
+                                                {
+                                                "audiencia_presencial": true
+                                                }"""},
+                                        timeout=500
+                                    )
+
 
                     #DAYCOVAL #78 de grupo de trabalho
-                    if cliente_grupo_trabalho == 78:
+                    elif cliente_grupo_trabalho == 78:
                         
                         try:
                             with open(CONFIG_DAYCOVAL_PATH, 'r', encoding='utf-8') as f:
@@ -889,7 +1130,7 @@ def main() -> None:
                         )
 
                         qtd_ata = len(tarefas_ata) if tarefas_ata else 0
-                        caminho_sem_ata_json = os.path.join(BASE_PATH, 'tarefas_sem_ata.json')
+                        caminho_sem_ata_json = os.path.join(BASE_PATH, 'daycoval_tarefas_sem_ata.json')
 
                         if qtd_ata == 0:
 
@@ -1491,6 +1732,7 @@ def main() -> None:
                                 print('    ⚠ Nenhum arquivo com "ata de audiencia" encontrado no path')
                         else:
                             print(f'  [{idx}/{len(tarefas_processamento)}] id_processo={id_processo} sem tarefas ATA/IA AT/IA ATA')
+                    
                     else:
                         print(f'  [{idx}/{len(tarefas_processamento)}] id_processo={id_processo} -> Grupo de trabalho não é 78, pulando busca por ATA.')
                 
@@ -1569,11 +1811,162 @@ def main() -> None:
                 executar_script_classificacao(driver, script_select = "select('35','DESPESA');")
                 executar_preenchimento_formulario(driver, str_valor_total_lancamentos, path = DESTINO_PLANILHA_BMG)
 
-                anexar_pdfs_formulario(driver)
+                tentativa_formatacao = False
+
+                processar_pdf = anexar_pdfs_formulario(driver, tentativa = -1)
+                
+                while processar_pdf['retorno'] == False:
+
+                    tentativa = -1
+
+                    if tentativa == -1:
+                        for processo_alternativo in processar_pdf['processos_alternativos']:
+
+                            numero_integracao = processo_alternativo.get('numero_integracao')
+                            numero_processo_formatado = processo_alternativo.get('numero_processo_pesq', '')
+
+                            for lancamento in lancamentos_processados:
+                                if lancamento.get('numero_integracao') == numero_integracao:
+                                    lancamento['numero_processo_pesq'] = numero_processo_formatado
+                                    break
+
+                            print(f'⚠ Processo alternativo encontrado: {processo_alternativo}')
+
+                    atualizar_planilha_preposto(lancamentos_processados, DESTINO_PLANILHA_BMG)
+
+                    driver.refresh()
+
+                    executar_script_menu(driver)
+                    executar_script_menu_lateral(driver)
+                    executar_script_classificacao(driver, script_select = "select('35','DESPESA');")
+                    executar_preenchimento_formulario(driver, str_valor_total_lancamentos, path = DESTINO_PLANILHA_BMG)
+
+                    tentativa += 1
+                    processar_pdf = anexar_pdfs_formulario(driver, tentativa)
+
+                    removidos = []
+                    numeros_processo_para_remover = set()
+
+                    for processo_alternativo in processar_pdf['processos_alternativos']:
+                        if processo_alternativo.get('remover') == 'sim':
+                            numero_processo_pesq = str(processo_alternativo.get('numero_processo_pesq', '')).strip()
+                            print(f'⚠ Processo alternativo encontrado: {processo_alternativo}')
+                            removidos.append(processo_alternativo)
+                            if numero_processo_pesq:
+                                numeros_processo_para_remover.add(numero_processo_pesq)
+
+                    if numeros_processo_para_remover:
+                        lancamentos_processados = [
+                            lancamento for lancamento in lancamentos_processados
+                            if str(lancamento.get('numero_processo_pesq', '')).strip() not in numeros_processo_para_remover
+                        ]
+
+                    if removidos:
+                        caminho_removidos = os.path.join(BASE_PATH, 'removidos', 'banco-bmg', f'bmg_removidos_{NUMERO_RECIBO}.json')
+                        os.makedirs(os.path.dirname(caminho_removidos), exist_ok=True)
+                        try:
+                            with open(caminho_removidos, 'w', encoding='utf-8') as f_removidos:
+                                json.dump(removidos, f_removidos, ensure_ascii=False, indent=2)
+                            print(f'✓ Removidos salvos em: {caminho_removidos}')
+                        except Exception as e:
+                            print(f'⚠ Não foi possível salvar {caminho_removidos}: {e}')
+
+                    tentativa += 1
+                    atualizar_planilha_preposto(lancamentos_processados, DESTINO_PLANILHA_BMG)
+
+                    driver.refresh()
+
+                    executar_script_menu(driver)
+                    executar_script_menu_lateral(driver)
+                    executar_script_classificacao(driver, script_select = "select('35','DESPESA');")
+                    executar_preenchimento_formulario(driver, str_valor_total_lancamentos, path = DESTINO_PLANILHA_BMG)
+
+                    processar_pdf = anexar_pdfs_formulario(driver, tentativa)
+
+                    if processar_pdf['retorno'] == True:
+                        print('✓ Todos os PDFs processados com sucesso')
+
+                        pdb.set_trace() #debug acompanhar
+
+                        #valor total lancamentos
+                        valor_total_lancamentos = len(lancamentos_processados) * 75
+                        str_valor_total_lancamentos = f'R$ {valor_total_lancamentos:.2f}'.replace('.', ',')
+                        fill_descritivo_pdf(lancamentos_processados, NUMERO_RECIBO, str_valor_total_lancamentos)
+                        merge_descritivo_e_recibo_pdf()
+
+                        driver.refresh()
+
+                        executar_script_menu(driver)
+                        executar_script_menu_lateral(driver)
+                        executar_script_classificacao(driver, script_select = "select('35','DESPESA');")
+                        executar_preenchimento_formulario(driver, str_valor_total_lancamentos, path = DESTINO_PLANILHA_BMG)
+
+                        print(f'✓ Valor total dos lançamentos BMG: {str_valor_total_lancamentos}')
+                        valor_somado = str_valor_total_lancamentos.replace('R$', '').replace(' ', '')
+
+                        finalizar_processo(driver, valor_somado)
+
+                        # verifica lançamentos para garantir que foram baixados
+                        baixado = False
+                        while not baixado:
+
+                            print('\nVerificando lançamentos após submissão...')
+                            
+                            driver.refresh()
+
+                            # Executar script de menu
+                            executar_script_menu(driver)
+
+                            # Executar script do menu lateral
+                            executar_script_menu_lateral(driver)
+
+                            # Executar script de classificação financeira
+                            executar_script_classificacao(driver)
+
+                            #Executa preenchimento formulario
+                            executar_preenchimento_formulario(driver, valor_somado)
+
+                            #verifica se os lançamentos estão baixados, se não estiverem, tenta novamente (pode ser necessário formatar processo alternativo)
+                            baixado = verificar_lancamentos(driver)
+
+                            if baixado:
+                                print('\n✓ Lançamentos verificados como baixados!')
+                                baixado = True
+
+                            else:
+                                print('\n⚠ Lançamentos ainda não baixados, tentando novamente...')
+                                anexar_pdfs_formulario(driver)
+
+                                finalizar_processo_envio = finalizar_processo(driver, valor_somado)
+                                
+                                while finalizar_processo_envio == False:
+
+                                    print('\n⚠ Falha ao finalizar processo, tentando novamente...')
+                                    time.sleep(2)
+                                    driver.refresh()
+
+                                    # Executar script de menu
+                                    executar_script_menu(driver)
+
+                                    # Executar script do menu lateral
+                                    executar_script_menu_lateral(driver)
+
+                                    # Executar script de classificação financeira
+                                    executar_script_classificacao(driver)
+
+                                    #Executa preenchimento formulario
+                                    executar_preenchimento_formulario(driver, valor_somado)
+
+                                    anexar_pdfs_formulario(driver)
+
+                                    finalizar_processo_envio = finalizar_processo(driver, valor_somado)
+
+                    else:
+                        pdb.set_trace() #debug após anexar PDFs no BMG, antes de finalizar processo
 
 
-                pdb.set_trace() #debug após atualizar planilha de preposto com lançamentos BMG
-
+                zerar_config_bmg()
+                driver.quit()
 
             else:
                 print('✗ Nenhum lançamento BMG retornado')

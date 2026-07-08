@@ -1,0 +1,25 @@
+{
+  "CIV": {
+    "tipo": "CIV",
+    "dados": [
+        { "PDE": 750 },
+        { "TRC_DESISTENCIA": 200 },
+        { "TRC_SETENCA_DESFAVORAVEL": 150 },
+        { "TRC_SETENCA_FAVORAVEL": 750 },
+        { "TRC_SEM_RESOLUCAO_MERITO": 450 },
+        { "PDEN": 750 }
+    ], 
+    "versao": 2
+  },
+  "JEC": {
+    "tipo": "JEC",
+    "dados": [
+        { "PDE": 600 },
+        { "TRC_DESISTENCIA": 200 },
+        { "TRC_SETENCA_DESFAVORAVEL": 150 },
+        { "TRC_SETENCA_FAVORAVEL": 600 },
+        { "TRC_SEM_RESOLUCAO_MERITO": 300 },
+        { "PDEN": 600 }
+    ]
+  }
+}

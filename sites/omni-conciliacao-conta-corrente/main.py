@@ -496,7 +496,7 @@ def main():
                         ficha = sanitizar_documento(item.get('ficha', ''))
                         if ficha:
                             _filtros = [
-                                {"numero_cc": {"_in": CONTAS_CORRENTE}},
+                                {"ccl.numero_cc": {"_in": CONTAS_CORRENTE}},
                                 {"ficha": {"_eq": ficha}},
                                 {"dc": {"_eq": 1}},
                             ]
@@ -584,6 +584,7 @@ def main():
                             # Acordo pós sentença - 5
                             # Desistência - 6
                             # Extinção sem resolução de mérito - 7
+                            # Extinção com resolução de mérito - 8
                             resultado_situacao = item['dados_processo']['resultado_situacao'] 
 
                             if resultado_situacao == 1:
@@ -681,7 +682,16 @@ def main():
                                         item['a_fazer'] = f'Valor recebido está correto, conforme soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros}) + valor de êxito ({valor_exito})'
                                         item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) igual à soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros}) + valor de êxito ({valor_exito})'
                                         print(f'      ✓ Conciliação correta: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}') 
-                                
+
+                                    elif valor_recebido > (_soma_3_primeiros + valor_exito):
+
+                                        item['conciliacao_errada'] = 'sim'
+                                        item['valor_divergencia'] = valor_recebido - (_soma_3_primeiros + valor_exito)
+                                        item['a_fazer'] = f'Verificar lançamentos extras, pois valor recebido ({valor_recebido}) é maior que soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros}) + valor de êxito ({valor_exito})'
+                                        item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) maior que soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros}) + valor de êxito ({valor_exito})'   
+                                        print(f'      ✗ Conciliação errada: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')    
+
+
                                     else:
                                         pdb.set_trace() #debug 35_2, quais campos usar para comparação, etc
                                 
@@ -725,6 +735,23 @@ def main():
                                         item['a_fazer'] = f'Esse caso é de desistência...'
                                         item['motivo_conciliacao_errada'] = f'Valor de desistencia não definido.'
                                         print(f'      ✗ Conciliação errada: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')
+
+
+                                    elif valor_recebido == _soma_3_primeiros:
+
+                                        item['conciliacao_errada'] = 'indefinido'
+                                        item['valor_divergencia'] = 0
+                                        item['a_fazer'] = f'Esse caso é de desistência, mas valor recebido está igual à soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros}), então verificar detalhes do processo para entender o cenário'
+                                        item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) igual à soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros}), mas caso é de desistência'
+                                        print(f'      ✓ Conciliação indefinida: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')    
+                                    
+                                    elif valor_recebido > _soma_3_primeiros:
+
+                                        item['conciliacao_errada'] = 'indefinido'
+                                        item['valor_divergencia'] = valor_recebido - _soma_3_primeiros
+                                        item['a_fazer'] = f'Esse caso é de desistência, mas valor recebido está maior que a soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros}), então verificar detalhes do processo para entender o cenário'
+                                        item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) maior que soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros}), mas caso é de desistência'
+                                        print(f'      ✗ Conciliação indefinida: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')
 
                                     else:
                                         pdb.set_trace() #debug 3563, quais campos usar para comparação, etc
@@ -780,9 +807,21 @@ def main():
                                         item['a_fazer'] = f'Lançar valor de exito R$ {valor_exito} para complementar valor recebido'
                                         item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) menor que soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros}) + valor de êxito ({valor_exito})'
                                         print(f'      ✗ Conciliação errada: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')
-                                    else:
-                                        pdb.set_trace() #debug 736_2, quais campos usar para comparação, etc
-                                
+                                    
+                                    elif valor_recebido == (_soma_3_primeiros + valor_exito):
+                                        item['conciliacao_errada'] = 'nao'
+                                        item['valor_divergencia'] = 0
+                                        item['a_fazer'] = f'Valor recebido está correto, conforme soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros}) + valor de êxito ({valor_exito})'
+                                        item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) igual à soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros}) + valor de êxito ({valor_exito})'
+                                        print(f'      ✓ Conciliação correta: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')   
+                                    
+                                    elif valor_recebido > (_soma_3_primeiros + valor_exito):
+                                        item['conciliacao_errada'] = 'sim'
+                                        item['valor_divergencia'] = valor_recebido - (_soma_3_primeiros + valor_exito)
+                                        item['a_fazer'] = f'Verificar lançamentos extras, pois valor recebido ({valor_recebido}) é maior que soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros}) + valor de êxito ({valor_exito})'
+                                        item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) maior que soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros}) + valor de êxito ({valor_exito})'
+                                        print(f'      ✗ Conciliação errada: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')
+
                                 elif resultado_situacao == 3:   
 
                                     if valor_recebido == _soma_3_primeiros:
@@ -895,6 +934,19 @@ def main():
                                     
                                     else:
                                         pdb.set_trace() #debug 737_3, quais campos usar para comparação, etc
+
+                                elif resultado_situacao == 4:
+
+                                    if valor_recebido < _soma_3_primeiros:
+                                        
+                                        item['conciliacao_errada'] = 'sim'
+                                        item['valor_divergencia'] = _soma_3_primeiros - valor_recebido
+                                        item['a_fazer'] = f'Verificar lançamentos faltantes, pois valor recebido ({valor_recebido}) é menor que soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros}) tabela de valores para contrato cliente {contrato_cliente}'
+                                        item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) menor que soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros})'
+                                        print(f'      ✗ Conciliação errada: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')    
+
+                                    else:
+                                        pdb.set_trace() #debug 737_4, quais campos usar para comparação, etc
 
                                 elif resultado_situacao == 5:
                                     valor_acordo_pos_sentenca = next(
@@ -1269,6 +1321,9 @@ def main():
                                     item['motivo_conciliacao_errada'] = f'Valor de extinção sem resolução de mérito não definido.'
                                     print(f'      ✗ Conciliação errada: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')
                                 
+                                elif resultado_situacao == 9:
+                                    continue
+
                                 else:
                                     pdb.set_trace() #debug 739_0, quais campos usar para comparação, etc  
 
