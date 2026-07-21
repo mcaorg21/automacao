@@ -520,7 +520,33 @@ def main():
                                             item['a_fazer'] = f'Verificar lançamentos extras, pois valor recebido ({valor_recebido}) é maior que soma de ENTRADA_PROCESSO, ENCERRAMENTO_PROCESSO e IMPROCEDENCIA ({_soma_1_2_4}) tabela de valores para contrato cliente {contrato_cliente}'
                                             item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) maior que soma de ENTRADA_PROCESSO, ENCERRAMENTO_PROCESSO e IMPROCEDENCIA ({_soma_1_2_4})'   
                                             print(f'      ✗ Conciliação errada: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')
-                                    
+
+                                    elif len(_resultado_ficha) == 4:
+
+                                        if valor_recebido < _soma_1_2_4:
+
+                                            item['conciliacao_errada'] = 'sim'
+                                            item['valor_divergencia'] = _soma_1_2_4 - valor_recebido
+                                            item['a_fazer'] = f'Verificar lançamentos faltantes, pois valor recebido ({valor_recebido}) é menor ({_soma_1_2_4}) tabela de valores para contrato cliente {contrato_cliente}'
+                                            item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) menor que ENTRADA_PROCESSO, ENCERRAMENTO_PROCESSO e IMPROCEDENCIA ({_soma_1_2_4})'
+                                            print(f'      ✗ Conciliação errada: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')
+                                       
+                                        elif valor_recebido == _soma_1_2_4:
+
+                                            item['conciliacao_errada'] = 'nao'
+                                            item['valor_divergencia'] = 0
+                                            item['a_fazer'] = f'Valor recebido está correto, conforme soma de ENTRADA_PROCESSO, ENCERRAMENTO_PROCESSO e IMPROCEDENCIA ({_soma_1_2_4}) tabela de valores para contrato cliente {contrato_cliente}'
+                                            item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) igual à soma de ENTRADA_PROCESSO, ENCERRAMENTO_PROCESSO e IMPROCEDENCIA ({_soma_1_2_4})'
+                                            print(f'      ✓ Conciliação correta: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')
+                                        elif valor_recebido > _soma_1_2_4:
+
+                                            item['conciliacao_errada'] = 'sim'
+                                            item['valor_divergencia'] = valor_recebido - _soma_1_2_4
+                                            item['a_fazer'] = f'Verificar lançamentos extras, pois valor recebido ({valor_recebido}) é maior que soma de ENTRADA_PROCESSO, ENCERRAMENTO_PROCESSO e IMPROCEDENCIA ({_soma_1_2_4}) tabela de valores para contrato cliente {contrato_cliente}'
+                                            item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) maior que soma de ENTRADA_PROCESSO, ENCERRAMENTO_PROCESSO e IMPROCEDENCIA ({_soma_1_2_4})'   
+                                            print(f'      ✗ Conciliação errada: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')
+
+                                        
                                     else:   
                                         pdb.set_trace() #debug 880_2_len, quais campos usar para comparação, etc
 
@@ -902,6 +928,34 @@ def main():
                                             item['a_fazer'] = f'Verificar lançamentos extras, pois valor recebido ({valor_recebido}) é maior que soma de ENTRADA_PROCESSO, ENCERRAMENTO_PROCESSO e IMPROCEDENCIA ({_soma_1_2_4}) tabela de valores para contrato cliente {contrato_cliente}'
                                             item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) maior que soma de ENTRADA_PROCESSO, ENCERRAMENTO_PROCESSO e IMPROCEDENCIA ({_soma_1_2_4})'   
                                             print(f'      ✗ Conciliação errada: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')
+
+                                    elif len(_resultado_ficha) == 4:
+
+                                        if valor_recebido < _soma_1_2_4:
+                                            
+                                            item['conciliacao_errada'] = 'sim'
+                                            item['valor_divergencia'] = _soma_1_2_4 - valor_recebido
+                                            item['a_fazer'] = f'Verificar lançamentos faltantes pois valor recebido ({valor_recebido}) é menor ({_soma_1_2_4}) tabela de valores para contrato cliente {contrato_cliente}'
+                                            item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) menor que ENTRADA_PROCESSO, ENCERRAMENTO_PROCESSO e IMPROCEDENCIA ({_soma_1_2_4})'
+                                            print(f'      ✗ Conciliação errada: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')
+
+                                        elif valor_recebido == _soma_1_2_4:
+
+                                            item['conciliacao_errada'] = 'nao'
+                                            item['valor_divergencia'] = 0
+                                            item['a_fazer'] = f'Valor recebido está correto, conforme soma de ENTRADA_PROCESSO, ENCERRAMENTO_PROCESSO e IMPROCEDENCIA ({_soma_1_2_4}) tabela de valores para contrato cliente {contrato_cliente}'
+                                            item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) igual à soma de ENTRADA_PROCESSO, ENCERRAMENTO_PROCESSO e IMPROCEDENCIA ({_soma_1_2_4})'
+                                            print(f'      ✓ Conciliação correta: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}') 
+                                    
+                                        elif valor_recebido > _soma_1_2_4:
+
+                                            item['conciliacao_errada'] = 'sim'
+                                            item['valor_divergencia'] = valor_recebido - _soma_1_2_4
+                                            item['a_fazer'] = f'Verificar lançamentos extras, pois valor recebido ({valor_recebido}) é maior que soma de ENTRADA_PROCESSO, ENCERRAMENTO_PROCESSO e IMPROCEDENCIA ({_soma_1_2_4}) tabela de valores para contrato cliente {contrato_cliente}'
+                                            item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) maior que soma de ENTRADA_PROCESSO, ENCERRAMENTO_PROCESSO e IMPROCEDENCIA ({_soma_1_2_4})'   
+                                            print(f'      ✗ Conciliação errada: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')
+
+
 
                                     elif len(_resultado_ficha) == 1:
 

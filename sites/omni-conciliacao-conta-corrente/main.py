@@ -945,6 +945,14 @@ def main():
                                         item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) menor que soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros})'
                                         print(f'      ✗ Conciliação errada: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')    
 
+                                    elif valor_recebido == _soma_3_primeiros:
+
+                                        item['conciliacao_errada'] = 'nao'
+                                        item['valor_divergencia'] = 0   
+                                        item['a_fazer'] = f'Valor recebido está correto, conforme soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros})' 
+                                        item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) igual à soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros})'
+                                        print(f'      ✓ Conciliação correta: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')       
+
                                     else:
                                         pdb.set_trace() #debug 737_4, quais campos usar para comparação, etc
 

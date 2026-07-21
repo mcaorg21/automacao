@@ -292,10 +292,13 @@ def ativacao():
     ]
     try:
         _res_folder = _OMNI_CC_BASE / "resultados"
-        omni_cc_resultados = sorted(
-            [p.name for p in _res_folder.glob("*.json")],
-            reverse=True
-        )
+        omni_cc_resultados = [
+            p.name for p in sorted(
+                _res_folder.glob("*.json"),
+                key=lambda p: p.stat().st_ctime,
+                reverse=True
+            )
+        ]
     except Exception:
         omni_cc_resultados = []
 
@@ -311,10 +314,13 @@ def ativacao():
     ]
     try:
         _bcc_res_folder = _BRADESCO_CC_BASE / "resultados"
-        bradesco_cc_resultados = sorted(
-            [p.name for p in _bcc_res_folder.glob("*.json")],
-            reverse=True
-        )
+        bradesco_cc_resultados = [
+            p.name for p in sorted(
+                _bcc_res_folder.glob("*.json"),
+                key=lambda p: p.stat().st_ctime,
+                reverse=True
+            )
+        ]
     except Exception:
         bradesco_cc_resultados = []
 
@@ -330,10 +336,13 @@ def ativacao():
     ]
     try:
         _dcc_res_folder = _DAYCOVAL_CC_BASE / "resultados"
-        daycoval_cc_resultados = sorted(
-            [p.name for p in _dcc_res_folder.glob("*.json")],
-            reverse=True
-        )
+        daycoval_cc_resultados = [
+            p.name for p in sorted(
+                _dcc_res_folder.glob("*.json"),
+                key=lambda p: p.stat().st_ctime,
+                reverse=True
+            )
+        ]
     except Exception:
         daycoval_cc_resultados = []
 

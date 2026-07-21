@@ -1123,6 +1123,12 @@ def main():
                                 tarefa.update({'contrato_cliente': 737})  # Override para contrato 741, que é o correto para casos de juizado sem despesas de pátio
                                 api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
 
+                            elif 'BU VAREJO PJ' in texto_produto:
+                                print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso de juizado varejo PJ.')
+                                tarefa.update({'contrato_cliente': 741})  # Override para contrato 741, que é o correto para casos de juizado sem despesas de pátio
+                                api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
+
+
                             else:
                                 
                                 pdb.set_trace()  # Debug: CLASSIFICAR NOVO NOME DE HTML PARA DEFINIR PRODUTO CIV
@@ -1155,6 +1161,11 @@ def main():
                             elif 'BU LEVES' in texto_produto or 'BU MOTOS' in texto_produto or 'BU PESADOS' in texto_produto:
                                 print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso civel veiculos.')
                                 tarefa.update({'contrato_cliente': 738})  # Override para contrato 741, que é o correto para casos de juizado sem despesas de pátio
+                                api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
+
+                            elif 'BU VAREJO PJ' in texto_produto:
+                                print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso de juizado varejo PJ.')
+                                tarefa.update({'contrato_cliente': 740})  # Override para contrato 741, que é o correto para casos de juizado sem despesas de pátio
                                 api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
 
                             else:

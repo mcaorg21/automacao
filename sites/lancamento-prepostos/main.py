@@ -12,6 +12,7 @@ import json
 import os
 import base64
 import pdb
+import re
 import sys
 import shutil
 import time
@@ -23,16 +24,19 @@ from docx import Document
 from docx2pdf import convert
 from xlutils.copy import copy as xl_copy
 from PyPDF2 import PdfMerger
-from datetime import datetime
+from datetime import datetime, timedelta
 from pprint import pprint
+from urllib.parse import urlparse
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
+
+#from cpj_app.app_functions_part1 import NUMERO_RECIBO
 
 sys.path.append('C:\\www\\automacao')
 
@@ -55,9 +59,11 @@ from cpj_api import (
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(BASE_PATH, 'config.json')
 CONFIG_DAYCOVAL_PATH = os.path.join(BASE_PATH, 'config_daycoval.json')
+CONFIG_IFOOD_PATH = os.path.join(BASE_PATH, 'config_ifood.json')
 CONFIG_BMG_PATH = os.path.join(BASE_PATH, 'config_bmg.json')
 DOWNLOADS_PATH = os.path.join(BASE_PATH, 'downloads')
 COOKIES_JSON_PATH = os.path.join(BASE_PATH, 'cookies.json')
+COOKIES_JSON_IFOOD_PATH = os.path.join(BASE_PATH, 'cookies_ifood.json')
 PLANILHA_ORIGINAL_PREPOSTO_PATH = os.path.join(BASE_PATH, 'documentos_padrao', 'banco_bmg', 'planilha_modelo_preposto_original.xls')
 PLANILHA_MODELO_PATH = os.path.join(BASE_PATH, 'documentos_padrao', 'banco_bmg', 'planilha_modelo_preposto.xls')
 DESTINO_PLANILHA_BMG = PLANILHA_MODELO_PATH
@@ -71,6 +77,12 @@ DESTINO_DESCRITIVO_PADRAO_DOCX = os.path.join(BASE_PATH, 'documentos_padrao', 'b
 DESTINO_DESCRITIVO_PADRAO_PDF = os.path.join(BASE_PATH, 'documentos_padrao', 'banco_bmg', 'descritivo_padrao.pdf')
 DESTINO_DESCRITIVO_RECIBO_PADRAO_FINAL_PDF = os.path.join(BASE_PATH, 'documentos_padrao', 'banco_bmg', 'descritivo_recibo_padrao_final.pdf')
 DESTINO_DESCRITIVO_RECIBO_PADRAO_FINAL_BMG_PDF = DESTINO_DESCRITIVO_RECIBO_PADRAO_FINAL_PDF
+RECIBO_PADRAO_IFOOD_DOCX = os.path.join(BASE_PATH, 'documentos_padrao', 'ifood', 'recibo_padrao.docx')
+RECIBO_PADRAO_IFOOD_COPY_DOCX = os.path.join(BASE_PATH, 'documentos_padrao', 'ifood', 'recibo_padrao_copy.docx')
+RECIBO_PADRAO_IFOOD_COPY_PDF = os.path.join(BASE_PATH, 'documentos_padrao', 'ifood', 'recibo_padrao_copy.pdf')
+CHROME_PROFILE_ROOT = os.path.join(BASE_PATH, 'chrome_profile')
+CHROME_USER_DATA_DIR = os.path.join(CHROME_PROFILE_ROOT, 'User Data')
+CHROME_PROFILE_DIRECTORY = 'Default'
 
 
 def carregar_funcoes_cpj_reembolso_bmg():
@@ -86,7 +98,7 @@ def carregar_funcoes_cpj_reembolso_bmg():
 
     old_argv = sys.argv
     hoje = datetime.now().strftime('%d/%m/%Y')
-    sys.argv = [old_argv[0] if old_argv else 'cpj_reembolso_bmg', '179709', hoje, hoje]
+    sys.argv = [old_argv[0] if old_argv else 'cpj_reembolso_bmg', '1', hoje, hoje]
     try:
         loader.exec_module(module)
     finally:
@@ -133,6 +145,7 @@ API_BASE_URL = 'https://app.leviatan.com.br/dcncadv/cpj/agnes'
 API_LOGIN = 'api'
 API_PASSWORD = '2025'
 DAYCOVAL_URL_CONSULTA = 'https://spjw.daycoval.com.br:8282/Form/Processo/ProcessoLeve.aspx?status=64'
+IFOOD_URL_CONSULTA = r'https://auth.ifoodcorp.com.br/realms/corporate/protocol/openid-connect/auth?scope=openid&state=2QnmLZh-bRNnoIiDJzR9FafKQ-PK5f0gl3Zu6zLvdkY.nfw9MnIVOXE.TzLgDjfZQ9q_BrOtWpvUxw.eyJydSI6Imh0dHBzOi8vaWZvb2QuYmNsZWdhbC5pby9zaWduaW4tb2lkYyIsInJ0IjoiY29kZSIsInJtIjoiZm9ybV9wb3N0Iiwic3QiOiJDZkRKOE1YWjRlcnhvR1ZDdTJVaWRna0NvOGFBN1Y3TktrNHE4N2Rqekw0dnBLU01RTU9PT1B4azhpOVRCY0oyRHZvZGtRUVRtQVRxQnZjb3dhRmZfWWRxdW9PR0ZJSl92MjNrMnNoYUZtRGxkVHZ1NlpxVU82amZwelVYZ1BjSk53aTBRbzdBZjFUMWJGT2VicXhWZEJQdFFyZkU5TnNUNnNhaGk5dF9NS3hhN3Bjek91cXQ1dk9RQlFrM0E2bFA4Wi03T0pTSkN0VDJneGRRQ0lMbVFTMjFFY1kwRnRWNmxFUFB0NHVnZmU4ZHhMenhtUHRaeUU4RHlmT0EwMGVILVNCSk1xQ0tqd3p2NmExX1RncWw1aXpRdTkzeEppVGNVYjhJdnB1OTd1NXJGRFdfblVFb0xnNlJpTmJIejBEaXR2THJobjBkZTRNSHJyX2xSWURJcWJxVlNFQ1FxTkk2Q3RpSFRXODE5bmlYaEdxanlKbEJzMGVMTGNWVkdEVjdWbzdWdFEifQ&response_type=code&client_id=bc-legal&redirect_uri=https%3A%2F%2Fsso.bclegal.io%2Frealms%2FiFood%2Fbroker%2Fifoodlover%2Fendpoint&nonce=MXGMhtZos_upkuIAtrtv5w'
 
 
 def open_chrome_browser():
@@ -147,6 +160,13 @@ def open_chrome_browser():
         chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
         chrome_options.add_argument('--ignore-ssl-errors')
         chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--no-first-run')
+        chrome_options.add_argument('--no-default-browser-check')
+
+        os.makedirs(CHROME_USER_DATA_DIR, exist_ok=True)
+        os.makedirs(os.path.join(CHROME_USER_DATA_DIR, CHROME_PROFILE_DIRECTORY), exist_ok=True)
+        chrome_options.add_argument(f'--user-data-dir={CHROME_USER_DATA_DIR}')
+        chrome_options.add_argument(f'--profile-directory={CHROME_PROFILE_DIRECTORY}')
 
         try:
             print('Tentando usar ChromeDriver do PATH do sistema...')
@@ -196,6 +216,11 @@ def salvar_cookies(driver, cookies_path: str = COOKIES_JSON_PATH):
         return False
 
 
+def salvar_cookies_ifood(driver, cookies_path: str = COOKIES_JSON_IFOOD_PATH):
+    """Salva cookies do iFood no arquivo cookies_ifood.json."""
+    return salvar_cookies(driver, cookies_path)
+
+
 def carregar_cookies(driver, url_base: str, cookies_path: str = COOKIES_JSON_PATH):
     """Carrega cookies salvos no navegador para o domínio informado."""
     try:
@@ -209,41 +234,141 @@ def carregar_cookies(driver, url_base: str, cookies_path: str = COOKIES_JSON_PAT
         print(f'\nCarregando {len(cookies)} cookie(s) de {cookies_path}...')
 
         driver.get(url_base)
+        time.sleep(1)
 
-        samesite_map = {
-            'no_restriction': 'None',
-            'lax': 'Lax',
-            'strict': 'Strict',
-        }
+        try:
+            driver.execute_cdp_cmd('Network.enable', {})
+        except Exception:
+            pass
 
         adicionados = 0
         for cookie in cookies:
-            selenium_cookie = {
-                'name': cookie['name'],
-                'value': cookie['value'],
-                'path': cookie.get('path', '/'),
-                'secure': cookie.get('secure', False),
+            cookie_name = cookie.get('name', 'sem_nome')
+            cookie_value = cookie.get('value', '')
+            cookie_path = cookie.get('path') or '/'
+            cookie_secure = bool(cookie.get('secure', False))
+            cookie_http_only = bool(cookie.get('httpOnly', False))
+            cookie_domain = cookie.get('domain')
+            host_only = bool(cookie.get('hostOnly', False))
+
+            payload = {
+                'url': url_base,
+                'name': cookie_name,
+                'value': cookie_value,
+                'path': cookie_path,
+                'secure': cookie_secure,
+                'httpOnly': cookie_http_only,
             }
-            if 'domain' in cookie:
-                selenium_cookie['domain'] = cookie['domain']
+
+            if cookie_domain and not host_only:
+                payload['domain'] = cookie_domain
+
             if 'expirationDate' in cookie:
-                selenium_cookie['expiry'] = int(cookie['expirationDate'])
-            same_site = samesite_map.get(cookie.get('sameSite', '').lower())
+                payload['expires'] = int(cookie['expirationDate'])
+
+            samesite_map = {
+                'no_restriction': 'None',
+                'none': 'None',
+                'lax': 'Lax',
+                'strict': 'Strict',
+            }
+            same_site = samesite_map.get(str(cookie.get('sameSite', '')).lower())
             if same_site:
-                selenium_cookie['sameSite'] = same_site
+                payload['sameSite'] = same_site
 
             try:
+                result = driver.execute_cdp_cmd('Network.setCookie', payload)
+                if result.get('success', False):
+                    adicionados += 1
+                    print(f'  ✓ Cookie injetado via CDP: {cookie_name}')
+                    continue
+            except Exception as cdp_error:
+                print(f'  ⚠ CDP falhou para {cookie_name}: {cdp_error}')
+
+            try:
+                selenium_cookie = {
+                    'name': cookie_name,
+                    'value': cookie_value,
+                    'path': cookie_path,
+                    'secure': cookie_secure,
+                }
+                if cookie_domain and not host_only:
+                    selenium_cookie['domain'] = cookie_domain
+                if 'expirationDate' in cookie:
+                    selenium_cookie['expiry'] = int(cookie['expirationDate'])
+                if same_site:
+                    selenium_cookie['sameSite'] = same_site
                 driver.add_cookie(selenium_cookie)
                 adicionados += 1
+                print(f'  ✓ Cookie injetado via add_cookie: {cookie_name}')
             except Exception as cookie_error:
-                print(f'  ⚠ Cookie ignorado ({cookie.get("name", "sem_nome")}): {cookie_error}')
-
+                print(f'  ⚠ Cookie ignorado ({cookie_name}): {cookie_error}')
+        
         print(f'✓ {adicionados}/{len(cookies)} cookie(s) carregado(s) com sucesso!')
         return adicionados > 0
 
     except Exception as e:
         print(f'✗ Erro ao carregar cookies: {e}')
         return False
+
+
+def _set_cookie_via_cdp(driver, url_base: str, cookie: dict) -> bool:
+    """Tenta definir o cookie via Chrome DevTools Protocol quando add_cookie falha."""
+    try:
+        samesite_map = {
+            'no_restriction': 'None',
+            'lax': 'Lax',
+            'strict': 'Strict',
+        }
+        payload = {
+            'url': url_base,
+            'name': cookie['name'],
+            'value': cookie['value'],
+            'path': cookie.get('path', '/'),
+            'secure': cookie.get('secure', False),
+            'httpOnly': cookie.get('httpOnly', False),
+        }
+        if cookie.get('domain'):
+            payload['domain'] = cookie['domain']
+        if 'expirationDate' in cookie:
+            payload['expires'] = int(cookie['expirationDate'])
+        same_site = samesite_map.get(cookie.get('sameSite', '').lower())
+        if same_site:
+            payload['sameSite'] = same_site
+
+        result = driver.execute_cdp_cmd('Network.setCookie', payload)
+        return result.get('success', False)
+    except Exception:
+        return False
+
+
+def carregar_cookies_ifood(driver, url_base: str = 'https://ifood.bclegal.io/', cookies_path: str = COOKIES_JSON_IFOOD_PATH):
+    """Carrega cookies do iFood no navegador usando cookies_ifood.json."""
+    return carregar_cookies(driver, url_base=url_base, cookies_path=cookies_path)
+
+
+def aguardar_loading_ifood(driver, timeout: int = 20) -> None:
+    """Aguarda o overlay de loading do iFood deixar de estar visivel."""
+    def loading_invisivel(_driver):
+        try:
+            loading = _driver.find_element(By.ID, 'loading')
+        except Exception:
+            return True
+
+        return _driver.execute_script(
+            """
+            const element = arguments[0];
+            if (!element) {
+                return true;
+            }
+
+            const style = window.getComputedStyle(element);
+            return style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0';
+            """,
+            loading,
+        )
+
+    WebDriverWait(driver, timeout).until(loading_invisivel)
 
 
 def carregar_config_bmg() -> dict:
@@ -333,6 +458,144 @@ def login_daycoval(driver, usuario: str, senha: str, timeout: int = 20) -> bool:
 
     except Exception as e:
         print(f'    ✗ Falha no login Daycoval: {e}')
+        return False
+
+def login_ifood(driver, usuario: str, senha: str, timeout: int = 20) -> bool:
+    """Realiza login no iFood e aguarda elemento que indica sessão autenticada."""
+    try:
+
+        wait = WebDriverWait(driver, timeout)
+        try:
+            cookies_loaded = carregar_cookies_ifood(driver)
+
+            if not cookies_loaded:
+                driver.delete_all_cookies()
+                print('    ⚠ Nenhum cookie do iFood foi injetado; prosseguindo com login manual.')
+            else:
+                driver.get('https://ifood.bclegal.io/')
+                try:
+
+                    menu = wait.until(
+                        EC.element_to_be_clickable((By.CLASS_NAME, 'rz-header'))
+                    )
+
+                    driver.get('https://ifood.bclegal.io/ifoodv5/(S())/default.aspx?RedirectV8=solicitacao/redireciona.aspx')
+
+                    try:
+                        menu_corporativo = wait.until(
+                            EC.element_to_be_clickable((By.ID, 'social-ifoodlover'))
+                        )
+
+                        menu_corporativo.click()
+                    except: 
+                        pass
+
+                    global SESSION_ID
+                    SESSION_ID = session_id = driver.execute_script(""" return getSessionId();""")
+
+                    time.sleep(3)  # Aguarda a página carregar
+
+                    driver.switch_to.default_content()
+                    WebDriverWait(driver, 20).until(
+                        EC.frame_to_be_available_and_switch_to_it((By.ID, 'mainFrame'))
+                    )
+
+                    driver.execute_script("""__doPostBack('ctl00$ContentPlaceHolder1$rptMenu$ctl35$lnkCriarNovaSolicitacao','')""")  # Rola até o final da página
+
+                    global URL_CADASTRO
+                    URL_CADASTRO = f'https://ifood.bclegal.io/ifoodv5/(S({session_id}))/solicitacao/reembolso/Cadastro.aspx?nwf=sim&nivel='
+                    driver.get(URL_CADASTRO)
+
+                    if driver.page_source.find('Reembolso') != -1:
+                        print('    ✓ Sessão iFood autenticada via cookies!')
+                        return True   
+                    
+                    driver.get('https://ifood.bclegal.io/')
+
+                    driver.delete_all_cookies() 
+
+                except:
+                    pass
+        
+        except Exception as e:
+            driver.delete_all_cookies()
+            print(f'    ⚠ Falha ao carregar cookies do iFood: {e}')
+
+        botao_corporativo = wait.until(
+            EC.element_to_be_clickable((By.ID, 'social-ifoodlover'))
+        )
+        botao_corporativo.click()
+
+        driver.get('https://ifood.bclegal.io/')
+
+        botao_corporativo = wait.until(
+            EC.element_to_be_clickable((By.ID, 'social-ifoodlover'))
+        )
+        botao_corporativo.click()
+
+        campo_usuario = wait.until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="username"]'))
+        )
+        campo_usuario.clear()
+        campo_usuario.send_keys(usuario)
+
+        campo_senha = wait.until(
+            EC.presence_of_element_located((By.ID, 'password'))
+        )
+        campo_senha.clear()
+        campo_senha.send_keys(senha)
+
+        botao_remember = wait.until(
+            EC.element_to_be_clickable((By.ID, 'rememberMe'))
+        )
+        botao_remember.click()
+        time.sleep(1)
+        botao_remember.click()
+
+        pdb.set_trace()
+        botao_entrar = wait.until(
+            EC.element_to_be_clickable((By.ID, 'kc-login'))
+        )
+
+        botao_entrar.click()
+
+        
+        try:
+
+            campo_codigo_unico = wait.until(
+                EC.presence_of_element_located((By.ID, 'smsCode'))
+            )
+
+            campo_codigo_unico.clear()
+            codigo_unico = input("Informe o código único:")
+            campo_codigo_unico.send_keys(codigo_unico)
+
+            botao_entrar = wait.until(
+                EC.element_to_be_clickable((By.ID, 'sendSmsCodeBtn'))
+            )
+
+            botao_entrar.click()
+
+            try:
+                menu = wait.until(
+                    EC.element_to_be_clickable((By.CLASS_NAME, 'rz-header'))
+                )
+
+                if 'ESCRITÓRIO DIAS COSTA SOCIEDADE DE ADVOGADOS' in menu.text:
+                    return True
+            
+            except:
+                return False
+                
+
+        except Exception as e:
+            print(f'    ⚠ Fluxo de código único não foi necessário ou não foi encontrado: {e}')
+
+        print('    ✓ Login Ifood realizado com sucesso!')
+        return True
+
+    except Exception as e:
+        print(f'    ✗ Falha no login Ifood: {e}')
         return False
 
 
@@ -494,6 +757,86 @@ def atualizar_recibo_padrao(numero_recibo: str, destino_path_docx: str = None, d
 
     except Exception as e:
         print(f'✗ Erro ao atualizar recibo padrão: {e}')
+
+
+def _replace_docx_text(document, search: str, replace: str) -> None:
+    for paragraph in document.paragraphs:
+        if search in paragraph.text:
+            for run in paragraph.runs:
+                if search in run.text:
+                    run.text = run.text.replace(search, replace)
+
+    for table in document.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                for paragraph in cell.paragraphs:
+                    if search in paragraph.text:
+                        for run in paragraph.runs:
+                            if search in run.text:
+                                run.text = run.text.replace(search, replace)
+
+
+def formatar_data_por_extenso(data: datetime) -> str:
+    meses = [
+        'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+        'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'
+    ]
+    return f'{data.day} de {meses[data.month - 1]} de {data.year}'
+
+
+def gerar_recibo_ifood(numero_processo: str, valor: str, valor_extenso: str, texto: str, data_por_extenso: str, destino_docx: str = None, destino_pdf: str = None) -> bool:
+    if destino_docx is None:
+        destino_docx = RECIBO_PADRAO_IFOOD_COPY_DOCX
+    if destino_pdf is None:
+        destino_pdf = RECIBO_PADRAO_IFOOD_COPY_PDF
+
+    try:
+        if not os.path.exists(RECIBO_PADRAO_IFOOD_DOCX):
+            print(f'✗ Recibo padrão iFood não encontrado: {RECIBO_PADRAO_IFOOD_DOCX}')
+            return False
+
+        shutil.copy2(RECIBO_PADRAO_IFOOD_DOCX, destino_docx)
+        document = Document(destino_docx)
+
+        replacements = {
+            '{NUMERO_PROCESSO}': numero_processo,
+            '{VALOR}': f'{valor},00',
+            '{VALOR_POR_EXTENSO}': valor_extenso,
+            '{TIPO_PRESENCA}': texto,
+            '{DATA_POR_EXTENSO}': data_por_extenso,
+        }
+
+        for search, replace in replacements.items():
+            _replace_docx_text(document, search, replace)
+
+        document.save(destino_docx)
+
+        try:
+            convert(destino_docx, destino_pdf)
+            print(f'✓ Recibo iFood gerado em PDF: {destino_pdf}')
+            return True
+        except Exception as e:
+            print(f'✗ Erro ao converter recibo iFood para PDF: {e}')
+            return False
+
+    except Exception as e:
+        print(f'✗ Erro ao gerar recibo iFood: {e}')
+        return False
+
+
+def concatenar_pdfs(arquivos: list[str], output_path: str) -> bool:
+    try:
+        merger = PdfMerger()
+        for arquivo in arquivos:
+            merger.append(arquivo)
+        with open(output_path, 'wb') as f_out:
+            merger.write(f_out)
+        merger.close()
+        print(f'✓ PDFs concatenados em: {output_path}')
+        return True
+    except Exception as e:
+        print(f'✗ Erro ao concatenar PDFs: {e}')
+        return False
 
 
 def registrar_tarefa_sem_ata(tarefa: dict, id_processo, caminho_saida: str, motivo: str = 'Erro') -> None:
@@ -729,6 +1072,32 @@ def anexar_pdfs_formulario(driver, tentativa=-1):
                                 "remover": "sim"
                             })
 
+                        elif quantidade_processos == 2:
+
+                            if tentativa == 0:
+
+                                novo_numero_processo = buscar_processo_alternativo(numero_integracao, numero_processo, numero_processo, tentativa)
+                                
+                                processos_alternativos.append({
+                                    "numero_processo_pesq": re.sub(r'[^0-9]', '', str(novo_numero_processo)),
+                                    "numero_integracao": numero_integracao,
+                                    "remover": "nao"
+                                })
+
+                            elif tentativa == 1:
+
+                                processos_alternativos.append({
+                                    "numero_processo_pesq": formatar_numero_processo_cnj(novo_numero_processo) ,
+                                    "numero_integracao": numero_integracao,
+                                    "remover": "nao"
+                                })
+
+                                pdb.set_trace() #debug para caso específico 1- 3146c7
+
+                            elif tentativa == 2:
+
+                                pdb.set_trace() #debug para caso específico 2- 3146c7
+
                         else:
                             pdb.set_trace() #debug para caso específico 3146c7
                             #processo_alternativo = buscar_processo_alternativo(numero_integracao, numero_processo, numero_processo, tentativa)
@@ -811,109 +1180,181 @@ def main() -> None:
         
         if tipo_titulo == False:
 
+            integracao = False
             paths_ata_audiencia = []
+            tarefas_processamento_atualizadas = []
             driver_daycoval = None
             os.makedirs(DOWNLOADS_PATH, exist_ok=True)
 
-            filtro_tarefas = {
-                "_and": [
-                    {
-                        "evento": {
-                            "_in": "DAUD,$RA"
-                        }
-                    },
-                    # {
-                    #     "id_processo": {
-                    #         "_eq": 293768
-                    #     }
-                    # },
-                    {
-                        "ag_data_hora": {
-                            "_gte": "2026-06-24T00:00:00.000-03:00"
-                        }
-                    },
-                    {
-                        "ag_data_hora": {
-                            "_lte": "2026-06-26T23:59:59.999-03:00"
-                        }
-                    }
-                ]
-            }
-
-            tarefas = api_buscar_processo_tarefa_filter(
-                filter_data=filtro_tarefas,
-                limit=1000,
-            )
-
-            tarefas_brutas = tarefas if tarefas is not None else []
-            tarefas_por_processo = {}
-            tarefas_sem_id = []
-            qtd_duplicadas = 0
-
-            for tarefa in tarefas_brutas:
-                id_processo = tarefa.get('id_processo')
-
-                if not id_processo:
-                    tarefas_sem_id.append(tarefa)
-                    continue
-
-                if id_processo in tarefas_por_processo:
-                    qtd_duplicadas += 1
-
-                # Mantem a ocorrencia mais recente do mesmo id_processo.
-                tarefas_por_processo[id_processo] = tarefa
-
-            tarefas_unificadas = list(tarefas_por_processo.values()) + tarefas_sem_id
-
+            data_inicial = datetime.strptime("2026-06-18", "%Y-%m-%d")
+            data_final = datetime.today() - timedelta(days=3)
+            data = data_inicial
             caminho_tarefas_json = os.path.join(BASE_PATH, 'tarefas.json')
-            tarefas_processamento = tarefas_unificadas
-            try:
-                with open(caminho_tarefas_json, 'w', encoding='utf-8') as f_tarefas:
-                    json.dump(tarefas_unificadas, f_tarefas, ensure_ascii=False, indent=2, default=str)
 
-                with open(caminho_tarefas_json, 'r', encoding='utf-8') as f_tarefas:
-                    tarefas_processamento = json.load(f_tarefas)
+            if integracao == True:
 
-                print(
-                    f'✓ tarefas salvas em: {caminho_tarefas_json} '
-                    f'(total={len(tarefas_brutas)}, unificadas={len(tarefas_unificadas)}, duplicadas={qtd_duplicadas})'
-                )
-            except Exception as e:
-                print(f'⚠ Não foi possível salvar tarefas.json: {e}. Usando dados em memória.')
+                if os.path.exists(caminho_tarefas_json):
+                    try:
+                        os.remove(caminho_tarefas_json)
+                        print(f'✓ Arquivo limpo antes de iniciar: {caminho_tarefas_json}')
+                    except Exception as e:
+                        print(f'⚠ Não foi possível limpar {caminho_tarefas_json}: {e}')
 
-            if tarefas_processamento:
-                total_tarefas = len(tarefas_processamento)
-                print(f'✓ Busca retornou {total_tarefas} tarefa(s) após unificação')
+                while data <= data_final:
 
-                tarefas_processamento_atualizadas = []
+                    filtro_tarefas = {
+                        "_and": [
+                            {
+                                "evento": {
+                                    "_in": "DAUD,$RA"
+                                }
+                            },
+                            # {
+                            #     "id_processo": {
+                            #         "_eq": 293768
+                            #     }
+                            # },
+                            {
+                                "ag_data_hora": {
+                                    "_gte": f"{data.strftime('%Y-%m-%d')}T00:00:00.000-03:00"
+                                }
+                            },
+                            {
+                                "ag_data_hora": {
+                                    "_lte": f"{data.strftime('%Y-%m-%d')}T23:59:59.999-03:00"
+                                }
+                            }
+                        ]
+                    }
 
-                for idx, tarefa in enumerate(tarefas_processamento, start=1):
-                    id_processo = tarefa.get('id_processo')
+                    tarefas = api_buscar_processo_tarefa_filter(
+                        filter_data=filtro_tarefas,
+                        limit=1000,
+                    )
 
-                    if not id_processo:
-                        print(f'  [{idx}/{total_tarefas}] ⚠ Tarefa sem id_processo, pulando...')
-                        continue
+                    data += timedelta(days=1)
 
-                    dados_processo = api_buscar_processo_por_pj(id_processo)
+                    tarefas_brutas = tarefas if tarefas is not None else []
+                    tarefas_por_processo = {}
+                    tarefas_sem_id = []
+                    qtd_duplicadas = 0
 
-                    if dados_processo:
-                        tarefa['processo_detalhes'] = dados_processo
-                        print(f'  [{idx}/{total_tarefas}] id_processo={id_processo} -> processo(s): {len(dados_processo)}')
-                    else:
-                        tarefa['processo_detalhes'] = []
-                        print(f'  [{idx}/{total_tarefas}] ⚠ Nenhum processo encontrado para id_processo={id_processo}')
-                        continue
+                    for tarefa in tarefas_brutas:
+                        id_processo = tarefa.get('id_processo')
 
-                    tarefa['grupo_trabalho'] = dados_processo[0].get('grupo_trabalho') 
+                        if not id_processo:
+                            tarefas_sem_id.append(tarefa)
+                            continue
 
-                    tarefas_processamento_atualizadas.append(tarefa)
+                        if id_processo in tarefas_por_processo:
+                            qtd_duplicadas += 1
+
+                        # Mantem a ocorrencia mais recente do mesmo id_processo.
+                        tarefas_por_processo[id_processo] = tarefa
+
+                    tarefas_unificadas = list(tarefas_por_processo.values()) + tarefas_sem_id
+                    tarefas_processamento = tarefas_unificadas
+                    try:
+                        tarefas_existentes = []
+                        if os.path.exists(caminho_tarefas_json):
+                            with open(caminho_tarefas_json, 'r', encoding='utf-8') as f_tarefas:
+                                dados_existentes = json.load(f_tarefas)
+                                if isinstance(dados_existentes, list):
+                                    tarefas_existentes = dados_existentes
+                                elif isinstance(dados_existentes, dict):
+                                    tarefas_existentes = dados_existentes.get('tarefas', [])
+
+                        tarefas_para_salvar = tarefas_existentes + tarefas_unificadas
+
+                        with open(caminho_tarefas_json, 'w', encoding='utf-8') as f_tarefas:
+                            json.dump(tarefas_para_salvar, f_tarefas, ensure_ascii=False, indent=2, default=str)
+
+                        with open(caminho_tarefas_json, 'r', encoding='utf-8') as f_tarefas:
+                            tarefas_processamento = json.load(f_tarefas)
+
+                        print(
+                            f'✓ tarefas salvas em: {caminho_tarefas_json} '
+                            f'(total={len(tarefas_brutas)}, unificadas={len(tarefas_unificadas)}, duplicadas={qtd_duplicadas}, acumuladas={len(tarefas_para_salvar)})'
+                        )
+                    except Exception as e:
+                        print(f'⚠ Não foi possível salvar tarefas.json: {e}. Usando dados em memória.')
+
+                
+                if tarefas_processamento:
+                        total_tarefas = len(tarefas_processamento)
+                        print(f'✓ Busca retornou {total_tarefas} tarefa(s) após unificação')
+
+                        for idx, tarefa in enumerate(tarefas_processamento, start=1):
+                            id_processo = tarefa.get('id_processo')
+
+                            if not id_processo:
+                                print(f'  [{idx}/{total_tarefas}] ⚠ Tarefa sem id_processo, pulando...')
+                                continue
+
+                            dados_processo = api_buscar_processo_por_pj(id_processo)
+
+                            if dados_processo:
+                                tarefa['processo_detalhes'] = dados_processo
+                                print(f'  [{idx}/{total_tarefas}] id_processo={id_processo} -> processo(s): {len(dados_processo)}')
+                            else:
+                                tarefa['processo_detalhes'] = []
+                                print(f'  [{idx}/{total_tarefas}] ⚠ Nenhum processo encontrado para id_processo={id_processo}')
+                                continue
+
+                            tarefa['grupo_trabalho'] = dados_processo[0].get('grupo_trabalho') 
+
+                            tarefas_processamento_atualizadas.append(tarefa)
+
+                            try:
+                                with open(caminho_tarefas_json, 'w', encoding='utf-8') as f_tarefas:
+                                    json.dump(
+                                        tarefas_processamento_atualizadas,
+                                        f_tarefas,
+                                        ensure_ascii=False,
+                                        indent=2,
+                                        default=str,
+                                    )
+                                print(
+                                    f'✓ tarefas.json atualizado com {len(tarefas_processamento_atualizadas)} tarefa(s) '
+                                    f'após processar id_processo={id_processo}'
+                                )
+                            except Exception as e:
+                                print(f'⚠ Não foi possível atualizar tarefas.json após append: {e}')
 
                 tarefas_ordenadas = sorted(tarefas_processamento_atualizadas, key=lambda x: x["grupo_trabalho"])
+            
+            else:
+                
+                try:
+                    with open(caminho_tarefas_json, 'r', encoding='utf-8') as f_tarefas:
+                        tarefas_json = json.load(f_tarefas)
 
-                for idx, tarefa in enumerate(tarefas_ordenadas, start=1):
+                    if isinstance(tarefas_json, dict):
+                        tarefas_ordenadas = tarefas_json.get('tarefas', [])
+                    elif isinstance(tarefas_json, list):
+                        tarefas_ordenadas = tarefas_json
+                    else:
+                        tarefas_ordenadas = []
+
+                    tarefas_ordenadas = sorted(
+                        tarefas_ordenadas,
+                        key=lambda x: x.get('grupo_trabalho') or 0,
+                    )
+                except Exception as e:
+                    print(f'⚠ Não foi possível carregar tarefas.json para processamento: {e}')
+                    tarefas_ordenadas = sorted(
+                        tarefas_processamento_atualizadas,
+                        key=lambda x: x.get('grupo_trabalho') or 0,
+                    )
+
+
+            #processa tarefas 
+            for idx, tarefa in enumerate(tarefas_ordenadas, start=1):
 
                     cliente_grupo_trabalho = tarefa.get('processo_detalhes', [{}])[0].get('grupo_trabalho')
                     id_processo = tarefa.get('id_processo')
+                    dados_processo = tarefa.get('processo_detalhes', [{}])
+                    id_tramitacao_atual = tarefa.get('id_tramitacao')
 
                     #REMOVERRRRRRRRRRRR
                     if cliente_grupo_trabalho != 88:
@@ -921,7 +1362,32 @@ def main() -> None:
 
                     #IFOOD #88 de grupo de trabalho
                     if cliente_grupo_trabalho == 88:
-                        pdb.set_trace()  #debug para caso específico 88
+
+                        #carrega dados do ifood_lancamentos_sucesso.json para evitar reprocessamento
+                        caminho_sucesso_ifood = os.path.join(BASE_PATH, 'ifood_lancamentos_sucesso.json')
+                        id_tramitacao_sucesso = set()
+                        try:
+                            if os.path.exists(caminho_sucesso_ifood):
+                                with open(caminho_sucesso_ifood, 'r', encoding='utf-8') as f_sucesso:
+                                    conteudo_sucesso = f_sucesso.read().strip()
+                                    if conteudo_sucesso:
+                                        dados_sucesso = json.loads(conteudo_sucesso)
+                                        if isinstance(dados_sucesso, list):
+                                            for item_sucesso in dados_sucesso:
+                                                if not isinstance(item_sucesso, dict):
+                                                    continue
+                                                id_tramitacao_item = item_sucesso.get('id_tramitacao')
+                                                if id_tramitacao_item is None and isinstance(item_sucesso.get('tarefa'), dict):
+                                                    id_tramitacao_item = item_sucesso['tarefa'].get('id_tramitacao')
+                                                if id_tramitacao_item is not None:
+                                                    id_tramitacao_sucesso.add(id_tramitacao_item)
+
+                        except Exception as sucesso_error:
+                            print(f'⚠ Não foi possível carregar ifood_lancamentos_sucesso.json: {sucesso_error}')
+                        
+                        if id_tramitacao_atual in id_tramitacao_sucesso:
+                            print(f'  [{idx}/{len(tarefas_ordenadas)}] ✓ id_tramitacao já processado com sucesso: {id_tramitacao_atual}')
+                            continue
 
                         filtro_tarefa = {
                             "_and": [
@@ -976,8 +1442,6 @@ def main() -> None:
 
                             continue
 
-                        print(f'  [{idx}/{len(tarefas)}] id_processo={id_processo} -> ATA: {qtd_ata} tarefa(s)')
-
                         if tarefas_ata:
                             documentos_pj = api_buscar_documentos_pj(10, id_processo) or []
 
@@ -1005,7 +1469,7 @@ def main() -> None:
                                     continue
 
                                 path_normalizado = normalizar_texto_busca(path_documento)
-                                
+
                                 if 'ata_audiencia' in path_normalizado:
                                     id_ged_filtrados = documento.get('id_ged')
                                     break
@@ -1021,7 +1485,7 @@ def main() -> None:
                                 )
 
                                 continue
-                                    
+                            
                             if id_ged_filtrados:
                                 print(f'    ✓ Arquivos com "ata de audiencia": {id_ged_filtrados}')
 
@@ -1072,6 +1536,379 @@ def main() -> None:
                                                 }"""},
                                         timeout=500
                                     )
+
+                                    if resp_audiencia.status_code == 200:
+                                        try:
+                                            texto = resp_audiencia.json()[0]['output'][0]['content'][0]['text']
+                                            audiencia_presencial = json.loads(texto)['audiencia_presencial']
+                                        except Exception:
+                                            audiencia_presencial = resp_audiencia.text
+
+                                        tarefa['audiencia_presencial'] = audiencia_presencial
+
+                                        try:
+                                            with open(CONFIG_IFOOD_PATH, 'r', encoding='utf-8') as f:
+                                                config_ifood = json.load(f)
+                                        except Exception as e:
+                                            print(f'  ⚠ Erro ao carregar config_ifood.json: {e}')
+                                            config_ifood = {
+                                                'audiencia_virtual': {'valor': 50},
+                                                'audiencia_presencial': {'valor': 100},
+                                            }
+
+                                        url_ifood= config_ifood.get('url', '').strip()
+                                        usuario_ifood = config_ifood.get('usuario', '').strip()
+                                        senha_ifood = config_ifood.get('senha', '').strip()
+
+                                        dados_audiencia = config_ifood.get('audiencia_virtual')
+                                        if audiencia_presencial:
+                                            dados_audiencia= config_ifood.get('audiencia_presencial')
+
+                                        if url_ifood:
+                                            driver_ifood_ativo = False
+                                            if driver_ifood_ativo is not None:
+                                                try:
+                                                    _ = driver_ifood.current_window_handle
+                                                    driver_ifood_ativo = True
+                                                except Exception:
+                                                    driver_ifood = None
+
+                                            if not driver_ifood_ativo:
+                                                print(f'    ✓ Abrindo Ifood: {url_ifood}')
+                                                driver_ifood = abrir_chrome_e_acessar_url(
+                                                    url_destino=url_ifood
+                                                )
+
+                                                if usuario_ifood and senha_ifood:
+                                                    
+                                                    login = login_ifood(driver_ifood, usuario_ifood, senha_ifood)
+
+                                                    if login:
+                                                        salvar_cookies_ifood(driver_ifood, COOKIES_JSON_IFOOD_PATH)
+                                                    else:
+                                                        pdb.set_trace() #nao logado
+
+                                                else:
+                                                    print('    ⚠ Usuário/senha Ifood ausentes no config_ifood.json')
+                                                    pdb.set_trace() #debug login_ifood(driver_ifood, usuario_ifood, senha_ifood)
+                                            else:
+                                                print('    ✓ Reutilizando driver Ifood já aberto')
+
+                                            numero_processo = str(dados_processo[0].get('numero_processo', '')).strip()
+                                            if numero_processo:
+
+                                                driver_ifood.get(URL_CADASTRO)
+
+                                                select_centro_custo = WebDriverWait(driver_ifood, 20).until(
+                                                        EC.presence_of_element_located(
+                                                            (By.ID, 'ctl00_cphPrincipal_ddlRegionalCelula')
+                                                        )
+                                                    )
+
+                                                try:
+                                                    select = Select(select_centro_custo)
+                                                    select.select_by_value('071B708D-AF63-4F08-83F3-9EC136378D9C')
+                                                    print('    ✓ Centro de custo selecionado no Ifood: 071B708D-AF63-4F08-83F3-9EC136378D9C')
+                                                except Exception as select_error:
+                                                    print(f'    ⚠ Falha ao selecionar centro de custo: {select_error}')
+
+
+                                                select_coligada = WebDriverWait(driver_ifood, 20).until(
+                                                        EC.presence_of_element_located(
+                                                            (By.ID, 'ctl00_cphPrincipal_ddlColigada')
+                                                        )
+                                                    )
+
+                                                try:
+                                                    select = Select(select_coligada)
+                                                    select.select_by_value('9610')
+                                                    print('    ✓ Coligada selecionada')
+                                                    time.sleep(2)
+                                                except Exception as select_error:
+                                                    print(f'    ⚠ Falha ao selecionar centro de custo: {select_error}')
+
+                                                text_area = WebDriverWait(driver_ifood, 20).until(
+                                                        EC.presence_of_element_located(
+                                                            (By.ID, 'ctl00_cphPrincipal_txtObservacaoPagamento')
+                                                        )
+                                                    )
+                                                
+                                                text_area.send_keys('TRATE-SE DE REEMBOLSO DE CUSTAS E PREPOSTOS')
+
+                                                try:
+                                                    campo_numero_processo = WebDriverWait(driver_ifood, 20).until(
+                                                        EC.presence_of_element_located(
+                                                            (By.ID, 'ctl00_cphPrincipal_txtNrProcesso')
+                                                        )
+                                                    )
+                                                    campo_numero_processo.clear()
+                                                    campo_numero_processo.send_keys(numero_processo)
+                                                    print(f'    ✓ Número do processo preenchido no Ifood: {numero_processo}')
+
+                                                    tipo_despesa = WebDriverWait(driver_ifood, 20).until(
+                                                        EC.presence_of_element_located(
+                                                            (By.ID, 'ctl00_cphPrincipal_ddlTipoDespesa')
+                                                        )
+                                                    )
+
+                                                    try:
+                                                        select = Select(tipo_despesa)
+                                                        select.select_by_value(dados_audiencia['codigo'])
+                                                        print('    ✓ Tipo de despesa selecionada: ' + dados_audiencia['texto'])
+                                                    except Exception as select_error:
+                                                        print(f'    ⚠ Falha ao tipo de despesa: {select_error}')
+
+
+                                                    data_audiencia_formatada = formatar_data_lancamento(tarefas_ata[0]['ag_data_hora'])
+                                                    data_audiencia = WebDriverWait(driver_ifood, 20).until(
+                                                        EC.presence_of_element_located(
+                                                            (By.ID, 'ctl00_cphPrincipal_txtDataDespesa_I')
+                                                        )
+                                                    )
+
+                                                    data_audiencia.send_keys(Keys.CONTROL, "a")
+                                                    data_audiencia.send_keys(Keys.BACKSPACE)
+                                                    data_audiencia.send_keys(data_audiencia_formatada[0:2])
+                                                    data_audiencia.send_keys(data_audiencia_formatada[3:5])
+                                                    data_audiencia.send_keys(data_audiencia_formatada[6:]) 
+
+                                                    campo_numero_documento = WebDriverWait(driver_ifood, 20).until(
+                                                        EC.presence_of_element_located(
+                                                            (By.ID, 'ctl00_cphPrincipal_txtNumeroDocumento')
+                                                        )
+                                                    )
+                                                    campo_numero_documento.clear()
+                                                    campo_numero_documento.send_keys('N/A')
+                                                    print(f'    ✓ Número do documento: {'N/A'}')
+
+                                                    campo_valor_audiencia = WebDriverWait(driver_ifood, 20).until(
+                                                        EC.presence_of_element_located(
+                                                            (By.ID, 'ctl00_cphPrincipal_txtValorDespesa')
+                                                        )
+                                                    )
+                                                    campo_valor_audiencia.clear()
+                                                    campo_valor_audiencia.send_keys(str(dados_audiencia['valor']) + '.00')
+                                                    print(f'    ✓ Valor audiência: {dados_audiencia['valor']}')
+
+                                                    text_area_descricao = WebDriverWait(driver_ifood, 20).until(
+                                                        EC.presence_of_element_located(
+                                                            (By.ID, 'ctl00_cphPrincipal_txtDescricaoDespesa')
+                                                        )
+                                                    )
+                                                
+                                                    text_area_descricao.send_keys(f'AUDIÊNCIA REALIZADA NO DIA {data_audiencia_formatada}')
+                                                    print(f'    ✓ Campo descrição preenchido.')
+
+
+                                                    campo_responsavel = WebDriverWait(driver_ifood, 20).until(
+                                                        EC.presence_of_element_located(
+                                                            (By.ID, 'ctl00_cphPrincipal_wcResponsavel_cmbResponsavel_I')
+                                                        )
+                                                    )
+
+                                                    campo_responsavel.send_keys('Ariane Soares da Silva Coutinho')
+                                                    campo_responsavel.click()
+
+                                                    print(f'    ✓ Número do documento: {'N/A'}')
+
+                                                    doc_numero = numero_processo
+                                                    doc_valor = str(dados_audiencia['valor'])
+                                                    doc_extenso = str(dados_audiencia.get('extenso', ''))
+                                                    doc_texto = str(dados_audiencia.get('texto', ''))
+                                                    doc_data_extenso = formatar_data_por_extenso(datetime.now())
+                                                    pdf_concatenado = None
+
+                                                    if gerar_recibo_ifood(
+                                                        numero_processo=doc_numero,
+                                                        valor=doc_valor,
+                                                        valor_extenso=doc_extenso,
+                                                        texto=doc_texto,
+                                                        data_por_extenso=doc_data_extenso,
+                                                    ):
+                                                        pasta_arquivos_ifood = os.path.join(BASE_PATH, 'arquivos_gerados', 'ifood')
+                                                        os.makedirs(pasta_arquivos_ifood, exist_ok=True)
+                                                        pdf_concatenado = os.path.join(
+                                                            pasta_arquivos_ifood,
+                                                            f'arquivo_concatenado_{id_processo}_{id_ged_filtrados}.pdf'
+                                                        )
+                                                        if concatenar_pdfs([RECIBO_PADRAO_IFOOD_COPY_PDF, arquivo_local], pdf_concatenado):
+                                                            try:
+                                                                upload_input = WebDriverWait(driver_ifood, 20).until(
+                                                                    EC.presence_of_element_located(
+                                                                        (By.ID, 'ctl00_cphPrincipal_oInputPathFile')
+                                                                    )
+                                                                )
+                                                                upload_input.send_keys(pdf_concatenado)
+                                                                print(f'    ✓ Arquivo concatenado anexado: {pdf_concatenado}')
+
+                                                                
+
+                                                                try:
+                                                                    
+                                                                    botao_adicionar = WebDriverWait(driver_ifood, 20).until(
+                                                                        EC.element_to_be_clickable(
+                                                                            (By.ID, 'ctl00_cphPrincipal_btnAdicionarCasosRelacionados')
+                                                                        )
+                                                                    )
+                                                                    botao_adicionar.click()
+                                                                    print('    ✓ Clique em Adicionar realizado com sucesso')
+
+                                                                    time.sleep(5)
+
+                                                                    botao_adicionar = WebDriverWait(driver_ifood, 20).until(
+                                                                        EC.element_to_be_clickable(
+                                                                            (By.ID, 'ctl00_cphPrincipal_btnAdicionarCasosRelacionados')
+                                                                        )
+                                                                    )
+                                                                    botao_adicionar.click()
+
+                                                                except Exception as adcionar_error:
+                                                                    print(f'    ⚠ Falha ao clicar em Adicionar : {adcionar_error}')
+                                                                    pdb.set_trace()  #debug adicionar
+
+                                                                try:
+                                                                    aguardar_loading_ifood(driver_ifood, 60)
+
+                                                                    botao_enviar = WebDriverWait(driver_ifood, 20).until(
+                                                                        EC.element_to_be_clickable(
+                                                                            (By.ID, 'ctl00_btnSalvar')
+                                                                        )
+                                                                    )
+                                                                    
+                                                                    botao_enviar.click()
+                                                                    print('    ✓ Clique em Enviar realizado com sucesso')
+
+                                                                    aguardar_loading_ifood(driver_ifood, 60)
+
+                                                                    try:
+
+                                                                        tela_sucesso = WebDriverWait(driver_ifood, 20).until(
+                                                                            EC.element_to_be_clickable(
+                                                                                (By.CLASS_NAME, 'swal-text')
+                                                                            )
+                                                                        )
+
+                                                                        if 'Documento salvo com sucesso!' in tela_sucesso.text:
+                                                                            print('    ✓ Documento salvo com sucesso')
+
+                                                                            try:
+                                                                                botao_ok = WebDriverWait(driver_ifood, 20).until(
+                                                                                    EC.element_to_be_clickable(
+                                                                                        (By.CLASS_NAME, 'swal-button--confirm')
+                                                                                    )
+                                                                                )
+
+                                                                                botao_ok.click()
+
+                                                                                print('    ✓ Clique em OK realizado com sucesso')
+
+                                                                                botao_iniciar_aprovacao = WebDriverWait(driver_ifood, 20).until(
+                                                                                    EC.element_to_be_clickable(
+                                                                                        (By.ID, 'ctl00_btnIniciarFluxo')
+                                                                                    )
+                                                                                )
+
+                                                                                botao_iniciar_aprovacao.click()
+
+                                                                                print('    ✓ Clique em Iniciar Aprovação realizado com sucesso')
+
+                                                                            except Exception as iniciar_aprovacao_error:
+                                                                                print(f'    ⚠ Falha ao clicar em Iniciar Aprovação: {iniciar_aprovacao_error}')
+                                                                                pdb.set_trace()  #debug iniciar aprovacao
+
+                                                                            try:
+                                                                                WebDriverWait(driver_ifood, 10).until(EC.alert_is_present())
+                                                                                driver_ifood.switch_to.alert.accept()
+                                                                                print('    ✓ Alerta de confirmação do fluxo aceito com sucesso')
+                                                                            except Exception as alert_error:
+                                                                                print(f'    ⚠ Falha ao confirmar alerta de início do fluxo: {alert_error}')
+                                                                                pdb.set_trace()  #debug alerta fluxo aceito 
+                                                                            
+                                                                            #aguardar_loading_ifood(driver_ifood, 60)
+
+                                                                            time.sleep(5)  # Aguarda o alerta de sucesso aparecer
+                                                                            
+                                                                            try:
+                                                                                alert_sucesso = WebDriverWait(driver_ifood, 5).until(EC.alert_is_present())
+                                                                                mensagem_sucesso = (alert_sucesso.text or '').strip()
+                                                                                if mensagem_sucesso == 'O fluxo foi iniciado com sucesso para aprovação e liberação.':
+                                                                                    alert_sucesso.accept()
+                                                                                    print('    ✓ OK no alerta de sucesso do fluxo realizado')
+
+                                                                                    try:
+                                                                                        registros_sucesso = []
+
+                                                                                        if os.path.exists(caminho_sucesso_ifood):
+                                                                                            with open(caminho_sucesso_ifood, 'r', encoding='utf-8') as f_sucesso:
+                                                                                                conteudo_sucesso = f_sucesso.read().strip()
+                                                                                                if conteudo_sucesso:
+                                                                                                    dados_sucesso = json.loads(conteudo_sucesso)
+                                                                                                    if isinstance(dados_sucesso, list):
+                                                                                                        registros_sucesso = dados_sucesso
+
+                                                                                        registro = dict(tarefa)
+                                                                                        registro['salvo_em'] = datetime.now().isoformat()
+                                                                                        registros_sucesso.append(registro)
+
+                                                                                        with open(caminho_sucesso_ifood, 'w', encoding='utf-8') as f_sucesso:
+                                                                                            json.dump(registros_sucesso, f_sucesso, ensure_ascii=False, indent=2, default=str)
+
+                                                                                        pdb.set_trace() #debug final
+
+                                                                                        print(f'    ✓ Tarefa salva em: {caminho_sucesso_ifood}')
+                                                                                    except Exception as salvar_sucesso_error:
+                                                                                        print(f'    ⚠ Falha ao salvar tarefa de sucesso do iFood: {salvar_sucesso_error}')
+
+                                                                                else:
+                                                                                    print(f'    ⚠ Alerta inesperado após iniciar fluxo: {mensagem_sucesso}')
+                                                                                    pdb.set_trace()  #debug alerta inesperado
+                                                                            except Exception:
+                                                                                pdb.set_trace()  #debug alerta fluxo sucesso
+                                                                                pass
+
+                                                                            
+                                                                            
+
+                                                                        else:
+                                                                            print('    ⚠ Falha ao salvar documento')
+                                                                            pdb.set_trace()  #debug erro ao salvar documento
+                                                                    
+                                                                    except: 
+                                                                        pdb.set_trace()  #debug tela sucesso
+
+
+                                                                except Exception as enviar_error:
+                                                                    print(f'    ⚠ Falha ao clicar em Enviar: {enviar_error}')
+                                                                    pdb.set_trace()  #debug enviar
+
+                                                            except Exception as upload_error:
+                                                                print(f'    ⚠ Falha ao anexar arquivo: {upload_error}')
+                                                        else:
+                                                            print('    ⚠ Falha ao concatenar PDFs')
+                                                    else:
+                                                        print('    ⚠ Falha ao gerar recibo iFood')
+
+                                                    try:
+                                                        if os.path.exists(RECIBO_PADRAO_IFOOD_COPY_DOCX):
+                                                            os.remove(RECIBO_PADRAO_IFOOD_COPY_DOCX)
+                                                        if os.path.exists(RECIBO_PADRAO_IFOOD_COPY_PDF):
+                                                            os.remove(RECIBO_PADRAO_IFOOD_COPY_PDF)
+                                                        if pdf_concatenado and os.path.exists(pdf_concatenado):
+                                                            os.remove(pdf_concatenado)
+                                                        if os.path.exists(arquivo_local):
+                                                            os.remove(arquivo_local)
+                                                        print('    ✓ Arquivos temporários e original removidos')
+                                                    except Exception as cleanup_error:
+                                                        print(f'    ⚠ Erro ao limpar arquivos temporários: {cleanup_error}')                                                   
+                                                except Exception as e:
+                                                    pdb.set_trace()  # Debug: Captura de exceção durante o preenchimento do Daycoval
+                                                    print(f'    ⚠ Não foi possível preencher número do processo no Daycoval: {e}')
+                                            else:
+                                                print('    ⚠ numero_processo vazio para preenchimento no Daycoval')
+                                        else:
+                                            print('    ⚠ URL Daycoval não encontrada no config_daycoval.json')
+                                    else:
+                                        print(f'    ✗ OCR falhou. Status: {resp_audiencia.status_code}')
 
 
                     #DAYCOVAL #78 de grupo de trabalho
@@ -1143,7 +1980,7 @@ def main() -> None:
 
                             continue
 
-                        print(f'  [{idx}/{len(tarefas)}] id_processo={id_processo} -> ATA: {qtd_ata} tarefa(s)')
+                        print(f'  [{idx}/{len(tarefas_ordenadas)}] id_processo={id_processo} -> ATA: {qtd_ata} tarefa(s)')
 
                         if tarefas_ata:
                             documentos_pj = api_buscar_documentos_pj(10, id_processo) or []
@@ -1739,11 +2576,11 @@ def main() -> None:
             else:
                 print('✗ Busca não retornou dados')
 
-            if driver_daycoval is not None:
-                try:
-                    driver_daycoval.quit()
-                except Exception:
-                    pass
+                if driver_daycoval is not None:
+                    try:
+                        driver_daycoval.quit()
+                    except Exception:
+                        pass
 
         else:
 
@@ -1780,7 +2617,7 @@ def main() -> None:
 
                     processo_encontrado = processos[0]
                     numero_integracao = processo_encontrado.get('numero_integracao', '')
-                    numero_processo_pesq = processo_encontrado.get('numero_processo_pesq', '')
+                    numero_processo_pesq = re.sub(r'[^0-9]', '', str(processo_encontrado.get('numero_processo', '')))
                     data_lancamento_formatada = formatar_data_lancamento(lancamento.get('data_lancamento', ''))
 
                     lancamentos_processados.append({
@@ -1809,15 +2646,15 @@ def main() -> None:
                 executar_script_menu(driver)
                 executar_script_menu_lateral(driver)
                 executar_script_classificacao(driver, script_select = "select('35','DESPESA');")
-                executar_preenchimento_formulario(driver, str_valor_total_lancamentos, path = DESTINO_PLANILHA_BMG)
+                executar_preenchimento_formulario(driver, str_valor_total_lancamentos, path = DESTINO_PLANILHA_BMG, NUMERO_RECIBO = NUMERO_RECIBO)
 
                 tentativa_formatacao = False
 
                 processar_pdf = anexar_pdfs_formulario(driver, tentativa = -1)
-                
-                while processar_pdf['retorno'] == False:
 
-                    tentativa = -1
+                tentativa = -1
+
+                while processar_pdf['retorno'] == False:
 
                     if tentativa == -1:
                         for processo_alternativo in processar_pdf['processos_alternativos']:
@@ -1839,7 +2676,7 @@ def main() -> None:
                     executar_script_menu(driver)
                     executar_script_menu_lateral(driver)
                     executar_script_classificacao(driver, script_select = "select('35','DESPESA');")
-                    executar_preenchimento_formulario(driver, str_valor_total_lancamentos, path = DESTINO_PLANILHA_BMG)
+                    executar_preenchimento_formulario(driver, str_valor_total_lancamentos, path = DESTINO_PLANILHA_BMG, NUMERO_RECIBO = NUMERO_RECIBO)
 
                     tentativa += 1
                     processar_pdf = anexar_pdfs_formulario(driver, tentativa)
@@ -1847,46 +2684,119 @@ def main() -> None:
                     removidos = []
                     numeros_processo_para_remover = set()
 
-                    for processo_alternativo in processar_pdf['processos_alternativos']:
-                        if processo_alternativo.get('remover') == 'sim':
-                            numero_processo_pesq = str(processo_alternativo.get('numero_processo_pesq', '')).strip()
-                            print(f'⚠ Processo alternativo encontrado: {processo_alternativo}')
-                            removidos.append(processo_alternativo)
-                            if numero_processo_pesq:
-                                numeros_processo_para_remover.add(numero_processo_pesq)
+                    if processar_pdf['retorno'] == False: 
 
-                    if numeros_processo_para_remover:
-                        lancamentos_processados = [
-                            lancamento for lancamento in lancamentos_processados
-                            if str(lancamento.get('numero_processo_pesq', '')).strip() not in numeros_processo_para_remover
-                        ]
+                        processar_pdf = anexar_pdfs_formulario(driver, tentativa)
 
-                    if removidos:
-                        caminho_removidos = os.path.join(BASE_PATH, 'removidos', 'banco-bmg', f'bmg_removidos_{NUMERO_RECIBO}.json')
-                        os.makedirs(os.path.dirname(caminho_removidos), exist_ok=True)
-                        try:
-                            with open(caminho_removidos, 'w', encoding='utf-8') as f_removidos:
-                                json.dump(removidos, f_removidos, ensure_ascii=False, indent=2)
-                            print(f'✓ Removidos salvos em: {caminho_removidos}')
-                        except Exception as e:
-                            print(f'⚠ Não foi possível salvar {caminho_removidos}: {e}')
+                        for processo_alternativo in processar_pdf['processos_alternativos']:
+                            if processo_alternativo.get('remover') == 'nao':
+                                numero_processo_pesq = str(processo_alternativo.get('numero_processo_pesq', '')).strip()
+                                print(f'⚠ Processo alternativo encontrado (não removido): {processo_alternativo}')
+                                if numero_processo_pesq:
+                                    for lancamento in lancamentos_processados:
+                                        if lancamento.get('numero_integracao') == processo_alternativo.get('numero_integracao'):
+                                            lancamento['numero_processo_pesq'] = numero_processo_pesq
+                                            break
+                        
+                        atualizar_planilha_preposto(lancamentos_processados, DESTINO_PLANILHA_BMG)
 
-                    tentativa += 1
-                    atualizar_planilha_preposto(lancamentos_processados, DESTINO_PLANILHA_BMG)
+                        driver.refresh()
 
-                    driver.refresh()
+                        executar_script_menu(driver)
+                        executar_script_menu_lateral(driver)
+                        executar_script_classificacao(driver, script_select = "select('35','DESPESA');")
+                        executar_preenchimento_formulario(driver, str_valor_total_lancamentos, path = DESTINO_PLANILHA_BMG, NUMERO_RECIBO = NUMERO_RECIBO)
 
-                    executar_script_menu(driver)
-                    executar_script_menu_lateral(driver)
-                    executar_script_classificacao(driver, script_select = "select('35','DESPESA');")
-                    executar_preenchimento_formulario(driver, str_valor_total_lancamentos, path = DESTINO_PLANILHA_BMG)
+                        processar_pdf = anexar_pdfs_formulario(driver, tentativa)
 
-                    processar_pdf = anexar_pdfs_formulario(driver, tentativa)
+                        pdb.set_trace() #debug após tentativa de anexar PDFs no BMG, antes de verificar retorno
 
-                    if processar_pdf['retorno'] == True:
+                        # for processo_alternativo in processar_pdf['processos_alternativos']:
+                        #     if processo_alternativo.get('remover') == 'sim':
+                        #         numero_processo_pesq = str(processo_alternativo.get('numero_processo_pesq', '')).strip()
+                        #         print(f'⚠ Processo alternativo encontrado: {processo_alternativo}')
+                        #         removidos.append(processo_alternativo)
+                        #         if numero_processo_pesq:
+                        #             numeros_processo_para_remover.add(numero_processo_pesq)
+                            
+                        #     elif processo_alternativo.get('remover') == 'nao':
+                        #         numero_processo_pesq = str(processo_alternativo.get('numero_processo_pesq', '')).strip()
+                        #         print(f'⚠ Processo alternativo encontrado (não removido): {processo_alternativo}')
+                        #         if numero_processo_pesq:
+                        #             for lancamento in lancamentos_processados:
+                        #                 if lancamento.get('numero_integracao') == processo_alternativo.get('numero_integracao'):
+                        #                     lancamento['numero_processo_pesq'] = numero_processo_pesq
+                        #                     break
+
+
+                        # if numeros_processo_para_remover:
+                        #     lancamentos_processados = [
+                        #         lancamento for lancamento in lancamentos_processados
+                        #         if str(lancamento.get('numero_processo_pesq', '')).strip() not in numeros_processo_para_remover
+                        #     ]
+
+                        # if removidos:
+                        #     caminho_removidos = os.path.join(BASE_PATH, 'removidos', 'banco-bmg', f'bmg_removidos_{NUMERO_RECIBO}.json')
+                        #     os.makedirs(os.path.dirname(caminho_removidos), exist_ok=True)
+                        #     try:
+                        #         with open(caminho_removidos, 'w', encoding='utf-8') as f_removidos:
+                        #             json.dump(removidos, f_removidos, ensure_ascii=False, indent=2)
+                        #         print(f'✓ Removidos salvos em: {caminho_removidos}')
+                        #     except Exception as e:
+                        #         print(f'⚠ Não foi possível salvar {caminho_removidos}: {e}')
+
+                        #valor total lancamentos
+                        # valor_total_lancamentos = len(lancamentos_processados) * 75
+                        # str_valor_total_lancamentos = f'R$ {valor_total_lancamentos:.2f}'.replace('.', ',')
+                        # print(f'✓ Valor total dos lançamentos BMG: {str_valor_total_lancamentos}')
+                        # fill_descritivo_pdf(lancamentos_processados, NUMERO_RECIBO, str_valor_total_lancamentos)
+                        # merge_descritivo_e_recibo_pdf()
+
+                        # driver.refresh()
+
+                        # executar_script_menu(driver)
+                        # executar_script_menu_lateral(driver)
+                        # executar_script_classificacao(driver, script_select = "select('35','DESPESA');")
+                        # executar_preenchimento_formulario(driver, str_valor_total_lancamentos, path = DESTINO_PLANILHA_BMG, NUMERO_RECIBO = NUMERO_RECIBO)
+
+                        # tentativa += 1
+                        # processar_pdf = anexar_pdfs_formulario(driver, tentativa)
+
+                        if processar_pdf['retorno'] == False:
+
+                            for processo_alternativo in processar_pdf['processos_alternativos']:
+                                numero_processo_pesq = str(processo_alternativo.get('numero_processo_pesq', '')).strip()
+                                print(f'⚠ Processo alternativo encontrado: {processo_alternativo}')
+                                if numero_processo_pesq:
+                                    for lancamento in lancamentos_processados:
+                                        if lancamento.get('numero_integracao') == processo_alternativo.get('numero_integracao'):
+                                            lancamento['numero_processo_pesq'] = numero_processo_pesq
+                                            break
+                            
+                            atualizar_planilha_preposto(lancamentos_processados, DESTINO_PLANILHA_BMG)
+
+                            #valor total lancamentos
+                            valor_total_lancamentos = len(lancamentos_processados) * 75
+                            str_valor_total_lancamentos = f'R$ {valor_total_lancamentos:.2f}'.replace('.', ',')
+                            print(f'✓ Valor total dos lançamentos BMG: {str_valor_total_lancamentos}')
+                            fill_descritivo_pdf(lancamentos_processados, NUMERO_RECIBO, str_valor_total_lancamentos)
+                            merge_descritivo_e_recibo_pdf()
+
+                            driver.refresh()
+
+                            executar_script_menu(driver)
+                            executar_script_menu_lateral(driver)
+                            executar_script_classificacao(driver, script_select = "select('35','DESPESA');")
+                            executar_preenchimento_formulario(driver, str_valor_total_lancamentos, path = DESTINO_PLANILHA_BMG, NUMERO_RECIBO = NUMERO_RECIBO)
+
+                            tentativa += 1
+                            processar_pdf = anexar_pdfs_formulario(driver, tentativa)
+
+                pdb.set_trace() #debug após tentativa de anexar PDFs no BMG, antes de verificar retorno
+                if processar_pdf['retorno'] == True:
                         print('✓ Todos os PDFs processados com sucesso')
 
-                        pdb.set_trace() #debug acompanhar
+                        #pdb.set_trace() #debug acompanhar
 
                         #valor total lancamentos
                         valor_total_lancamentos = len(lancamentos_processados) * 75
@@ -1899,7 +2809,7 @@ def main() -> None:
                         executar_script_menu(driver)
                         executar_script_menu_lateral(driver)
                         executar_script_classificacao(driver, script_select = "select('35','DESPESA');")
-                        executar_preenchimento_formulario(driver, str_valor_total_lancamentos, path = DESTINO_PLANILHA_BMG)
+                        executar_preenchimento_formulario(driver, str_valor_total_lancamentos, path = DESTINO_PLANILHA_BMG, NUMERO_RECIBO = NUMERO_RECIBO)
 
                         print(f'✓ Valor total dos lançamentos BMG: {str_valor_total_lancamentos}')
                         valor_somado = str_valor_total_lancamentos.replace('R$', '').replace(' ', '')
@@ -1924,7 +2834,7 @@ def main() -> None:
                             executar_script_classificacao(driver)
 
                             #Executa preenchimento formulario
-                            executar_preenchimento_formulario(driver, valor_somado)
+                            executar_preenchimento_formulario(driver, str_valor_total_lancamentos, path = DESTINO_PLANILHA_BMG, NUMERO_RECIBO = NUMERO_RECIBO)
 
                             #verifica se os lançamentos estão baixados, se não estiverem, tenta novamente (pode ser necessário formatar processo alternativo)
                             baixado = verificar_lancamentos(driver)
@@ -1955,23 +2865,17 @@ def main() -> None:
                                     executar_script_classificacao(driver)
 
                                     #Executa preenchimento formulario
-                                    executar_preenchimento_formulario(driver, valor_somado)
+                                    executar_preenchimento_formulario(driver, str_valor_total_lancamentos, path = DESTINO_PLANILHA_BMG, NUMERO_RECIBO = NUMERO_RECIBO)
 
                                     anexar_pdfs_formulario(driver)
 
-                                    finalizar_processo_envio = finalizar_processo(driver, valor_somado)
+                                    finalizar_processo_envio = finalizar_processo(driver, str_valor_total_lancamentos)
 
-                    else:
-                        pdb.set_trace() #debug após anexar PDFs no BMG, antes de finalizar processo
-
-
-                zerar_config_bmg()
-                driver.quit()
+                        zerar_config_bmg()
+                        driver.quit()
 
             else:
                 print('✗ Nenhum lançamento BMG retornado')
-
-            pdb.set_trace() #debug após buscar lançamentos BMG
 
         api_logout()
         print('✓ Logout da API CPJ realizado')

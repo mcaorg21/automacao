@@ -3,9 +3,9 @@
   "web_login": "",
   "web_password": "",
   "2fa_secret": "",
-  "data_inicial": "2026-06-26",
-  "data_final": "2026-07-03",
-  "proxima_execucao": "2026-07-10T10:31:30",
+  "data_inicial": "2026-07-10",
+  "data_final": "2026-07-17",
+  "proxima_execucao": "2026-07-24T14:02:23",
   "dias_execucao": [
     5
   ],
