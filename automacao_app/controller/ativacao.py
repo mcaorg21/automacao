@@ -247,7 +247,10 @@ def ativacao():
     procs = {k: v for k, v in activate.items() if k in PROCESSOS_VISIVEIS}
 
     today = date.today().isoformat()
-    cpj_config = _load_cpj_config()
+    try:
+        cpj_config = _load_cpj_config()
+    except Exception:
+        cpj_config = {}
     cpj_config["data_inicial_iso"] = _date_to_iso(cpj_config.get("data_inicial", "")) or today
     cpj_config["data_final_iso"] = _date_to_iso(cpj_config.get("data_final", "")) or today
     cpj_config["tempo_decorrido"] = _tempo_decorrido(cpj_config.get("iniciado_em", ""))
@@ -258,10 +261,16 @@ def ativacao():
     except Exception:
         cpj_config["bloqueados_spf"] = []
 
-    with open(labels_file) as f:
-        labels = json.loads(f.read())
+    try:
+        with open(labels_file) as f:
+            labels = json.loads(f.read())
+    except Exception:
+        labels = {}
 
-    omni_config = _load_omni_config()
+    try:
+        omni_config = _load_omni_config()
+    except Exception:
+        omni_config = {}
     omni_config["data_final_display"] = today
     try:
         prox = datetime.strptime(omni_config["proxima_execucao"], "%Y-%m-%dT%H:%M:%S")
@@ -269,7 +278,10 @@ def ativacao():
     except Exception:
         omni_config["proxima_execucao_fmt"] = None
 
-    pan_config = _load_pan_config()
+    try:
+        pan_config = _load_pan_config()
+    except Exception:
+        pan_config = {}
     pan_config["data_inicial_iso"] = pan_config.get("data_inicial", today)
     pan_config["data_final_iso"] = pan_config.get("data_final", today)
     pan_config["tempo_decorrido"] = _tempo_decorrido(pan_config.get("iniciado_em", ""))
@@ -279,7 +291,10 @@ def ativacao():
     pan_config["planilha_nome"] = _pan_xlsx.name if _pan_xlsx else None
     pan_config["pdf_nome"]      = _pan_pdf.name  if _pan_pdf  else None
 
-    omni_cc_config = _load_omni_cc_config()
+    try:
+        omni_cc_config = _load_omni_cc_config()
+    except Exception:
+        omni_cc_config = {}
     omni_cc_config["data_inicial"] = (date.today() - timedelta(days=7)).isoformat()
     try:
         prox_cc = datetime.strptime(omni_cc_config["proxima_execucao"], "%Y-%m-%dT%H:%M:%S")
@@ -302,7 +317,10 @@ def ativacao():
     except Exception:
         omni_cc_resultados = []
 
-    bradesco_cc_config = _load_bradesco_cc_config()
+    try:
+        bradesco_cc_config = _load_bradesco_cc_config()
+    except Exception:
+        bradesco_cc_config = {}
     bradesco_cc_config["data_inicial"] = (date.today() - timedelta(days=7)).isoformat()
     try:
         prox_bcc = datetime.strptime(bradesco_cc_config["proxima_execucao"], "%Y-%m-%dT%H:%M:%S")
@@ -324,7 +342,10 @@ def ativacao():
     except Exception:
         bradesco_cc_resultados = []
 
-    daycoval_cc_config = _load_daycoval_cc_config()
+    try:
+        daycoval_cc_config = _load_daycoval_cc_config()
+    except Exception:
+        daycoval_cc_config = {}
     daycoval_cc_config["data_inicial"] = (date.today() - timedelta(days=7)).isoformat()
     try:
         prox_dcc = datetime.strptime(daycoval_cc_config["proxima_execucao"], "%Y-%m-%dT%H:%M:%S")
