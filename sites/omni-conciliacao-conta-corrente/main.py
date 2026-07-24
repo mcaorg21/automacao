@@ -102,6 +102,23 @@ def atualizar_proxima_execucao(horas=2):
         print(f'✗ Erro ao atualizar config.json: {e}')
 
 
+def atualizar_datas_execucao():
+    """Atualiza data_inicial (hoje-8) e data_final (hoje) no config.json."""
+    global DATA_INICIAL, DATA_FIM
+    DATA_INICIAL = (datetime.now() - timedelta(days=8)).strftime('%Y-%m-%d')
+    DATA_FIM = datetime.now().strftime('%Y-%m-%d')
+    try:
+        with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
+            config_data = json.load(f)
+        config_data['data_inicial'] = DATA_INICIAL
+        config_data['data_final'] = DATA_FIM
+        with open(CONFIG_PATH, 'w', encoding='utf-8') as f:
+            json.dump(config_data, f, ensure_ascii=False, indent=2)
+        print(f'✓ Datas atualizadas automaticamente: {DATA_INICIAL} → {DATA_FIM}')
+    except Exception as e:
+        print(f'⚠ Erro ao atualizar datas no config.json: {e}')
+
+
 # Carrega configurações do config.json se existir
 if os.path.exists(CONFIG_PATH):
 
@@ -426,6 +443,8 @@ def main():
         print('\n' + '='*70)
         print('INICIANDO AUTOMAÇÃO - Conciliação Conta Corrente')
         print('='*70)
+
+        atualizar_datas_execucao()
 
         # ====================================================================
         # ETAPA 1: Autenticação na API CPJ
