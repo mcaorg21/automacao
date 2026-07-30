@@ -113,5 +113,10 @@ main_paths: dict = {
 
     # Daycoval Conciliação Conta Corrente
     "DaycovaIConciliacaoContaCorrente": "/daycoval-conciliacao-conta-corrente/main.py",
+
+    # Lançamento de Prepostos
+    "LancamentoPrepBmg": "/lancamento-prepostos/main_bmg.py",
+    "LancamentoPrepDaycoval": "/lancamento-prepostos/main_daycoval.py",
+    "LancamentoPrepIfood": "/lancamento-prepostos/main_ifood.py",
 }
 

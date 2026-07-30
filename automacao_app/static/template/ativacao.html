@@ -933,6 +933,27 @@
                     </button>
                 {% endif %}
 
+                {% if key == "LancamentoPrepBmg" %}
+                    <hr class="cpj-divider">
+                    <button class="config-toggle" type="button" onclick="openModal('modal-lp-bmg')">
+                        &#9881; Configurações
+                    </button>
+                {% endif %}
+
+                {% if key == "LancamentoPrepDaycoval" %}
+                    <hr class="cpj-divider">
+                    <button class="config-toggle" type="button" onclick="openModal('modal-lp-daycoval')">
+                        &#9881; Configurações
+                    </button>
+                {% endif %}
+
+                {% if key == "LancamentoPrepIfood" %}
+                    <hr class="cpj-divider">
+                    <button class="config-toggle" type="button" onclick="openModal('modal-lp-ifood')">
+                        &#9881; Configurações
+                    </button>
+                {% endif %}
+
             </div>
         {% endfor %}
     </div>
@@ -1345,6 +1366,95 @@
                 {% endfor %}
             </div>
             {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal Lançamento Prepostos BMG -->
+    <div class="modal-overlay" id="modal-lp-bmg" onclick="closeOnOverlay(event, 'modal-lp-bmg')">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-title">&#9881; BMG — Lançamento de Prepostos</span>
+                <button class="modal-close" type="button" onclick="closeModal('modal-lp-bmg')">&#10005;</button>
+            </div>
+            <hr class="cpj-divider">
+            {% if lp_bmg_config.tempo_decorrido %}
+            <div class="cpj-timer">
+                <span class="timer-icon">⏱</span>
+                <span class="timer-text">Trabalhando há <strong>{{ lp_bmg_config.tempo_decorrido }}</strong></span>
+            </div>
+            {% endif %}
+            <div>
+                <label class="field-label">Nº Recibo</label>
+                <div class="field-input" style="background:#edf2f7;color:#718096;">{{ lp_bmg_config.numero_recibo or '—' }}</div>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <div style="flex:1;">
+                    <label class="field-label">Data Inicial</label>
+                    <div class="field-input" style="background:#edf2f7;color:#718096;">{{ lp_bmg_config.data_inicial or '—' }}</div>
+                </div>
+                <div style="flex:1;">
+                    <label class="field-label">Data Final</label>
+                    <div class="field-input" style="background:#edf2f7;color:#718096;">{{ lp_bmg_config.data_final or '—' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Lançamento Prepostos Daycoval -->
+    <div class="modal-overlay" id="modal-lp-daycoval" onclick="closeOnOverlay(event, 'modal-lp-daycoval')">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-title">&#9881; Daycoval — Lançamento de Prepostos</span>
+                <button class="modal-close" type="button" onclick="closeModal('modal-lp-daycoval')">&#10005;</button>
+            </div>
+            <hr class="cpj-divider">
+            <div>
+                <label class="field-label">URL</label>
+                <div class="field-input" style="background:#edf2f7;color:#718096;font-size:0.75rem;word-break:break-all;">{{ lp_daycoval_config.url or '—' }}</div>
+            </div>
+            <div>
+                <label class="field-label">Usuário</label>
+                <div class="field-input" style="background:#edf2f7;color:#718096;">{{ lp_daycoval_config.usuario or '—' }}</div>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <div style="flex:1;">
+                    <label class="field-label">Audiência Virtual</label>
+                    <div class="field-input" style="background:#edf2f7;color:#718096;">R$ {{ lp_daycoval_config.valor_audiencia_virtual or '—' }}</div>
+                </div>
+                <div style="flex:1;">
+                    <label class="field-label">Audiência Presencial</label>
+                    <div class="field-input" style="background:#edf2f7;color:#718096;">R$ {{ lp_daycoval_config.valor_audiencia_presencial or '—' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Lançamento Prepostos iFood -->
+    <div class="modal-overlay" id="modal-lp-ifood" onclick="closeOnOverlay(event, 'modal-lp-ifood')">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-title">&#9881; iFood — Lançamento de Prepostos</span>
+                <button class="modal-close" type="button" onclick="closeModal('modal-lp-ifood')">&#10005;</button>
+            </div>
+            <hr class="cpj-divider">
+            <div>
+                <label class="field-label">URL</label>
+                <div class="field-input" style="background:#edf2f7;color:#718096;font-size:0.75rem;word-break:break-all;">{{ lp_ifood_config.url or '—' }}</div>
+            </div>
+            <div>
+                <label class="field-label">Usuário</label>
+                <div class="field-input" style="background:#edf2f7;color:#718096;">{{ lp_ifood_config.usuario or '—' }}</div>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <div style="flex:1;">
+                    <label class="field-label">Audiência Virtual</label>
+                    <div class="field-input" style="background:#edf2f7;color:#718096;">R$ {{ lp_ifood_config.audiencia_virtual.valor if lp_ifood_config.audiencia_virtual else '—' }}</div>
+                </div>
+                <div style="flex:1;">
+                    <label class="field-label">Audiência Presencial</label>
+                    <div class="field-input" style="background:#edf2f7;color:#718096;">R$ {{ lp_ifood_config.audiencia_presencial.valor if lp_ifood_config.audiencia_presencial else '—' }}</div>
+                </div>
+            </div>
         </div>
     </div>
 

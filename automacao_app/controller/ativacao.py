@@ -27,6 +27,9 @@ bradesco_cc_config_file = str(Path(INITIALIZR_ROOT).parent / "sites/bradesco-con
 _BRADESCO_CC_BASE = Path(INITIALIZR_ROOT).parent / "sites/bradesco-conciliacao-conta-corrente"
 daycoval_cc_config_file = str(Path(INITIALIZR_ROOT).parent / "sites/daycoval-conciliacao-conta-corrente/config.json")
 _DAYCOVAL_CC_BASE = Path(INITIALIZR_ROOT).parent / "sites/daycoval-conciliacao-conta-corrente"
+lp_bmg_config_file = str(Path(INITIALIZR_ROOT).parent / "sites/lancamento-prepostos/config_bmg.json")
+lp_daycoval_config_file = str(Path(INITIALIZR_ROOT).parent / "sites/lancamento-prepostos/config_daycoval.json")
+lp_ifood_config_file = str(Path(INITIALIZR_ROOT).parent / "sites/lancamento-prepostos/config_ifood.json")
 bp = Blueprint("ativacao", __name__, template_folder=templates)
 
 
@@ -57,6 +60,21 @@ def _load_bradesco_cc_config():
 
 def _load_daycoval_cc_config():
     with open(daycoval_cc_config_file, encoding='utf-8') as f:
+        return json.loads(f.read())
+
+
+def _load_lp_bmg_config():
+    with open(lp_bmg_config_file, encoding='utf-8') as f:
+        return json.loads(f.read())
+
+
+def _load_lp_daycoval_config():
+    with open(lp_daycoval_config_file, encoding='utf-8') as f:
+        return json.loads(f.read())
+
+
+def _load_lp_ifood_config():
+    with open(lp_ifood_config_file, encoding='utf-8') as f:
         return json.loads(f.read())
 
 
@@ -186,7 +204,7 @@ def webhook3():
         promobank.fechar_driver()
         abort(400)    
 
-PROCESSOS_VISIVEIS = ["CpjReembolsoBmg", "OmniPdeFspTrc", "CpjReembolsoPan", "OmniConciliacaoContaCorrente", "BradescoConciliacaoContaCorrente", "DaycovaIConciliacaoContaCorrente"]
+PROCESSOS_VISIVEIS = ["CpjReembolsoBmg", "OmniPdeFspTrc", "CpjReembolsoPan", "OmniConciliacaoContaCorrente", "BradescoConciliacaoContaCorrente", "DaycovaIConciliacaoContaCorrente", "LancamentoPrepBmg", "LancamentoPrepDaycoval", "LancamentoPrepIfood"]
 
 @bp.route("/ativacao", methods=["GET", "POST"])
 def ativacao():
@@ -367,6 +385,22 @@ def ativacao():
     except Exception:
         daycoval_cc_resultados = []
 
+    try:
+        lp_bmg_config = _load_lp_bmg_config()
+    except Exception:
+        lp_bmg_config = {}
+    lp_bmg_config["tempo_decorrido"] = _tempo_decorrido(lp_bmg_config.get("iniciado_em", ""))
+
+    try:
+        lp_daycoval_config = _load_lp_daycoval_config()
+    except Exception:
+        lp_daycoval_config = {}
+
+    try:
+        lp_ifood_config = _load_lp_ifood_config()
+    except Exception:
+        lp_ifood_config = {}
+
     def _load_json_list(path):
         try:
             with open(path, encoding='utf-8') as f:
@@ -378,7 +412,7 @@ def ativacao():
     omni_pastas = _load_json_list(omni_pastas_file)
 
     dash_mode = request.args.get("dash") == "1"
-    return render_template("ativacao.html", procs=procs, cpj_config=cpj_config, omni_config=omni_config, pan_config=pan_config, omni_cc_config=omni_cc_config, labels=labels, dash_mode=dash_mode, omni_erros=omni_erros, omni_pastas=omni_pastas, omni_cc_resultados=omni_cc_resultados, bradesco_cc_config=bradesco_cc_config, bradesco_cc_resultados=bradesco_cc_resultados, daycoval_cc_config=daycoval_cc_config, daycoval_cc_resultados=daycoval_cc_resultados)
+    return render_template("ativacao.html", procs=procs, cpj_config=cpj_config, omni_config=omni_config, pan_config=pan_config, omni_cc_config=omni_cc_config, labels=labels, dash_mode=dash_mode, omni_erros=omni_erros, omni_pastas=omni_pastas, omni_cc_resultados=omni_cc_resultados, bradesco_cc_config=bradesco_cc_config, bradesco_cc_resultados=bradesco_cc_resultados, daycoval_cc_config=daycoval_cc_config, daycoval_cc_resultados=daycoval_cc_resultados, lp_bmg_config=lp_bmg_config, lp_daycoval_config=lp_daycoval_config, lp_ifood_config=lp_ifood_config)
 
 
 @bp.route("/ativacao/bloqueados-spf", methods=["POST"])
