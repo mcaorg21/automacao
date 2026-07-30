@@ -102,11 +102,28 @@ def atualizar_proxima_execucao(horas=2):
         print(f'✗ Erro ao atualizar config.json: {e}')
 
 
+def _ultima_sexta_do_mes(data):
+    """Retorna a última sexta-feira do mês da data informada."""
+    from calendar import monthrange
+    ultimo_dia = monthrange(data.year, data.month)[1]
+    ultimo = data.replace(day=ultimo_dia)
+    dias_atras = (ultimo.weekday() - 4) % 7
+    return ultimo - timedelta(days=dias_atras)
+
+
 def atualizar_datas_execucao():
-    """Atualiza data_inicial (hoje-8) e data_final (hoje) no config.json."""
+    """Atualiza data_inicial e data_final no config.json.
+    Última sexta do mês → cobre o mês inteiro (dia 1 até hoje).
+    Demais dias → últimos 8 dias (hoje-8 até hoje).
+    """
     global DATA_INICIAL, DATA_FIM
-    DATA_INICIAL = (datetime.now() - timedelta(days=8)).strftime('%Y-%m-%d')
-    DATA_FIM = datetime.now().strftime('%Y-%m-%d')
+    hoje = datetime.now()
+    DATA_FIM = hoje.strftime('%Y-%m-%d')
+    if hoje.date() == _ultima_sexta_do_mes(hoje).date():
+        DATA_INICIAL = hoje.replace(day=1).strftime('%Y-%m-%d')
+        print(f'✓ Última sexta-feira do mês — cobertura mensal: {DATA_INICIAL} → {DATA_FIM}')
+    else:
+        DATA_INICIAL = (hoje - timedelta(days=8)).strftime('%Y-%m-%d')
     try:
         with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
             config_data = json.load(f)
@@ -253,7 +270,8 @@ def main():
 
         _janela_inicio = _dt_inicio
         lancamentos_analisados = []
-        
+
+
         while _janela_inicio <= _dt_fim:
             _janela_fim = min(_janela_inicio + timedelta(days=60), _dt_fim)
 
