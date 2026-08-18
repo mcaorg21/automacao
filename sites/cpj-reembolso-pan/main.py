@@ -218,7 +218,7 @@ def baixar_e_mesclar_documentos(lancamentos: list):
         
         # 1. Busca documentos do SPF
         documentos = api_buscar_documentos_spf(id_spf)
-        
+
         if not documentos:
             print(f'  ⚠ Nenhum documento encontrado para SPF {id_spf}')
             pdb.set_trace()  # Debug: Verificar lançamento que não retornou documentos
@@ -231,6 +231,8 @@ def baixar_e_mesclar_documentos(lancamentos: list):
 
         documentos_validos = []
 
+        #pdb.set_trace()  # Debug: Verificar documentos retornados para o SPF
+        
         # 2. Baixa e adiciona cada documento ao merger
         for indicedoc, doc in enumerate(documentos, start=1):
 
@@ -310,6 +312,10 @@ def baixar_e_mesclar_documentos(lancamentos: list):
                             elif 'comprovante de pagamento' in texto_pdf.lower():
                                 print(f'  ✓ Documento {id_ged} contém "COMPROVANTE DE PAGAMENTO", indicando possível comprovante de pagamento do BTG.')
                                 lancamento['tipo_pagamento'] = 'Boleto'
+
+                            elif 'comprovante de transferência' in texto_pdf.lower():
+                                print(f'  ✓ Documento {id_ged} contém "COMPROVANTE DE TRANSFERÊNCIA", indicando possível comprovante de pagamento do BTG.')
+                                lancamento['tipo_pagamento'] = 'TED'
                             
                             else:
                                 pdb.set_trace()  # Debug: Verificar documento que contém "comprovante" mas não identificou tipo de pagamento
@@ -345,7 +351,7 @@ def baixar_e_mesclar_documentos(lancamentos: list):
                                     lancamento['numero_guia'] = dados_guia['numero_guia']
                                     print(f'  ✓ Guia encontrada: {lancamento["numero_guia"]}')
                                 else:
-                                    pdb.set_trace()  # Debug: Verificar resposta da API quando guia não é encontrada
+                                    #pdb.set_trace()  # Debug: Verificar resposta da API quando guia não é encontrada
                                     print(f'  ⚠ Guia não encontrada no documento {id_ged}')
                             else:
                                 print(f'  ⚠ Erro na validação da guia. Status: {resp_guia.status_code}')
@@ -371,7 +377,7 @@ def baixar_e_mesclar_documentos(lancamentos: list):
 
         #caso tenha mais de 2 documentos, adiciona o lançamento para cada guia encontrada, concatenando os números das guias e tipos de pagamento
         if len(documentos) > 2:
-            pdb.set_trace()  # Debug: Verificar lançamento com mais de 2 documentos e como estão sendo concatenados os dados
+            #pdb.set_trace()  # Debug: Verificar lançamento com mais de 2 documentos e como estão sendo concatenados os dados
             lancamento.pop('numero_guia', None)
             lancamento.pop('tipo_pagamento', None)
 
@@ -393,6 +399,8 @@ def baixar_e_mesclar_documentos(lancamentos: list):
             #pdb.set_trace()  # Debug: Verificar detalhes do lançamento que não identificou guia
 
         lancamentos_totais.append(lancamento.copy())
+
+    pdb.set_trace()  # Debug: Verificar todos os lançamentos processados antes de salvar o PDF final
 
     # 3. Salva o único PDF final
     if total_adicionados > 0:

@@ -118,5 +118,8 @@ main_paths: dict = {
     "LancamentoPrepBmg": "/lancamento-prepostos/main_bmg.py",
     "LancamentoPrepDaycoval": "/lancamento-prepostos/main_daycoval.py",
     "LancamentoPrepIfood": "/lancamento-prepostos/main_ifood.py",
+
+    # Claro Conciliação Conta Corrente
+    "ClaroConciliacaoContaCorrente": "/claro-conciliacao-conta-corrente/main.py",
 }
 

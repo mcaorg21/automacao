@@ -344,6 +344,19 @@
             cursor: not-allowed;
         }
 
+        .datas-badge {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: #c6f6d5;
+            color: #276749;
+            border: 1px solid #9ae6b4;
+            border-radius: 8px;
+            padding: 7px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
         .lock-bar {
             display: flex;
             align-items: center;
@@ -751,6 +764,43 @@
             padding: 2px 8px;
         }
 
+        .section-header {
+            flex-basis: 100%;
+            width: 100%;
+            margin: 12px 0 2px;
+            padding: 8px 14px;
+            background: #0f172b;
+            border-left: 3px solid #4299e1;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: #ffffff;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-header:hover { background: #1e293b; }
+        .sh-chevron {
+            margin-left: auto;
+            font-size: 0.85rem;
+            transition: transform .2s;
+            color: #ffffff;
+        }
+        .section-header.collapsed .sh-chevron { transform: rotate(-90deg); }
+        .sh-count {
+            background: rgba(255,255,255,0.15);
+            color: #ffffff;
+            border-radius: 10px;
+            padding: 1px 8px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: .04em;
+        }
+
         /* ── Modo dashboard (iframe) ── */
         .dash-mode {
             background: #ffffff;
@@ -854,7 +904,8 @@
         </div>
         <div class="search-wrap">
             <form class="search-form" method="post" action="{{ url_for('ativacao.ativacao') }}{% if dash_mode %}?dash=1{% endif %}">
-                <input class="search-input" type="text" id="buscar" name="buscar" placeholder="Buscar processo...">
+                <input class="search-input" type="text" id="buscar" name="buscar" placeholder="Buscar processo..."
+                       oninput="filterCards(this.value)" autocomplete="off">
                 <button class="btn-search" type="submit">Buscar</button>
             </form>
             <span class="refresh-badge dash-refresh-badge">&#8635; atualiza a cada 1 min</span>
@@ -866,8 +917,29 @@
     </div>
 
     <div class="cards-grid">
+        {% set ns = namespace(sec="") %}
         {% for key, val in procs.items() %}
-            <div class="proc-card {% if val %}active{% endif %}">
+            {% if key == "CpjReembolsoBmg" %}{% set ns.sec = "reembolsos" %}
+            <div class="section-header" id="sh-reembolsos" onclick="toggleSection('reembolsos')">
+                &#9679; Automação de Reembolsos <span class="sh-count" id="count-reembolsos"></span> <span class="sh-chevron">&#9660;</span>
+            </div>
+            {% endif %}
+            {% if key == "OmniPdeFspTrc" %}{% set ns.sec = "eventos-faturamento" %}
+            <div class="section-header" id="sh-eventos-faturamento" onclick="toggleSection('eventos-faturamento')">
+                &#9679; Automação Lançamentos de Eventos Faturamento <span class="sh-count" id="count-eventos-faturamento"></span> <span class="sh-chevron">&#9660;</span>
+            </div>
+            {% endif %}
+            {% if key == "OmniConciliacaoContaCorrente" %}{% set ns.sec = "conciliacao-cc" %}
+            <div class="section-header" id="sh-conciliacao-cc" onclick="toggleSection('conciliacao-cc')">
+                &#9679; Automação Conciliação Conta Corrente <span class="sh-count" id="count-conciliacao-cc"></span> <span class="sh-chevron">&#9660;</span>
+            </div>
+            {% endif %}
+            {% if key == "LancamentoPrepBmg" %}{% set ns.sec = "lancamento-prep" %}
+            <div class="section-header" id="sh-lancamento-prep" onclick="toggleSection('lancamento-prep')">
+                &#9679; Automação Lançamento de Prepostos <span class="sh-count" id="count-lancamento-prep"></span> <span class="sh-chevron">&#9660;</span>
+            </div>
+            {% endif %}
+            <div class="proc-card {% if val %}active{% endif %}" data-section="{{ ns.sec }}">
 
                 <p class="card-title">{{ labels[key] if key in labels else key }}</p>
 
@@ -929,6 +1001,13 @@
                 {% if key == "DaycovaIConciliacaoContaCorrente" %}
                     <hr class="cpj-divider">
                     <button class="config-toggle" type="button" onclick="openModal('modal-daycoval-cc')">
+                        &#9881; Configurações
+                    </button>
+                {% endif %}
+
+                {% if key == "ClaroConciliacaoContaCorrente" %}
+                    <hr class="cpj-divider">
+                    <button class="config-toggle" type="button" onclick="openModal('modal-claro-cc')">
                         &#9881; Configurações
                     </button>
                 {% endif %}
@@ -1220,7 +1299,8 @@
                 {% endfor %}
             </div>
             {% endif %}
-            <form method="post" action="{{ url_for('ativacao.salvar_omni_cc_config') }}" style="display:flex;flex-direction:column;gap:12px;">
+            <form method="post" action="{{ url_for('ativacao.salvar_omni_cc_config') }}" style="display:flex;flex-direction:column;gap:12px;"
+                  onsubmit="salvarDatasAjax(event, 'badge-omni-cc')">
                 <div>
                     <label class="field-label">Data Inicial <span style="font-weight:400;color:#a0aec0;">(padrão: hoje − 7 dias)</span></label>
                     <input type="date" name="data_inicial" class="field-input"
@@ -1232,6 +1312,7 @@
                            value="{{ omni_cc_config.data_final }}">
                 </div>
                 <button type="submit" class="btn-save">Salvar datas</button>
+                <div class="datas-badge" id="badge-omni-cc">&#10003; Datas salvas com sucesso!</div>
             </form>
             <hr class="cpj-divider">
             <form method="post" action="{{ url_for('ativacao.omni_cc_executar_agora') }}">
@@ -1277,7 +1358,8 @@
                 {% endfor %}
             </div>
             {% endif %}
-            <form method="post" action="{{ url_for('ativacao.salvar_bradesco_cc_config') }}" style="display:flex;flex-direction:column;gap:12px;">
+            <form method="post" action="{{ url_for('ativacao.salvar_bradesco_cc_config') }}" style="display:flex;flex-direction:column;gap:12px;"
+                  onsubmit="salvarDatasAjax(event, 'badge-bradesco-cc')">
                 <div>
                     <label class="field-label">Data Inicial <span style="font-weight:400;color:#a0aec0;">(padrão: hoje − 7 dias)</span></label>
                     <input type="date" name="data_inicial" class="field-input"
@@ -1289,6 +1371,7 @@
                            value="{{ bradesco_cc_config.data_final }}">
                 </div>
                 <button type="submit" class="btn-save">Salvar datas</button>
+                <div class="datas-badge" id="badge-bradesco-cc">&#10003; Datas salvas com sucesso!</div>
             </form>
             <hr class="cpj-divider">
             <form method="post" action="{{ url_for('ativacao.bradesco_cc_executar_agora') }}">
@@ -1334,7 +1417,8 @@
                 {% endfor %}
             </div>
             {% endif %}
-            <form method="post" action="{{ url_for('ativacao.salvar_daycoval_cc_config') }}" style="display:flex;flex-direction:column;gap:12px;">
+            <form method="post" action="{{ url_for('ativacao.salvar_daycoval_cc_config') }}" style="display:flex;flex-direction:column;gap:12px;"
+                  onsubmit="salvarDatasAjax(event, 'badge-daycoval-cc')">
                 <div>
                     <label class="field-label">Data Inicial <span style="font-weight:400;color:#a0aec0;">(padrão: hoje − 7 dias)</span></label>
                     <input type="date" name="data_inicial" class="field-input"
@@ -1346,6 +1430,7 @@
                            value="{{ daycoval_cc_config.data_final }}">
                 </div>
                 <button type="submit" class="btn-save">Salvar datas</button>
+                <div class="datas-badge" id="badge-daycoval-cc">&#10003; Datas salvas com sucesso!</div>
             </form>
             <hr class="cpj-divider">
             <form method="post" action="{{ url_for('ativacao.daycoval_cc_executar_agora') }}">
@@ -1359,6 +1444,65 @@
             <div style="display:flex;flex-direction:column;gap:6px;">
                 {% for nome in daycoval_cc_resultados %}
                 <a href="{{ url_for('ativacao.daycoval_cc_download_resultado', filename=nome) }}"
+                   class="resultado-item" title="Baixar {{ nome }}">
+                    <span>&#128202; {{ nome | replace('.json','') }}</span>
+                    <span class="resultado-dl">&#8595; xlsx</span>
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal Claro Conciliação C/C -->
+    <div class="modal-overlay" id="modal-claro-cc" onclick="closeOnOverlay(event, 'modal-claro-cc')">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-title">&#9881; Claro — Conciliação C/C</span>
+                <button class="modal-close" type="button" onclick="closeModal('modal-claro-cc')">&#10005;</button>
+            </div>
+            <hr class="cpj-divider">
+            {% if claro_cc_config.proxima_execucao_fmt %}
+            <div class="cpj-timer">
+                <span class="timer-icon">&#128337;</span>
+                <span class="timer-text">Próxima execução: <strong>{{ claro_cc_config.proxima_execucao_fmt }}</strong></span>
+            </div>
+            {% endif %}
+            {% if claro_cc_config.dias_execucao_nomes %}
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                <span style="font-size:0.72rem;color:#718096;font-weight:600;">Roda em:</span>
+                {% for dia in claro_cc_config.dias_execucao_nomes %}
+                <span style="background:#ebf8ff;border:1px solid #bee3f8;border-radius:6px;padding:2px 8px;font-size:0.72rem;font-weight:700;color:#2b6cb0;">{{ dia }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <form method="post" action="{{ url_for('ativacao.salvar_claro_cc_config') }}" style="display:flex;flex-direction:column;gap:12px;"
+                  onsubmit="salvarDatasAjax(event, 'badge-claro-cc')">
+                <div>
+                    <label class="field-label">Data Inicial <span style="font-weight:400;color:#a0aec0;">(padrão: hoje − 7 dias)</span></label>
+                    <input type="date" name="data_inicial" class="field-input"
+                           value="{{ claro_cc_config.data_inicial }}">
+                </div>
+                <div>
+                    <label class="field-label">Data Final</label>
+                    <input type="date" name="data_final" class="field-input"
+                           value="{{ claro_cc_config.data_final }}">
+                </div>
+                <button type="submit" class="btn-save">Salvar datas</button>
+                <div class="datas-badge" id="badge-claro-cc">&#10003; Datas salvas com sucesso!</div>
+            </form>
+            <hr class="cpj-divider">
+            <form method="post" action="{{ url_for('ativacao.claro_cc_executar_agora') }}">
+                <button type="submit" class="btn-save" style="background:#48bb78;">
+                    &#9654; Executar agora
+                </button>
+            </form>
+            {% if claro_cc_resultados %}
+            <hr class="cpj-divider">
+            <span class="field-label">Resultados gerados</span>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+                {% for nome in claro_cc_resultados %}
+                <a href="{{ url_for('ativacao.claro_cc_download_resultado', filename=nome) }}"
                    class="resultado-item" title="Baixar {{ nome }}">
                     <span>&#128202; {{ nome | replace('.json','') }}</span>
                     <span class="resultado-dl">&#8595; xlsx</span>
@@ -1596,6 +1740,84 @@
         function closeOnOverlay(e, id) {
             if (e.target === e.currentTarget) closeModal(id);
         }
+
+        function salvarDatasAjax(event, badgeId) {
+            event.preventDefault();
+            const form = event.target;
+            const badge = document.getElementById(badgeId);
+            fetch(form.action, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: new FormData(form)
+            }).then(r => {
+                if (r.ok) {
+                    badge.style.display = 'flex';
+                    clearTimeout(badge._t);
+                    badge._t = setTimeout(() => { badge.style.display = 'none'; }, 3000);
+                }
+            }).catch(() => {});
+        }
+
+        function filterCards(query) {
+            const q = query.trim().toLowerCase();
+            const sections = ['reembolsos', 'eventos-faturamento', 'conciliacao-cc', 'lancamento-prep'];
+
+            if (!q) {
+                // Restaura estado original
+                document.querySelectorAll('.proc-card').forEach(c => c.style.display = '');
+                sections.forEach(id => {
+                    const header = document.getElementById('sh-' + id);
+                    if (header) header.style.display = '';
+                    try {
+                        const collapsed = localStorage.getItem('sec-' + id) === '1';
+                        if (collapsed) {
+                            document.querySelectorAll(`.proc-card[data-section="${id}"]`).forEach(c => c.style.display = 'none');
+                            header && header.classList.add('collapsed');
+                        } else {
+                            header && header.classList.remove('collapsed');
+                        }
+                    } catch(e) {}
+                });
+                return;
+            }
+
+            // Com query: mostra tudo e filtra
+            sections.forEach(id => {
+                const header = document.getElementById('sh-' + id);
+                const cards = document.querySelectorAll(`.proc-card[data-section="${id}"]`);
+                let hasMatch = false;
+                cards.forEach(c => {
+                    const title = (c.querySelector('.card-title') || c).textContent.toLowerCase();
+                    const match = title.includes(q);
+                    c.style.display = match ? '' : 'none';
+                    if (match) hasMatch = true;
+                });
+                if (header) {
+                    header.style.display = hasMatch ? '' : 'none';
+                    header.classList.remove('collapsed');
+                }
+            });
+        }
+
+        function toggleSection(id) {
+            const header = document.getElementById('sh-' + id);
+            const cards = document.querySelectorAll(`.proc-card[data-section="${id}"]`);
+            const collapsed = header.classList.toggle('collapsed');
+            cards.forEach(c => c.style.display = collapsed ? 'none' : '');
+            try { localStorage.setItem('sec-' + id, collapsed ? '1' : '0'); } catch(e) {}
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = ['reembolsos', 'eventos-faturamento', 'conciliacao-cc', 'lancamento-prep'];
+            sections.forEach(id => {
+                const count = document.querySelectorAll(`.proc-card[data-section="${id}"]`).length;
+                const el = document.getElementById('count-' + id);
+                if (el) el.textContent = count;
+                try {
+                    if (localStorage.getItem('sec-' + id) === '1') toggleSection(id);
+                } catch(e) {}
+            });
+        });
 
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {

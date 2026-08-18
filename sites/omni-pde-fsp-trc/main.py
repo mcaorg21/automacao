@@ -80,7 +80,7 @@ PAGINA_PROCESSO_URL_PERSONALIZADA = (
             '&p_nome=2614MARCELO&p_emp=2614&p_ide=|ID_SESSAO|&p_cpf=06050694680'
         )
 EVENTOS = ['PDE', 'FSP', 'FTP', 'TRC', 'FPB', 'FTE', 'FBA','FCF']
-#EVENTOS = [ ] , 'FCF'
+#EVENTOS = ['TRC']
 OPTIONS_SELECT = {
 
     "PDE_V1":[
@@ -224,7 +224,7 @@ if os.path.exists(CONFIG_PATH):
     WEB_LOGIN = config.get('web_login', WEB_LOGIN)
     WEB_PASSWORD = config.get('web_password', WEB_PASSWORD)
     T2FA_SECRET = config.get('2fa_secret', None)
-    DATA_INICIAL = config.get('data_inicial', (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d'))
+    DATA_INICIAL = config.get('data_inicial', (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d'))
     #DATA_FIM = config.get('data_final', (datetime.now()).strftime('%Y-%m-%d'))
     DATA_FIM = datetime.now().strftime('%Y-%m-%d')
 
@@ -714,6 +714,7 @@ def main():
         print('='*70)
 
         integracao = True
+        buscar_tarefas = True
 
         if integracao:
             # ====================================================================
@@ -730,108 +731,124 @@ def main():
             
             print('✓ Autenticação na API concluída com sucesso!')
             print(f'✓ Token Bearer configurado e pronto para uso!')
-            
-            # ====================================================================
-            # ETAPA 2: Buscar tarefas/processos por evento e consolidar em JSON
-            # ====================================================================
-            print('\n[ETAPA 2/3] Buscar tarefas/processos')
-            print('-'*70)
 
-            if os.path.exists(TAREFAS_JSON_PATH):
-                os.remove(TAREFAS_JSON_PATH)
-                print(f'✓ Arquivo anterior removido: tarefas.json')
+            if buscar_tarefas:
+                # ====================================================================
+                # ETAPA 2: Buscar tarefas/processos por evento e consolidar em JSON
+                # ====================================================================
+                print('\n[ETAPA 2/3] Buscar tarefas/processos')
+                print('-'*70)
 
-            todas_tarefas = []
-            resumo = {}
-            ids_vistos = set()  # <-- DECLARAÇÃO AQUI (fora do loop)
+                if os.path.exists(TAREFAS_JSON_PATH):
+                    os.remove(TAREFAS_JSON_PATH)
+                    print(f'✓ Arquivo anterior removido: tarefas.json')
 
-            for evento in EVENTOS:
-                print(f'\nBuscando evento: {evento}...')
+                todas_tarefas = []
+                resumo = {}
+                ids_vistos = set()  # <-- DECLARAÇÃO AQUI (fora do loop)
 
-                # if 'PDE' in evento or 'TRC' in evento:
-                tarefas = []
+                for evento in EVENTOS:
+                    print(f'\nBuscando evento: {evento}...')
 
-                _dt_inicio = datetime.strptime(DATA_INICIAL, '%Y-%m-%d')
-                _dt_fim = datetime.strptime(DATA_FIM, '%Y-%m-%d')
-                _dia_atual = _dt_inicio
-                conta_dias = 1
-                while _dia_atual <= _dt_fim:
-                    _dia_seguinte = _dia_atual + timedelta(days=conta_dias)
-                    print(f'  Buscando {evento} data {_dia_atual.strftime("%Y-%m-%d")} → {_dia_seguinte.strftime("%Y-%m-%d")}...')
+                    # if 'PDE' in evento or 'TRC' in evento:
+                    tarefas = []
 
-                    _resultado = api_buscar_processo_tarefa_por_data(
-                        evento=evento,
-                        data_inicial=_dia_atual,
-                        data_fim=_dia_seguinte,
-                        id_tramitacao_situacao=0
-                    )
-                    
-                    _dia_atual = _dia_seguinte
-                    #conta_dias += 1
+                    _dt_inicio = datetime.strptime(DATA_INICIAL, '%Y-%m-%d')
+                    _dt_fim = datetime.strptime(DATA_FIM, '%Y-%m-%d')
 
-                    if _resultado:
-                        novos = []
-                        for item in _resultado:
-                            _id = item.get("id_tramitacao")
-                            if _id not in ids_vistos:
-                                ids_vistos.add(_id)
-                                novos.append(item)
+                    _dia_atual = _dt_inicio
+                    conta_dias = 1
+                    while _dia_atual <= _dt_fim:
+                        _dia_seguinte = _dia_atual + timedelta(days=conta_dias)
+                        print(f'  Buscando {evento} data {_dia_atual.strftime("%Y-%m-%d")} → {_dia_seguinte.strftime("%Y-%m-%d")}...')
+
+                        _resultado = api_buscar_processo_tarefa_por_data(
+                            evento=evento,
+                            data_inicial=_dia_atual,
+                            data_fim=_dia_seguinte,
+                            id_tramitacao_situacao=999
+                        )
                         
-                        tarefas.extend(novos)
+                        _dia_atual = _dia_seguinte
+                        #conta_dias += 1
 
-                    #
+                        if _resultado:
+                            novos = []
+                            for item in _resultado:
+                                _id = item.get("id_tramitacao")
+                                if _id not in ids_vistos:
+                                    ids_vistos.add(_id)
+                                    novos.append(item)
+                            
+                            tarefas.extend(novos)
 
-                if tarefas:
-                    print(f'+ {len(novos)} novas tarefas (filtrado de {len(_resultado)})')
-                    print(f'  ✓ {len(tarefas)} tarefa(s) encontrada(s) para {evento}')
-                    todas_tarefas.extend(tarefas)
-                    resumo[evento] = len(tarefas)
-                else:
-                    print(f'  ⚠ Nenhuma tarefa encontrada para {evento}')
-                    resumo[evento] = 0
-            
-            print(f'\n--- Resumo da busca ---')
-            for evento, qtd in resumo.items():
-                print(f'  {evento}: {qtd} tarefa(s)')
-            print(f'  TOTAL: {len(todas_tarefas)} tarefa(s)')
+                        #
 
-            # Salva todas as tarefas num único JSON
-            payload_json = {
-                'gerado_em': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'data_inicial': DATA_INICIAL,
-                'data_final': DATA_FIM,
-                'eventos': EVENTOS,
-                'resumo': resumo,
-                'total': len(todas_tarefas),
-                'tarefas': todas_tarefas
-            }
+                    if tarefas:
+                        print(f'+ {len(novos)} novas tarefas (filtrado de {len(_resultado)})')
+                        print(f'  ✓ {len(tarefas)} tarefa(s) encontrada(s) para {evento}')
+                        todas_tarefas.extend(tarefas)
+                        resumo[evento] = len(tarefas)
+                    else:
+                        print(f'  ⚠ Nenhuma tarefa encontrada para {evento}')
+                        resumo[evento] = 0
+                
+                print(f'\n--- Resumo da busca ---')
+                for evento, qtd in resumo.items():
+                    print(f'  {evento}: {qtd} tarefa(s)')
+                print(f'  TOTAL: {len(todas_tarefas)} tarefa(s)')
 
-            with open(TAREFAS_JSON_PATH, 'w', encoding='utf-8') as f:
-                json.dump(payload_json, f, ensure_ascii=False, indent=2)
+                # Salva todas as tarefas num único JSON
+                payload_json = {
+                    'gerado_em': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'data_inicial': DATA_INICIAL,
+                    'data_final': DATA_FIM,
+                    'eventos': EVENTOS,
+                    'resumo': resumo,
+                    'total': len(todas_tarefas),
+                    'tarefas': todas_tarefas
+                }
 
-            print(f'\n✓ JSON consolidado salvo em: {TAREFAS_JSON_PATH}')
-            
-            if not todas_tarefas:
-                print('\n⚠ Nenhuma tarefa encontrada para nenhum evento. Encerrando.')
-                return
+                with open(TAREFAS_JSON_PATH, 'w', encoding='utf-8') as f:
+                    json.dump(payload_json, f, ensure_ascii=False, indent=2)
+
+                print(f'\n✓ JSON consolidado salvo em: {TAREFAS_JSON_PATH}')
+                
+                if not todas_tarefas:
+                    print('\n⚠ Nenhuma tarefa encontrada para nenhum evento. Encerrando.')
+                    return
+
+            else:
+
+                todas_tarefas = []
+                if os.path.exists(TAREFAS_JSON_PATH):
+                    with open(TAREFAS_JSON_PATH, 'r', encoding='utf-8') as f:
+                        payload_json = json.load(f)
+                        todas_tarefas = payload_json.get('tarefas', [])
+                    print(f'✓ {len(todas_tarefas)} tarefa(s) carregada(s) de {TAREFAS_JSON_PATH}')
             
             # ====================================================================
             # ETAPA 3: Buscar numero_integracao (pasta) para cada tarefa
             # ====================================================================
             print('\n[ETAPA 3/4] Buscar número de integração (pasta) por processo')
             print('-'*70)
-            
+
             try:
                 sem_integracao = 0
                 for idx, tarefa in enumerate(todas_tarefas, 1):
+
                     id_processo = tarefa.get('id_processo')
+
                     if not id_processo:
                         print(f'  [{idx}/{len(todas_tarefas)}] ⚠ id_processo ausente, pulando...')
                         tarefa['pasta_numero_integracao'] = None
                         sem_integracao += 1
                         continue
 
-                    processos = api_buscar_processo_por_pj(pj=id_processo)
+                    # if int(tarefa.get('id_tramitacao', -1)) == 17817093:
+                    #     pdb.set_trace()  # Debug: Verificar tarefa específica com id_tramitacao=17817093
+
+                    processos = api_buscar_processo_por_pj(pj=id_processo)  
 
                     if processos and isinstance(processos, list) and len(processos) > 0:
                         numero_integracao = processos[0].get('numero_integracao').strip()
@@ -839,7 +856,11 @@ def main():
 
                         if processos[0].get('numero_processo'):
                             
-                            _num_proc = processos[0]['numero_processo']
+                            _num_proc = processos[0]['numero_processo'].replace("'", "")
+
+                            if "11111111111111111" in _num_proc:
+                                continue  # Ignora processos de teste
+
                             _CNJ_PATTERN = re.compile(r'^\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}$')
                             if not _CNJ_PATTERN.match(str(_num_proc).strip()):
                                 print(f'  [!] numero_processo "{_num_proc}" não é um processo CNJ válido — registrando em pastas_sem_contrato.json e pulando tarefa.')
@@ -863,7 +884,7 @@ def main():
                                     sem_integracao += 1
                                     continue
 
-                                if 'TESTE COREJUR' in processos[0].get('autor_nome', '') or processos[0].get('autor_nome', '') == None:
+                                if processos[0].get('autor_nome') is None or 'TESTE COREJUR' in processos[0].get('autor_nome'):
                                     continue
 
                                 if processos[0].get('autor_nome', '') is not None and ('OMNI' in processos[0].get('autor_nome', '') or 'OMNI' in processos[0].get('reu_nome', '')):
@@ -916,6 +937,8 @@ def main():
                         print(f'  [{idx}/{len(todas_tarefas)}] ⚠ Nenhum processo encontrado para id_processo={id_processo}')
 
             except Exception as e:
+                pdb.set_trace() # Debug: Verificar por que a busca de numero_integracao falhou
+                print(f'✗ Erro ao buscar número de integração: {e}')
                 pass
 
             # Atualiza o JSON com os dados enriquecidos
@@ -927,8 +950,11 @@ def main():
             print(f'\n✓ JSON atualizado com pasta_numero_integracao: {TAREFAS_JSON_PATH}')
             print(f'  - Com integração: {len(todas_tarefas) - sem_integracao}')
             print(f'  - Sem integração: {sem_integracao}')
-        
-          # Debug: Verificar tarefas antes de iniciar automação web
+
+
+        #pdb.set_trace()  # Debug: Verificar o conteúdo do JSON atualizado antes de iniciar a automação web  
+
+        # Debug: Verificar tarefas antes de iniciar automação web
         # ====================================================================
         # ETAPA 4: Automação Web
         # ====================================================================
@@ -1017,11 +1043,13 @@ def main():
         print(f'✓ erros_registro_despesa.json carregado: {len(_erros_lista)} registro(s), {len(_erros_pastas)} pasta(s) com erro')
 
         for idx, tarefa in enumerate(tarefas_validas, 1):
-            
+
             atualizar_tarefa_concluido_cpj = True
 
-            # if '3481902' in str(tarefa.get('pasta_numero_integracao')) or '3481123' in str(tarefa.get('pasta_numero_integracao')):
-            #     pdb.set_trace()  # Debug: Verificar detalhes das tarefas com pasta_numero_integracao contendo '3481902' ou '3481123', analisar se há algo específico nesses casos que justifique um tratamento diferenciado ou se é necessário ajustar a lógica de processamento para esses casos
+            # array_tarefas = ["3564222", "3579289", "3572704", "3571649", "3572691", "3558294", "3571007", "3567905", "3538974", "3561592", "3561636", "3551712", "3579990", "3572878", "3579206"]
+
+            # if str(tarefa.get('pasta_numero_integracao')) in array_tarefas:
+            #     pdb.set_trace()  # Debug: Verificar detalhes das tarefas com pasta_numero_integracao contendo valores específicos, analisar se há algo específico nesses casos que justifique um tratamento diferenciado ou se é necessário ajustar a lógica de processamento para esses casos
 
             if str(tarefa.get('pasta_numero_integracao')) in _erros_pastas:
                 print(f'  [{idx}/{len(tarefas_validas)}] pasta={tarefa.get("pasta_numero_integracao")} já consta em erros_registro_despesa.json, pulando...')
@@ -1034,12 +1062,19 @@ def main():
                 "ZURICH",
                 "VIP",
                 "RDC",
-                "TRAVESSIA"
+                "TRAVESSIA",
+                "TRIGG"
             ]
              # Debug: Verificar nome do réu para filtro de empresas
             reu_nome = tarefa.get('reu_nome', '')
             pasta = tarefa['pasta_numero_integracao']
 
+            # if '3592423' not in pasta:
+            #     print('nao é a pasta de teste')
+            #     continue
+
+            # pdb.set_trace()  # Debug: Verificar nome do réu para filtro de empresas
+            
             try:
 
                 if not any(empresa in reu_nome for empresa in EMPRESAS_PERMITIDAS) or 'BRAD' in pasta:
@@ -1094,7 +1129,7 @@ def main():
                         #pdb.set_trace()  # Debug: Verificar detalhes do processo com contrato_cliente contendo '863'
 
 
-                    elif 'VARA CÍVEL' in texto_orgao: 
+                    elif 'VARA CÍVEL' in texto_orgao:
                         
                         sigla_produto = 'CIV'
 
@@ -1106,9 +1141,8 @@ def main():
                         else:
 
                             texto_produto = extrair_nome_contrato(driver, numero_contrato)
-
                             
-                            if 'BU LEVES' in texto_produto or 'BU MOTOS' in texto_produto or 'BU PESADOS' in texto_produto:
+                            if 'BU LEVES' in texto_produto or 'BU MOTOS' in texto_produto or 'BU PESADOS' in texto_produto or 'VEÍCULO LEVE' in texto_produto:
                                 print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso civel veiculos.')
                                 tarefa.update({'contrato_cliente': 739})  # Override para contrato 741, que é o correto para casos de juizado sem despesas de pátio
                                 api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
@@ -1128,6 +1162,11 @@ def main():
                                 tarefa.update({'contrato_cliente': 741})  # Override para contrato 741, que é o correto para casos de juizado sem despesas de pátio
                                 api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
 
+                            elif 'BU MICROCREDITO' in texto_produto or 'CP CARTAO TRIGG' in texto_produto:
+                                print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso de juizado varejo PJ.')
+                                tarefa.update({'contrato_cliente': 742})  # Override para contrato 741, que é o correto para casos de juizado sem despesas de pátio
+                                api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
+                            
 
                             else:
                                 
@@ -1135,7 +1174,7 @@ def main():
 
                             driver.get(url)
                            
-                    elif 'JUIZADO ESPECIAL CÍVEL' in texto_orgao:
+                    elif 'JUIZADO ESPECIAL CÍVEL' in texto_orgao or 'JUSTIÇA FEDERAL' in texto_orgao:
 
                         sigla_produto = 'JEC'
 
@@ -1153,12 +1192,12 @@ def main():
                                 tarefa.update({'contrato_cliente': 736})  # Override para contrato 741, que é o correto para casos de juizado sem despesas de pátio
                                 api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
 
-                            elif 'BU CDC LOJA' in texto_produto:
+                            elif 'BU MICROCREDITO' in texto_produto or 'BU CDC LOJA' in texto_produto or 'CP CARTAO TRIGG' in texto_produto:
                                 print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso de juizado CDC lojas.')
                                 tarefa.update({'contrato_cliente': 742})  # Override para contrato 741, que é o correto para casos de juizado sem despesas de pátio
                                 api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
 
-                            elif 'BU LEVES' in texto_produto or 'BU MOTOS' in texto_produto or 'BU PESADOS' in texto_produto:
+                            elif 'BU LEVES' in texto_produto or 'BU MOTOS' in texto_produto or 'BU PESADOS' in texto_produto or 'VEÍCULO LEVE' in texto_produto:
                                 print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso civel veiculos.')
                                 tarefa.update({'contrato_cliente': 738})  # Override para contrato 741, que é o correto para casos de juizado sem despesas de pátio
                                 api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
@@ -1177,8 +1216,9 @@ def main():
                     else:
 
                         #continue
-                        pdb.set_trace()  # Debug: Verificar detalhes do processo com contrato_cliente contendo '863'
-                        print(f'  [!] Processo com contrato_cliente contendo "863" mas sem indicação de despesas de pátio no texto. Verificar manualmente, pode ser caso de erro de OCR ou necessidade de ajuste de contrato_cliente.')     
+                        if 'CEJUSC - CENTRO DE CONCILIAÇÃO DE CONFLITOS' not in texto_orgao:
+                            pdb.set_trace()  # Debug: Verificar detalhes do processo com contrato_cliente contendo '863'
+                            print(f'  [!] Processo com contrato_cliente contendo "863" mas sem indicação de despesas de pátio no texto. Verificar manualmente, pode ser caso de erro de OCR ou necessidade de ajuste de contrato_cliente.')     
 
 
                 td_despesa = WebDriverWait(driver, 10).until(
@@ -1394,6 +1434,13 @@ def main():
                             _dados_tabela = _tabela_valores.get(str(tarefa['contrato_cliente']), {}).get('dados', [])
                             _soma_3_primeiros = sum(list(d.values())[0] for d in _dados_tabela[:3] if d)
 
+                        elif '738' in str(tarefa['contrato_cliente']):
+                        
+                            print(f'⚠ Contrato cliente tipo: {tarefa["contrato_cliente"]}')
+
+                            _dados_tabela = _tabela_valores.get(str(tarefa['contrato_cliente']), {}).get('dados', [])
+                            _soma_3_primeiros = sum(list(d.values())[0] for d in _dados_tabela[:3] if d)
+
                         elif '739' in str(tarefa['contrato_cliente']):
 
                             print(f'⚠ Contrato cliente tipo: {tarefa["contrato_cliente"]}')
@@ -1413,6 +1460,18 @@ def main():
 
                             _dados_tabela = _tabela_valores.get(str(tarefa['contrato_cliente']), {}).get('dados', [])
                             _soma_3_primeiros = sum(list(d.values())[0] for d in _dados_tabela[:3] if d)
+
+                        elif '829' in str(tarefa['contrato_cliente']):
+                            print(f'⚠ Contrato cliente tipo: {tarefa["contrato_cliente"]}')
+
+                            if 'juizado' in normalizar_texto(texto_orgao).lower():
+                                jec_civ = "_JEC"
+                            else:
+                                jec_civ = "_CIV"
+
+                            _dados_tabela = _tabela_valores.get(str(tarefa['contrato_cliente'])+jec_civ, {}).get('dados', [])
+                            _soma_3_primeiros = sum(list(d.values())[0] for d in _dados_tabela[:3] if d)
+
 
                         else:
                             pdb.set_trace()  # Debug: Verificar contrato_cliente para eventos de fechamento de ciclo financeiro, analisar se há casos não tratados e se a lógica de soma dos 3 primeiros valores da tabela está correta para esses casos específicos

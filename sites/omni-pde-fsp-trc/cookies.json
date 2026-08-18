@@ -1,13 +1,12 @@
 [
   {
     "domain": ".omnifacil.com.br",
-    "expiry": 1817383263,
-    "httpOnly": false,
-    "name": "_cls_v",
+    "httpOnly": true,
+    "name": "_cfuvid",
     "path": "/",
     "sameSite": "None",
     "secure": true,
-    "value": "a365c9d0-8b25-4eca-843a-bab6ed80a335"
+    "value": "LR5Z4KuMJicaRp.Bhtet0DpxhJnr7t8_FFeXZ.ncG_Q-1787064147.365382-1.0.1.1-Jp.oJToqvGqXPDd5ixPtsHwbFzhwOQVkAT_EouxWfPY"
   },
   {
     "domain": "www.omnifacil.com.br",
@@ -25,17 +24,27 @@
     "path": "/pls/webdad",
     "sameSite": "None",
     "secure": true,
-    "value": "5578BE3649BD135EE0638E0E7D0A0B7A"
+    "value": "595449ABD294B24CE0638E0E7D0AF1C3"
   },
   {
     "domain": ".omnifacil.com.br",
-    "expiry": 1782825055,
+    "expiry": 1787065946,
     "httpOnly": true,
     "name": "__cf_bm",
     "path": "/",
     "sameSite": "None",
     "secure": true,
-    "value": "r8jhOHpzxNFYQhQT5jlZpb37VPs2eptnUmiyJ22KJOk-1782823255.258673-1.0.1.1-aCBsHR5m.EPuNeofQRusFKXAzjNih_fAbPzM3qE_kwGq2ivmKW8IpmWyNQ1TG.2.xCeYazFct3xyHh3N44s.pSfU84n2wSJ3_iGlsplSkJj3GsNr7f3I3dm4gEaoWZxV"
+    "value": ".bOdDD1dPfqE7.F8IkjCTpFF.io5zKYKlrF7IyLcL5k-1787064147.365382-1.0.1.1-RnlPRFtcOVKwg5Dd790uSC18jcZjI1H_zPmyEsstYLNZslaE1rMnd2jl.qlJzH4IH.hqjOtvY9P94rreV3R8MWKgNo_MzXMXmNVJ5vNznLuU9NQ.7jK0PR_FNb5V.nZh"
+  },
+  {
+    "domain": ".omnifacil.com.br",
+    "expiry": 1821624155,
+    "httpOnly": false,
+    "name": "_cls_v",
+    "path": "/",
+    "sameSite": "None",
+    "secure": true,
+    "value": "48916be5-8dff-4d8a-a2df-22ebd9cc8d8f"
   },
   {
     "domain": ".omnifacil.com.br",
@@ -44,15 +53,6 @@
     "path": "/",
     "sameSite": "None",
     "secure": true,
-    "value": "942a64ca-d6d9-4d51-a0f3-a1ec6e51ab81:0"
-  },
-  {
-    "domain": ".omnifacil.com.br",
-    "httpOnly": true,
-    "name": "_cfuvid",
-    "path": "/",
-    "sameSite": "None",
-    "secure": true,
-    "value": "XcyxTRgyzXqOxvp1I7YhqJfIsE1BxGMfaDIcJkkXkN8-1782823255.258673-1.0.1.1-Cn520D4EVtAyTjDMb.wdvvcdPBpFe4q0e1bhM7QHOUg"
+    "value": "491f7e86-ca58-423e-8d2e-b0e3498af9d7:0"
   }
 ]

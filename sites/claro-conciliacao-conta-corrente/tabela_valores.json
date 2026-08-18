@@ -1,0 +1,26 @@
+{
+  "938": {
+    "tipo": "CIV",
+    "observacao": "Produto Claro CIV",
+    "dados": [
+        { "ENTRADA_PROCESSO": 290 },
+        { "ENCERRAMENTO_PROCESSO": 230 },
+        { "ACORDO": 200 },
+        { "IMPROCEDENCIA": 380 },
+        { "EXTINCAO": 260 },
+        { "MIGRACOES": 145 }
+    ]
+  },
+  "939": {
+    "tipo": "JEC",
+    "observacao": "Produto Claro JEC",
+    "dados": [
+        { "ENTRADA_PROCESSO": 230 },
+        { "ENCERRAMENTO_PROCESSO": 200 },
+        { "ACORDO": 200 },
+        { "IMPROCEDENCIA": 320 },
+        { "EXTINCAO": 230 },
+        { "MIGRACOES": 115 }
+    ]
+  }
+}

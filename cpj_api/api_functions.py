@@ -358,6 +358,8 @@ def api_buscar_lancamentos(data_inicial: datetime = None, data_final: datetime =
         if documento_spf:
             body["filter"]["_and"].append({"documento": {"_like": "SPF"}})
 
+        #pdb.set_trace()  # Debug: Verificar o corpo da requisição antes de enviar
+
         # Faz a requisição POST
         response = api_post('/api/v2/cclan/listar', data=body)
 
@@ -372,6 +374,7 @@ def api_buscar_lancamentos(data_inicial: datetime = None, data_final: datetime =
             except Exception as e:
                 print(f'⚠ Erro ao carregar bloqueados_id_spf.json: {e}')
 
+        #pdb.set_trace()  # Debug: Verificar a resposta da API antes de processar
         if response:
             # Verifica se a resposta tem dados
             if isinstance(response, list):
@@ -469,8 +472,14 @@ def api_buscar_lancamentos(data_inicial: datetime = None, data_final: datetime =
                             registrar_removido(civ, nota_normalizada, CONFIG_JSON_PATH)
                             removidos += 1
 
-                    elif numero_cc in "36, 1394, 1373, 1449, 1479":
+
+                    elif isinstance(numero_cc, list):
                         lancamentos_filtrados.append(lancamento)
+
+                    elif numero_cc in "36, 1394, 1373, 1449, 1479, 1495, 1496":
+                        lancamentos_filtrados.append(lancamento)
+
+                    
 
                 print(f'✓ {len(lancamentos_filtrados)} lançamento(s) encontrado(s)!')
                 if removidos > 0:
@@ -714,6 +723,7 @@ def api_buscar_lancamentos_pan(data_inicial: datetime = None, data_final: dateti
                 lancamentos_filtrados = []
                 removidos = 0
                 lancamentos_nao_classificados = []
+                sem_spf = []
 
                 for lancamento in lancamentos:
                     nota = lancamento.get('nota', '')
@@ -737,7 +747,12 @@ def api_buscar_lancamentos_pan(data_inicial: datetime = None, data_final: dateti
                         
                         lancamento['id_spf'] = sanitizar_documento(lancamento['documento'])
                         detalhes_spf = api_buscar_spf(lancamento['id_spf'], limit=10)
-                        lancamento['pj'] = detalhes_spf.get('pj', '')
+                        try:
+                            lancamento['pj'] = detalhes_spf.get('pj', '')
+                        except Exception as e:
+                            sem_spf.append(lancamento)
+                            continue
+                            
                         tipo_despesa = normalizar_texto(detalhes_spf.get('resumo_solicitacao', '')).strip()
 
                         if 'apelacao' in tipo_despesa or 'apelcao' in tipo_despesa:
@@ -788,6 +803,10 @@ def api_buscar_lancamentos_pan(data_inicial: datetime = None, data_final: dateti
                 if removidos > 0:
                     print(f'  ⚠ {removidos} lançamento(s) removido(s)')
 
+                if sem_spf:
+                    print(f'  ⚠ {len(sem_spf)} lançamento(s) sem detalhes SPF encontrados')
+                    pdb.set_trace()  # Debug: Verificar lançamentos sem detalhes SPF    
+                    
                 # if lancamentos_nao_classificados:
                 #     pdb.set_trace()  # Debug: Verificar lançamentos vazios
                 
@@ -1743,6 +1762,7 @@ def api_buscar_processo_tarefa_por_data(evento: str, data_inicial: datetime = No
         print(f'data_fim: {data_fim_str}')
         print(f'id_tramitacao_situacao: {id_tramitacao_situacao}')
         print(f'Limite: {limit} registro(s)')
+        
 
         body = {
             "filter": {
@@ -1772,6 +1792,12 @@ def api_buscar_processo_tarefa_por_data(evento: str, data_inicial: datetime = No
             "sort": "data_hora_lan",
             "limit": limit
         }
+
+        if id_tramitacao_situacao == 999:
+            # Remove o filtro de id_tramitacao_situacao
+            body['filter']['_and'] = [f for f in body['filter']['_and'] if 'id_tramitacao_situacao' not in f]
+
+        
 
         endpoint = '/api/v2/processo/tarefa'
         print(f'Endpoint: {endpoint}')

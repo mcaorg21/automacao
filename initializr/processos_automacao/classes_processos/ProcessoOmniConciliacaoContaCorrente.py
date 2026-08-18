@@ -42,6 +42,7 @@ class OmniConciliacaoContaCorrente(ProcessWrapper):
                 config = json.load(f)
             if config.get("executar_agora"):
                 config["executar_agora"] = False
+                config["execucao_manual"] = True
                 with open(config_path, "w", encoding='utf-8') as f:
                     json.dump(config, f, ensure_ascii=False, indent=2)
                 print(f"[{self.proc_name}] Execução forçada manualmente. Ignorando restrições.")
@@ -82,14 +83,13 @@ class OmniConciliacaoContaCorrente(ProcessWrapper):
             print(f"[{self.proc_name}] Erro ao atualizar datas: {e}")
 
     def run(self):
-        if self._consumir_executar_agora():
-            pass  # soberano: ignora proxima_execucao e dias_execucao
-        elif self._proxima_execucao_futura():
-            return
-        elif not self._dia_execucao_permitido():
-            return
-
-        self._atualizar_datas()
+        manual = self._consumir_executar_agora()
+        if not manual:
+            if self._proxima_execucao_futura():
+                return
+            if not self._dia_execucao_permitido():
+                return
+            self._atualizar_datas()
 
         process = self.__config.build_sub_process()
         self.cmd_proc = process

@@ -1,0 +1,14 @@
+{
+  "web_url": "",
+  "web_login": "",
+  "web_password": "",
+  "2fa_secret": "",
+  "data_inicial": "2026-05-10",
+  "data_final": "2026-08-18",
+  "proxima_execucao": "",
+  "dias_execucao": [
+    5
+  ],
+  "executar_agora": true,
+  "execucao_manual": true
+}

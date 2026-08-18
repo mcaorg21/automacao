@@ -113,10 +113,24 @@ def _ultima_sexta_do_mes(data):
 
 def atualizar_datas_execucao():
     """Atualiza data_inicial e data_final no config.json.
+    Execução manual → usa as datas já gravadas no config (reseta execucao_manual).
     Última sexta do mês → cobre o mês inteiro (dia 1 até hoje).
     Demais dias → últimos 8 dias (hoje-8 até hoje).
     """
     global DATA_INICIAL, DATA_FIM
+    try:
+        with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
+            config_data = json.load(f)
+        if config_data.get('execucao_manual'):
+            config_data['execucao_manual'] = False
+            DATA_INICIAL = config_data.get('data_inicial', DATA_INICIAL)
+            DATA_FIM = config_data.get('data_final', DATA_FIM)
+            with open(CONFIG_PATH, 'w', encoding='utf-8') as f:
+                json.dump(config_data, f, ensure_ascii=False, indent=2)
+            print(f'✓ Execução manual — usando datas do config: {DATA_INICIAL} → {DATA_FIM}')
+            return
+    except Exception as e:
+        print(f'⚠ Erro ao verificar execucao_manual: {e}')
     hoje = datetime.now()
     DATA_FIM = hoje.strftime('%Y-%m-%d')
     if hoje.date() == _ultima_sexta_do_mes(hoje).date():
@@ -381,8 +395,12 @@ def main():
                                 print(f'      ✓ tabela_valores.json carregada ({len(_tabela_valores)} entradas)')
                             except Exception as _e:
                                 print(f'      ⚠ Erro ao carregar tabela_valores.json: {_e}')
-   
-                            contrato_cliente = item['dados_processo']['contrato_cliente']
+
+                            try:
+                                contrato_cliente = item['dados_processo']['contrato_cliente']
+                            except KeyError:
+                                print(f'      ⚠ Ficha {ficha} → contrato_cliente não encontrado')
+                                continue
 
                             # Em andamento - 1
                             # Sentença favorável - 2

@@ -308,7 +308,7 @@ def login_web_exyon_bmg(driver):
         print('Preenchendo campo de senha...')
         senha_input = driver.find_element(By.ID, 'txtcd_Pwd')
         senha_input.clear()
-        senha_input.send_keys('pjrmGvH4ezu9t2k5krqK')
+        senha_input.send_keys('DC@123dnv26')
         print('✓ Senha digitada')
         
         # Clica no botão OK
@@ -993,7 +993,8 @@ def anexar_pdfs_formulario(driver,  nao_procurar_pelo_processo = None, tentativa
                                     "processo_alternativo": numero_processo,
                                     "valor" : valor_pleito,
                                     "numero_processo_original": numero_processo,
-                                    "atualiza_historico_padrao": False 
+                                    "atualiza_historico_padrao": False,
+                                    "atualizar_excel": False 
                                 })
                             
                             elif '#3146c7' in html_interno and tentativa > -1:
@@ -1010,7 +1011,9 @@ def anexar_pdfs_formulario(driver,  nao_procurar_pelo_processo = None, tentativa
                                         "processo_alternativo": processo_alternativo,
                                         "valor" : valor_pleito,
                                         "numero_processo_original": numero_processo,
-                                        "atualiza_historico_padrao": False    
+                                        "atualiza_historico_padrao": False,
+                                        "atualizar_excel": False    
+                                        
                                     })
 
                                 else:     
@@ -1019,8 +1022,11 @@ def anexar_pdfs_formulario(driver,  nao_procurar_pelo_processo = None, tentativa
                                         "processo_alternativo": processo_alternativo,
                                         "valor" : valor_pleito,
                                         "numero_processo_original": numero_processo,
-                                        "atualiza_historico_padrao": False    
+                                        "atualiza_historico_padrao": False,
+                                        "atualizar_excel": True
                                     })
+
+                                    #pdb.set_trace()
 
                             elif '#00ff21' in html_interno:
                                 print('  ⚠ Processo com status verde encontrado, mas sem processo alternativo, Processo não Encontrado...')
@@ -1031,7 +1037,22 @@ def anexar_pdfs_formulario(driver,  nao_procurar_pelo_processo = None, tentativa
                                     "processo_alternativo": numero_processo,
                                     "valor" : valor_pleito,
                                     "numero_processo_original": numero_processo,
-                                    "atualiza_historico_padrao": True  
+                                    "atualiza_historico_padrao": True,
+                                    "atualizar_excel": True 
+                                })
+
+                            elif '#5a5a5b' in html_interno:
+
+                                print('  ⚠ Processo com status cinza encontrado, sem causa encontrada...')
+                                print('XXXXXXXXXXXXXXXXXXX TRATAR ERRO CINZA XXXXXXXXXXXXXXXXXXX')
+                                
+                                processos_alternativos.append({
+                                    "numero_integracao": numero_integracao[:-1], 
+                                    "processo_alternativo": numero_processo,
+                                    "valor" : valor_pleito,
+                                    "numero_processo_original": numero_processo,
+                                    "atualiza_historico_padrao": False,
+                                    "atualizar_excel": True
                                 })
 
                             else:
@@ -1125,12 +1146,14 @@ def anexar_pdfs_formulario(driver,  nao_procurar_pelo_processo = None, tentativa
         traceback.print_exc()
         return {"retorno": True, "processos_alternativos": []}
 
-def atualizar_processo_json(numero_integracao, processo_alternativo, valor_pleito, atualiza_historico_padrao = False):
+def atualizar_processo_json(numero_integracao, processo_alternativo, valor_pleito, atualiza_historico_padrao = False, atualizar_excel = False):
     """Atualiza o processo alternativo no JSON de importados.
     
     Args:
         numero_integracao: Número de integração do processo
         processo_alternativo: Novo número do processo alternativo
+        atualiza_historico_padrao: Booleano indicando se o histórico padrão deve ser atualizado (padrão: False)
+        atualizar_excel: Booleano indicando se o Excel deve ser atualizado (padrão: False)
         
     Returns:
         bool: True se atualizado com sucesso, False caso contrário
@@ -1149,7 +1172,7 @@ def atualizar_processo_json(numero_integracao, processo_alternativo, valor_pleit
         # Procura e atualiza o registro
         atualizado = False
         for registro in data_json['registros']:
-            if registro.get('pro_numero_de_integracao') == numero_integracao and registro.get('debito_na_moeda', '') == valor_pleito:
+            if (registro.get('pro_numero_de_integracao') in numero_integracao or numero_integracao in registro.get('pro_numero_de_integracao')) and registro.get('debito_na_moeda', '') == valor_pleito:
                 registro['pro_numero_do_processo'] = processo_alternativo
                 atualizado = True
                 print(f'  ✓ Processo atualizado: {processo_alternativo}')
@@ -1157,6 +1180,11 @@ def atualizar_processo_json(numero_integracao, processo_alternativo, valor_pleit
 
                 if atualiza_historico_padrao:
                     registro['historico'] = "CUSTAS DIVERSAS E TAXAS JUDICIAIS / TRIBUNAL DE JU"
+
+                if atualizar_excel:
+                    registro['pro_numero_de_integracao'] = numero_integracao
+                    atualizado = True
+                    print(f'  ✓ Numero integracao atualizado: {numero_integracao}')
 
         if atualizado:
             # Salva o JSON atualizado
@@ -1553,6 +1581,23 @@ def main():
 
             while processar_pdf['retorno'] == False:
 
+                for processo_alt in processar_pdf['processos_alternativos']:
+
+                    if processo_alt['atualizar_excel'] == True:
+                        atualizar_processo_json(
+                            processo_alt['numero_integracao'],
+                            processo_alt['processo_alternativo'],
+                            processo_alt['valor'],
+                            processo_alt['atualiza_historico_padrao'],
+                            True
+                        )
+
+                        ## Etapa 4: Preencher planilha modelo
+                        fill_planilha_modelo_v4()
+                
+                        ## Etapa 5: Preencher o descritivo e gerar
+                        fill_descritivo_pdf()
+
                 # Atualiza o JSON com todos os processos alternativos
                 if ultima_formatacao == False:
                     for processo_alt in processar_pdf['processos_alternativos']:
@@ -1638,6 +1683,7 @@ def main():
 
         # Verifica se o valor total está correto
         finalizar_processo(driver, data['valor_somado'])
+
 
         # verifica lançamentos para garantir que foram baixados
         baixado = False

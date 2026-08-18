@@ -123,5 +123,8 @@ INSTANCIAS: Dict[str, ProcessWrapper] = {
     'LancamentoPrepDaycoval': LancamentoPrepDaycoval(),
     'LancamentoPrepIfood': LancamentoPrepIfood(),
 
+    # Claro Conciliação Conta Corrente
+    'ClaroConciliacaoContaCorrente': ClaroConciliacaoContaCorrente(),
+
 }
 
