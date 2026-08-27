@@ -3,11 +3,12 @@
   "web_login": "2614MARCELO",
   "web_password": "",
   "2fa_secret": "",
-  "data_inicial": "2026-08-06",
-  "data_final": "2026-08-14",
-  "proxima_execucao": "2026-08-14T18:08:27",
+  "data_inicial": "2026-07-01",
+  "data_final": "2026-08-24",
+  "proxima_execucao": "2026-08-31T19:29:41",
   "dias_execucao": [
     5
   ],
-  "executar_agora": false
+  "executar_agora": false,
+  "execucao_manual": false
 }

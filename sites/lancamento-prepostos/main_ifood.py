@@ -1007,7 +1007,7 @@ def main() -> None:
             driver_ifood = None
             os.makedirs(DOWNLOADS_PATH, exist_ok=True)
 
-            data_inicial = datetime.strptime("2026-07-31", "%Y-%m-%d")
+            data_inicial = datetime.strptime("2026-07-15", "%Y-%m-%d")
             data_final = datetime.today() - timedelta(days=1)
             data = data_inicial
             caminho_tarefas_json = os.path.join(BASE_PATH, 'tarefas_ifood.json')

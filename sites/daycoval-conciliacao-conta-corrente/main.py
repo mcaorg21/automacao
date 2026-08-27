@@ -43,7 +43,8 @@ from cpj_api import (
     api_buscar_lancamentos,
     api_buscar_lancamentos_filtro,
     api_buscar_spf,
-    sanitizar_documento
+    sanitizar_documento,
+    api_buscar_processo_tarefa_filter
 )
 
 import PATHS
@@ -365,7 +366,9 @@ def main():
                                 print(f'      ✓ tabela_valores.json carregada ({len(_tabela_valores)} entradas)')
                             except Exception as _e:
                                 print(f'      ⚠ Erro ao carregar tabela_valores.json: {_e}')
-   
+
+
+                            pj = item['dados_processo']['pj']   
                             contrato_cliente = item['dados_processo']['contrato_cliente']
 
                             # Em andamento - 1
@@ -382,6 +385,92 @@ def main():
                             if resultado_situacao == 1:
                                 continue
 
+                            # DAYCOVAL
+                            # EVENTO	DESCRICAO
+                            # PDE	CONTESTACAO
+                            # FSP	SENTENCA
+                            # FTP/TRC	TRANSITO
+                            # FPB	BONUS
+                            # FBA	ACORDO
+
+                            eventos = {'PDE': True, 'PDEN': True, 'TRC': True}
+
+                            filter = {
+                                        "_and": [
+                                            {
+                                                "evento": {
+                                                    "_in": list(eventos.keys())
+                                                }
+                                            },
+                                            {
+                                                "id_processo": {
+                                                    "_eq": pj
+                                                }
+                                            }
+                                        ]
+                                    }
+
+                            eventos_registrados = api_buscar_processo_tarefa_filter(filter_data=filter, limit=5000)
+
+                            indice_contrato = -1
+                            while len(eventos_registrados) == 0:
+
+                                try:
+                                    item['dados_processo'] = processos[indice_contrato]
+                                except:
+                                    pdb.set_trace()  # Debug: verificar se há processos suficientes para retroceder
+                                    
+                                _materia_cod = processos[indice_contrato].get('materia')
+                                numero_integracao = item['dados_processo']['numero_integracao']
+                                pj = item['dados_processo']['pj']
+                                resultado_situacao = item['dados_processo']['resultado_situacao'] 
+
+                                filter = {
+                                            "_and": [
+                                                {
+                                                    "evento": {
+                                                        "_in": list(eventos.keys())
+                                                    }
+                                                },
+                                                {
+                                                    "id_processo": {
+                                                        "_eq": pj
+                                                    }
+                                                }
+                                            ]
+                                        }
+
+                                eventos_registrados = api_buscar_processo_tarefa_filter(filter_data=filter, limit=5000)
+                                indice_contrato -= 1
+
+                            contrato_cliente = int(contrato_cliente)
+
+                            eventos = {'PDE': True, 'PDEN': True, 'TRC': True}
+
+                            eventos_disponiveis = {
+                                item['evento']: True
+                                for item in eventos_registrados
+                                if item.get('evento')
+                            }
+
+                            eventos_faltantes = {
+                                evento: True
+                                for evento in eventos_disponiveis
+                                if not (
+                                    eventos.get(evento, False)
+                                    or (
+                                        evento in ('FTP', 'TRC')
+                                        and eventos.get('FTP-TRC', False)
+                                    )
+                                )
+                            }
+
+                            if len(eventos_faltantes) == 0:
+                                print(f'      ✓ Todos os eventos necessários estão presentes para contrato cliente {contrato_cliente}')
+                                continue
+
+                            pdb.set_trace()  # Debug: verificar se há eventos faltantes para o contrato cliente
+
                             numero_integracao = item['dados_processo']['numero_integracao']
 
                             item['valor_tabela_base'] = 0
@@ -389,6 +478,7 @@ def main():
                             item['valor_divergencia'] = ''
                             item['a_fazer'] = f'Verificar numero de contrato cliente incorreto'
                             item['motivo_conciliacao_errada'] = f'Sem conciliarão possível, contrato cliente {contrato_cliente} não tem tabela de valores definida para comparação'
+                            item['eventos_faltantes'] = ",".join(eventos_faltantes.keys())
                             
                             _dados_tabela = _tabela_valores.get(jec_civ, {}).get('dados', [])
                             valor_defesa = _dados_tabela[0]['PDE']

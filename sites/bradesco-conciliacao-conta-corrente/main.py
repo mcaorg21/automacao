@@ -43,7 +43,8 @@ from cpj_api import (
     api_buscar_lancamentos,
     api_buscar_lancamentos_filtro,
     api_buscar_spf,
-    sanitizar_documento
+    sanitizar_documento,
+    api_buscar_processo_tarefa_filter
 )
 
 import PATHS
@@ -57,8 +58,8 @@ API_BASE_URL = 'https://app.leviatan.com.br/dcncadv/cpj/agnes'
 API_LOGIN = 'api'
 API_PASSWORD = '2025'
 
-# Configurações do sistema web OMNI
-WEB_URL = WEB_URL_INICIAL = 'https://www.omnifacil.com.br/'
+# Configurações do sistema web 
+WEB_URL = WEB_URL_INICIAL = ''
 WEB_LOGIN = 'usuario'
 WEB_PASSWORD = 'senha'
 
@@ -68,7 +69,7 @@ DRIVER_PATH = PATHS.driver_path()
 COOKIES_JSON_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cookies.json')
 
 # URL da página de processo a ser visitada após login
-PAGINA_PROCESSO_URL = 'https://www.omnifacil.com.br/pls/webdad/pck_sj_processo_juridico.consulta_acao?p_cod_acao_omni=3572019&p_nome=2614MARCELO&p_emp=2614&p_ide=|ID_SESSAO|&p_cpf=06050694680'
+PAGINA_PROCESSO_URL = ''
 
 # Caminho do arquivo de configuração
 CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json')
@@ -77,11 +78,7 @@ CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.j
 TAREFAS_JSON_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tarefas.json')
 
 # URL personalizada para acessar o processo usando o número de integração (pasta)
-PAGINA_PROCESSO_URL_PERSONALIZADA = (
-    'https://www.omnifacil.com.br/pls/webdad/pck_sj_processo_juridico.consulta_acao'
-    '?p_cod_acao_omni=|PASTA_NUMERO_INTEGRACAO|'
-    '&p_nome=2614MARCELO&p_emp=2614&p_ide=|ID_SESSAO|&p_cpf=06050694680'
-)
+PAGINA_PROCESSO_URL_PERSONALIZADA = ''
 
 # Eventos a processar para conciliação de conta corrente
 EVENTOS = ['CCR']
@@ -179,7 +176,7 @@ set_api_credentials(
 )
 
 print('\n' + '='*70)
-print('OMNI - Conciliação Conta Corrente - Automação')
+print('BRADESCO - Conciliação Conta Corrente - Automação')
 print('='*70)
 
 
@@ -409,11 +406,147 @@ def main():
                             # Acordo pós sentença - 5
                             # Desistência - 6
                             # Extinção sem resolução de mérito - 7
+                            # Extinção com resolução de mérito - 8
 
+                            pj = item['dados_processo']['pj']
                             resultado_situacao = item['dados_processo']['resultado_situacao'] 
 
                             if resultado_situacao == 1:
                                 continue
+
+                            # BRADESCO
+                            # EVENTO	DESCRICAO
+                            # PDE	CONTESTACAO
+                            # FSP	SENTENCA
+                            # FTP/TRC	TRANSITO
+                            # FPB	BONUS
+                            # FBA	ACORDO
+
+                            # Quadro Resumo Bradesco
+
+
+                            #     Etapa   #     Evento   #     Vara Cível  #     Juizado Especial
+                            #     Entrada de Processo  #     CPC   #     300,00      #     200
+                            #     Encerramento do Processo  #     TRC   #     350,00  #     250
+                            #     Acordo   #     FBA    #     450,00   #     350  
+                            #     Improcedência  #     FPB    #     750,00    #     450
+
+                            eventos = {'CPC': True, 'TRC': True, 'FPB': True, 'FBA': True, 'MIGR':True}
+
+                            filter = {
+                                        "_and": [
+                                            {
+                                                "evento": {
+                                                    "_in": list(eventos.keys())
+                                                }
+                                            },
+                                            {
+                                                "id_processo": {
+                                                    "_eq": pj
+                                                }
+                                            }
+                                        ]
+                                    }
+
+                            eventos_registrados = api_buscar_processo_tarefa_filter(filter_data=filter, limit=5000)
+
+                            indice_contrato = -1
+                            sem_eventos = False
+                            while len(eventos_registrados) == 0:
+                                try:
+                                    item['dados_processo'] = processos[indice_contrato]
+                                except:
+                                    if len(processos) == 1:
+                                        sem_eventos = True
+                                        break
+                                    else:
+                                        pdb.set_trace()  # Debug: verificar se há processos suficientes para retroceder
+                                        
+                                _materia_cod = processos[indice_contrato].get('materia')
+                                numero_integracao = item['dados_processo']['numero_integracao']
+                                pj = item['dados_processo']['pj']
+                                resultado_situacao = item['dados_processo']['resultado_situacao'] 
+
+                                filter = {
+                                            "_and": [
+                                                {
+                                                    "evento": {
+                                                        "_in": list(eventos.keys())
+                                                    }
+                                                },
+                                                {
+                                                    "id_processo": {
+                                                        "_eq": pj
+                                                    }
+                                                }
+                                            ]
+                                        }
+
+                                eventos_registrados = api_buscar_processo_tarefa_filter(filter_data=filter, limit=5000)
+                                indice_contrato -= 1
+
+                            contrato_cliente = int(contrato_cliente)
+
+                            migrado = any(item.get('evento') == 'MIGR' for item in eventos_registrados)
+                            
+                            #if migrado:
+                            if resultado_situacao == 2:
+                                print('--> Sentença favorável')
+                                eventos = {'TRC': True, 'FPB': True}
+                            elif resultado_situacao == 3:
+                                print('--> Sentença desfavorável')
+                                eventos = {'TRC': True}
+                            elif resultado_situacao == 4 or resultado_situacao == 5:
+                                print(f'--> Acordo {resultado_situacao}')
+                                eventos = {'TRC': True, 'FBA': True}
+                            elif resultado_situacao == 6 or resultado_situacao == 7 or resultado_situacao == 8:
+                                print(f'--> Desistencia ou extinção {resultado_situacao}')
+                                eventos = {'TRC': True}
+                            else:
+                                pdb.set_trace()  # Debug: verificar se resultado_situacao está retornando corretamente
+
+                            if sem_eventos:
+                                print(f'      ⚠ Ficha {ficha} → nenhum evento registrado para o processo')
+                                item['valor_tabela_base'] = 0
+                                item['conciliacao_errada'] = 'sim'
+                                item['valor_divergencia'] = ''
+                                item['a_fazer'] = f'Verificar eventos faltantes, pois não há eventos registrados para o processo do contrato cliente {contrato_cliente}'
+                                item['motivo_conciliacao_errada'] = f'Sem conciliarão possível, nenhum evento registrado para o processo do contrato cliente {contrato_cliente}'
+                                item['eventos_faltantes'] = f"TODOS para a situação {resultado_situacao}"
+                                lancamentos_analisados.append(item)
+                                print('-'*100)
+                                continue
+
+                            eventos.pop('MIGR', None)
+
+                            if not migrado:
+                                eventos['CPC'] = True
+
+                            eventos_disponiveis = {
+                                item['evento']: True
+                                for item in eventos_registrados
+                                if item.get('evento')
+                            }
+
+                            eventos_disponiveis.pop('MIGR', None)
+
+                            eventos_faltantes = {
+                                evento: True
+                                for evento in eventos_disponiveis
+                                if not (
+                                    eventos.get(evento, False)
+                                    or (
+                                        evento in ('FTP', 'TRC')
+                                        and eventos.get('FTP-TRC', False)
+                                    )
+                                )
+                            }
+
+                            if len(eventos_faltantes) == 0:
+                                print(f'      ✓ Todos os eventos necessários estão presentes para contrato cliente {contrato_cliente}')
+                                continue
+
+                            pdb.set_trace()  # Debug: verificar quais eventos estão faltando e como lidar com isso
 
                             numero_integracao = item['dados_processo']['numero_integracao']
 
@@ -429,6 +562,7 @@ def main():
                             item['valor_divergencia'] = ''
                             item['a_fazer'] = f'Verificar numero de contrato cliente incorreto'
                             item['motivo_conciliacao_errada'] = f'Sem conciliarão possível, contrato cliente {contrato_cliente} não tem tabela de valores definida para comparação'
+                            item['eventos_faltantes'] = ",".join(eventos_faltantes.keys())
 
                             if contrato_cliente == 880:
                                 

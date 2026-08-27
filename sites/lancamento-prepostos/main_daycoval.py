@@ -1262,14 +1262,14 @@ def main() -> None:
         
         if tipo_titulo == False:
 
-            integracao = False
+            integracao = True
             paths_ata_audiencia = []
             tarefas_processamento_atualizadas = []
             driver_daycoval = None
             driver_ifood = None
             os.makedirs(DOWNLOADS_PATH, exist_ok=True)
 
-            data_inicial = datetime.strptime("2026-06-18", "%Y-%m-%d")
+            data_inicial = datetime.strptime("2026-08-01", "%Y-%m-%d")
             data_final = datetime.today() - timedelta(days=1)
             data = data_inicial
             caminho_tarefas_json = os.path.join(BASE_PATH, 'tarefas_daycoval.json')

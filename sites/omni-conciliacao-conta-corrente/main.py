@@ -43,6 +43,7 @@ from cpj_api import (
     api_buscar_lancamentos,
     api_buscar_lancamentos_filtro,
     api_buscar_spf,
+    api_buscar_processo_tarefa_filter,
     sanitizar_documento
 )
 
@@ -641,13 +642,129 @@ def main():
                                 continue
 
                             numero_integracao = item['dados_processo']['numero_integracao']
-                            #pj = item['dados_processo']['pj']
+                            pj = item['dados_processo']['pj']
+
+                            # OMNI
+                            # EVENTO	DESCRICAO
+                            # PDE	CONTESTACAO
+                            # FSP	SENTENCA
+                            # FTP/TRC	TRANSITO
+                            # FPB	BONUS
+                            # FBA	ACORDO
+
+                            eventos = {'PDE': True, 'FSP': True, 'FTP': True, 'TRC': True, 'FPB': True, 'FBA': True}
+
+                            filter = {
+                                        "_and": [
+                                            {
+                                                "evento": {
+                                                    "_in": list(eventos.keys())
+                                                }
+                                            },
+                                            {
+                                                "id_processo": {
+                                                    "_eq": pj
+                                                }
+                                            }
+                                        ]
+                                    }
+
+                            eventos_registrados = api_buscar_processo_tarefa_filter(filter_data=filter, limit=5000)
+
+                            indice_contrato = -1
+                            while len(eventos_registrados) == 0:
+                                try:
+                                    item['dados_processo'] = processos[indice_contrato]
+                                except:
+                                    pdb.set_trace()  # Debug: verificar se há processos suficientes para retroceder
+                                    
+                                _materia_cod = processos[indice_contrato].get('materia')
+                                numero_integracao = item['dados_processo']['numero_integracao']
+                                pj = item['dados_processo']['pj']
+                                resultado_situacao = item['dados_processo']['resultado_situacao'] 
+
+                                filter = {
+                                            "_and": [
+                                                {
+                                                    "evento": {
+                                                        "_in": list(eventos.keys())
+                                                    }
+                                                },
+                                                {
+                                                    "id_processo": {
+                                                        "_eq": pj
+                                                    }
+                                                }
+                                            ]
+                                        }
+
+                                eventos_registrados = api_buscar_processo_tarefa_filter(filter_data=filter, limit=5000)
+                                indice_contrato -= 1
+
+                            contrato_cliente = int(contrato_cliente)
+
+                            match contrato_cliente:
+
+                                # PDE + FSP + FTP + TRC + FPB + FBA
+                                case 736 | 737 | 738 | 739 | 740 | 741:
+                                    eventos = {
+                                        'PDE': True,
+                                        'FSP': True,
+                                        'FTP-TRC': True,
+                                        'FPB': True,
+                                        'FBA': True
+                                    }
+
+                                # PDE + FSP + FTP + TRC + FPB
+                                case 35 | 58 | 59:
+                                    eventos = {
+                                        'PDE': True,
+                                        'FSP': True,
+                                        'FTP-TRC': True,
+                                        'FPB': True
+                                    }
+
+                                # PDE + FSP + FTP + TRC
+                                case 34 | 147 | 742 | 743 | 829:
+                                    eventos = {
+                                        'PDE': True,
+                                        'FSP': True,
+                                        'FTP-TRC': True
+                                    }
+
+                                case _:
+                                    eventos = {}
+
+                            eventos_disponiveis = {
+                                item['evento']: True
+                                for item in eventos_registrados
+                                if item.get('evento')
+                            }
+
+                            eventos_faltantes = {
+                                evento: True
+                                for evento in eventos_disponiveis
+                                if not (
+                                    eventos.get(evento, False)
+                                    or (
+                                        evento in ('FTP', 'TRC')
+                                        and eventos.get('FTP-TRC', False)
+                                    )
+                                )
+                            }
+
+                            if len(eventos_faltantes) == 0:
+                                print(f'      ✓ Todos os eventos necessários estão presentes para contrato cliente {contrato_cliente}')
+                                continue
+
+                            #pdb.set_trace()  # Debug: verificar quais eventos estão faltando e como lidar com isso
 
                             item['valor_tabela_base'] = 0
                             item['conciliacao_errada'] = 'sim'
                             item['valor_divergencia'] = ''
                             item['a_fazer'] = f'Verificar numero de contrato cliente incorreto'
                             item['motivo_conciliacao_errada'] = f'Sem conciliarão possível, contrato cliente {contrato_cliente} não tem tabela de valores definida para comparação'
+                            item['eventos_faltantes'] = ",".join(eventos_faltantes.keys())
 
                             if '35' in str(contrato_cliente):
                                 print(f'⚠ Contrato cliente tipo: {contrato_cliente}')
@@ -894,6 +1011,28 @@ def main():
                                     else:
                                         pdb.set_trace() #debug 736_3, quais campos usar para comparação, etc
 
+                                elif resultado_situacao == 4:   
+                                
+                                    if valor_recebido == _soma_3_primeiros:
+
+                                        item['conciliacao_errada'] = 'nao'
+                                        item['valor_divergencia'] = 0  
+                                        item['a_fazer'] = f'Valor recebido está correto, conforme soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros})' 
+                                        item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) igual à soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros})'
+                                        print(f'      ✓ Conciliação correta: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')       
+                                    
+
+                                    elif valor_recebido < _soma_3_primeiros:
+                                        
+                                        item['conciliacao_errada'] = 'sim'
+                                        item['valor_divergencia'] = _soma_3_primeiros - valor_recebido
+                                        item['a_fazer'] = f'Verificar lançamentos faltantes, pois valor recebido ({valor_recebido}) é menor que soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros}) tabela de valores para contrato cliente {contrato_cliente}'
+                                        item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) menor que soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros})'
+                                        print(f'      ✗ Conciliação errada: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')
+
+                                    else:
+                                        pdb.set_trace() #debug 736_3, quais campos usar para comparação, etc
+
                                 elif resultado_situacao == 7:
 
                                     #if valor_recebido < _soma_3_primeiros:
@@ -1002,6 +1141,14 @@ def main():
                                         item['a_fazer'] = f'Valor recebido está correto, conforme soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros})' 
                                         item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) igual à soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros})'
                                         print(f'      ✓ Conciliação correta: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')       
+
+                                    elif valor_recebido > _soma_3_primeiros:
+
+                                        item['conciliacao_errada'] = 'sim'
+                                        item['valor_divergencia'] = valor_recebido - _soma_3_primeiros
+                                        item['a_fazer'] = f'Verificar lançamentos extras, pois valor recebido ({valor_recebido}) é maior que soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros}) tabela de valores para contrato cliente {contrato_cliente}'
+                                        item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) maior que soma de Contestacao, Sentenca e Transito ({_soma_3_primeiros})'   
+                                        print(f'      ✗ Conciliação errada: {item["motivo_conciliacao_errada"]} → divergencia={item["valor_divergencia"]}')
 
                                     else:
                                         pdb.set_trace() #debug 737_4, quais campos usar para comparação, etc
@@ -1162,7 +1309,7 @@ def main():
                                     else:
                                         pdb.set_trace() #debug 741_2, quais campos usar para comparação, etc
 
-                                elif resultado_situacao == 5:   
+                                elif resultado_situacao == 4:   
                                 
                                     valor_acordo_pre_sentenca = next(
                                             (item['ACORDO_PRE'] for item in _dados_tabela if 'ACORDO_PRE' in item),

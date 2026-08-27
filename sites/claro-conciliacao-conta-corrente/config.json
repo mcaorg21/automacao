@@ -5,7 +5,7 @@
   "2fa_secret": "",
   "data_inicial": "2026-05-10",
   "data_final": "2026-08-18",
-  "proxima_execucao": "",
+  "proxima_execucao": "2026-08-25T18:30:40",
   "dias_execucao": [
     5
   ],

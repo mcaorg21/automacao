@@ -713,7 +713,7 @@ def main():
         print('INICIANDO AUTOMAÇÃO')
         print('='*70)
 
-        integracao = True
+        integracao = False
         buscar_tarefas = True
 
         if integracao:
@@ -1046,10 +1046,10 @@ def main():
 
             atualizar_tarefa_concluido_cpj = True
 
-            # array_tarefas = ["3564222", "3579289", "3572704", "3571649", "3572691", "3558294", "3571007", "3567905", "3538974", "3561592", "3561636", "3551712", "3579990", "3572878", "3579206"]
+            array_tarefas = ["3594591"]
 
-            # if str(tarefa.get('pasta_numero_integracao')) in array_tarefas:
-            #     pdb.set_trace()  # Debug: Verificar detalhes das tarefas com pasta_numero_integracao contendo valores específicos, analisar se há algo específico nesses casos que justifique um tratamento diferenciado ou se é necessário ajustar a lógica de processamento para esses casos
+            if str(tarefa.get('pasta_numero_integracao')) in array_tarefas:
+                pdb.set_trace()  # Debug: Verificar detalhes das tarefas com pasta_numero_integracao contendo valores específicos, analisar se há algo específico nesses casos que justifique um tratamento diferenciado ou se é necessário ajustar a lógica de processamento para esses casos
 
             if str(tarefa.get('pasta_numero_integracao')) in _erros_pastas:
                 print(f'  [{idx}/{len(tarefas_validas)}] pasta={tarefa.get("pasta_numero_integracao")} já consta em erros_registro_despesa.json, pulando...')
@@ -1122,7 +1122,8 @@ def main():
                     except:
                         numero_contrato = ""
 
-                    if 'DESPESAS DE PÁTIO' in texto_orgao or 'DESPESA DE PATIO' in texto_orgao or 'OBRIGAÇÃO DE FAZER' in texto_orgao:
+                    # or 'OBRIGAÇÃO DE FAZER' in texto_orgao retirado, pois estava causando conflito com casos de despesas de pátio
+                    if 'DESPESAS DE PÁTIO' in texto_orgao or 'DESPESA DE PATIO' in texto_orgao:
                         print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso de despesas de pátio.')
                         tarefa.update({'contrato_cliente': 829})  # Override para contrato 829, que é o correto para despesas de pátio
                         api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
@@ -1140,7 +1141,13 @@ def main():
                         
                         else:
 
-                            texto_produto = extrair_nome_contrato(driver, numero_contrato)
+                            try:
+                                texto_produto = extrair_nome_contrato(driver, numero_contrato)
+                            except Exception as e:
+                                print(f'  ✗ Erro ao extrair nome do contrato: {e}')
+                                texto_produto = ""
+                                registrar_despesa_erro(tarefa, f'Erro ao extrair número do contrato: {e}')
+                                continue  # Pula para a próxima tarefa
                             
                             if 'BU LEVES' in texto_produto or 'BU MOTOS' in texto_produto or 'BU PESADOS' in texto_produto or 'VEÍCULO LEVE' in texto_produto:
                                 print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso civel veiculos.')
@@ -1184,8 +1191,13 @@ def main():
                             api_atualizar_processo(tarefa['pj'], {'pj':tarefa['pj'], 'arquivo': tarefa.get('arquivo'), 'ficha': tarefa.get('ficha'), 'incidente': tarefa.get('incidente'), 'contrato_cliente': tarefa['contrato_cliente']}, tarefa['update_cliente_processo'], tarefa['data_hora_processo'])
                         
                         else:
-                        
-                            texto_produto = extrair_nome_contrato(driver, numero_contrato)
+                            try:
+                                texto_produto = extrair_nome_contrato(driver, numero_contrato)
+                            except Exception as e:
+                                print(f'  ✗ Erro ao extrair nome do contrato: {e}')
+                                texto_produto = ""
+                                registrar_despesa_erro(tarefa, f'Erro ao extrair número do contrato: {e}')
+                                continue  # Pula para a próxima tarefa
 
                             if 'ADQUIRIDAS' in texto_produto:
                                 print(f'  ✓ Processo com contrato_cliente contendo "863" confirmado como caso de juizado adquiridas.')

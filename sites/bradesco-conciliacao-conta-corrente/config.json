@@ -3,12 +3,12 @@
   "web_login": "",
   "web_password": "",
   "2fa_secret": "",
-  "data_inicial": "2026-05-06",
-  "data_final": "2026-08-14",
-  "proxima_execucao": "2026-08-21T16:33:26",
+  "data_inicial": "2026-08-19",
+  "data_final": "2026-08-27",
+  "proxima_execucao": "2026-08-28T11:41:28",
   "dias_execucao": [
     5
   ],
-  "executar_agora": true,
-  "execucao_manual": true
+  "executar_agora": false,
+  "execucao_manual": false
 }

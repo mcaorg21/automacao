@@ -431,7 +431,7 @@ def main():
 
                             if valor_recebido < valor_receber:
                                                                             
-                                item['conciliacao_errada'] = 'indefinido'
+                                item['conciliacao_errada'] = 'sim'
                                 item['valor_divergencia'] = valor_recebido - valor_receber
                                 item['a_fazer'] = f'Verificar lançamentos faltantes, pois valor recebido ({valor_recebido}) é menor do que a receber ({valor_receber}),  {texto_migrado} + ENCERRAMENTO_PROCESSO {texto} para tabela de valores para contrato cliente {contrato_cliente}'
                                 item['motivo_conciliacao_errada'] = f'Valor recebido ({valor_recebido}) menor que valor a receber ({valor_receber})'
@@ -470,7 +470,7 @@ def main():
 
         atualizar_proxima_execucao(168)
 
-        api_logout(token)
+        api_logout()
 
     except Exception as e:
         print(f'\n✗ ERRO CRÍTICO na automação: {e}')

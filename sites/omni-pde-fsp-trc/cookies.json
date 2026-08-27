@@ -1,14 +1,5 @@
 [
   {
-    "domain": ".omnifacil.com.br",
-    "httpOnly": true,
-    "name": "_cfuvid",
-    "path": "/",
-    "sameSite": "None",
-    "secure": true,
-    "value": "LR5Z4KuMJicaRp.Bhtet0DpxhJnr7t8_FFeXZ.ncG_Q-1787064147.365382-1.0.1.1-Jp.oJToqvGqXPDd5ixPtsHwbFzhwOQVkAT_EouxWfPY"
-  },
-  {
     "domain": "www.omnifacil.com.br",
     "httpOnly": false,
     "name": "ORIGEM",
@@ -24,27 +15,27 @@
     "path": "/pls/webdad",
     "sameSite": "None",
     "secure": true,
-    "value": "595449ABD294B24CE0638E0E7D0AF1C3"
+    "value": "5A07CC69F8ABAB63E063EF0E7D0A9F43"
   },
   {
     "domain": ".omnifacil.com.br",
-    "expiry": 1787065946,
+    "expiry": 1787837253,
     "httpOnly": true,
     "name": "__cf_bm",
     "path": "/",
     "sameSite": "None",
     "secure": true,
-    "value": ".bOdDD1dPfqE7.F8IkjCTpFF.io5zKYKlrF7IyLcL5k-1787064147.365382-1.0.1.1-RnlPRFtcOVKwg5Dd790uSC18jcZjI1H_zPmyEsstYLNZslaE1rMnd2jl.qlJzH4IH.hqjOtvY9P94rreV3R8MWKgNo_MzXMXmNVJ5vNznLuU9NQ.7jK0PR_FNb5V.nZh"
+    "value": "ZmEsu84dr_Yx7KDTsvs6sA5eaCJxrYH5W.BEYL5HJrA-1787835455.4209743-1.0.1.1-p4rmaTd43SH0KaGJkqj8kP9ulv0u2luoJPSAzrq1RulTKOz7xXB4mBSQVyAIzIJPm3Fi87aAgD.Az43Gv6Yl6CdMcgDuLNjgH83oHA89jd6CSYNQRL_5h5frE.oE_HFi"
   },
   {
     "domain": ".omnifacil.com.br",
-    "expiry": 1821624155,
+    "expiry": 1822395461,
     "httpOnly": false,
     "name": "_cls_v",
     "path": "/",
     "sameSite": "None",
     "secure": true,
-    "value": "48916be5-8dff-4d8a-a2df-22ebd9cc8d8f"
+    "value": "a6c90dce-103a-4423-b49f-53cf3585f1d6"
   },
   {
     "domain": ".omnifacil.com.br",
@@ -53,6 +44,15 @@
     "path": "/",
     "sameSite": "None",
     "secure": true,
-    "value": "491f7e86-ca58-423e-8d2e-b0e3498af9d7:0"
+    "value": "cb4b0374-b35f-4dba-91c5-6e766a367bb4:0"
+  },
+  {
+    "domain": ".omnifacil.com.br",
+    "httpOnly": true,
+    "name": "_cfuvid",
+    "path": "/",
+    "sameSite": "None",
+    "secure": true,
+    "value": "5ltMer7CjtoU1sHyzaT8V2BMDCC_l9d5EXqwJBAfq84-1787835455.4209743-1.0.1.1-hIVss_Eo0S7Tj87MiHiaDPso_cdnmpgLVwDzPQQOir0"
   }
 ]

@@ -400,7 +400,7 @@ def baixar_e_mesclar_documentos(lancamentos: list):
 
         lancamentos_totais.append(lancamento.copy())
 
-    pdb.set_trace()  # Debug: Verificar todos os lançamentos processados antes de salvar o PDF final
+    #pdb.set_trace()  # Debug: Verificar todos os lançamentos processados antes de salvar o PDF final
 
     # 3. Salva o único PDF final
     if total_adicionados > 0:
